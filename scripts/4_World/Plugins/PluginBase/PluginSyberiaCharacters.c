@@ -1,6 +1,6 @@
 class PluginSyberiaCharacters extends PluginBase
 {
-	private string m_rootPath = "$saves:characters";
+	private string m_rootPath = "$profile:CharProfiles";
 	
 	private autoptr map<string, ref CharProfile> m_cachedProfiles; 
 	
@@ -12,10 +12,10 @@ class PluginSyberiaCharacters extends PluginBase
 	
 	void ~PluginSyberiaCharacters()
 	{
-		foreach (ref CharProfile profile : m_cachedProfiles)
+		foreach (string uid, ref CharProfile profile : m_cachedProfiles)
 		{
-			string profilePath = m_rootPath + "\\" + uid + ".json";
-			JsonFileLoader.JsonSaveFile(profilePath, profile);
+			string profilePath = GetProfilePath(uid);
+			JsonFileLoader<ref CharProfile>.JsonSaveFile(profilePath, profile);
 			delete profile;
 		}
 	}
@@ -29,10 +29,10 @@ class PluginSyberiaCharacters extends PluginBase
 			return result;
 		}
 		
-		string profilePath = m_rootPath + "\\" + uid + ".json";		
+		string profilePath = GetProfilePath(uid);		
 		if (FileExist(profilePath))
 		{
-			JsonFileLoader.JsonLoadFile(profilePath, result);
+			JsonFileLoader<ref CharProfile>.JsonLoadFile(profilePath, result);
 		}
 		
 		if (result)
@@ -43,7 +43,7 @@ class PluginSyberiaCharacters extends PluginBase
 		return result;
 	}
 	
-	ref CharProfile Create(ref PlayerIdentity identity)
+	void Create(ref PlayerIdentity identity, ref CharProfile newProfile)
 	{
 		string uid = identity.GetId();
 		if (m_cachedProfiles.Contains(uid))
@@ -51,25 +51,25 @@ class PluginSyberiaCharacters extends PluginBase
 			m_cachedProfiles.Remove(uid);
 		}
 		
-		string profilePath = m_rootPath + "\\" + uid + ".json";
-		ref CharProfile result = new CharProfile();
-		result.m_name = identity.GetName();
-		result.m_souls = GetSyberiaOptions().m_startSoulsCount;
-		
-		m_cachedProfiles.Insert(uid, result);
-		JsonFileLoader.JsonSaveFile(profilePath, result);
-		return result; 
+		string profilePath = GetProfilePath(uid);		
+		m_cachedProfiles.Insert(uid, newProfile);
+		JsonFileLoader<ref CharProfile>.JsonSaveFile(profilePath, newProfile);
 	}
 	
 	void Save(ref PlayerIdentity identity)
 	{
 		ref CharProfile profile;	
 		string uid = identity.GetId();
-		string profilePath = m_rootPath + "\\" + uid + ".json";
+		string profilePath = GetProfilePath(uid);
 		if (m_cachedProfiles.Find(uid, profile))
 		{
-			JsonFileLoader.JsonSaveFile(profilePath, profile);
+			JsonFileLoader<ref CharProfile>.JsonSaveFile(profilePath, profile);
 		}
+	}
+	
+	private string GetProfilePath(string uid)
+	{
+		return m_rootPath + "\\" + uid + ".json";
 	}
 };
 

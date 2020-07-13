@@ -3,6 +3,7 @@ class SyberiaMissionServer : MissionServer
 	override void OnInit()
 	{
 		super.OnInit();
+		GetSyberiaRPC().RegisterHandler(SyberiaRPC.SYBRPC_CREATENEWCHAR_REQUEST, this, "OnCreateNewCharRequest");
 		SybLogSrv("Syberia server mission initialized");
 	}
 	
@@ -113,10 +114,27 @@ class SyberiaMissionServer : MissionServer
 		}
 		else
 		{
-			profile = GetSyberiaCharacters().Create(identity);
-			auto newcharParams = new Param2<string, int>(profile.m_name, GetSyberiaOptions().m_newchar_points);
+			auto newcharParams = new Param2<string, int>(identity.GetName(), GetSyberiaOptions().m_newchar_points);
 			GetSyberiaRPC().SendToClient(SyberiaRPC.SYBRPC_NEWCHAR_SCREEN_OPEN, identity, newcharParams);
 			SybLogSrv("Send SYBRPC_NEWCHAR_SCREEN_OPEN RPC.");
+		}
+	}
+	
+	void OnCreateNewCharRequest(ref ParamsReadContext ctx, ref PlayerIdentity sender)
+	{
+		SybLogSrv("SYBRPC_CREATENEWCHAR_REQUEST Received from " + sender);
+		ref CharProfile profile = GetSyberiaCharacters().Get(sender);
+		if (!profile)
+		{
+			profile = new CharProfile;
+			profile.m_name = sender.GetName();
+			profile.m_souls = GetSyberiaOptions().m_startSoulsCount;
+			GetSyberiaCharacters().Create(sender, profile);
+		}
+		else
+		{
+			SybLogSrv("SYBRPC_CREATENEWCHAR_REQUEST Player kicked because already has profile: " + sender);
+			GetGame().DisconnectPlayer(sender);
 		}
 	}
 };

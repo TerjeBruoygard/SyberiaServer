@@ -5,7 +5,7 @@ modded class PluginManager
 		if (GetGame().IsServer())
 		{
             RegisterPlugin("PluginSyberiaOptions", false, true);
-            RegisterPlugin("PluginSyberiaCharactersDB", false, true);
+            RegisterPlugin("PluginSyberiaCharacters", false, true);
 		}
 
 		super.Init();
