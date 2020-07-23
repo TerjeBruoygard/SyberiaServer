@@ -2,11 +2,17 @@ class SyberiaMissionServer : MissionServer
 {
 	ref array<ref CharacterMetadata> m_maleCharactersPool;
 	ref array<ref CharacterMetadata> m_femaleCharactersPool;
+	ref SkillsContainer m_defaultSkillsContainer;
+	ref array<ref PerkDescription> m_allPerksDesc;
 	
 	void SyberiaMissionServer()
 	{
 		m_maleCharactersPool = new array<ref CharacterMetadata>;
 		m_femaleCharactersPool = new array<ref CharacterMetadata>;
+		m_defaultSkillsContainer = CreateDefaultSkillsContainer();
+		
+		m_allPerksDesc = new array<ref PerkDescription>;
+		GetPerkDescriptions(m_allPerksDesc);
 	}
 	
 	void ~SyberiaMissionServer()
@@ -80,6 +86,7 @@ class SyberiaMissionServer : MissionServer
 			newcharParams.m_score = GetSyberiaOptions().m_newchar_points;
 			newcharParams.m_maleCharsMetadata = m_maleCharactersPool;
 			newcharParams.m_femaleCharsMetadata = m_femaleCharactersPool;
+			newcharParams.m_skillsContainer = m_defaultSkillsContainer;
 
 			GetSyberiaRPC().SendToClient(SyberiaRPC.SYBRPC_NEWCHAR_SCREEN_OPEN, identity, new Param1<ref RpcNewCharContainer>(newcharParams));
 			delete newcharParams;
@@ -237,6 +244,27 @@ class SyberiaMissionServer : MissionServer
 			{
 				profile.m_name = sender.GetName();
 			}
+			
+			int charScore = GetSyberiaOptions().m_newchar_points;
+			foreach (int perkId : clientData.param1.m_perks)
+			{
+				if (perkDesc < 0 || perkDesc >= m_allPerksDesc.Count())
+				{
+					GetGame().DisconnectPlayer(sender);
+					return;
+				}
+				
+				ref PerkDescription perkDesc = m_allPerksDesc.Get(perkId);
+				charScore = charScore - perkDesc.m_cost;
+			}
+			if (charScore < 0) 
+			{
+				GetGame().DisconnectPlayer(sender);
+				return;
+			}
+			
+			profile.m_skills = CreateDefaultSkillsContainer();
+			profile.m_skills.m_perks.Copy(clientData.param1.m_perks);
 			
 			GetSyberiaCharacters().Create(sender, profile);			
 			ForceRespawnPlayer(sender, GetPlayerByIdentity(sender));

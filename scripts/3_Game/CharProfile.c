@@ -5,6 +5,7 @@ class CharProfile
 	string m_classname = "SurvivorM_Mirek";
 	bool m_needToConfigureGear = true;
 	bool m_needToForceRespawn = false;
+	ref SkillsContainer m_skills;
 	
 	void CharProfile(string name, int souls)
 	{
