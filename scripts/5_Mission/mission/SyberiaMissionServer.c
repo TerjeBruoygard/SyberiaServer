@@ -248,7 +248,7 @@ class SyberiaMissionServer : MissionServer
 			int charScore = GetSyberiaOptions().m_newchar_points;
 			foreach (int perkId : clientData.param1.m_perks)
 			{
-				if (perkDesc < 0 || perkDesc >= m_allPerksDesc.Count())
+				if (perkId < 0 || perkId >= m_allPerksDesc.Count())
 				{
 					GetGame().DisconnectPlayer(sender);
 					return;
