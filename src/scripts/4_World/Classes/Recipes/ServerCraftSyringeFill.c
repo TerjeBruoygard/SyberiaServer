@@ -2,6 +2,8 @@ modded class CraftSyringeFill extends RecipeBase
 {
 	override void Do(ItemBase ingredients[], PlayerBase player,array<ItemBase> results, float specialty_weight)//gets called upon recipe's completion
 	{
+		super.Do(ingredients, player, results, specialty_weight);
+		
 		if (results.Count() > 0)
 		{
 			SyringeFull syringeFull = SyringeFull.Cast(results[0]);
