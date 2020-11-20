@@ -1,8 +1,34 @@
 modded class BleedingSourcesManagerServer
 {
+	void SetZVirus(bool value)
+	{
+		if (value)
+		{
+			if (m_Player.m_zombieVirus == 0)
+			{
+				m_Player.m_zombieVirus = 1;
+			}
+		}
+		else
+		{
+			m_Player.m_zombieVirus = 0;
+		}
+		m_Player.SetSynchDirty();
+	}
+		
 	void SetBloodInfection(bool value)
 	{
-		m_Player.m_sepsis = value;
+		if (value)
+		{
+			if (m_Player.m_sepsis == 0)
+			{
+				m_Player.m_sepsis = 1;
+			}
+		}
+		else
+		{
+			m_Player.m_sepsis = 0;
+		}
 		m_Player.SetSynchDirty();
 	}
 	
@@ -73,6 +99,8 @@ modded class BleedingSourcesManagerServer
 	void SetConcussionHit(bool value)
 	{
 		m_Player.m_concussionHit = value;
+		m_Player.m_UnconsciousEndTime = -60;
+		m_Player.SetHealth("","Shock",0);
 		SetPainLevel(1);
 		m_Player.SetSynchDirty();
 	}
@@ -111,6 +139,11 @@ modded class BleedingSourcesManagerServer
 				{
 					SetConcussionHit(true);
 				}
+			}
+			
+			if (Math.RandomFloat01() < ZVIRUS_ZOMBIE_HIT_CHANCE)
+			{
+				SetZVirus(true);
 			}
 		}
 		else if (ammoType == "Melee")

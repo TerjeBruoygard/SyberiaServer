@@ -7,6 +7,7 @@ modded class PlayerBase
 	float m_stomatchhealTimer;
 	bool m_hemologicShock;
 	float m_sepsisTime;
+	float m_zvirusTimer;
 	
 	override void Init()
 	{
@@ -18,6 +19,7 @@ modded class PlayerBase
 		m_stomatchhealTimer = 0;
 		m_hemologicShock = false;
 		m_sepsisTime = 0;
+		m_zvirusTimer = 0;
 	}
 	
 	override void OnStoreSave( ParamsWriteContext ctx )
@@ -45,6 +47,8 @@ modded class PlayerBase
 		ctx.Write( m_hemologicShock );
 		ctx.Write( m_sepsis );
 		ctx.Write( m_sepsisTime );
+		ctx.Write( m_zombieVirus );
+		ctx.Write( m_zvirusTimer );
 	}
 	
 	override bool OnStoreLoad( ParamsReadContext ctx, int version )
@@ -111,6 +115,12 @@ modded class PlayerBase
 		if(!ctx.Read( m_sepsisTime ))
 			return false;
 		
+		if(!ctx.Read( m_zombieVirus ))
+			return false;
+		
+		if(!ctx.Read( m_zvirusTimer ))
+			return false;
+		
 		return true;
 	}
 	
@@ -121,6 +131,7 @@ modded class PlayerBase
 		OnTickAdvMedicine_Regen(deltaTime);
 		OnTickAdvMedicine_Pain(deltaTime);
 		OnTickAdvMedicine_Sepsis(deltaTime);
+		OnTickAdvMedicine_ZVirus(deltaTime);
 		OnTickAdvMedicine_Stomatchheal(deltaTime);
 		OnTickAdvMedicine_Antibiotics(deltaTime);
 		OnTickAdvMedicine_HemorlogicShock(deltaTime);
@@ -267,23 +278,38 @@ modded class PlayerBase
 	
 	protected void OnTickAdvMedicine_Sepsis(float deltaTime)
 	{
-		if (m_sepsis)
+		if (m_sepsis > 0)
 		{
 			m_sepsisTime = m_sepsisTime + deltaTime;
-			
-			/*PlayerStat<float> heatStat = GetStatHeatComfort();
-			float tempValue = heatStat.Get();
-			float tempMax = heatStat.GetMax();// * SEPSIS_TEMPERATURE_MAX;
-			if (tempValue < tempMax)
-			{
-				tempValue = tempValue + (tempMax * deltaTime);
-				tempValue = Math.Clamp(tempValue, heatStat.GetMin(), tempMax);
-				heatStat.Set(tempValue);
-			}*/
-			// TODO: make high temperature symphtom
-			
+						
 			if (m_sepsisTime > SEPSIS_STAGE1_TIME_SEC)
 			{
+				if (m_sepsis == 1)
+				{
+					m_sepsis = 2;
+					SetSynchDirty();
+				}
+				
+				// TODO: make high temperature symphtom
+				/*PlayerStat<float> heatStat = GetStatHeatComfort();
+				float tempValue = heatStat.Get();
+				float tempMax = heatStat.GetMax();// * SEPSIS_TEMPERATURE_MAX;
+				if (tempValue < tempMax)
+				{
+					tempValue = tempValue + (tempMax * deltaTime);
+					tempValue = Math.Clamp(tempValue, heatStat.GetMin(), tempMax);
+					heatStat.Set(tempValue);
+				}*/
+			}
+			
+			if (m_sepsisTime > SEPSIS_STAGE2_TIME_SEC)
+			{
+				if (m_sepsis == 2)
+				{
+					m_sepsis = 3;
+					SetSynchDirty();
+				}
+				
 				float maxHealth = GetMaxHealth("GlobalHealth","Health");
 				DecreaseHealth("GlobalHealth","Health", (maxHealth / SEPSIS_DEATH_TIME_SEC) * deltaTime);
 			}
@@ -291,6 +317,41 @@ modded class PlayerBase
 		else
 		{
 			m_sepsisTime = 0;
+		}
+	}
+	
+	protected void OnTickAdvMedicine_ZVirus(float deltaTime)
+	{
+		if (m_zombieVirus)
+		{
+			m_zvirusTimer = m_zvirusTimer + deltaTime;
+			
+			if (m_zvirusTimer > ZVIRUS_STAGE1_TIME_SEC)
+			{
+				if (m_zombieVirus == 1) 
+				{
+					m_zombieVirus = 2;
+					SetSynchDirty();
+				}
+				
+				AddHealth("GlobalHealth","Blood", ZVIRUS_BLOOD_REGEN_PER_SEC * deltaTime);
+			}
+			
+			if (m_zvirusTimer > ZVIRUS_STAGE2_TIME_SEC)
+			{
+				if (m_zombieVirus == 2)
+				{
+					m_zombieVirus = 3;
+					SetSynchDirty();
+				}
+				
+				float maxHealth = GetMaxHealth("GlobalHealth","Health");
+				DecreaseHealth("GlobalHealth","Health", (maxHealth / ZVIRUS_DEATH_TIME_SEC) * deltaTime);
+			}
+		}
+		else
+		{
+			m_zvirusTimer = 0;
 		}
 	}
 	
