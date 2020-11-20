@@ -6,6 +6,7 @@ modded class PlayerBase
 	float m_cuthitRegenTimer;
 	float m_stomatchhealTimer;
 	bool m_hemologicShock;
+	float m_sepsisTime;
 	
 	override void Init()
 	{
@@ -16,6 +17,7 @@ modded class PlayerBase
 		m_painkillerTime = 0;
 		m_stomatchhealTimer = 0;
 		m_hemologicShock = false;
+		m_sepsisTime = 0;
 	}
 	
 	override void OnStoreSave( ParamsWriteContext ctx )
@@ -41,6 +43,8 @@ modded class PlayerBase
 		ctx.Write( m_stomatchhealEffect );
 		ctx.Write( m_stomatchhealTimer );
 		ctx.Write( m_hemologicShock );
+		ctx.Write( m_sepsis );
+		ctx.Write( m_sepsisTime );
 	}
 	
 	override bool OnStoreLoad( ParamsReadContext ctx, int version )
@@ -101,6 +105,12 @@ modded class PlayerBase
 		if(!ctx.Read( m_hemologicShock ))
 			return false;
 		
+		if(!ctx.Read( m_sepsis ))
+			return false;
+		
+		if(!ctx.Read( m_sepsisTime ))
+			return false;
+		
 		return true;
 	}
 	
@@ -110,6 +120,7 @@ modded class PlayerBase
 		OnTickAdvMedicine_Bloodlose(deltaTime);
 		OnTickAdvMedicine_Regen(deltaTime);
 		OnTickAdvMedicine_Pain(deltaTime);
+		OnTickAdvMedicine_Sepsis(deltaTime);
 		OnTickAdvMedicine_Stomatchheal(deltaTime);
 		OnTickAdvMedicine_Antibiotics(deltaTime);
 		OnTickAdvMedicine_HemorlogicShock(deltaTime);
@@ -251,6 +262,35 @@ modded class PlayerBase
 		{
 			m_painkillerEffect = 0;
 			SetSynchDirty();
+		}
+	}
+	
+	protected void OnTickAdvMedicine_Sepsis(float deltaTime)
+	{
+		if (m_sepsis)
+		{
+			m_sepsisTime = m_sepsisTime + deltaTime;
+			
+			/*PlayerStat<float> heatStat = GetStatHeatComfort();
+			float tempValue = heatStat.Get();
+			float tempMax = heatStat.GetMax();// * SEPSIS_TEMPERATURE_MAX;
+			if (tempValue < tempMax)
+			{
+				tempValue = tempValue + (tempMax * deltaTime);
+				tempValue = Math.Clamp(tempValue, heatStat.GetMin(), tempMax);
+				heatStat.Set(tempValue);
+			}*/
+			// TODO: make high temperature symphtom
+			
+			if (m_sepsisTime > SEPSIS_STAGE1_TIME_SEC)
+			{
+				float maxHealth = GetMaxHealth("GlobalHealth","Health");
+				DecreaseHealth("GlobalHealth","Health", (maxHealth / SEPSIS_DEATH_TIME_SEC) * deltaTime);
+			}
+		}
+		else
+		{
+			m_sepsisTime = 0;
 		}
 	}
 	
