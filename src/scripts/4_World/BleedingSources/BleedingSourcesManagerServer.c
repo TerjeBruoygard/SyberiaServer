@@ -32,6 +32,47 @@ modded class BleedingSourcesManagerServer
 		m_Player.SetSynchDirty();
 	}
 	
+	void ApplyBandage(int level)
+	{		
+		if (m_Player.m_bulletHits > 0)
+		{
+			if (level == 2)
+			{
+				m_Player.m_bulletBandage1 = m_Player.m_bulletBandage1 + 1;
+				m_Player.SetSynchDirty();
+				return;
+			}
+			if (level == 3)
+			{
+				m_Player.m_bulletBandage2 = m_Player.m_bulletBandage2 + 1;
+				m_Player.SetSynchDirty();
+				return;
+			}
+		}
+		
+		if (m_Player.m_knifeHits > 0)
+		{
+			if (level == 2)
+			{
+				m_Player.m_knifeBandage1 = m_Player.m_knifeBandage1 + 1;
+				m_Player.SetSynchDirty();
+				return;
+			}
+			if (level == 3)
+			{
+				m_Player.m_knifeBandage2 = m_Player.m_knifeBandage2 + 1;
+				m_Player.SetSynchDirty();
+				return;
+			}
+		}
+		
+		if (level > 0)
+		{
+			RemoveMostSignificantBleedingSource();
+			return;
+		}
+	}
+	
 	void AddBulletHit()
 	{
 		m_Player.m_bulletHits = m_Player.m_bulletHits + 1;
@@ -39,11 +80,16 @@ modded class BleedingSourcesManagerServer
 		m_Player.SetSynchDirty();
 	}
 	
-	void RemoveBulletHit()
+	void RemoveBulletHit(bool removeBandage)
 	{
 		if (m_Player.m_bulletHits > 0)
 		{
 			m_Player.m_bulletHits = m_Player.m_bulletHits - 1;
+			if (removeBandage)
+			{
+				if (m_Player.m_bulletBandage1 > 0) m_Player.m_bulletBandage1 = m_Player.m_bulletBandage1 - 1;
+				else if (m_Player.m_bulletBandage2 > 0) m_Player.m_bulletBandage2 = m_Player.m_bulletBandage2 - 1;
+			}
 			m_Player.SetSynchDirty();
 		}
 	}
@@ -55,11 +101,16 @@ modded class BleedingSourcesManagerServer
 		m_Player.SetSynchDirty();
 	}
 	
-	void RemoveKnifeHit()
+	void RemoveKnifeHit(bool removeBandage)
 	{
 		if (m_Player.m_knifeHits > 0)
 		{
 			m_Player.m_knifeHits = m_Player.m_knifeHits - 1;
+			if (removeBandage)
+			{
+				if (m_Player.m_knifeBandage1 > 0) m_Player.m_knifeBandage1 = m_Player.m_knifeBandage1 - 1;
+				else if (m_Player.m_knifeBandage2 > 0) m_Player.m_knifeBandage2 = m_Player.m_knifeBandage2 - 1;
+			}
 			m_Player.SetSynchDirty();
 		}
 	}
@@ -120,7 +171,7 @@ modded class BleedingSourcesManagerServer
 	
 	override void ProcessHit(float damage, EntityAI source, int component, string zone, string ammo, vector modelPos)
 	{
-		SybLogSrv("ProcessHit " + m_Player.GetIdentity().GetName() + "; Damage: " + damage + "; Source: " + source.GetType() + "; Component: " + component + "; Zone: " + zone + "; Ammo: " + ammo);
+		//SybLogSrv("ProcessHit " + m_Player.GetIdentity().GetName() + "; Damage: " + damage + "; Source: " + source.GetType() + "; Component: " + component + "; Zone: " + zone + "; Ammo: " + ammo);
 		
 		float bleed_threshold = GetGame().ConfigGetFloat( "CfgAmmo " + ammo + " DamageApplied " + "bleedThreshold" );		
 		string ammoType = GetGame().ConfigGetTextOut( "CfgAmmo " + ammo + " DamageApplied " + "type" );
@@ -163,6 +214,10 @@ modded class BleedingSourcesManagerServer
 				if (ammo.Contains("_Heavy") || Math.RandomFloat01() >= 0.3)
 				{
 					AddKnifeHit();
+					if (zone == "Torso")
+					{
+						AddVisceraHit();
+					}
 				}
 				else
 				{
@@ -221,10 +276,6 @@ modded class BleedingSourcesManagerServer
 		{
 			AttemptAddBleedingSource(component);
 			SetConcussionHit(true);
-		}
-		else
-		{
-			SybLogSrv("ProcessHit unknown ammo type detected: " + ammoType + " (" + ammo + ")");
 		}
 	};
 };
