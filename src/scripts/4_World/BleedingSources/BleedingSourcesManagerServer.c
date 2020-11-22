@@ -150,9 +150,12 @@ modded class BleedingSourcesManagerServer
 	void SetConcussionHit(bool value)
 	{
 		m_Player.m_concussionHit = value;
-		m_Player.m_UnconsciousEndTime = -60;
-		m_Player.SetHealth("","Shock",0);
-		SetPainLevel(1);
+		if (value)
+		{
+			m_Player.m_UnconsciousEndTime = -60;
+			m_Player.SetHealth("","Shock",0);
+			SetPainLevel(1);
+		}
 		m_Player.SetSynchDirty();
 	}
 	
