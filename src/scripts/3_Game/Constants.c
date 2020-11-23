@@ -13,9 +13,9 @@ const float SEPSIS_STAGE1_TIME_SEC = 600; // 10 min
 const float SEPSIS_STAGE2_TIME_SEC = 1200; // 20 min
 const float SEPSIS_DEATH_TIME_SEC = 600; // 10 min
 
-const float ZVIRUS_STAGE1_TIME_SEC = 60;
-const float ZVIRUS_STAGE2_TIME_SEC = 60;
-const float ZVIRUS_DEATH_TIME_SEC = 60;
+const float ZVIRUS_STAGE1_TIME_SEC = 300;
+const float ZVIRUS_STAGE2_TIME_SEC = 900;
+const float ZVIRUS_DEATH_TIME_SEC = 300;
 const float ZVIRUS_BLOOD_REGEN_PER_SEC = 30;
 const float ZVIRUS_ZOMBIE_HIT_CHANCE = 0.2;
 const float ZVIRUS_ANTIDOT_BLOOD_DMG_01 = 0.3;
