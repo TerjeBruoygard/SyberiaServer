@@ -80,6 +80,7 @@ modded class PlayerBase
 		ctx.Write( m_salveEffectTimer );		
 		ctx.Write( m_adrenalinEffect );
 		ctx.Write( m_adrenalinEffectTimer );
+		ctx.Write( m_overdosedValue );
 	}
 	
 	override bool OnStoreLoad( ParamsReadContext ctx, int version )
@@ -126,6 +127,7 @@ modded class PlayerBase
 		if(!ctx.Read( m_salveEffectTimer )) return false;		
 		if(!ctx.Read( m_adrenalinEffect )) return false;
 		if(!ctx.Read( m_adrenalinEffectTimer )) return false;
+		if(!ctx.Read( m_overdosedValue )) return false;
 		
 		return true;
 	}
@@ -146,6 +148,7 @@ modded class PlayerBase
 			OnTickAdvMedicine_Stomatchheal(m_advMedUpdateTimer);
 			OnTickAdvMedicine_Antibiotics(m_advMedUpdateTimer);
 			OnTickAdvMedicine_HemorlogicShock(m_advMedUpdateTimer);
+			OnTickAdvMedicine_Overdose(m_advMedUpdateTimer);
 			OnTickAdvMedicine_HemostatickEffect(m_advMedUpdateTimer);
 			OnTickAdvMedicine_HematopoiesisEffect(m_advMedUpdateTimer);
 			OnTickAdvMedicine_Adrenalin(m_advMedUpdateTimer);
@@ -169,6 +172,16 @@ modded class PlayerBase
 		return result;
 	}
 	
+	private float ProcessOverdosedPostinc(float time, float overdoseInc)
+	{
+		if (time > 3000) return overdoseInc * 5.0;
+		if (time > 1000) return overdoseInc * 3.0;
+		if (time > 500) return overdoseInc * 2.5;
+		if (time > 300) return overdoseInc * 2.0;
+		if (time > 100) return overdoseInc * 1.5;
+		return overdoseInc;
+	}
+	
 	// medPainkillerLevel, medPainkillerTimeSec
 	// medStomatchhealLevel, medStomatchhealTimeSec
 	// medAntibioticLevel, medAntibioticsTimeSec, medAntibioticsStrength
@@ -183,6 +196,8 @@ modded class PlayerBase
 	// medAdrenalinLevel, medAdrenalinTimeSec
 	void ApplyAdvMedicineItem(string classname, float amount)
 	{
+		float overdosedIncrement = GetGame().ConfigGetFloat( "CfgVehicles " + classname + " overdosedIncrement" );
+			
 		int medPainkillerLevel = GetGame().ConfigGetInt( "CfgVehicles " + classname + " medPainkillerLevel" );
 		if (medPainkillerLevel > 0)
 		{
@@ -190,8 +205,8 @@ modded class PlayerBase
 			{
 				float medPainkillerTimeSec = GetGame().ConfigGetFloat( "CfgVehicles " + classname + " medPainkillerTimeSec" );
 				m_painkillerEffect = medPainkillerLevel;
+				overdosedIncrement = ProcessOverdosedPostinc(m_painkillerTime, overdosedIncrement);
 				m_painkillerTime = m_painkillerTime + (medPainkillerTimeSec * amount);
-				SetSynchDirty();
 			}
 		}
 		
@@ -202,8 +217,8 @@ modded class PlayerBase
 			{
 				m_stomatchhealEffect = true;
 				float medStomatchhealTimeSec = GetGame().ConfigGetFloat( "CfgVehicles " + classname + " medStomatchhealTimeSec" );
+				overdosedIncrement = ProcessOverdosedPostinc(m_stomatchhealTimer, overdosedIncrement);
 				m_stomatchhealTimer = m_stomatchhealTimer + (medStomatchhealTimeSec * amount);
-				SetSynchDirty();
 			}
 		}
 		
@@ -228,7 +243,6 @@ modded class PlayerBase
 		if (medHemologicShock > 0)
 		{
 			m_hemologicShock = true;
-			SetSynchDirty();
 		}
 		
 		int medRemoveSepsis = GetGame().ConfigGetInt( "CfgVehicles " + classname + " medRemoveSepsis" );
@@ -274,8 +288,8 @@ modded class PlayerBase
 		{
 			m_bloodHemostaticEffect = true;
 			float medBloodHemostaticTimeSec = GetGame().ConfigGetFloat( "CfgVehicles " + classname + " medBloodHemostaticTimeSec" );
+			overdosedIncrement = ProcessOverdosedPostinc(m_bloodHemostaticTimer, overdosedIncrement);
 			m_bloodHemostaticTimer = m_bloodHemostaticTimer + (medBloodHemostaticTimeSec * amount);
-			SetSynchDirty();
 		}
 		
 		int medBloodHematopoiesis = GetGame().ConfigGetInt( "CfgVehicles " + classname + " medBloodHematopoiesis" );
@@ -283,8 +297,8 @@ modded class PlayerBase
 		{
 			m_hematopoiesisEffect = true;
 			float medBloodHematopoiesisTimeSec = GetGame().ConfigGetFloat( "CfgVehicles " + classname + " medBloodHematopoiesisTimeSec" );
+			overdosedIncrement = ProcessOverdosedPostinc(m_hematopoiesisTimer, overdosedIncrement);
 			m_hematopoiesisTimer = m_hematopoiesisTimer + (medBloodHematopoiesisTimeSec * amount);
-			SetSynchDirty();
 		}
 		
 		int medHematomaHeal = GetGame().ConfigGetInt( "CfgVehicles " + classname + " medHematomaHeal" );
@@ -292,21 +306,24 @@ modded class PlayerBase
 		{
 			m_salveEffect = true;
 			float medHematomaHealTimeSec = GetGame().ConfigGetFloat( "CfgVehicles " + classname + " medHematomaHealTimeSec" );
+			overdosedIncrement = ProcessOverdosedPostinc(m_salveEffectTimer, overdosedIncrement);
 			m_salveEffectTimer = m_salveEffectTimer + (medHematomaHealTimeSec * amount);
-			SetSynchDirty();
 		}
 		
 		int medAdrenalinLevel = GetGame().ConfigGetInt( "CfgVehicles " + classname + " medAdrenalinLevel" );
 		if (medAdrenalinLevel > 0)
 		{
+			overdosedIncrement = ProcessOverdosedPostinc(m_adrenalinEffectTimer, overdosedIncrement);
 			if (m_adrenalinEffect <= medAdrenalinLevel)
 			{
 				m_adrenalinEffect = medAdrenalinLevel;
 				float medAdrenalinTimeSec = GetGame().ConfigGetFloat( "CfgVehicles " + classname + " medAdrenalinTimeSec" );
 				m_adrenalinEffectTimer = m_adrenalinEffectTimer + (medAdrenalinTimeSec * amount);
-				SetSynchDirty();
 			}
 		}
+		
+		m_overdosedValue = m_overdosedValue + overdosedIncrement;		
+		SetSynchDirty();
 	}
 	
 	protected void OnTickAdvMedicine_Bloodlose(float deltaTime)
@@ -465,11 +482,15 @@ modded class PlayerBase
 			SetSynchDirty();
 		}
 		
-		m_painkillerTime = Math.Clamp(m_painkillerTime - deltaTime, 0, PAINKILLER_MAX_DURATION_SEC);
-		if (m_painkillerEffect != 0 && m_painkillerTime < 0.1)
+		if (m_painkillerEffect != 0)
 		{
-			m_painkillerEffect = 0;
-			SetSynchDirty();
+			m_painkillerTime = m_painkillerTime - deltaTime;
+			if (m_painkillerTime < 0)
+			{
+				m_painkillerEffect = 0;
+				m_painkillerTime = 0;
+				SetSynchDirty();
+			}
 		}
 	}
 	
@@ -578,6 +599,30 @@ modded class PlayerBase
 		{
 			SetSynchDirty();
 		}
+	}
+	
+	protected void OnTickAdvMedicine_Overdose(float deltaTime)
+	{
+		if (m_overdosedValue > 2)
+		{
+			float curShock = GetHealth("", "Shock");
+			if (curShock > 50)
+			{
+				if (Math.RandomFloat01() < OVERDOSE_UNCON_CHANGE_PER_SEC * deltaTime)
+				{
+					m_UnconsciousEndTime = -60;
+					SetHealth("","Shock",0);
+				}
+			}
+		}
+		
+		if (m_overdosedValue > 3)
+		{
+			float maxHealth = GetMaxHealth("GlobalHealth","Health");
+			DecreaseHealth("GlobalHealth","Health", (maxHealth / 100) * (m_overdosedValue - 3) * deltaTime);
+		}
+		
+		m_overdosedValue = m_overdosedValue - (OVERDOSE_DECREMENT_PER_SEC * deltaTime);
 	}
 	
 	protected void OnTickAdvMedicine_HemorlogicShock(float deltaTime)
