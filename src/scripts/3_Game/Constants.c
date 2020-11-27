@@ -6,6 +6,9 @@ void SybLogSrv(string message)
 	if (SyberiaServer_DebugMode) Print(SyberiaServer_ModPreffix + message);
 }
 
+// STORAGE VERSIONING
+const int SYBERIA_V100_VERSION = 7834100;
+
 // ADV MED
 const float DIRTY_SYRINGE_BLOOD_INFECTION_CHANCE = 0.2;
 

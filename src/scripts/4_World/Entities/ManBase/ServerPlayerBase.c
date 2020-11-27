@@ -41,46 +41,50 @@ modded class PlayerBase
 	override void OnStoreSave( ParamsWriteContext ctx )
 	{
 		super.OnStoreSave(ctx);
-		// Sleeping
-		ctx.Write( m_sleepingValue );
-		ctx.Write( m_sleepingBoostTimer );
-		ctx.Write( m_sleepingBoostValue );
-		
-		// Adv medicine
-		ctx.Write( m_bulletHits );
-		ctx.Write( m_knifeHits );
-		ctx.Write( m_hematomaHits );
-		ctx.Write( m_visceraHit );
-		ctx.Write( m_concussionHit );
-		ctx.Write( m_painLevel );
-		ctx.Write( m_painTimer );
-		ctx.Write( m_hematomaRegenTimer );
-		ctx.Write( m_cuthitRegenTimer );
-		ctx.Write( m_painkillerEffect );
-		ctx.Write( m_painkillerTime );
-		ctx.Write( m_stomatchhealEffect );
-		ctx.Write( m_stomatchhealTimer );
-		ctx.Write( m_hemologicShock );
-		ctx.Write( m_sepsis );
-		ctx.Write( m_sepsisTime );
-		ctx.Write( m_zombieVirus );
-		ctx.Write( m_zvirusTimer );		
-		ctx.Write( m_bulletBandage1 );
-		ctx.Write( m_bulletBandage2 );
-		ctx.Write( m_knifeBandage1 );
-		ctx.Write( m_knifeBandage2 );
-		ctx.Write( m_bullethitRegenTimer );
-		ctx.Write( m_knifehitRegenTimer );
-		ctx.Write( m_concussionRegenTimer );
-		ctx.Write( m_bloodHemostaticEffect );
-		ctx.Write( m_bloodHemostaticTimer );		
-		ctx.Write( m_hematopoiesisEffect );		
-		ctx.Write( m_hematopoiesisTimer );
-		ctx.Write( m_salveEffect );
-		ctx.Write( m_salveEffectTimer );		
-		ctx.Write( m_adrenalinEffect );
-		ctx.Write( m_adrenalinEffectTimer );
-		ctx.Write( m_overdosedValue );
+        
+        // VER 100
+        ctx.Write( SYBERIA_V100_VERSION );
+
+        // Sleeping
+        ctx.Write( m_sleepingValue );
+        ctx.Write( m_sleepingBoostTimer );
+        ctx.Write( m_sleepingBoostValue );
+        
+        // Adv medicine
+        ctx.Write( m_bulletHits );
+        ctx.Write( m_knifeHits );
+        ctx.Write( m_hematomaHits );
+        ctx.Write( m_visceraHit );
+        ctx.Write( m_concussionHit );
+        ctx.Write( m_painLevel );
+        ctx.Write( m_painTimer );
+        ctx.Write( m_hematomaRegenTimer );
+        ctx.Write( m_cuthitRegenTimer );
+        ctx.Write( m_painkillerEffect );
+        ctx.Write( m_painkillerTime );
+        ctx.Write( m_stomatchhealEffect );
+        ctx.Write( m_stomatchhealTimer );
+        ctx.Write( m_hemologicShock );
+        ctx.Write( m_sepsis );
+        ctx.Write( m_sepsisTime );
+        ctx.Write( m_zombieVirus );
+        ctx.Write( m_zvirusTimer );		
+        ctx.Write( m_bulletBandage1 );
+        ctx.Write( m_bulletBandage2 );
+        ctx.Write( m_knifeBandage1 );
+        ctx.Write( m_knifeBandage2 );
+        ctx.Write( m_bullethitRegenTimer );
+        ctx.Write( m_knifehitRegenTimer );
+        ctx.Write( m_concussionRegenTimer );
+        ctx.Write( m_bloodHemostaticEffect );
+        ctx.Write( m_bloodHemostaticTimer );		
+        ctx.Write( m_hematopoiesisEffect );		
+        ctx.Write( m_hematopoiesisTimer );
+        ctx.Write( m_salveEffect );
+        ctx.Write( m_salveEffectTimer );		
+        ctx.Write( m_adrenalinEffect );
+        ctx.Write( m_adrenalinEffectTimer );
+        ctx.Write( m_overdosedValue );
 	}
 	
 	override bool OnStoreLoad( ParamsReadContext ctx, int version )
@@ -88,6 +92,10 @@ modded class PlayerBase
 		if (!super.OnStoreLoad(ctx, version))
 			return false;
 		
+        // VER 100
+        int syb_ver_100;
+        if(!ctx.Read( syb_ver_100 ) || syb_ver_100 != SYBERIA_V100_VERSION) return false;
+
 		// Sleeping
 		if(!ctx.Read( m_sleepingValue )) return false;		
 		if(!ctx.Read( m_sleepingBoostTimer )) return false;		
@@ -147,7 +155,7 @@ modded class PlayerBase
 			OnTickAdvMedicine_ZVirus(m_advMedUpdateTimer);
 			OnTickAdvMedicine_Stomatchheal(m_advMedUpdateTimer);
 			OnTickAdvMedicine_Antibiotics(m_advMedUpdateTimer);
-			OnTickAdvMedicine_HemorlogicShock(m_advMedUpdateTimer);
+			//OnTickAdvMedicine_HemorlogicShock(m_advMedUpdateTimer);
 			OnTickAdvMedicine_Overdose(m_advMedUpdateTimer);
 			OnTickAdvMedicine_HemostatickEffect(m_advMedUpdateTimer);
 			OnTickAdvMedicine_HematopoiesisEffect(m_advMedUpdateTimer);
@@ -239,11 +247,11 @@ modded class PlayerBase
 			}
 		}
 		
-		int medHemologicShock = GetGame().ConfigGetInt( "CfgVehicles " + classname + " medHemologicShock" );
+		/*int medHemologicShock = GetGame().ConfigGetInt( "CfgVehicles " + classname + " medHemologicShock" );
 		if (medHemologicShock > 0)
 		{
 			m_hemologicShock = true;
-		}
+		}*/
 		
 		int medRemoveSepsis = GetGame().ConfigGetInt( "CfgVehicles " + classname + " medRemoveSepsis" );
 		if (medRemoveSepsis > 0)
@@ -622,10 +630,13 @@ modded class PlayerBase
 			DecreaseHealth("GlobalHealth","Health", (maxHealth / 100) * (m_overdosedValue - 3) * deltaTime);
 		}
 		
-		m_overdosedValue = m_overdosedValue - (OVERDOSE_DECREMENT_PER_SEC * deltaTime);
+        if (m_overdosedValue > 0)
+        {
+            m_overdosedValue = m_overdosedValue - (OVERDOSE_DECREMENT_PER_SEC * deltaTime);
+        }
 	}
 	
-	protected void OnTickAdvMedicine_HemorlogicShock(float deltaTime)
+	/*protected void OnTickAdvMedicine_HemorlogicShock(float deltaTime)
 	{
 		if (m_hemologicShock)
 		{
@@ -636,7 +647,7 @@ modded class PlayerBase
 			DecreaseHealth("GlobalHealth","Health", (maxHealth / HEMOLOGIC_SHOCK_DIETIME_SEC) * deltaTime);
 			SetSynchDirty();
 		}
-	}
+	}*/
 	
 	protected void OnTickAdvMedicine_HemostatickEffect(float deltaTime)
 	{
