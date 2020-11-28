@@ -6,6 +6,8 @@ void SybLogSrv(string message)
 	if (SyberiaServer_DebugMode) Print(SyberiaServer_ModPreffix + message);
 }
 
+const string SYBERIA_DB_NAME = "Syberia";
+
 // STORAGE VERSIONING
 const int SYBERIA_V100_VERSION = 7834100;
 

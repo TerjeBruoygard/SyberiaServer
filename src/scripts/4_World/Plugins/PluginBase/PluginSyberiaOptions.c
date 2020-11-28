@@ -1,9 +1,9 @@
 class PluginSyberiaOptions extends PluginBase
 {
 	int m_startSoulsCount = 3;
-	int m_respawnSoulsPrice = 1;
-	
+	int m_respawnSoulsPrice = 1;	
 	int m_newchar_points = 10;
+	int m_roleplay_mode = 0;
 	
 	ref array<ref SpawnpointInfo> m_spawnpoints;
 	ref array<string> m_defaultGearBody;

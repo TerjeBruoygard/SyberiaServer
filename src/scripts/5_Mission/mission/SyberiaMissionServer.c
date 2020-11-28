@@ -44,6 +44,19 @@ class SyberiaMissionServer : MissionServer
 		SybLogSrv("Syberia server mission initialized");
 	}
 	
+	override void OnClientReadyEvent(PlayerIdentity identity, PlayerBase player)
+	{
+		GetGame().SelectPlayer(identity, player);
+		if (!player.IsGhostBody())
+		{
+			player.m_charProfile = GetSyberiaCharacters().Get(identity);
+			if (!player.m_charProfile)
+			{
+				ForceRespawnPlayer(identity, player);
+			}
+		}
+	}
+	
 	override PlayerBase OnClientNewEvent(PlayerIdentity identity, vector pos, ParamsReadContext ctx)
 	{
 		string classname;
@@ -58,6 +71,7 @@ class SyberiaMissionServer : MissionServer
 			{
 				classname = profile.m_classname;
 				profile.m_needToForceRespawn = false;
+				profile.m_respawnCounter = profile.m_respawnCounter + 1;
 				
 				if (profile.m_startGear)
 				{					
@@ -109,7 +123,7 @@ class SyberiaMissionServer : MissionServer
 				}
 				else
 				{
-					auto respParams = new Param3<string, int, int>(profile.m_name, profile.m_souls, GetSyberiaOptions().m_respawnSoulsPrice);
+					auto respParams = new Param4<string, int, int, int>(profile.m_name, profile.m_souls, GetSyberiaOptions().m_respawnSoulsPrice, GetSyberiaOptions().m_roleplay_mode);
 					GetSyberiaRPC().SendToClient(SyberiaRPC.SYBRPC_RESPAWN_SCREEN_OPEN, identity, respParams);
 					SybLogSrv("Send SYBRPC_RESPAWN_SCREEN_OPEN RPC.");
 					delete respParams;
@@ -321,7 +335,19 @@ class SyberiaMissionServer : MissionServer
 			Param1<ref RpcCreateNewCharContainer> clientData;
        		if ( !ctx.Read( clientData ) ) return;	
 			
-			profile = new CharProfile(clientData.param1.m_name, GetSyberiaOptions().m_startSoulsCount);			
+			profile = new CharProfile();
+			profile.m_name = clientData.param1.m_name;
+			profile.m_souls = GetSyberiaOptions().m_startSoulsCount;
+			
+			if (profile.m_name.LengthUtf8() < 3)
+			{
+				profile.m_name = sender.GetName();
+			}
+			if (profile.m_name.LengthUtf8() > 32)
+			{
+				profile.m_name = profile.m_name.SubstringUtf8(0, 32);
+			}
+						
 			if (clientData.param1.m_isMale)
 			{
 				if (clientData.param1.m_faceId >= 0 && clientData.param1.m_faceId < m_maleCharactersPool.Count())
@@ -450,6 +476,11 @@ class SyberiaMissionServer : MissionServer
 	
 	void OnDeleteCharRequest(ref ParamsReadContext ctx, ref PlayerIdentity sender)
 	{
+		if (GetSyberiaOptions().m_roleplay_mode == 1)
+		{
+			return;
+		}
+		
 		SybLogSrv("SYBRPC_DELETECHAR_REQUEST Received from " + sender);
 		ref CharProfile profile = GetSyberiaCharacters().Get(sender);
 		if (profile)

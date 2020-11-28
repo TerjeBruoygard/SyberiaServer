@@ -1,10 +1,8 @@
 class Database
 {	
-	private RestContext m_restContext;
-	
-	void Database(RestContext restContext)
+	void Database()
 	{
-		m_restContext = restContext;
+
 	}
 	
 	/**
@@ -12,7 +10,8 @@ class Database
 	*/
 	bool QuerySync(string databaseName, string queryText, out DatabaseResponse response)
 	{
-		string responseData = m_restContext.POST_now(databaseName + "/query", queryText);
+		RestContext restContext = GetRestApi().GetRestContext("http:/" + "/localhost:" + m_databaseOptions.databaseServerPort + "/");
+		string responseData = restContext.POST_now(databaseName + "/query", queryText);
 		if (responseData == queryText)
 		{
 			return false;
@@ -29,7 +28,8 @@ class Database
 	*/
 	void QueryAsync(string databaseName, string queryText, Class callbackClass, string callbackFnc)
 	{
-		m_restContext.POST(new DatabaseRestCallback(callbackClass, callbackFnc), databaseName + "/query", queryText);
+		RestContext restContext = GetRestApi().GetRestContext("http:/" + "/localhost:" + m_databaseOptions.databaseServerPort + "/");
+		restContext.POST(new DatabaseRestCallback(callbackClass, callbackFnc), databaseName + "/query", queryText);
 	}
 	
 	/**
@@ -43,7 +43,8 @@ class Database
 			return false;
 		}
 		
-		string responseData = m_restContext.POST_now(databaseName + "/transaction", queryText);
+		RestContext restContext = GetRestApi().GetRestContext("http:/" + "/localhost:" + m_databaseOptions.databaseServerPort + "/");
+		string responseData = restContext.POST_now(databaseName + "/transaction", queryText);
 		if (responseData == queryText)
 		{
 			return false;
@@ -70,7 +71,8 @@ class Database
 			return;
 		}
 		
-		m_restContext.POST(new DatabaseRestCallback(callbackClass, callbackFnc), databaseName + "/transaction", queryText);
+		RestContext restContext = GetRestApi().GetRestContext("http:/" + "/localhost:" + m_databaseOptions.databaseServerPort + "/");
+		restContext.POST(new DatabaseRestCallback(callbackClass, callbackFnc), databaseName + "/transaction", queryText);
 	}
 };
 
@@ -131,7 +133,7 @@ class DatabaseResponse
 		string error;
 		if (!m_databaseResponseDeserializer.ReadFromString(m_data, jsonResponse, error))
 		{
-			Error(error);
+			Error("DB RESPONSE: " + jsonResponse + "; ERROR: " + error);
 		}
 	}
 	
@@ -199,14 +201,12 @@ ref Database GetDatabase()
 			}
 		}
 		
-		RestApi restApi = GetRestApi();
-		if (!restApi)
+		if (!GetRestApi())
 		{
-			restApi = CreateRestApi();
+			CreateRestApi();
 		}
 		
-		RestContext restContext = restApi.GetRestContext("http:/" + "/localhost:" + m_databaseOptions.databaseServerPort + "/");
-		m_database = new ref Database(restContext);
+		m_database = new ref Database();
 		Print("[DATABASE]: Database instance created.");
 	}
 	
