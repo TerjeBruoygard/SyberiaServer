@@ -1,6 +1,6 @@
 class PluginSyberiaCharacters extends PluginBase
 {
-	private autoptr map<string, ref CharProfile> m_cachedProfiles; 
+	private autoptr map<string, ref CharProfile> m_cachedProfiles;
 	
 	void PluginSyberiaCharacters()
 	{
@@ -9,10 +9,7 @@ class PluginSyberiaCharacters extends PluginBase
 		DatabaseResponse response;
 		ref array<string> queries = new array<string>;
 		queries.Insert("CREATE TABLE IF NOT EXISTS characters (uid TEXT PRIMARY KEY, " + CharProfile.ToFieldsDesc() + ");");
-		if (!GetDatabase().TransactionSync(SYBERIA_DB_NAME, queries, response))
-		{
-			Error("FAIELD TO INITIALIZE DATABASE CONNECTION FROM PluginSyberiaCharacters");
-		}	
+		GetDatabase().TransactionSync(SYBERIA_DB_NAME, queries, response);	
 		delete queries;
 	}
 	

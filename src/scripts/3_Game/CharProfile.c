@@ -50,8 +50,8 @@ class CharProfile
 		m_name = response.GetValue(0, 0);
 		m_souls = response.GetValue(0, 1).ToInt();
 		m_classname = response.GetValue(0, 2);
-		m_needToConfigureGear = response.GetValue(0, 3).ToInt();
-		m_needToForceRespawn = response.GetValue(0, 4).ToInt();
+		m_needToConfigureGear = response.GetValue(0, 3) == "True";
+		m_needToForceRespawn = response.GetValue(0, 4) == "True";
 		m_respawnCounter = response.GetValue(0, 5).ToInt();
 	}
 };

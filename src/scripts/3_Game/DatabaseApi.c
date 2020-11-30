@@ -35,24 +35,19 @@ class Database
 	/**
 	\brief Processes transaction (multiple queries) and returns data immediately (thread blocking operation!)
 	*/
-	bool TransactionSync(string databaseName, ref array<string> queries, out DatabaseResponse response)
+	void TransactionSync(string databaseName, ref array<string> queries, out DatabaseResponse response)
 	{
 		string queryText;
 		if (!m_databaseResponseDeserializer.WriteToString(queries, false, queryText))
 		{
-			return false;
+			return;
 		}
 		
 		RestContext restContext = GetRestApi().GetRestContext("http:/" + "/localhost:" + m_databaseOptions.databaseServerPort + "/");
 		string responseData = restContext.POST_now(databaseName + "/transaction", queryText);
-		if (responseData == queryText)
-		{
-			return false;
-		}
-		else
+		if (responseData != queryText)
 		{
 			response = new DatabaseResponse(responseData);
-			return true;
 		}
 	}
 	
