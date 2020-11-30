@@ -24,8 +24,9 @@ class PluginSyberiaOptions extends PluginBase
 		else
 		{
 			m_spawnpoints = new array<ref SpawnpointInfo>;
-			m_spawnpoints.Insert(new SpawnpointInfo("random", "0 0 0", -1));
-			m_spawnpoints.Insert(new SpawnpointInfo("testpoint", "14500 0 1000", 100));
+			ref SpawnpointInfo spawnpoint_test = new SpawnpointInfo("random");
+			spawnpoint_test.m_positions.Insert(new SpawnpointPos("0 0 0", 0));
+			m_spawnpoints.Insert(spawnpoint_test);
 			
 			m_defaultGearBody = { 
 				"Hoodie_Blue",
