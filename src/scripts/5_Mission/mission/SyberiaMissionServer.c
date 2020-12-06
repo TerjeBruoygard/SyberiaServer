@@ -44,9 +44,8 @@ class SyberiaMissionServer : MissionServer
 		SybLogSrv("Syberia server mission initialized");
 	}
 	
-	override void OnClientReadyEvent(PlayerIdentity identity, PlayerBase player)
+	private void OnPlayerStarted(PlayerIdentity identity, PlayerBase player)
 	{
-		GetGame().SelectPlayer(identity, player);
 		if (!player.IsGhostBody())
 		{
 			player.m_charProfile = GetSyberiaCharacters().Get(identity);
@@ -54,7 +53,17 @@ class SyberiaMissionServer : MissionServer
 			{
 				ForceRespawnPlayer(identity, player);
 			}
+			else
+			{
+				PluginLogicPDA.Cast(GetPlugin(PluginLogicPDA)).SendPdaUserState(identity, player.m_charProfile);
+			}
 		}
+	}
+	
+	override void OnClientReadyEvent(PlayerIdentity identity, PlayerBase player)
+	{
+		GetGame().SelectPlayer(identity, player);
+		OnPlayerStarted(identity, player);
 	}
 	
 	override PlayerBase OnClientNewEvent(PlayerIdentity identity, vector pos, ParamsReadContext ctx)
@@ -79,9 +88,9 @@ class SyberiaMissionServer : MissionServer
 					if (allowedEquip.Count() == profile.m_startGear.Count())
 					{
 						int spawnPointId = profile.m_startGear.Get(0);
-						if (spawnPointId >= 0 && spawnPointId < GetSyberiaOptions().m_spawnpoints.Count())
+						if (spawnPointId >= 0 && spawnPointId < GetSyberiaOptions().m_groupDefault.m_spawnpoints.Count())
 						{
-							startPos = GetSyberiaOptions().m_spawnpoints.Get(spawnPointId).CalculateSpawnpoint();
+							startPos = GetSyberiaOptions().m_groupDefault.m_spawnpoints.Get(spawnPointId).CalculateSpawnpoint();
 						}
 						
 						startEquip = new array<string>;
@@ -123,7 +132,7 @@ class SyberiaMissionServer : MissionServer
 				}
 				else
 				{
-					auto respParams = new Param4<string, int, int, int>(profile.m_name, profile.m_souls, GetSyberiaOptions().m_respawnSoulsPrice, GetSyberiaOptions().m_roleplay_mode);
+					auto respParams = new Param4<string, int, int, int>(profile.m_name, profile.m_souls, GetSyberiaOptions().m_main.m_respawnSoulsPrice, GetSyberiaOptions().m_main.m_roleplay_mode);
 					GetSyberiaRPC().SendToClient(SyberiaRPC.SYBRPC_RESPAWN_SCREEN_OPEN, identity, respParams);
 					SybLogSrv("Send SYBRPC_RESPAWN_SCREEN_OPEN RPC.");
 					delete respParams;
@@ -137,7 +146,7 @@ class SyberiaMissionServer : MissionServer
 			
 			ref RpcNewCharContainer newcharParams = new RpcNewCharContainer();
 			newcharParams.m_name = identity.GetName();
-			newcharParams.m_score = GetSyberiaOptions().m_newchar_points;
+			newcharParams.m_score = GetSyberiaOptions().m_main.m_newchar_points;
 			newcharParams.m_maleCharsMetadata = m_maleCharactersPool;
 			newcharParams.m_femaleCharsMetadata = m_femaleCharactersPool;
 			newcharParams.m_skillsContainer = m_defaultSkillsContainer;
@@ -166,6 +175,8 @@ class SyberiaMissionServer : MissionServer
 		}
 		
 		if (startEquip) delete startEquip;
+		
+		OnPlayerStarted(identity, player);
 		
 		return player;
 	}
@@ -238,26 +249,6 @@ class SyberiaMissionServer : MissionServer
 		// DO NOTHING
 	}
 	
-	private ref PlayerBase GetPlayerByIdentity(ref PlayerIdentity identity)
-	{
-		ref PlayerBase result = null;
-		ref array<Man> players = new array<Man>;
-		GetGame().GetPlayers(players);
-
-		foreach (ref Man man : players)
-		{
-			ref PlayerBase player = PlayerBase.Cast(man);
-			if (player && player.GetIdentity().GetPlayerId() == identity.GetPlayerId())
-			{
-				result = player;
-				break;
-			}
-		}
-		
-		delete players;
-		return result;
-	}
-	
 	private void ForceRespawnPlayer(ref PlayerIdentity identity, ref PlayerBase player)
 	{
 		if (player)
@@ -283,7 +274,7 @@ class SyberiaMissionServer : MissionServer
 		
 		// SPAWNPOINTS
 		ref array<string> spawnPoints = new array<string>;
-		foreach (ref SpawnpointInfo sp : GetSyberiaOptions().m_spawnpoints)
+		foreach (ref SpawnpointInfo sp : GetSyberiaOptions().m_groupDefault.m_spawnpoints)
 		{
 			spawnPoints.Insert(sp.m_name);
 		}		
@@ -291,32 +282,32 @@ class SyberiaMissionServer : MissionServer
 		
 		// GEAR BODY
 		ref array<string> bodyGear = new array<string>;
-		bodyGear.Copy(GetSyberiaOptions().m_defaultGearBody);
+		bodyGear.Copy(GetSyberiaOptions().m_groupDefault.m_gearBody);
 		result.Insert(bodyGear);
 		
 		// GEAR PANTS
 		ref array<string> pantsGear = new array<string>;
-		pantsGear.Copy(GetSyberiaOptions().m_defaultGearPants);
+		pantsGear.Copy(GetSyberiaOptions().m_groupDefault.m_gearPants);
 		result.Insert(pantsGear);
 		
 		// GEAR FOOT
 		ref array<string> footGear = new array<string>;
-		footGear.Copy(GetSyberiaOptions().m_defaultGearFoot);
+		footGear.Copy(GetSyberiaOptions().m_groupDefault.m_gearFoot);
 		result.Insert(footGear);
 		
 		// GEAR HEAD
 		ref array<string> headGear = new array<string>;
-		headGear.Copy(GetSyberiaOptions().m_defaultGearHead);
+		headGear.Copy(GetSyberiaOptions().m_groupDefault.m_gearHead);
 		result.Insert(headGear);
 		
 		// GEAR WEAPON
 		ref array<string> weapGear = new array<string>;
-		weapGear.Copy(GetSyberiaOptions().m_defaultGearWeapon);
+		weapGear.Copy(GetSyberiaOptions().m_groupDefault.m_gearWeapon);
 		result.Insert(weapGear);
 		
 		// GEAR ITEMS
 		ref array<string> itemsGear = new array<string>;
-		itemsGear.Copy(GetSyberiaOptions().m_defaultGearItems);
+		itemsGear.Copy(GetSyberiaOptions().m_groupDefault.m_gearItems);
 		result.Insert(itemsGear);
 		
 		// GEAR SPECIAL
@@ -336,8 +327,9 @@ class SyberiaMissionServer : MissionServer
        		if ( !ctx.Read( clientData ) ) return;	
 			
 			profile = new CharProfile();
+			profile.m_uid = sender.GetId();
 			profile.m_name = clientData.param1.m_name;
-			profile.m_souls = GetSyberiaOptions().m_startSoulsCount;
+			profile.m_souls = GetSyberiaOptions().m_main.m_startSoulsCount;
 			
 			if (profile.m_name.LengthUtf8() < 3)
 			{
@@ -381,7 +373,7 @@ class SyberiaMissionServer : MissionServer
 				profile.m_name = sender.GetName();
 			}
 			
-			int charScore = GetSyberiaOptions().m_newchar_points;
+			int charScore = GetSyberiaOptions().m_main.m_newchar_points;
 			foreach (int perkId : clientData.param1.m_perks)
 			{
 				if (perkId < 0 || perkId >= m_allPerksDesc.Count())
@@ -455,7 +447,7 @@ class SyberiaMissionServer : MissionServer
 		ref CharProfile profile = GetSyberiaCharacters().Get(sender);
 		if (profile)
 		{
-			int soulsPrice = GetSyberiaOptions().m_respawnSoulsPrice;
+			int soulsPrice = GetSyberiaOptions().m_main.m_respawnSoulsPrice;
 			if ((profile.m_souls - soulsPrice) < 0)
 			{
 				SybLogSrv("SYBRPC_STARTGAME_REQUEST Player kicked because no souls left to respawn: " + sender);
@@ -477,7 +469,7 @@ class SyberiaMissionServer : MissionServer
 	
 	void OnDeleteCharRequest(ref ParamsReadContext ctx, ref PlayerIdentity sender)
 	{
-		if (GetSyberiaOptions().m_roleplay_mode == 1)
+		if (GetSyberiaOptions().m_main.m_roleplay_mode == 1)
 		{
 			return;
 		}
