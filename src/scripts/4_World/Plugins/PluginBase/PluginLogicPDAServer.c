@@ -2,8 +2,8 @@ modded class PluginLogicPDA
 {	
 	ref PdaGroupsConfig m_groupsConfig;
 	ref PdaServerConfig m_serverConfig;
-	string mainPath = "$profile:GearPDAStalker\\groups.json";
-	string confPath = "$profile:GearPDAStalker\\config.json";
+	string mainPath = "$profile:SyberiaPDA\\groups.json";
+	string confPath = "$profile:SyberiaPDA\\config.json";
 	
 	override void OnInit()
 	{
@@ -178,7 +178,7 @@ modded class PluginLogicPDA
 	override void GetVisualUserId( ref ParamsReadContext ctx, ref PlayerIdentity sender )
     {   
         string userVisualId = sender.GetPlainId();
-        GetSyberiaRPC().SendToClient( SyberiaRPC.SYBRPC_PDA_USER_STATE, sender, new Param2<string, bool>( userVisualId, m_serverConfig.m_enableGlobalChat ) );
+        GetSyberiaRPC().SendToClient( SyberiaRPC.SYBRPC_PDA_USER_STATE, sender, new Param3<string, bool, bool>( userVisualId, m_serverConfig.m_enableGlobalChat, m_serverConfig.m_enableMapPage ) );
 	}
 	
 	override void AddContact( ref ParamsReadContext ctx, ref PlayerIdentity sender )
@@ -355,5 +355,6 @@ class PdaGroupConfig
 
 class PdaServerConfig
 {
-	bool m_enableGlobalChat = false;
+	bool m_enableGlobalChat = true;
+	bool m_enableMapPage = true;
 };
