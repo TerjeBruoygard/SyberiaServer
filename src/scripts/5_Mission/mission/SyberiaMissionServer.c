@@ -71,7 +71,9 @@ class SyberiaMissionServer : MissionServer
 		string classname;
 		bool ghostMode = false;
 		vector startPos = "0 0 0";
-		ref array<string> startEquip = null;
+		ref array<string> startEquipClothes = null;
+		ref array<string> startEquipGuns = null;
+		ref array<string> startEquipItems = null;
 		ref array<ref array<string>> allowedEquip = null;
 		ref CharProfile profile = GetSyberiaCharacters().Get(identity);
 		if (profile)
@@ -87,20 +89,35 @@ class SyberiaMissionServer : MissionServer
 					allowedEquip = GetSyberiaOptions().GetCharacterAllowedEquipment(identity, profile);					
 					if (allowedEquip.Count() == profile.m_startGear.Count())
 					{
-						int spawnPointId = profile.m_startGear.Get(0);
+						int itemIndex = -1;
+						int spawnPointId = profile.m_startGear.Get(SyberiaScreenEquipPages.SYBSEP_SPAWN_PAGE);
 						if (spawnPointId >= 0 && spawnPointId < GetSyberiaOptions().m_groupDefault.m_spawnpoints.Count())
 						{
 							startPos = GetSyberiaOptions().m_groupDefault.m_spawnpoints.Get(spawnPointId).CalculateSpawnpoint();
 						}
 						
-						startEquip = new array<string>;
-						for (int i = 1; i < profile.m_startGear.Count(); i++)
+						startEquipClothes = new array<string>;						
+						for (int i = SyberiaScreenEquipPages.SYBSEP_BODY_PAGE; i <= SyberiaScreenEquipPages.SYBSEP_HEAD_PAGE; i++)
 						{
-							int itemIndex = profile.m_startGear.Get(i);
+							itemIndex = profile.m_startGear.Get(i);
 							if (itemIndex >= 0 && itemIndex < allowedEquip.Get(i).Count())
 							{
-								startEquip.Insert(allowedEquip.Get(i).Get(itemIndex));
+								startEquipClothes.Insert(allowedEquip.Get(i).Get(itemIndex));
 							}
+						}
+						
+						startEquipGuns = new array<string>;
+						itemIndex = profile.m_startGear.Get(SyberiaScreenEquipPages.SYBSEP_WEAPON_PAGE);
+						if (itemIndex >= 0 && itemIndex < allowedEquip.Get(SyberiaScreenEquipPages.SYBSEP_WEAPON_PAGE).Count())
+						{
+							startEquipGuns.Insert(allowedEquip.Get(SyberiaScreenEquipPages.SYBSEP_WEAPON_PAGE).Get(itemIndex));
+						}
+						
+						startEquipItems = new array<string>;
+						itemIndex = profile.m_startGear.Get(SyberiaScreenEquipPages.SYBSEP_ITEMS_PAGE);
+						if (itemIndex >= 0 && itemIndex < allowedEquip.Get(SyberiaScreenEquipPages.SYBSEP_ITEMS_PAGE).Count())
+						{
+							startEquipItems.Insert(allowedEquip.Get(SyberiaScreenEquipPages.SYBSEP_ITEMS_PAGE).Get(itemIndex));
 						}
 					}
 					
@@ -165,20 +182,80 @@ class SyberiaMissionServer : MissionServer
 				player.GetInputController().SetDisabled(true);
 				player.SetAllowDamage(false);
 			}
-			else if (startEquip)
+			else if (startEquipClothes && startEquipGuns && startEquipItems)
 			{
-				foreach (string itemName : startEquip)
+				foreach (string itemNameClothes : startEquipClothes)
 				{
-					player.CreateInInventory(itemName);
+					EquipItemIntoPlayer(player, itemNameClothes, false, -1);
+				}
+				
+				foreach (string itemNameGun : startEquipGuns)
+				{
+					EquipItemIntoPlayer(player, itemNameGun, true, 0);
+				}
+				
+				foreach (string itemNameGear : startEquipItems)
+				{
+					EquipItemIntoPlayer(player, itemNameGear, false, -1);
 				}
 			}
 		}
 		
-		if (startEquip) delete startEquip;
+		if (startEquipClothes) delete startEquipClothes;
+		if (startEquipGuns) delete startEquipGuns;
+		if (startEquipItems) delete startEquipItems;
 		
 		OnPlayerStarted(identity, player);
 		
 		return player;
+	}
+	
+	private void EquipItemIntoPlayer(PlayerBase player, string data, bool inHands, int quickbarId)
+	{
+		string itemName, magName;
+		float health, quantity;
+		TStringArray attachments = new TStringArray();
+		EquipItemData.Parse(data, itemName, attachments, health, quantity, magName);
+		
+		ItemBase entity = null;
+		if (inHands)
+		{
+			entity = ItemBase.Cast( player.GetHumanInventory().CreateInHands(itemName) );
+		}
+		else
+		{
+			entity = ItemBase.Cast( player.CreateInInventory(itemName) );
+		}
+		
+		if (!entity)
+		{
+			return;
+		}
+		
+		foreach (string attachment : attachments)
+		{
+			entity.GetInventory().CreateAttachment(attachment);
+		}
+		
+		if (health >= 0)
+		{
+			entity.SetHealth01("", "", health);
+		}
+		
+		if (quantity >= 0)
+		{
+			entity.SetQuantity(quantity);
+		}
+		
+		if (quickbarId >= 0)
+		{
+			player.SetQuickBarEntityShortcut( entity, quickbarId );
+		}
+		
+		if (magName != "")
+		{
+			player.CreateInInventory(magName);
+		}
 	}
 	
 	override void OnEvent(EventType eventTypeId, Param params) 
