@@ -54,6 +54,116 @@ class PluginSyberiaOptions extends PluginBase
 		foreach (string name, ref PluginSyberiaOptions_GroupFaction gf : m_groupFactions) delete gf;
 		delete m_groupFactions;
 	}
+	
+	int GetCharacterAllowedEquipmentSize()
+	{
+		return 8;
+	}
+	
+	ref array<ref array<string>> GetCharacterAllowedEquipment(ref PlayerIdentity identity, ref CharProfile profile)
+	{
+		ref PluginSyberiaOptions_GroupFaction faction = FindGroupByMember(profile.m_id);		
+		ref array<ref array<string>> result = new array<ref array<string>>;
+		
+		// SPAWNPOINTS
+		ref array<string> spawnPoints = new array<string>;
+		if (faction && faction.m_spawnpoints)
+		{
+			foreach (ref SpawnpointInfo sp1 : faction.m_spawnpoints)
+			{
+				spawnPoints.Insert(sp1.m_name);
+			}
+		}
+		if (!faction || faction.m_allowDefaultSpawnpoints)
+		{
+			foreach (ref SpawnpointInfo sp2 : m_groupDefault.m_spawnpoints)
+			{
+				spawnPoints.Insert(sp2.m_name);
+			}		
+		}
+		result.Insert(spawnPoints);
+		
+		// GEAR BODY
+		ref array<string> bodyGear = new array<string>;
+		if (faction && faction.m_gearBody) bodyGear.InsertAll(faction.m_gearBody);
+		if (!faction || faction.m_allowDefaultLoadout) bodyGear.InsertAll(m_groupDefault.m_gearBody);
+		result.Insert(bodyGear);
+		
+		// GEAR PANTS
+		ref array<string> pantsGear = new array<string>;
+		if (faction && faction.m_gearPants) pantsGear.InsertAll(faction.m_gearPants);
+		if (!faction || faction.m_allowDefaultLoadout) pantsGear.InsertAll(m_groupDefault.m_gearPants);
+		result.Insert(pantsGear);
+		
+		// GEAR FOOT
+		ref array<string> footGear = new array<string>;
+		if (faction && faction.m_gearFoot) footGear.InsertAll(faction.m_gearFoot);
+		if (!faction || faction.m_allowDefaultLoadout) footGear.InsertAll(m_groupDefault.m_gearFoot);
+		result.Insert(footGear);
+		
+		// GEAR HEAD
+		ref array<string> headGear = new array<string>;
+		if (faction && faction.m_gearHead) headGear.InsertAll(faction.m_gearHead);
+		if (!faction || faction.m_allowDefaultLoadout) headGear.InsertAll(m_groupDefault.m_gearHead);
+		result.Insert(headGear);
+		
+		// GEAR WEAPON
+		ref array<string> weapGear = new array<string>;
+		if (faction && faction.m_gearWeapon) weapGear.InsertAll(faction.m_gearWeapon);
+		if (!faction || faction.m_allowDefaultLoadout) weapGear.InsertAll(m_groupDefault.m_gearWeapon);
+		result.Insert(weapGear);
+		
+		// GEAR ITEMS
+		ref array<string> itemsGear = new array<string>;
+		if (faction && faction.m_gearItems) itemsGear.InsertAll(faction.m_gearItems);
+		if (!faction || faction.m_allowDefaultLoadout) itemsGear.InsertAll(m_groupDefault.m_gearItems);
+		result.Insert(itemsGear);
+		
+		// GEAR SPECIAL
+		ref array<string> specGear = new array<string>;
+		result.Insert(specGear);
+		
+		return result;
+	}
+	
+	ref PluginSyberiaOptions_GroupFaction FindGroupByLeader(ref PlayerIdentity identity)
+	{
+		foreach (string name, ref PluginSyberiaOptions_GroupFaction group : m_groupFactions)
+		{
+			foreach (string leader : group.m_leaders)
+			{
+				string value = identity.GetPlainId();
+				if (leader == value)
+				{
+					return group;
+				}
+				
+				value = identity.GetId();
+				if (leader == value)
+				{
+					return group;
+				}
+			}
+		}
+		
+		return null;
+	}
+	
+	ref PluginSyberiaOptions_GroupFaction FindGroupByMember(int character_id)
+	{
+		foreach (string name, ref PluginSyberiaOptions_GroupFaction group : m_groupFactions)
+		{
+			foreach (ref SyberiaPdaGroupMember member : group.m_members)
+			{
+				if (character_id == member.m_id)
+				{
+					return group;
+				}
+			}
+		}
+		
+		return null;
+	}
 };
 
 class PluginSyberiaOptions_Main

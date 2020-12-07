@@ -41,7 +41,7 @@ modded class PluginLogicPDA
 		ref CharProfile profile = GetSyberiaCharacters().Get(sender, true);
 		if (!profile) return;
 		
-        ref PluginSyberiaOptions_GroupFaction group = FindGroupByMember(profile.m_id);
+        ref PluginSyberiaOptions_GroupFaction group = GetSyberiaOptions().FindGroupByMember(profile.m_id);
         if (!group) return;
         
         ref array<PlayerIdentity> identities = new array<PlayerIdentity>();
@@ -132,7 +132,7 @@ modded class PluginLogicPDA
 	
 	void CheckContactsResponse(ref PlayerIdentity sender, ref array<string> contacts)
 	{
-		ref PluginSyberiaOptions_GroupFaction leadedGroup = FindGroupByLeader(sender);
+		ref PluginSyberiaOptions_GroupFaction leadedGroup = GetSyberiaOptions().FindGroupByLeader(sender);
 		ref array<ref SyberiaPdaGroupMember> groupMembers = null;
 		string infoText = "";
 		bool useGroupManagenemt = false;
@@ -140,7 +140,7 @@ modded class PluginLogicPDA
 		if (leadedGroup)
 		{
 			groupMembers = leadedGroup.m_members;
-			infoText = leadedGroup.m_name + "(" + leadedGroup.m_members.Count() + "/" + leadedGroup.m_maxMembers + ")";
+			infoText = leadedGroup.m_displayName + " (" + leadedGroup.m_members.Count() + "/" + leadedGroup.m_maxMembers + ")";
 			useGroupManagenemt = true;
 		}
 		
@@ -149,7 +149,7 @@ modded class PluginLogicPDA
 		ref CharProfile profile = GetSyberiaCharacters().Get(sender, true);
 		if (!profile) return;
 		
-		ref PluginSyberiaOptions_GroupFaction memberGroup = FindGroupByMember(profile.m_id);
+		ref PluginSyberiaOptions_GroupFaction memberGroup = GetSyberiaOptions().FindGroupByMember(profile.m_id);
 		if (memberGroup)
 		{
 			groupChatName = memberGroup.m_displayName;
@@ -201,58 +201,16 @@ modded class PluginLogicPDA
         //GetRPCManager().SendRPC( GearPDAModPreffix, "AddContact", new Param2<string, string>( "", "" ), true, sender );
     }
 	
-	ref PluginSyberiaOptions_GroupFaction FindGroupByLeader(ref PlayerIdentity identity)
-	{
-		ref auto factions = GetSyberiaOptions().m_groupFactions;
-		foreach (string name, ref PluginSyberiaOptions_GroupFaction group : factions)
-		{
-			foreach (string leader : group.m_leaders)
-			{
-				string value = identity.GetPlainId();
-				if (leader == value)
-				{
-					return group;
-				}
-				
-				value = identity.GetId();
-				if (leader == value)
-				{
-					return group;
-				}
-			}
-		}
-		
-		return null;
-	}
-	
-	ref PluginSyberiaOptions_GroupFaction FindGroupByMember(int character_id)
-	{
-		ref auto factions = GetSyberiaOptions().m_groupFactions;
-		foreach (string name, ref PluginSyberiaOptions_GroupFaction group : factions)
-		{
-			foreach (ref SyberiaPdaGroupMember member : group.m_members)
-			{
-				if (character_id == member.m_id)
-				{
-					return group;
-				}
-			}
-		}
-		
-		return null;
-	}
-	
 	override void GroupCommand( ref ParamsReadContext ctx, ref PlayerIdentity sender )
 	{
         if (sender == null) return;
         
-        Param3< int, string, string > serverData;
+        Param2< int, string > serverData;
         if ( !ctx.Read( serverData ) ) return;
         
         int action = serverData.param1;
         string fid = serverData.param2;
-        ref PluginSyberiaOptions_GroupFaction group = FindGroupByLeader(sender);
-        
+        ref PluginSyberiaOptions_GroupFaction group = GetSyberiaOptions().FindGroupByLeader(sender);        
         if (group == null) return;	
         
         if (action == 0)
@@ -271,7 +229,8 @@ modded class PluginLogicPDA
 				if (!profile) continue;
 				
 				string pname = profile.m_name + "";
-				pname.ToLower();				
+				pname.ToLower();	
+			
                 if (pname == fid)
                 {
                     newMemberIdentity = identity;
@@ -284,7 +243,7 @@ modded class PluginLogicPDA
 			ref CharProfile newMemberProfile = GetSyberiaCharacters().Get(newMemberIdentity, true);
 			if (!newMemberProfile) return;
 			
-            ref PluginSyberiaOptions_GroupFaction groupForNewMember = FindGroupByMember(newMemberProfile.m_id);
+            ref PluginSyberiaOptions_GroupFaction groupForNewMember = GetSyberiaOptions().FindGroupByMember(newMemberProfile.m_id);
             if (groupForNewMember != null) return;
   
             ref SyberiaPdaGroupMember newMember = new SyberiaPdaGroupMember;
@@ -292,15 +251,19 @@ modded class PluginLogicPDA
             newMember.m_uid = newMemberProfile.m_uid;
             newMember.m_name = newMemberProfile.m_name;
             group.AddMember(newMember);
+			
+			SybLogSrv("PDA GROUP '" + group.m_name + "' ADD MEMBER '" + newMemberProfile.m_name + "'");
         }
         else if (action == 1)
         {
             int memberId = fid.ToInt();
             for (int i = 0; i < group.m_members.Count(); i++)
             {
-                if (group.m_members.Get(i).m_id == memberId)
+				ref SyberiaPdaGroupMember oldMember = group.m_members.Get(i);
+                if (oldMember.m_id == memberId)
                 {
-                    group.RemoveMember(group.m_members.Get(i));
+					SybLogSrv("PDA GROUP '" + group.m_name + "' REMOVE MEMBER '" + oldMember.m_name + "'");
+                    group.RemoveMember(oldMember);
                     break;
                 }
             }
