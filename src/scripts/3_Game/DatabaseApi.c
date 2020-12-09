@@ -26,10 +26,10 @@ class Database
 	/**
 	\brief Processes query and calls callback function when finished
 	*/
-	void QueryAsync(string databaseName, string queryText, Class callbackClass, string callbackFnc)
+	void QueryAsync(string databaseName, string queryText, Class callbackClass, string callbackFnc, ref Param args = null)
 	{
 		RestContext restContext = GetRestApi().GetRestContext("http:/" + "/localhost:" + m_databaseOptions.databaseServerPort + "/");
-		restContext.POST(new DatabaseRestCallback(callbackClass, callbackFnc), databaseName + "/query", queryText);
+		restContext.POST(new DatabaseRestCallback(callbackClass, callbackFnc, args), databaseName + "/query", queryText);
 	}
 	
 	/**
@@ -54,20 +54,20 @@ class Database
 	/**
 	\brief Processes transaction (multiple queries) and calls callback function when finished
 	*/
-	void TransactionAsync(string databaseName, ref array<string> queries, Class callbackClass, string callbackFnc)
+	void TransactionAsync(string databaseName, ref array<string> queries, Class callbackClass, string callbackFnc, ref Param args = null)
 	{
 		string queryText;
 		if (!m_databaseResponseDeserializer.WriteToString(queries, false, queryText))
 		{
 			GetGame().GameScript.CallFunctionParams(
 				callbackClass, callbackFnc, null, 
-				new Param1<DatabaseResponse>(null));
+				new Param2<DatabaseResponse, ref Param>(null, args));
 			
 			return;
 		}
 		
 		RestContext restContext = GetRestApi().GetRestContext("http:/" + "/localhost:" + m_databaseOptions.databaseServerPort + "/");
-		restContext.POST(new DatabaseRestCallback(callbackClass, callbackFnc), databaseName + "/transaction", queryText);
+		restContext.POST(new DatabaseRestCallback(callbackClass, callbackFnc, args), databaseName + "/transaction", queryText);
 	}
 };
 
@@ -75,25 +75,27 @@ class DatabaseRestCallback : RestCallback
 {
 	private Class m_callbackClass;
 	private string m_callbackFnc;
+	private ref Param m_userArg;
 	
-	void DatabaseRestCallback(Class callbackClass, string callbackFnc)
+	void DatabaseRestCallback(Class callbackClass, string callbackFnc, ref Param userArg)
 	{
 		m_callbackClass = callbackClass;
 		m_callbackFnc = callbackFnc;
+		m_userArg = userArg;
 	}
 	
 	void OnError( int errorCode )
 	{
 		GetGame().GameScript.CallFunctionParams(
 			m_callbackClass, m_callbackFnc, null, 
-			new Param1<DatabaseResponse>(null));
+			new Param2<DatabaseResponse, ref Param>(null, m_userArg));
 	}
 	
 	void OnTimeout()
 	{
 		GetGame().GameScript.CallFunctionParams(
 			m_callbackClass, m_callbackFnc, null, 
-			new Param1<DatabaseResponse>(null));
+			new Param2<DatabaseResponse, ref Param>(null, m_userArg));
 	}
 	
 	void OnSuccess( string data, int dataSize )
@@ -102,13 +104,13 @@ class DatabaseRestCallback : RestCallback
 		{
 			GetGame().GameScript.CallFunctionParams(
 				m_callbackClass, m_callbackFnc, null, 
-				new Param1<DatabaseResponse>(new DatabaseResponse("")));
+				new Param2<DatabaseResponse, ref Param>(new DatabaseResponse(""), m_userArg));
 		}
 		else
 		{
 			GetGame().GameScript.CallFunctionParams(
 				m_callbackClass, m_callbackFnc, null, 
-				new Param1<DatabaseResponse>(new DatabaseResponse(data)));
+				new Param2<DatabaseResponse, ref Param>(new DatabaseResponse(data), m_userArg));
 		}
 	}
 };

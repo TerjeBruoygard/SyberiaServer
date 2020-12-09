@@ -22,11 +22,7 @@ class PluginSyberiaOptions extends PluginBase
 			JsonFileLoader<ref PluginSyberiaOptions_GroupDefault>.JsonLoadFile(path, m_groupDefault);
 		}
 		
-		DatabaseResponse response;
-		ref array<string> queries = new array<string>;
-		PluginSyberiaOptions_GroupFaction.InitQueries(queries);
-		GetDatabase().TransactionSync(SYBERIA_DB_NAME, queries, response);	
-		delete queries;
+		SyberiaDatabaseInit.InitIfNot();
 		
 		m_groupFactions = new map<string, ref PluginSyberiaOptions_GroupFaction>;
 		if (m_main.m_groups)
@@ -224,6 +220,7 @@ class PluginSyberiaOptions_GroupFaction : PluginSyberiaOptions_GroupDefault
 	static void InitQueries(ref array<string> queries)
 	{
 		queries.Insert("CREATE TABLE IF NOT EXISTS group_members (id INTEGER PRIMARY KEY AUTOINCREMENT, group_name TEXT NOT NULL, character_id INTEGER UNIQUE NOT NULL);");	
+		queries.Insert("DELETE FROM group_members WHERE group_members.character_id NOT IN (SELECT characters.id FROM characters);");
 	}
 	
 	string SelectQuery()
@@ -247,7 +244,7 @@ class PluginSyberiaOptions_GroupFaction : PluginSyberiaOptions_GroupDefault
 		GetDatabase().QueryAsync(SYBERIA_DB_NAME, query, this, "OnDbCallback");
 	}
 	
-	void OnDbCallback(DatabaseResponse response) {}
+	void OnDbCallback(DatabaseResponse response, ref Param args) {}
 	
 	void LoadMembers()
 	{

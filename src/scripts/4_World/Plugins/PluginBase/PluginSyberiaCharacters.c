@@ -5,12 +5,7 @@ class PluginSyberiaCharacters extends PluginBase
 	void PluginSyberiaCharacters()
 	{
 		m_cachedProfiles = new map<string, ref CharProfile>();
-		
-		DatabaseResponse response;
-		ref array<string> queries = new array<string>;
-		CharProfile.InitQueries(queries);
-		GetDatabase().TransactionSync(SYBERIA_DB_NAME, queries, response);	
-		delete queries;
+		SyberiaDatabaseInit.InitIfNot();
 	}
 	
 	void ~PluginSyberiaCharacters()
@@ -55,7 +50,7 @@ class PluginSyberiaCharacters extends PluginBase
 		return result;
 	}
 	
-	void Create(ref PlayerIdentity identity, ref CharProfile newProfile)
+	void Create(ref PlayerIdentity identity, ref CharProfile newProfile, Class callbackClass, string callbackFnc)
 	{
 		string uid = identity.GetId();
 		if (m_cachedProfiles.Contains(uid))
@@ -63,22 +58,12 @@ class PluginSyberiaCharacters extends PluginBase
 			delete m_cachedProfiles.Get(uid);
 			m_cachedProfiles.Remove(uid);
 		}
-				
 
-		
-		ref array<string> queries = new array<string>;
+		TStringArray queries = new TStringArray;
 		newProfile.CreateQuery(queries);
-		
-		DatabaseResponse response = null;
-		m_cachedProfiles.Insert(uid, newProfile);
-		GetDatabase().TransactionSync(SYBERIA_DB_NAME, queries, response);
-
-		if (response && response.GetRowsCount() == 1)
-		{
-			newProfile.m_id = response.GetValue(0, 0).ToInt();
-		}	
-		
-		delete queries;
+				
+		ref auto params = new ref Param3<ref PlayerIdentity, Class, string>(identity, callbackClass, callbackFnc);
+		GetDatabase().TransactionAsync(SYBERIA_DB_NAME, queries, this, "OnCreateNewCharacter", params);
 	}
 	
 	void Save(ref PlayerIdentity identity)
@@ -87,7 +72,7 @@ class PluginSyberiaCharacters extends PluginBase
 		string uid = identity.GetId();
 		if (m_cachedProfiles.Find(uid, profile))
 		{
-			GetDatabase().QueryAsync(SYBERIA_DB_NAME, profile.UpdateQuery(), this, "OnUpdateOrCreateCharacter");
+			GetDatabase().QueryAsync(SYBERIA_DB_NAME, profile.UpdateQuery(), this, "OnUpdateCharacter");
 		}
 	}
 	
@@ -103,9 +88,31 @@ class PluginSyberiaCharacters extends PluginBase
 		}
 	}
 	
-	protected void OnDeleteCharacter(DatabaseResponse response) {}
+	protected void OnCreateNewCharacter(DatabaseResponse response, ref Param args)
+	{
+		ref auto metadata = Param3<ref PlayerIdentity, Class, string>.Cast(args);	
+		ref PlayerIdentity sender = metadata.param1;	
+		bool result = false;
+		
+		if (response && response.GetRowsCount() == 1)
+		{
+			int newId = response.GetValue(0, 0).ToInt();
+			if (newId > 0)
+			{
+				result = true;
+			}
+		}	
+		
+		GetGame().GameScript.CallFunctionParams(
+				metadata.param2, metadata.param3, null, 
+				new Param2<ref PlayerIdentity, bool>(sender, result));
+		
+		delete args;
+	}
 	
-	protected void OnUpdateOrCreateCharacter(DatabaseResponse response) {}
+	protected void OnDeleteCharacter(DatabaseResponse response, ref Param args) {}
+	
+	protected void OnUpdateCharacter(DatabaseResponse response, ref Param args) {}
 };
 
 PluginSyberiaCharacters GetSyberiaCharacters() 
