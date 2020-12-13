@@ -2,7 +2,7 @@ class PluginSyberiaCharacters extends PluginBase
 {
 	private autoptr map<string, ref CharProfile> m_cachedProfiles;
 	
-	void PluginSyberiaCharacters()
+	override void OnInit()
 	{
 		m_cachedProfiles = new map<string, ref CharProfile>();
 		SyberiaDatabaseInit.InitIfNot();
