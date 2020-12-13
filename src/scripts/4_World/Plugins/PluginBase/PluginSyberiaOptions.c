@@ -68,6 +68,35 @@ modded class PluginSyberiaOptions extends PluginBase
 		return 8;
 	}
 	
+	ref SpawnpointInfo GetCharacterSpawnpoint(ref CharProfile profile, int spawnpointId)
+	{
+		ref PluginSyberiaOptions_GroupFaction faction = FindGroupByMember(profile.m_id);			
+		ref array<ref SpawnpointInfo> spawnPoints = new array<ref SpawnpointInfo>;
+		if (faction && faction.m_spawnpoints)
+		{
+			foreach (ref SpawnpointInfo sp1 : faction.m_spawnpoints)
+			{
+				spawnPoints.Insert(sp1);
+			}
+		}
+		if (!faction || faction.m_allowDefaultSpawnpoints)
+		{
+			foreach (ref SpawnpointInfo sp2 : m_groupDefault.m_spawnpoints)
+			{
+				spawnPoints.Insert(sp2);
+			}		
+		}
+		
+		if (spawnpointId < 0 || spawnpointId >= spawnPoints.Count())
+		{
+			spawnpointId = 0;
+		}
+		
+		ref SpawnpointInfo result = spawnPoints.Get(spawnpointId);		
+		delete spawnPoints;
+		return result;
+	}
+	
 	ref array<ref array<string>> GetCharacterAllowedEquipment(ref PlayerIdentity identity, ref CharProfile profile)
 	{
 		ref PluginSyberiaOptions_GroupFaction faction = FindGroupByMember(profile.m_id);		
