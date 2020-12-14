@@ -1,4 +1,4 @@
-modded class ActionCheckName: ActionInteractBase
+modded class ActionCheckName
 {
 	override void OnEndServer( ActionData action_data )
 	{
@@ -24,7 +24,7 @@ modded class ActionCheckName: ActionInteractBase
 	}
 };
 
-modded class ActionSayName: ActionInteractBase
+modded class ActionSayName
 {
 	override void OnEndServer( ActionData action_data )
 	{
@@ -33,6 +33,8 @@ modded class ActionSayName: ActionInteractBase
 		{
 			string message = "#syb_ur_greeted " + action_data.m_Player.m_charProfile.m_name;
 			GetSyberiaRPC().SendToClient(SyberiaRPC.SYBRPC_SCREEN_MESSAGE, ntarget.GetIdentity(), new Param1<string>(message));
-		}		
+		}	
+		
+		action_data.m_Player.GetEmoteManager().PlayEmote(EmoteConstants.ID_EMOTE_GREETING);	
 	}
 };
