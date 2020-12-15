@@ -34,7 +34,5 @@ modded class ActionSayName
 			string message = "#syb_ur_greeted " + action_data.m_Player.m_charProfile.m_name;
 			GetSyberiaRPC().SendToClient(SyberiaRPC.SYBRPC_SCREEN_MESSAGE, ntarget.GetIdentity(), new Param1<string>(message));
 		}	
-		
-		action_data.m_Player.GetEmoteManager().PlayEmote(EmoteConstants.ID_EMOTE_GREETING);	
 	}
 };
