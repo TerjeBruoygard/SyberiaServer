@@ -501,6 +501,23 @@ modded class PlayerBase
 				SetSynchDirty();
 			}
 		}
+		
+		int currentPainLvl = GetCurrentPainLevel();
+		int currentShock = GetHealth("","Shock");
+		if (currentPainLvl == 3 && currentShock > 40)
+		{
+			if (Math.RandomFloat01() <= deltaTime * 0.05)
+			{
+				DecreaseHealth("", "Shock", 20);
+			}
+		}
+		else if ((m_concussionHit || currentPainLvl == 2) && currentShock > 60)
+		{
+			if (Math.RandomFloat01() <= deltaTime)
+			{
+				DecreaseHealth("","Shock",10);
+			}
+		}
 	}
 	
 	protected void OnTickAdvMedicine_Sepsis(float deltaTime)
