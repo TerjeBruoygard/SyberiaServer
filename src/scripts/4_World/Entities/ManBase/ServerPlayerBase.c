@@ -1,6 +1,13 @@
 modded class PlayerBase
 {	
 	ref CharProfile m_charProfile;
+	
+	// Sleeping
+	float m_sleepingDecTimer;
+	float m_sleepingBoostTimer;
+	int m_sleepingBoostValue;
+	
+	// Adv med
 	float m_advMedUpdateTimer;
 	float m_painTimer;
 	float m_painkillerTime;
@@ -18,9 +25,20 @@ modded class PlayerBase
 	float m_salveEffectTimer;
 	float m_adrenalinEffectTimer;
 	
+	// Mind state
+	float m_mindDegradationForce;
+	float m_mindDegradationTime;
+	
 	override void Init()
 	{
 		super.Init();
+		
+		// Sleeping
+		m_sleepingDecTimer = 0;
+		m_sleepingBoostTimer = 0;
+		m_sleepingBoostValue = 0;
+		
+		// Adv Med
 		m_advMedUpdateTimer = 0;
 		m_painTimer = 0;
 		m_hematomaRegenTimer = 0;
@@ -37,6 +55,10 @@ modded class PlayerBase
 		m_hematopoiesisTimer = 0;
 		m_salveEffectTimer = 0;
 		m_adrenalinEffectTimer = 0;
+		
+		// Mind state
+		m_mindDegradationForce = 0;
+		m_mindDegradationTime = 0;
 	}
 	
 	override void OnStoreSave( ParamsWriteContext ctx )
@@ -86,6 +108,11 @@ modded class PlayerBase
         ctx.Write( m_adrenalinEffect );
         ctx.Write( m_adrenalinEffectTimer );
         ctx.Write( m_overdosedValue );
+		
+		// Mind state
+		ctx.Write( m_mindStateValue );
+		ctx.Write( m_mindDegradationForce );
+		ctx.Write( m_mindDegradationTime );
 	}
 	
 	override bool OnStoreLoad( ParamsReadContext ctx, int version )
@@ -95,48 +122,59 @@ modded class PlayerBase
 		
         // VER 100
         int syb_ver_100;
-        if(!ctx.Read( syb_ver_100 ) || syb_ver_100 != SYBERIA_V100_VERSION) return false;
-
-		// Sleeping
-		if(!ctx.Read( m_sleepingValue )) return false;		
-		if(!ctx.Read( m_sleepingBoostTimer )) return false;		
-		if(!ctx.Read( m_sleepingBoostValue )) return false;
-		
-		// Adv medicine
-		if(!ctx.Read( m_bulletHits )) return false;		
-		if(!ctx.Read( m_knifeHits )) return false;		
-		if(!ctx.Read( m_hematomaHits )) return false;		
-		if(!ctx.Read( m_visceraHit )) return false;		
-		if(!ctx.Read( m_concussionHit )) return false;		
-		if(!ctx.Read( m_painLevel )) return false;		
-		if(!ctx.Read( m_painTimer )) return false;		
-		if(!ctx.Read( m_hematomaRegenTimer )) return false;		
-		if(!ctx.Read( m_cuthitRegenTimer )) return false;		
-		if(!ctx.Read( m_painkillerEffect )) return false;		
-		if(!ctx.Read( m_painkillerTime )) return false;		
-		if(!ctx.Read( m_stomatchhealEffect )) return false;		
-		if(!ctx.Read( m_stomatchhealTimer )) return false;		
-		if(!ctx.Read( m_hemologicShock )) return false;		
-		if(!ctx.Read( m_sepsis )) return false;		
-		if(!ctx.Read( m_sepsisTime )) return false;		
-		if(!ctx.Read( m_zombieVirus )) return false;	
-		if(!ctx.Read( m_zvirusTimer )) return false;		
-		if(!ctx.Read( m_bulletBandage1 )) return false;		
-		if(!ctx.Read( m_bulletBandage2 )) return false;		
-		if(!ctx.Read( m_knifeBandage1 )) return false;		
-		if(!ctx.Read( m_knifeBandage2 )) return false;		
-		if(!ctx.Read( m_bullethitRegenTimer )) return false;		
-		if(!ctx.Read( m_knifehitRegenTimer )) return false;		
-		if(!ctx.Read( m_concussionRegenTimer )) return false;		
-		if(!ctx.Read( m_bloodHemostaticEffect )) return false;		
-		if(!ctx.Read( m_bloodHemostaticTimer )) return false;		
-		if(!ctx.Read( m_hematopoiesisEffect )) return false;		
-		if(!ctx.Read( m_hematopoiesisTimer )) return false;		
-		if(!ctx.Read( m_salveEffect )) return false;		
-		if(!ctx.Read( m_salveEffectTimer )) return false;		
-		if(!ctx.Read( m_adrenalinEffect )) return false;
-		if(!ctx.Read( m_adrenalinEffectTimer )) return false;
-		if(!ctx.Read( m_overdosedValue )) return false;
+        if(ctx.Read( syb_ver_100 ) && syb_ver_100 == SYBERIA_V100_VERSION)
+		{
+			// Sleeping
+			if(!ctx.Read( m_sleepingValue )) return false;		
+			if(!ctx.Read( m_sleepingBoostTimer )) return false;		
+			if(!ctx.Read( m_sleepingBoostValue )) return false;
+			
+			// Adv medicine
+			if(!ctx.Read( m_bulletHits )) return false;		
+			if(!ctx.Read( m_knifeHits )) return false;		
+			if(!ctx.Read( m_hematomaHits )) return false;		
+			if(!ctx.Read( m_visceraHit )) return false;		
+			if(!ctx.Read( m_concussionHit )) return false;		
+			if(!ctx.Read( m_painLevel )) return false;		
+			if(!ctx.Read( m_painTimer )) return false;		
+			if(!ctx.Read( m_hematomaRegenTimer )) return false;		
+			if(!ctx.Read( m_cuthitRegenTimer )) return false;		
+			if(!ctx.Read( m_painkillerEffect )) return false;		
+			if(!ctx.Read( m_painkillerTime )) return false;		
+			if(!ctx.Read( m_stomatchhealEffect )) return false;		
+			if(!ctx.Read( m_stomatchhealTimer )) return false;		
+			if(!ctx.Read( m_hemologicShock )) return false;		
+			if(!ctx.Read( m_sepsis )) return false;		
+			if(!ctx.Read( m_sepsisTime )) return false;		
+			if(!ctx.Read( m_zombieVirus )) return false;	
+			if(!ctx.Read( m_zvirusTimer )) return false;		
+			if(!ctx.Read( m_bulletBandage1 )) return false;		
+			if(!ctx.Read( m_bulletBandage2 )) return false;		
+			if(!ctx.Read( m_knifeBandage1 )) return false;		
+			if(!ctx.Read( m_knifeBandage2 )) return false;		
+			if(!ctx.Read( m_bullethitRegenTimer )) return false;		
+			if(!ctx.Read( m_knifehitRegenTimer )) return false;		
+			if(!ctx.Read( m_concussionRegenTimer )) return false;		
+			if(!ctx.Read( m_bloodHemostaticEffect )) return false;		
+			if(!ctx.Read( m_bloodHemostaticTimer )) return false;		
+			if(!ctx.Read( m_hematopoiesisEffect )) return false;		
+			if(!ctx.Read( m_hematopoiesisTimer )) return false;		
+			if(!ctx.Read( m_salveEffect )) return false;		
+			if(!ctx.Read( m_salveEffectTimer )) return false;		
+			if(!ctx.Read( m_adrenalinEffect )) return false;
+			if(!ctx.Read( m_adrenalinEffectTimer )) return false;
+			if(!ctx.Read( m_overdosedValue )) return false;
+			
+			// Mind state
+			if(!ctx.Read( m_mindStateValue )) return false;
+			m_mindStateLast = m_mindStateValue;
+			if(!ctx.Read( m_mindDegradationForce )) return false;
+			if(!ctx.Read( m_mindDegradationTime )) return false;
+		}
+		else
+		{
+			return false;
+		}
 		
 		return true;
 	}
@@ -163,10 +201,131 @@ modded class PlayerBase
 			OnTickAdvMedicine_Adrenalin(m_advMedUpdateTimer);
 			m_advMedUpdateTimer = 0;
 		}
+		
+		m_sleepingDecTimer = m_sleepingDecTimer + deltaTime;
+		while (m_sleepingDecTimer > 1.0)
+		{
+			m_sleepingDecTimer = m_sleepingDecTimer - 1.0;
+			OnTickSleeping();
+			OnTickMindState();
+		}
+	}
+	
+	private void OnTickSleeping()
+	{
+		int sleepingDiff = 0;		
+		sleepingDiff = sleepingDiff - SLEEPING_DEC_PER_SEC;
+		
+		if (m_sleepingBoostTimer > 0)
+		{
+			m_sleepingBoostTimer = m_sleepingBoostTimer - 1;
+			sleepingDiff = sleepingDiff + m_sleepingBoostValue;
+		}
+		else if (m_EmoteManager && m_EmoteManager.IsPlayerSleeping())
+		{
+			sleepingDiff = sleepingDiff + SLEEPING_INC_PER_SLEEPING_SEC;
+		}
+		
+		m_lastSleepingValue = m_sleepingValue;
+		m_sleepingValue = m_sleepingValue + sleepingDiff;
+		
+		if (m_sleepingValue <= 0) 
+		{
+			if (SLEEPING_UNCONSION_ENABLED)
+			{
+				m_UnconsciousEndTime = -60;
+				SetHealth("","Shock",0);
+				SetSleepingBoost(SLEEPING_INC_PER_UNCONSION_BOOST_TIME, SLEEPING_INC_PER_UNCONSION_BOOST_VALUE);
+			}
+			
+			m_sleepingValue = 0;
+		}
+		
+		if (m_sleepingValue > SLEEPING_MAX_VALUE)
+		{
+			m_sleepingValue = SLEEPING_MAX_VALUE;
+		}
+				
+		SetSynchDirty();
+	}
+	
+	private void OnTickMindState()
+	{
+		m_mindStateLast = m_mindStateValue;
+		if (m_mindDegradationTime > 0)
+		{
+			m_mindDegradationTime = m_mindDegradationTime - 1;
+			m_mindStateValue = m_mindStateValue - m_mindDegradationForce;
+		}
+		else 
+		{
+			m_mindDegradationForce = 0;
+			m_mindDegradationTime = 0;
+			m_mindStateValue = m_mindStateValue + MINDSTATE_HEAL_PER_SEC;
+		}
+				
+		m_mindStateValue = Math.Clamp(m_mindStateValue, 0, MINDSTATE_MAX_VALUE);
+		
+		if (m_mindStateValue < MINDSTATE_LEVEL_5)
+		{
+			float maxHealth = GetMaxHealth("GlobalHealth","Health");
+			DecreaseHealth("", "Health", maxHealth / MINDSTATE_EMPTY_DEADTIME_SEC);
+		}
+		if (m_mindStateValue < MINDSTATE_LEVEL_3)
+		{
+			float laughtChange = 1 - (m_mindStateValue / MINDSTATE_LEVEL_3);
+			if( Math.RandomFloat01() < laughtChange * 0.1 )
+			{
+				GetSymptomManager().QueueUpPrimarySymptom(SymptomIDs.SYMPTOM_LAUGHTER);
+			}
+		}
+		
+		if (m_mindStateLast != m_mindStateValue)
+		{
+			SetSynchDirty();
+		}
+	}
+	
+	void AddMindDegradation(float force, float time)
+	{
+		if (m_mindDegradationForce < force)
+		{
+			m_mindDegradationForce = force;
+		}
+		
+		m_mindDegradationTime = m_mindDegradationTime + time;
+	}
+	
+	void SetSleepingBoost(float time, int value)
+	{
+		m_sleepingBoostTimer = time;
+		m_sleepingBoostValue = value;
+		SetSynchDirty();
+	}
+	
+	void AddSleepingBoost(float time, int value)
+	{
+		if (value == m_sleepingBoostValue)
+		{
+			m_sleepingBoostTimer = m_sleepingBoostTimer + time;
+			SetSynchDirty();
+		}
+		else
+		{
+			SetSleepingBoost(time, value);
+		}
 	}
 	
 	override bool Consume(ItemBase source, float amount, EConsumeType consume_type )
 	{
+		bool hasBrainAgents = false;
+		if (source && source.ContainsAgent(eAgents.BRAIN))
+		{
+			AddMindDegradation(1, amount);
+			source.RemoveAgent(eAgents.BRAIN);
+			hasBrainAgents = true;
+		}
+		
 		bool result = super.Consume(source, amount, consume_type);
 				
 		if (result)
@@ -176,6 +335,11 @@ modded class PlayerBase
 			{
 				AddSleepingBoost(amount, 10);
 			}
+		}
+		
+		if (hasBrainAgents)
+		{
+			source.InsertAgent(eAgents.BRAIN);
 		}
 		
 		return result;

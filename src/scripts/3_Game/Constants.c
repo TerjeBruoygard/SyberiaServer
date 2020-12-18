@@ -74,3 +74,6 @@ const float OVERDOSE_UNCON_CHANGE_PER_SEC = 0.025;
 
 const bool ZOMBIE_OPEN_DOOR_ENABLE = true;
 const float ZOMBIE_OPEN_DOOR_DISTANCE = 1.6;
+
+const float MINDSTATE_HEAL_PER_SEC = 0.04;
+const int   MINDSTATE_EMPTY_DEADTIME_SEC = 10 * 60;
