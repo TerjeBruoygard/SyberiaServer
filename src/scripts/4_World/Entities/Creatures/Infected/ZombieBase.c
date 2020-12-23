@@ -13,7 +13,7 @@ modded class ZombieBase extends DayZInfected
 		if (ZOMBIE_OPEN_DOOR_ENABLE && m_ActualTarget)
 		{
 			m_doorsCheckTimer = m_doorsCheckTimer + pDt;		
-			if (m_doorsCheckTimer > 1)
+			if (m_doorsCheckTimer > 1.5)
 			{
 				m_doorsCheckTimer = 0;
 				HandleHouseDoors();
@@ -26,7 +26,7 @@ modded class ZombieBase extends DayZInfected
 	private void HandleHouseDoors()
 	{
 		array<Object> objects = new array<Object>;
-		GetGame().GetObjectsAtPosition(GetPosition(), 10, objects, NULL);
+		GetGame().GetObjectsAtPosition(GetPosition(), ZOMBIE_FIND_HOUSE_DISTANCE, objects, NULL);
 
 		if (objects.Count() > 0)
 		{
@@ -52,7 +52,7 @@ modded class ZombieBase extends DayZInfected
 				if (vector.Distance(doorPos, GetPosition()) < ZOMBIE_OPEN_DOOR_DISTANCE)
 				{
 					building.OpenDoor(i);
-					PlaySound("doorbreak_" + Math.RandomIntInclusive(1, 5), 25, false);
+					SyberiaSoundEmitter.Spawn("ZombieDoorBreak" + Math.RandomIntInclusive(1, 5) + "_SoundEmitter", doorPos);
 				}
 			}
 		}
