@@ -6,6 +6,7 @@ modded class PlayerBase
 	float m_sleepingDecTimer;
 	float m_sleepingBoostTimer;
 	int m_sleepingBoostValue;
+	int m_sleepingSoundTimer;
 	
 	// Adv med
 	float m_advMedUpdateTimer;
@@ -37,6 +38,7 @@ modded class PlayerBase
 		m_sleepingDecTimer = 0;
 		m_sleepingBoostTimer = 0;
 		m_sleepingBoostValue = 0;
+		m_sleepingSoundTimer = 0;
 		
 		// Adv Med
 		m_advMedUpdateTimer = 0;
@@ -221,9 +223,55 @@ modded class PlayerBase
 			m_sleepingBoostTimer = m_sleepingBoostTimer - 1;
 			sleepingDiff = sleepingDiff + m_sleepingBoostValue;
 		}
-		else if (m_EmoteManager && m_EmoteManager.IsPlayerSleeping())
+		else
 		{
-			sleepingDiff = sleepingDiff + SLEEPING_INC_PER_SLEEPING_SEC;
+			SyberiaSleepingLevel sleepingLevel = SyberiaSleepingLevel.SYBSL_NONE;		
+			if (GetEmoteManager() && GetEmoteManager().IsPlayerSleeping())
+			{
+				float heatValue = GetStatHeatComfort().Get();
+				
+				SybLogSrv("HEAT: " + heatValue);
+				
+				if (heatValue < PlayerConstants.THRESHOLD_HEAT_COMFORT_MINUS_WARNING)
+				{
+					sleepingLevel = SyberiaSleepingLevel.SYBSL_COLD;
+				}
+				else if (heatValue > PlayerConstants.THRESHOLD_HEAT_COMFORT_PLUS_CRITICAL)
+				{
+					sleepingLevel = SyberiaSleepingLevel.SYBSL_HOT;
+				}
+				else if (m_HasHeatBuffer)
+				{
+					sleepingLevel = SyberiaSleepingLevel.SYBSL_PERFECT;
+					sleepingDiff = sleepingDiff + SLEEPING_INC_PER_SLEEPING_LVL2_SEC;
+				}
+				else
+				{
+					sleepingLevel = SyberiaSleepingLevel.SYBSL_COMFORT;
+					sleepingDiff = sleepingDiff + SLEEPING_INC_PER_SLEEPING_LVL1_SEC;
+				}
+			}
+			
+			int sleepingLvlInt = (int)sleepingLevel;
+			if (sleepingLvlInt != m_sleepingLevel)
+			{
+				m_sleepingLevel = sleepingLvlInt;
+			}
+			
+			if (sleepingLvlInt > 0)
+			{
+				m_sleepingSoundTimer = m_sleepingSoundTimer + 1;
+				if (m_sleepingSoundTimer >= 5)
+				{
+					m_sleepingSoundTimer = 0;
+					if (IsMale()) SyberiaSoundEmitter.Spawn("SleepingMale_SoundEmitter", GetPosition());
+					else SyberiaSoundEmitter.Spawn("SleepingFemale_SoundEmitter", GetPosition());
+				}
+			}
+			else
+			{
+				m_sleepingSoundTimer = -10;
+			}
 		}
 		
 		m_lastSleepingValue = m_sleepingValue;
