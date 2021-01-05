@@ -784,16 +784,7 @@ modded class PlayerBase
 					SetSynchDirty();
 				}
 				
-				// TODO: make high temperature symphtom
-				/*PlayerStat<float> heatStat = GetStatHeatComfort();
-				float tempValue = heatStat.Get();
-				float tempMax = heatStat.GetMax();// * SEPSIS_TEMPERATURE_MAX;
-				if (tempValue < tempMax)
-				{
-					tempValue = tempValue + (tempMax * deltaTime);
-					tempValue = Math.Clamp(tempValue, heatStat.GetMin(), tempMax);
-					heatStat.Set(tempValue);
-				}*/
+				AddToEnvironmentTemperature(SEPSIS_HIGH_TEMPERATURE_VALUE);
 			}
 			
 			if (m_sepsisTime > SEPSIS_STAGE2_TIME_SEC)

@@ -15,8 +15,10 @@ modded class ActionSurgeryBase
             player.m_BleedingManagerServer.RemoveKnifeHit(false);
         }
         
-        PluginTransmissionAgents m_mta = PluginTransmissionAgents.Cast(GetPlugin(PluginTransmissionAgents));
-        m_mta.TransmitAgents(item, player, AGT_ITEM_TO_FLESH);
+        if (player.HasBloodyHands())
+		{
+			player.m_BleedingManagerServer.SetBloodInfection(true);
+		}
 
         if (item.HasQuantity())
         {
