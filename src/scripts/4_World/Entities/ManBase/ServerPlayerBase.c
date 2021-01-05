@@ -1046,4 +1046,12 @@ modded class PlayerBase
 			m_adrenalinEffectTimer = 0;
 		}
 	}
+	
+	bool HasMedicalWellGloves()
+	{
+		ItemBase gloves = GetItemOnSlot("Gloves");
+		if (!gloves) return false;
+		if (gloves.IsRuined()) return false;		
+		return GetGame().ConfigGetInt("CfgVehicles " + gloves.GetType() + " medGloves") == 1;
+	}
 };

@@ -4,7 +4,7 @@ modded class ActionBandageBase: ActionContinuousBase
 	{	
 		player.ApplyAdvMedicineItem(item.GetType(), 1.0);
 		
-		if (player.HasBloodyHands())
+		if (Math.RandomFloat01() < SEPSIS_DITRY_HANDS_BANDAGE_CHANCE && player.HasBloodyHands() && !player.HasMedicalWellGloves())
 		{
 			player.m_BleedingManagerServer.SetBloodInfection(true);
 		}
