@@ -25,6 +25,9 @@ modded class PlayerBase
 	float m_hematopoiesisTimer;
 	float m_salveEffectTimer;
 	float m_adrenalinEffectTimer;
+	float m_antibioticsTimer;
+	float m_antibioticsStrange;
+	float m_influenzaTimer;
 	
 	// Mind state
 	float m_mindDegradationForce;
@@ -57,6 +60,9 @@ modded class PlayerBase
 		m_hematopoiesisTimer = 0;
 		m_salveEffectTimer = 0;
 		m_adrenalinEffectTimer = 0;
+		m_antibioticsTimer = 0;
+		m_antibioticsStrange = 0;
+		m_influenzaTimer = 0;
 		
 		// Mind state
 		m_mindDegradationForce = 0;
@@ -110,6 +116,11 @@ modded class PlayerBase
         ctx.Write( m_adrenalinEffect );
         ctx.Write( m_adrenalinEffectTimer );
         ctx.Write( m_overdosedValue );
+		ctx.Write( m_influenzaLevel );
+		ctx.Write( m_influenzaTimer );
+		ctx.Write( m_antibioticsLevel );
+		ctx.Write( m_antibioticsTimer );
+		ctx.Write( m_antibioticsStrange );
 		
 		// Mind state
 		ctx.Write( m_mindStateValue );
@@ -166,6 +177,11 @@ modded class PlayerBase
 			if(!ctx.Read( m_adrenalinEffect )) return false;
 			if(!ctx.Read( m_adrenalinEffectTimer )) return false;
 			if(!ctx.Read( m_overdosedValue )) return false;
+			if(!ctx.Read( m_influenzaLevel )) return false;
+			if(!ctx.Read( m_influenzaTimer )) return false;
+			if(!ctx.Read( m_antibioticsLevel )) return false;
+			if(!ctx.Read( m_antibioticsTimer )) return false;
+			if(!ctx.Read( m_antibioticsStrange )) return false;
 			
 			// Mind state
 			if(!ctx.Read( m_mindStateValue )) return false;
@@ -196,6 +212,7 @@ modded class PlayerBase
 			OnTickAdvMedicine_ZVirus(m_advMedUpdateTimer);
 			OnTickAdvMedicine_Stomatchheal(m_advMedUpdateTimer);
 			OnTickAdvMedicine_Antibiotics(m_advMedUpdateTimer);
+			OnTickAdvMedicine_Influenza(m_advMedUpdateTimer);
 			//OnTickAdvMedicine_HemorlogicShock(m_advMedUpdateTimer);
 			OnTickAdvMedicine_Overdose(m_advMedUpdateTimer);
 			OnTickAdvMedicine_HemostatickEffect(m_advMedUpdateTimer);
@@ -210,6 +227,7 @@ modded class PlayerBase
 			m_sleepingDecTimer = m_sleepingDecTimer - 1.0;
 			OnTickSleeping();
 			OnTickMindState();
+			OnTickSickCheck();
 		}
 	}
 	
@@ -229,9 +247,6 @@ modded class PlayerBase
 			if (GetEmoteManager() && GetEmoteManager().IsPlayerSleeping())
 			{
 				float heatValue = GetStatHeatComfort().Get();
-				
-				SybLogSrv("HEAT: " + heatValue);
-				
 				if (heatValue < PlayerConstants.THRESHOLD_HEAT_COMFORT_MINUS_WARNING)
 				{
 					sleepingLevel = SyberiaSleepingLevel.SYBSL_COLD;
@@ -295,6 +310,25 @@ modded class PlayerBase
 		}
 				
 		SetSynchDirty();
+	}
+	
+	private void OnTickSickCheck()
+	{
+		float currHeatComf = GetStatHeatComfort().Get();
+		if (currHeatComf < -0.5)
+		{
+			if (Math.RandomFloat01() < INFLUENZA_APPLY_ON_COLD_CRIT_CHANCE)
+			{
+				AddInfluenza();
+			}
+		}
+		else if (currHeatComf < -0.35)
+		{
+			if (Math.RandomFloat01() < INFLUENZA_APPLY_ON_COLD_WARN_CHANCE)
+			{
+				AddInfluenza();
+			}
+		}
 	}
 	
 	private void OnTickMindState()
@@ -361,6 +395,14 @@ modded class PlayerBase
 		else
 		{
 			SetSleepingBoost(time, value);
+		}
+	}
+	
+	void AddInfluenza()
+	{
+		if (m_influenzaLevel == 0 && m_influenzaTimer == 0)
+		{
+			m_influenzaTimer = INFLUENZA_INCUBATE_PERIODS_SEC[0];
 		}
 	}
 	
@@ -445,19 +487,15 @@ modded class PlayerBase
 		
 		int medAntibioticLevel = GetGame().ConfigGetInt( "CfgVehicles " + classname + " medAntibioticLevel" );
 		if (medAntibioticLevel > 0)
-		{
-			if( GetModifiersManager().IsModifierActive(eModifiers.MDF_ANTIBIOTICS))
-			{
-				GetModifiersManager().DeactivateModifier( eModifiers.MDF_ANTIBIOTICS );
-			}
-			GetModifiersManager().ActivateModifier( eModifiers.MDF_ANTIBIOTICS );
-			AntibioticsMdfr antibioticsMdfr = AntibioticsMdfr.Cast(GetModifiersManager().GetModifier(eModifiers.MDF_ANTIBIOTICS));
+		{			
 			float medAntibioticsTimeSec = GetGame().ConfigGetFloat( "CfgVehicles " + classname + " medAntibioticsTimeSec" );
 			float medAntibioticsStrength = GetGame().ConfigGetFloat( "CfgVehicles " + classname + " medAntibioticsStrength" );
-			if (antibioticsMdfr && medAntibioticsTimeSec > 0 && medAntibioticsStrength > 0)
+			if (medAntibioticsTimeSec > 0 && medAntibioticsStrength > 0)
 			{
-				antibioticsMdfr.SetAntibioticsConfig(medAntibioticsTimeSec, medAntibioticsStrength);
-			}
+				m_antibioticsLevel = medAntibioticLevel;
+				m_antibioticsTimer = medAntibioticsTimeSec;
+				m_antibioticsStrange = medAntibioticsStrength;
+			}			
 		}
 		
 		/*int medHemologicShock = GetGame().ConfigGetInt( "CfgVehicles " + classname + " medHemologicShock" );
@@ -831,11 +869,88 @@ modded class PlayerBase
 	
 	protected void OnTickAdvMedicine_Antibiotics(float deltaTime)
 	{
-		bool lastAntibioticsEffect = m_antibioticsEffect;
-		m_antibioticsEffect = GetModifiersManager().IsModifierActive(eModifiers.MDF_ANTIBIOTICS);
-		if (m_antibioticsEffect != lastAntibioticsEffect)
+		if (m_antibioticsLevel > 0)
 		{
-			SetSynchDirty();
+			if (m_antibioticsTimer > 0)
+			{
+				m_antibioticsTimer = m_antibioticsTimer - deltaTime;
+				if (m_influenzaLevel > 0 && m_influenzaLevel <= m_antibioticsLevel)
+				{
+					float antibioticsMdfrLvl = Math.Clamp((m_antibioticsLevel - m_influenzaLevel) + 1, 1, 4);
+					float antibioticsMdfrMod = m_antibioticsStrange * antibioticsMdfrLvl * deltaTime * ANTIBIOTICS_GLOBAL_EFFECTIVITY_MODIFIER;
+					if (Math.RandomFloat01() <= antibioticsMdfrMod)
+					{
+						m_influenzaLevel = m_influenzaLevel - 1;
+						if (m_influenzaLevel > 0 && m_influenzaLevel < 3)
+						{
+							m_influenzaTimer = INFLUENZA_INCUBATE_PERIODS_SEC[m_influenzaLevel];;
+						}
+						else
+						{
+							m_influenzaTimer = 0;
+						}
+						SetSynchDirty();
+					}
+				}
+			}
+			else
+			{
+				m_antibioticsTimer = 0;
+				m_antibioticsLevel = 0;
+				m_antibioticsStrange = 0;
+				SetSynchDirty();
+			}
+		}
+		
+		AntibioticsAttack( deltaTime );
+	}
+	
+	protected void OnTickAdvMedicine_Influenza(float deltaTime)
+	{
+		if (m_influenzaTimer > 0)
+		{
+			m_influenzaTimer = m_influenzaTimer - deltaTime;
+			if (m_influenzaTimer <= 0)
+			{
+				if (m_influenzaLevel > 0 && m_antibioticsLevel >= m_influenzaLevel)
+				{
+					m_influenzaTimer = INFLUENZA_INCUBATE_PERIODS_SEC[m_influenzaLevel];
+				}
+				else if (m_influenzaLevel < 3)
+				{
+					m_influenzaLevel = m_influenzaLevel + 1;
+					m_influenzaTimer = INFLUENZA_INCUBATE_PERIODS_SEC[m_influenzaLevel];
+					SetSynchDirty();
+				}
+				else
+				{
+					m_influenzaTimer = 0;
+				}
+			}
+		}
+		
+		if (m_influenzaLevel > 0 && m_influenzaLevel <= 3)
+		{
+			int influenzaLevelIndex = m_influenzaLevel - 1;	
+			AddToEnvironmentTemperature(INFLUENZA_TEMPERATURE_LEVELS[influenzaLevelIndex]);
+			if ( Math.RandomFloat01() < INFLUENZA_SYMPTHOM_CHANCE[influenzaLevelIndex] * deltaTime )
+			{
+				if (influenzaLevelIndex == 0)
+				{
+					GetSymptomManager().QueueUpPrimarySymptom(SymptomIDs.SYMPTOM_SNEEZE);
+				}
+				else
+				{
+					GetSymptomManager().QueueUpPrimarySymptom(SymptomIDs.SYMPTOM_COUGH);
+				}
+			}
+			
+			float healthloseTime = INFLUENZA_DEATH_TIME[influenzaLevelIndex];
+			if (healthloseTime > 0)
+			{
+				float maxHealth = GetMaxHealth("GlobalHealth","Health");
+				DecreaseHealth("GlobalHealth","Health", (maxHealth / healthloseTime) * deltaTime);
+			}
 		}
 	}
 	
