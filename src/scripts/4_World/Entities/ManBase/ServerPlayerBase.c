@@ -93,7 +93,8 @@ modded class PlayerBase
         ctx.Write( m_cuthitRegenTimer );
         ctx.Write( m_painkillerEffect );
         ctx.Write( m_painkillerTime );
-        ctx.Write( m_stomatchhealEffect );
+        ctx.Write( m_stomatchpoisonLevel );
+		ctx.Write( m_stomatchhealLevel );
         ctx.Write( m_stomatchhealTimer );
         ctx.Write( m_hemologicShock );
         ctx.Write( m_sepsis );
@@ -154,7 +155,8 @@ modded class PlayerBase
 			if(!ctx.Read( m_cuthitRegenTimer )) return false;		
 			if(!ctx.Read( m_painkillerEffect )) return false;		
 			if(!ctx.Read( m_painkillerTime )) return false;		
-			if(!ctx.Read( m_stomatchhealEffect )) return false;		
+			if(!ctx.Read( m_stomatchpoisonLevel )) return false;		
+			if(!ctx.Read( m_stomatchhealLevel )) return false;	
 			if(!ctx.Read( m_stomatchhealTimer )) return false;		
 			if(!ctx.Read( m_hemologicShock )) return false;		
 			if(!ctx.Read( m_sepsis )) return false;		
@@ -228,6 +230,7 @@ modded class PlayerBase
 			OnTickSleeping();
 			OnTickMindState();
 			OnTickSickCheck();
+			OnTickStomatchpoison();
 		}
 	}
 	
@@ -259,6 +262,9 @@ modded class PlayerBase
 				{
 					sleepingLevel = SyberiaSleepingLevel.SYBSL_PERFECT;
 					sleepingDiff = sleepingDiff + SLEEPING_INC_PER_SLEEPING_LVL2_SEC;
+					
+					float maxHealth = GetMaxHealth("GlobalHealth","Health");
+					AddHealth("GlobalHealth", "Health", maxHealth * SLEEPING_HEAL_PER_SEC_01);
 				}
 				else
 				{
@@ -327,6 +333,81 @@ modded class PlayerBase
 			if (Math.RandomFloat01() < INFLUENZA_APPLY_ON_COLD_WARN_CHANCE)
 			{
 				AddInfluenza();
+			}
+		}
+	}
+	
+	private void OnTickStomatchpoison()
+	{
+		int poisonLevel = m_stomatchpoisonLevel;
+		int symptomDuration = 0;
+		int lvl1Poison = GetSingleAgentCount(eAgents.FOOD_POISON);		
+		int lvl2Poison = GetSingleAgentCount(eAgents.CHOLERA) + GetSingleAgentCount(eAgents.SALMONELLA);
+		int lvl3Poison = GetSingleAgentCount(eAgents.CHEMICAL_POISON);
+		
+		if (lvl1Poison > 0)
+		{
+			poisonLevel = 1;
+			RemoveAgent(eAgents.FOOD_POISON);
+			if (m_stomatchhealLevel < 1 && Math.RandomFloat01() < STOMATCHPOISON_VOMIT_CHANCE[0])
+			{
+				symptomDuration = Math.RandomIntInclusive( 5, 10 );
+			}
+		}
+		if (lvl2Poison > 0)
+		{
+			poisonLevel = 2;
+			RemoveAgent(eAgents.CHOLERA);
+			RemoveAgent(eAgents.SALMONELLA);
+			if (m_stomatchhealLevel < 2 && Math.RandomFloat01() < STOMATCHPOISON_VOMIT_CHANCE[1])
+			{
+				symptomDuration = Math.RandomIntInclusive( 2, 8 );
+			}
+		}
+		if (lvl3Poison > 0)
+		{
+			poisonLevel = 3;
+			RemoveAgent(eAgents.CHEMICAL_POISON);
+			if (m_stomatchhealLevel < 3 && Math.RandomFloat01() < STOMATCHPOISON_VOMIT_CHANCE[2])
+			{
+				symptomDuration = Math.RandomIntInclusive( 1, 4 );
+			}
+		}
+		
+		if (poisonLevel > m_stomatchpoisonLevel)
+		{
+			if (poisonLevel == 1 && m_stomatchhealLevel < 1 && Math.RandomFloat01() < STOMATCHPOISON_VOMIT_CHANCE[0])
+			{
+				symptomDuration = Math.RandomIntInclusive( 1, 4 );
+			}
+			else if (poisonLevel == 2 && m_stomatchhealLevel < 2 && Math.RandomFloat01() < STOMATCHPOISON_VOMIT_CHANCE[1])
+			{
+				symptomDuration = Math.RandomIntInclusive( 2, 8 );
+			}
+			else if (poisonLevel == 3 && m_stomatchhealLevel < 3 && Math.RandomFloat01() < STOMATCHPOISON_VOMIT_CHANCE[2])
+			{
+				symptomDuration = Math.RandomIntInclusive( 5, 10 );
+			}
+			
+			m_stomatchpoisonLevel = poisonLevel;
+			SetSynchDirty();
+		}
+		
+		if (symptomDuration > 0)
+		{
+			SymptomBase symptom = GetSymptomManager().QueueUpPrimarySymptom(SymptomIDs.SYMPTOM_VOMIT);				
+			if( symptom )
+			{
+				symptom.SetDuration(symptomDuration);
+				
+				int waterDrain = STOMATCHPOISON_WATER_DRAIN_FROM_VOMIT[poisonLevel - 1];
+				int energyDrain = STOMATCHPOISON_ENERGY_DRAIN_FROM_VOMIT[poisonLevel - 1];
+
+				if (GetStatWater().Get() > waterDrain)
+					GetStatWater().Add(-1 * waterDrain);
+				
+				if (GetStatEnergy().Get() > energyDrain)
+					GetStatEnergy().Add(-1 * energyDrain);
 			}
 		}
 	}
@@ -464,11 +545,11 @@ modded class PlayerBase
 		int medPainkillerLevel = GetGame().ConfigGetInt( "CfgVehicles " + classname + " medPainkillerLevel" );
 		if (medPainkillerLevel > 0)
 		{
-			if (m_painkillerEffect <= medPainkillerLevel)
-			{
-				float medPainkillerTimeSec = GetGame().ConfigGetFloat( "CfgVehicles " + classname + " medPainkillerTimeSec" );
+			overdosedIncrement = ProcessOverdosedPostinc(m_painkillerTime, overdosedIncrement);
+			float medPainkillerTimeSec = GetGame().ConfigGetFloat( "CfgVehicles " + classname + " medPainkillerTimeSec" );
+			if (medPainkillerLevel >= m_painkillerEffect && medPainkillerTimeSec > 0)
+			{				
 				m_painkillerEffect = medPainkillerLevel;
-				overdosedIncrement = ProcessOverdosedPostinc(m_painkillerTime, overdosedIncrement);
 				m_painkillerTime = m_painkillerTime + (medPainkillerTimeSec * amount);
 			}
 		}
@@ -476,11 +557,11 @@ modded class PlayerBase
 		int medStomatchhealLevel = GetGame().ConfigGetInt( "CfgVehicles " + classname + " medStomatchhealLevel" );
 		if (medStomatchhealLevel > 0)
 		{
-			if (!m_stomatchhealEffect)
+			overdosedIncrement = ProcessOverdosedPostinc(m_stomatchhealTimer, overdosedIncrement);
+			float medStomatchhealTimeSec = GetGame().ConfigGetFloat( "CfgVehicles " + classname + " medStomatchhealTimeSec" );
+			if (medStomatchhealLevel >= m_stomatchhealLevel && medStomatchhealTimeSec > 0)
 			{
-				m_stomatchhealEffect = true;
-				float medStomatchhealTimeSec = GetGame().ConfigGetFloat( "CfgVehicles " + classname + " medStomatchhealTimeSec" );
-				overdosedIncrement = ProcessOverdosedPostinc(m_stomatchhealTimer, overdosedIncrement);
+				m_stomatchhealLevel = medStomatchhealLevel;
 				m_stomatchhealTimer = m_stomatchhealTimer + (medStomatchhealTimeSec * amount);
 			}
 		}
@@ -488,12 +569,13 @@ modded class PlayerBase
 		int medAntibioticLevel = GetGame().ConfigGetInt( "CfgVehicles " + classname + " medAntibioticLevel" );
 		if (medAntibioticLevel > 0)
 		{			
+			overdosedIncrement = ProcessOverdosedPostinc(m_antibioticsTimer, overdosedIncrement);
 			float medAntibioticsTimeSec = GetGame().ConfigGetFloat( "CfgVehicles " + classname + " medAntibioticsTimeSec" );
 			float medAntibioticsStrength = GetGame().ConfigGetFloat( "CfgVehicles " + classname + " medAntibioticsStrength" );
-			if (medAntibioticsTimeSec > 0 && medAntibioticsStrength > 0)
+			if (medAntibioticLevel >= m_antibioticsLevel && medAntibioticsTimeSec > 0 && medAntibioticsStrength > 0)
 			{
 				m_antibioticsLevel = medAntibioticLevel;
-				m_antibioticsTimer = medAntibioticsTimeSec;
+				m_antibioticsTimer = m_antibioticsTimer + (medAntibioticsTimeSec * amount);
 				m_antibioticsStrange = medAntibioticsStrength;
 			}			
 		}
@@ -842,18 +924,25 @@ modded class PlayerBase
 	
 	protected void OnTickAdvMedicine_Stomatchheal(float deltaTime)
 	{
-		if (!m_stomatchhealEffect)
+		if (m_stomatchhealLevel == 0)
 			return;
+
+		int level = Math.Clamp(m_stomatchhealLevel - 1, 0, 2);
+		float healChance = STOMATCHHEAL_AGENTS_KILLCHANCE[level] * deltaTime * ((m_stomatchhealLevel - m_stomatchpoisonLevel) + 1);
+		if (healChance > 0 && healChance <= Math.RandomFloat01())
+		{
+			if (m_stomatchpoisonLevel > 0)
+			{
+				m_stomatchpoisonLevel = m_stomatchpoisonLevel - 1;
+				SetSynchDirty();
+			}
+		}
 		
 		m_stomatchhealTimer = Math.Clamp(m_stomatchhealTimer - deltaTime, 0, 999999);
 		if (m_stomatchhealTimer < 0.1)
 		{
-			m_stomatchhealEffect = false;
-			m_stomatchhealTimer = 0;
-			if( GetModifiersManager().IsModifierActive(eModifiers.MDF_POISONING))
-			{
-				GetModifiersManager().DeactivateModifier(eModifiers.MDF_POISONING);
-			}
+			m_stomatchhealLevel = 0;
+			m_stomatchhealTimer = 0;			
 			SetSynchDirty();
 		}		
 	}
