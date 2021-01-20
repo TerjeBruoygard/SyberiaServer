@@ -20,7 +20,7 @@ void GetMaleCharactersMetadata(ref array<ref CharacterMetadata> result)
 	result.Insert(new CharacterMetadata("SurvivorM_Rolf", "m17"));
 	result.Insert(new CharacterMetadata("SurvivorM_Seth", "m18"));
 	result.Insert(new CharacterMetadata("SurvivorM_Taiki", "m19"));
-}
+};
 
 void GetFemaleCharactersMetadata(ref array<ref CharacterMetadata> result)
 {
@@ -34,4 +34,4 @@ void GetFemaleCharactersMetadata(ref array<ref CharacterMetadata> result)
 	result.Insert(new CharacterMetadata("SurvivorF_Linda", "m7"));
 	result.Insert(new CharacterMetadata("SurvivorF_Maria", "m8"));
 	result.Insert(new CharacterMetadata("SurvivorF_Naomi", "m9"));	
-}
+};
