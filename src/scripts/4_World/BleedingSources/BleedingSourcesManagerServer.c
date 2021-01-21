@@ -204,10 +204,27 @@ modded class BleedingSourcesManagerServer
 				SetZVirus(true);
 			}
 		}
+		else if ( ammo.ToType().IsInherited(Nonlethal_Base) )
+		{
+			AddHematomaHit();
+		}
 		else if (ammoType == "Melee")
 		{
-			float affectSkeleton = GetGame().ConfigGetFloat( "CfgAmmo " + ammo + " affectSkeleton" );
+			bool blockMeleeDamage = false;
+			if (zone == "Torso")
+			{
+				ItemBase itemCheckMeleVest = m_Player.GetItemOnSlot("Vest");
+				if (itemCheckMeleVest && !itemCheckMeleVest.IsRuined())
+				{
+					float plateArmorMele = GetGame().ConfigGetFloat( "CfgVehicles " + itemCheckMeleVest.GetType() + " DamageSystem GlobalArmor Melee Blood damage" );
+					if (plateArmorMele < 0.1)
+					{
+						blockMeleeDamage = true;
+					}
+				}
+			}
 			
+			float affectSkeleton = GetGame().ConfigGetFloat( "CfgAmmo " + ammo + " affectSkeleton" );
 			if (affectSkeleton > 1 && !ammo.Contains("Axe"))
 			{
 				AddHematomaHit();
@@ -216,31 +233,34 @@ modded class BleedingSourcesManagerServer
 					SetConcussionHit(true);
 				}
 			}
-			else if (bleed_threshold >= Math.RandomFloat01())
+			else if (!blockMeleeDamage) 
 			{
-				if (ammo.Contains("_Heavy") || Math.RandomFloat01() >= 0.7)
+				if (bleed_threshold >= Math.RandomFloat01())
 				{
-					AddKnifeHit();
-					if (zone == "Torso" && Math.RandomFloat01() < VISCERA_KNIFEHIT_TORSO_CHANCE)
+					if (ammo.Contains("_Heavy") || Math.RandomFloat01() >= 0.6)
 					{
-						AddVisceraHit();
+						AddKnifeHit();
+						if (zone == "Torso" && Math.RandomFloat01() < VISCERA_KNIFEHIT_TORSO_CHANCE)
+						{
+							AddVisceraHit();
+						}
+					}
+					else
+					{
+						AttemptAddBleedingSource(component);
+					}
+					
+					if (Math.RandomFloat01() < SEPSIS_KNIFE_HIT_CHANCE)
+					{
+						SetBloodInfection(true);
 					}
 				}
 				else
 				{
-					AttemptAddBleedingSource(component);
-				}
-				
-				if (Math.RandomFloat01() < SEPSIS_KNIFE_HIT_CHANCE)
-				{
-					SetBloodInfection(true);
-				}
-			}
-			else
-			{
-				if (Math.RandomFloat01() < HEMATOMA_PLAYERHANDS_HIT_CHANCE)
-				{
-					AddHematomaHit();
+					if (Math.RandomFloat01() < HEMATOMA_PLAYERHANDS_HIT_CHANCE)
+					{
+						AddHematomaHit();
+					}
 				}
 			}
 		}
