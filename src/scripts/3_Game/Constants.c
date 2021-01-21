@@ -19,7 +19,7 @@ const int SLEEPING_INC_PER_UNCONSION_BOOST_TIME = 30;
 const int SLEEPING_INC_PER_SLEEPING_LVL1_SEC = 9;
 const int SLEEPING_INC_PER_SLEEPING_LVL2_SEC = 18;
 const float SLEEPING_HEAL_PER_SEC_01 = 0.0005;
-const float SLEEPING_HEAL_INFLUENZA_CHANCE = 0.002;
+const float SLEEPING_HEAL_INFLUENZA_CHANCE = 0.001;
 
 // ADV MED
 const float SEPSIS_STAGE1_TIME_SEC = 600; // 10 min
@@ -94,12 +94,12 @@ const float ZOMBIE_FIND_HOUSE_DISTANCE = 20.0;
 const float MINDSTATE_HEAL_PER_SEC = 0.04;
 const int   MINDSTATE_EMPTY_DEADTIME_SEC = 10 * 60;
 
-const float INFLUENZA_INCUBATE_PERIODS_SEC[3] = { 60 * 10, 60 * 30, 60 * 30 };
-const float INFLUENZA_TEMPERATURE_LEVELS[3] = { 34.0, 37.0, 40.0 };
+const float INFLUENZA_INCUBATE_PERIODS_SEC[3] = { 60 * 5, 60 * 25, 60 * 30 };
+const float INFLUENZA_TEMPERATURE_LEVELS[3] = { -1, 37.0, 40.0 };
 const float INFLUENZA_SYMPTHOM_CHANCE[3] = { 0.02, 0.04, 0.1 };
 const float INFLUENZA_DEATH_TIME[3] = {0, 0, 60 * 15};
-const float INFLUENZA_APPLY_ON_COLD_WARN_CHANCE = 0.001;
-const float INFLUENZA_APPLY_ON_COLD_CRIT_CHANCE = 0.005;
+const float INFLUENZA_APPLY_ON_COLD_WARN_CHANCE = 0.0005;
+const float INFLUENZA_APPLY_ON_COLD_CRIT_CHANCE = 0.0025;
 const float ANTIBIOTICS_GLOBAL_EFFECTIVITY_MODIFIER = 0.005;
 
 const float STOMATCHPOISON_VOMIT_CHANCE[3] = { 1 / 60, 1 / 30, 1 / 10 };
@@ -113,7 +113,8 @@ const int STOMATCHPOISON_ROTTEN_MEAT[2] = { 2, 5 * 60 }; // level, seconds * amo
 const int STOMATCHPOISON_BURNED_FOOD[2] = { 1, 5 * 60 }; // level, seconds * amount
 const int STOMATCHPOISON_ROTTEN_FOOD[2] = { 2, 5 * 60 }; // level, seconds * amount
 const int STOMATCHPOISON_DIRTY_HANDS[2] = { 1, 5 * 60 }; // level, seconds * amount
-const float STOMATCHPOISON_CHANCE_DRINK_POND = 0.5;
+const int STOMATCHPOISON_INFECTION[2] = { 1, 5 * 60 }; // level, seconds * amount
+const float STOMATCHPOISON_CHANCE_DRINK_POND = 0.8;
 const int STOMATCHPOISON_DRINK_POND[2] = { 1, 2 * 60 };
 const float STOMATCHPOISON_CHANCE_DRINK_WELL = 0.01;
 const int STOMATCHPOISON_DRINK_WELL[2] = { 1, 60 };
