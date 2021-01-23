@@ -248,61 +248,68 @@ modded class PlayerBase
 			m_sleepingBoostTimer = m_sleepingBoostTimer - 1;
 			sleepingDiff = sleepingDiff + m_sleepingBoostValue;
 		}
-		else
+
+		SyberiaSleepingLevel sleepingLevel = SyberiaSleepingLevel.SYBSL_NONE;		
+		if (GetEmoteManager() && GetEmoteManager().IsPlayerSleeping())
 		{
-			SyberiaSleepingLevel sleepingLevel = SyberiaSleepingLevel.SYBSL_NONE;		
-			if (GetEmoteManager() && GetEmoteManager().IsPlayerSleeping())
+			float heatValue = GetStatHeatComfort().Get();
+			if (IsSicknesOrInjured())
 			{
-				float heatValue = GetStatHeatComfort().Get();
-				if (heatValue < PlayerConstants.THRESHOLD_HEAT_COMFORT_MINUS_WARNING)
-				{
-					sleepingLevel = SyberiaSleepingLevel.SYBSL_COLD;
-				}
-				else if (heatValue > PlayerConstants.THRESHOLD_HEAT_COMFORT_PLUS_CRITICAL)
-				{
-					sleepingLevel = SyberiaSleepingLevel.SYBSL_HOT;
-				}
-				else if (m_HasHeatBuffer)
-				{
-					sleepingLevel = SyberiaSleepingLevel.SYBSL_PERFECT;
-					sleepingDiff = sleepingDiff + SLEEPING_INC_PER_SLEEPING_LVL2_SEC;
-				}
-				else
-				{
-					sleepingLevel = SyberiaSleepingLevel.SYBSL_COMFORT;
-					sleepingDiff = sleepingDiff + SLEEPING_INC_PER_SLEEPING_LVL1_SEC;
-				}
+				sleepingLevel = SyberiaSleepingLevel.SYBSL_SICK;
 			}
-			
-			int sleepingLvlInt = (int)sleepingLevel;
-			if (sleepingLvlInt != m_sleepingLevel)
+			else if (m_sleepingBoostTimer > 0)
 			{
-				m_sleepingLevel = sleepingLvlInt;
+				sleepingLevel = SyberiaSleepingLevel.SYBSL_ENERGED;
 			}
-			
-			if (sleepingLvlInt > 0)
+			else if (heatValue < PlayerConstants.THRESHOLD_HEAT_COMFORT_MINUS_WARNING)
 			{
-				m_sleepingSoundTimer = m_sleepingSoundTimer + 1;
-				if (m_sleepingSoundTimer >= 5)
-				{
-					m_sleepingSoundTimer = 0;
-					if (IsMale()) SyberiaSoundEmitter.Spawn("SleepingMale_SoundEmitter", GetPosition());
-					else SyberiaSoundEmitter.Spawn("SleepingFemale_SoundEmitter", GetPosition());
-				}
-				
-				float maxHealth = GetMaxHealth("GlobalHealth","Health");
-				AddHealth("GlobalHealth", "Health", maxHealth * SLEEPING_HEAL_PER_SEC_01);			
-				if (m_influenzaLevel <= 1 && Math.RandomFloat01() < SLEEPING_HEAL_INFLUENZA_CHANCE)
-				{
-					m_influenzaLevel = 0;
-					m_influenzaTimer = 0;
-					SetSynchDirty();
-				}
+				sleepingLevel = SyberiaSleepingLevel.SYBSL_COLD;
+			}
+			else if (heatValue > PlayerConstants.THRESHOLD_HEAT_COMFORT_PLUS_CRITICAL)
+			{
+				sleepingLevel = SyberiaSleepingLevel.SYBSL_HOT;
+			}
+			else if (m_HasHeatBuffer)
+			{
+				sleepingLevel = SyberiaSleepingLevel.SYBSL_PERFECT;
+				sleepingDiff = sleepingDiff + SLEEPING_INC_PER_SLEEPING_LVL2_SEC;
 			}
 			else
 			{
-				m_sleepingSoundTimer = -10;
+				sleepingLevel = SyberiaSleepingLevel.SYBSL_COMFORT;
+				sleepingDiff = sleepingDiff + SLEEPING_INC_PER_SLEEPING_LVL1_SEC;
 			}
+		}
+		
+		int sleepingLvlInt = (int)sleepingLevel;
+		if (sleepingLvlInt != m_sleepingLevel)
+		{
+			m_sleepingLevel = sleepingLvlInt;
+			SetSynchDirty();
+		}
+		
+		if (sleepingLvlInt > 0)
+		{
+			m_sleepingSoundTimer = m_sleepingSoundTimer + 1;
+			if (m_sleepingSoundTimer >= 5)
+			{
+				m_sleepingSoundTimer = 0;
+				if (IsMale()) SyberiaSoundEmitter.Spawn("SleepingMale_SoundEmitter", GetPosition());
+				else SyberiaSoundEmitter.Spawn("SleepingFemale_SoundEmitter", GetPosition());
+			}
+			
+			float maxHealth = GetMaxHealth("GlobalHealth","Health");
+			AddHealth("GlobalHealth", "Health", maxHealth * SLEEPING_HEAL_PER_SEC_01);						
+			if (m_influenzaLevel <= 1 && Math.RandomFloat01() < SLEEPING_HEAL_INFLUENZA_CHANCE)
+			{
+				m_influenzaLevel = 0;
+				m_influenzaTimer = 0;
+				SetSynchDirty();
+			}
+		}
+		else
+		{
+			m_sleepingSoundTimer = -10;
 		}
 		
 		m_lastSleepingValue = m_sleepingValue;
