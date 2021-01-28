@@ -18,6 +18,29 @@ ref PlayerBase GetPlayerByIdentity(ref PlayerIdentity identity)
 	return result;
 }
 
+ref PlayerBase GetPlayerByGUID(string guid)
+{
+	ref PlayerBase result = null;
+	ref array<Man> players = new array<Man>;
+	GetGame().GetPlayers(players);
+
+	foreach (ref Man man : players)
+	{
+		ref PlayerBase player = PlayerBase.Cast(man);
+		if (player)
+		{
+			if (player.GetIdentity().GetId() == guid)
+			{
+				result = player;
+				break;
+			}
+		}
+	}
+	
+	delete players;
+	return result;
+}
+
 ref PlayerBase GetPlayerByCharId(int id)
 {
 	ref PlayerBase result = null;

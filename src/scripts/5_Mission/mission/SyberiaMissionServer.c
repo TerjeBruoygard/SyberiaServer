@@ -3,7 +3,6 @@ modded class MissionServer
 	ref array<ref CharacterMetadata> m_maleCharactersPool;
 	ref array<ref CharacterMetadata> m_femaleCharactersPool;
 	ref SkillsContainer m_defaultSkillsContainer;
-	ref array<ref PerkDescription> m_allPerksDesc;
 	
 	override void OnInit()
 	{
@@ -11,9 +10,7 @@ modded class MissionServer
 		
 		m_maleCharactersPool = new array<ref CharacterMetadata>;
 		m_femaleCharactersPool = new array<ref CharacterMetadata>;
-		m_defaultSkillsContainer = CreateDefaultSkillsContainer();		
-		m_allPerksDesc = new array<ref PerkDescription>;
-		GetPerkDescriptions(m_allPerksDesc);
+		m_defaultSkillsContainer = SkillsContainer.Create();		
 		
 		GetMaleCharactersMetadata(m_maleCharactersPool);
 		GetFemaleCharactersMetadata(m_femaleCharactersPool);
@@ -141,7 +138,7 @@ modded class MissionServer
 			newcharParams.m_score = GetSyberiaOptions().m_main.m_newchar_points;
 			newcharParams.m_maleCharsMetadata = m_maleCharactersPool;
 			newcharParams.m_femaleCharsMetadata = m_femaleCharactersPool;
-			newcharParams.m_skillsContainer = m_defaultSkillsContainer;
+			newcharParams.m_skills = m_defaultSkillsContainer;
 
 			GetSyberiaRPC().SendToClient(SyberiaRPC.SYBRPC_NEWCHAR_SCREEN_OPEN, identity, new Param1<ref RpcNewCharContainer>(newcharParams));
 			delete newcharParams;
@@ -366,25 +363,13 @@ modded class MissionServer
 				}
 				
 				int charScore = GetSyberiaOptions().m_main.m_newchar_points;
-				foreach (int perkId : clientData.param1.m_perks)
-				{
-					if (perkId < 0 || perkId >= m_allPerksDesc.Count())
-					{
-						GetGame().DisconnectPlayer(sender);
-						return;
-					}
-					
-					ref PerkDescription perkDesc = m_allPerksDesc.Get(perkId);
-					charScore = charScore - perkDesc.m_cost;
-				}
-				if (charScore < 0) 
+				if (charScore < clientData.param1.m_skills.GetTotalScore()) 
 				{
 					GetGame().DisconnectPlayer(sender);
 					return;
 				}
 				
-				profile.m_skills = CreateDefaultSkillsContainer();
-				profile.m_skills.m_perks.Copy(clientData.param1.m_perks);
+				profile.m_skills = clientData.param1.m_skills;
 				
 				GetSyberiaCharacters().Create(sender, profile, this, "OnCreateNewCharRequest_CreateChar");
 				delete profile;	
