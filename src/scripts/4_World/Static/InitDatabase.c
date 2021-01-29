@@ -16,7 +16,15 @@ class SyberiaDatabaseInit
 			PluginSyberiaOptions_GroupFaction.InitQueries(queries);
 			// Init queries end
 			
-			GetDatabase().TransactionSync(SYBERIA_DB_NAME, queries, response);	
+			GetDatabase().TransactionSync(SYBERIA_DB_NAME, queries, response);
+			
+			// Update database
+			queries.Clear();	
+			CharProfile.UpgradeQueries(queries);
+			foreach (string query : queries)
+			{
+				GetDatabase().QueryNoStrictSync(SYBERIA_DB_NAME, query);
+			}
 		}
 	}
 };

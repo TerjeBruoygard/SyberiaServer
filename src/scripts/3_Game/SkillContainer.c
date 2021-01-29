@@ -1,21 +1,39 @@
 modded class SkillsContainer
 {
-	void SetValue(int id, float value)
+	string SerializeAsDbField()
 	{
-		value = Math.Clamp(value, GetMin(id), GetMax(id));
+		string result;
 		
-		if (m_values.Contains(id))
+		foreach (int id, float val : m_values)
 		{
-			m_values.Set(id, value);
+			result = result + id + ":" + val + ";";
 		}
-		else
-		{
-			m_values.Insert(id, value);
-		}
+		
+		return result;
 	}
 	
-	void AddValue(int id, float value)
+	void DeserializeAsDbField(string fieldValue)
 	{
-		SetValue(id, GetValue(id) + value);
+		m_values.Clear();
+		
+		array<string> skillPairs = new array<string>;
+		array<string> partPairs = new array<string>;
+		fieldValue.Split(";", skillPairs);
+		
+		foreach (string skillPair : skillPairs)
+		{
+			string trimedPair = skillPair.Trim();
+			if (trimedPair == "") continue;
+			
+			partPairs.Clear();
+			trimedPair.Split(":", partPairs);
+			if (partPairs.Count() == 2)
+			{
+				int id = partPairs.Get(0).ToInt();
+				float value = partPairs.Get(1).ToFloat();
+				
+				SetValue(id, value);
+			}
+		}
 	}
 };
