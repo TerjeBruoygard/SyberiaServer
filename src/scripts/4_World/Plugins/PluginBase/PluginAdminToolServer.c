@@ -1,6 +1,7 @@
 modded class PluginAdminTool
 {
 	ref PluginAdminTool_Options m_options;
+	ref array<ref CorpseData> m_corpsePtr;
 	
 	override void OnInit()
 	{
@@ -192,14 +193,26 @@ modded class PluginAdminTool
 		if (sender && IsPlayerAdmin(sender))
 		{
 			ref PluginAdminTool_MapContext context = new PluginAdminTool_MapContext;
-			context.m_playerPositions = new array<vector>;
-			context.m_playerNames = new array<string>;
-			context.m_vehiclePositions = new array<vector>;
-			context.m_vehicleNames = new array<string>;
-			
-			array<Man> players = new array<Man>;
-			GetGame().GetPlayers(players);
-			foreach (Man man : players)
+			FillMapContext(context, true, true, true);			
+			GetSyberiaRPC().SendToClient( SyberiaRPC.SYBRPC_ADMINTOOL_UPDATEMAP, sender, new Param1<ref PluginAdminTool_MapContext>(context) );
+			delete context;
+		}
+	}
+	
+	private void FillMapContext(ref PluginAdminTool_MapContext context, bool players, bool corpses, bool vehicles)
+	{
+		context.m_playerPositions = new array<vector>;
+		context.m_playerNames = new array<string>;
+		context.m_bodiesPositions = new array<vector>;
+		context.m_bodiesNames = new array<string>;
+		context.m_vehiclePositions = new array<vector>;
+		context.m_vehicleNames = new array<string>;
+		
+		if (players)
+		{
+			array<Man> playersArray = new array<Man>;
+			GetGame().GetPlayers(playersArray);
+			foreach (Man man : playersArray)
 			{
 				PlayerBase player = PlayerBase.Cast(man);
 				if (player && player.m_charProfile)
@@ -208,7 +221,22 @@ modded class PluginAdminTool
 					context.m_playerNames.Insert(player.m_charProfile.m_name);
 				}
 			}
-			
+		}
+		
+		if (corpses && m_corpsePtr)
+		{
+			foreach (ref CorpseData corpse : m_corpsePtr)
+			{
+				if (corpse.m_Player && corpse.m_Player.m_charProfile)
+				{
+					context.m_bodiesPositions.Insert(corpse.m_Player.GetPosition());
+					context.m_bodiesNames.Insert(corpse.m_Player.m_charProfile.m_name);
+				}
+			}	
+		}	
+		
+		if (vehicles)
+		{
 			array<CarScript> cars = new array<CarScript>;
 			CarScript.GetAllVehicles(cars);
 			foreach (CarScript car : cars)
@@ -216,9 +244,6 @@ modded class PluginAdminTool
 				context.m_vehiclePositions.Insert(car.GetPosition());
 				context.m_vehicleNames.Insert(car.GetType());
 			}
-			
-			GetSyberiaRPC().SendToClient( SyberiaRPC.SYBRPC_ADMINTOOL_UPDATEMAP, sender, new Param1<ref PluginAdminTool_MapContext>(context) );
-			delete context;
 		}
 	}
 	
@@ -229,28 +254,95 @@ modded class PluginAdminTool
 			PlayerBase player = GetPlayerByGUID(sender.GetId());
 			if (player)
 			{
-				Param1< vector > serverData;
+				Param2< vector, int > serverData;
 	        	if ( !ctx.Read( serverData ) ) return;
-				
-				vector teleportPos = serverData.param1;	
-				teleportPos[1] = GetGame().SurfaceY(teleportPos[0], teleportPos[2]);
-							
-				Transport veh = GameHelpers.GetPlayerVehicle(player);
-				if ( veh )
-				{
-					vector mat[4];
-					veh.GetTransform(mat);
-					mat[3] = teleportPos;
-					veh.SetTransform(mat);
-				}
-				else
-				{
-					player.SetPosition(teleportPos);
-				}
-				
+
+				TeleportFnc(player, serverData.param1, serverData.param2);				
 				UpdateMap(null, sender);
 			}
 		}
+	}
+	
+	private void TeleportFnc(ref PlayerBase player, vector pos, int mode)
+	{
+		vector teleportPos = pos;
+		if (mode == 0)
+		{	
+			teleportPos[1] = GetGame().SurfaceY(teleportPos[0], teleportPos[2]);
+		}
+		else if (mode == 1)
+		{
+			if (!player.m_freeCamMode)
+				return;
+			
+			teleportPos[1] = GetGame().SurfaceY(teleportPos[0], teleportPos[2]) - 50;
+			player.GetStatHeatBuffer().Set(player.GetStatHeatBuffer().GetMax());
+		}
+					
+		Transport veh = GameHelpers.GetPlayerVehicle(player);
+		if ( veh )
+		{
+			vector mat[4];
+			veh.GetTransform(mat);
+			mat[3] = teleportPos;
+			veh.SetTransform(mat);
+		}
+		else
+		{
+			player.SetPosition(teleportPos);
+		}
+	}
+	
+	override void FreeCam( ref ParamsReadContext ctx, ref PlayerIdentity sender )
+	{
+		if (sender && IsPlayerAdmin(sender))
+		{
+			PlayerBase player = GetPlayerByGUID(sender.GetId());
+			if (player)
+			{
+				Param1< bool > serverData;
+	        	if ( !ctx.Read( serverData ) ) return;
+				player.m_freeCamMode = serverData.param1;
+				
+				if (serverData.param1)
+				{
+					TeleportFnc(player, player.GetPosition(), 1);
+				}
+				else
+				{
+					TeleportFnc(player, player.GetPosition(), 0);
+				}
+				
+				GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(SetPlayerAllowDamage, 1500, false, player, !serverData.param1);
+				GetSyberiaRPC().SendToClient( SyberiaRPC.SYBRPC_ADMINTOOL_FREECAM, sender, serverData );
+			}
+		}
+	}
+	
+	override void EspSynch( ref ParamsReadContext ctx, ref PlayerIdentity sender )
+	{
+		if (sender && IsPlayerAdmin(sender))
+		{
+			PlayerBase player = GetPlayerByGUID(sender.GetId());
+			if (player)
+			{
+				Param3< bool, bool, bool > serverData;
+	        	if ( !ctx.Read( serverData ) ) return;
+				
+				bool synchPlayers = serverData.param1;
+				bool synchBodies = serverData.param2;
+				bool synchVehs = serverData.param3;
+				ref PluginAdminTool_MapContext context = new PluginAdminTool_MapContext;
+				FillMapContext(context, synchPlayers, synchBodies, synchVehs);					
+				GetSyberiaRPC().SendToClient( SyberiaRPC.SYBRPC_ADMINTOOL_ESPSYNCH, sender, new Param1< ref PluginAdminTool_MapContext >(context) );
+				delete context;
+			}
+		}
+	}
+	
+	private void SetPlayerAllowDamage(PlayerBase player, bool value)
+	{
+		if (player) player.SetAllowDamage(value);
 	}
 
 	private void ApplyPlayerContextStat(PlayerBase player, string statName, float value)
