@@ -340,6 +340,42 @@ modded class PluginAdminTool
 		}
 	}
 	
+	override void ObjMove( ref ParamsReadContext ctx, ref PlayerIdentity sender )
+	{
+		if (sender && IsPlayerAdmin(sender))
+		{
+			Param3<Object, int, float> serverData;
+			if ( !ctx.Read( serverData ) ) return;
+			if ( !serverData.param1 ) return;
+			
+			Object obj = serverData.param1;
+			int axis = serverData.param2;
+			float value = serverData.param3;
+			vector pos = obj.GetPosition();
+			vector rot = obj.GetOrientation();
+			if (axis == 0) pos[0] = pos[0] + value;
+			else if (axis == 1) pos[1] = pos[1] + value;
+			else if (axis == 2) pos[2] = pos[2] + value;
+			else if (axis == 3) rot[0] = rot[0] + (value * 10);
+			else if (axis == 4) rot[1] = rot[1] + (value * 10);
+			else if (axis == 5) rot[2] = rot[2] + (value * 10);
+
+			obj.SetPosition(pos);
+			obj.SetOrientation(rot);
+		}
+	}
+	
+	override void ObjDel( ref ParamsReadContext ctx, ref PlayerIdentity sender )
+	{
+		if (sender && IsPlayerAdmin(sender))
+		{
+			Param1<Object> serverData;
+			if ( !ctx.Read( serverData ) ) return;
+			if ( !serverData.param1 ) return;			
+			GetGame().ObjectDelete( serverData.param1 );
+		}
+	}
+	
 	private void SetPlayerAllowDamage(PlayerBase player, bool value)
 	{
 		if (player) player.SetAllowDamage(value);
