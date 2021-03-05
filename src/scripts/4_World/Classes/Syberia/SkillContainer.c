@@ -4,9 +4,16 @@ modded class SkillsContainer
 	{
 		string result;
 		
-		foreach (int id, float val : m_values)
+		foreach (int skillId, float skillVal : m_skills)
 		{
-			result = result + id + ":" + val + ";";
+			result = result + skillId + ":" + skillVal + ";";
+		}
+		
+		result = result + "|";
+		
+		foreach (int perkId, int perkVal : m_perks)
+		{
+			result = result + perkId + ":" + perkVal + ";";
 		}
 		
 		return result;
@@ -14,34 +21,59 @@ modded class SkillsContainer
 	
 	void DeserializeAsDbField(string fieldValue)
 	{
-		m_values.Clear();
+		m_skills.Clear();
+		m_perks.Clear();
 		
-		array<string> skillPairs = new array<string>;
+		string trimedPair;
+		array<string> mainPairs = new array<string>;
+		array<string> mapPairs = new array<string>;
 		array<string> partPairs = new array<string>;
-		fieldValue.Split(";", skillPairs);
+		fieldValue.Split("|", mainPairs);
 		
-		foreach (string skillPair : skillPairs)
+		if (mainPairs.Count() >= 1)
 		{
-			string trimedPair = skillPair.Trim();
-			if (trimedPair == "") continue;
+			mapPairs.Clear();
+			mainPairs.Get(0).Split(";", mapPairs);
 			
-			partPairs.Clear();
-			trimedPair.Split(":", partPairs);
-			if (partPairs.Count() == 2)
+			foreach (string skillPair1 : mapPairs)
 			{
-				int id = partPairs.Get(0).ToInt();
-				float value = partPairs.Get(1).ToFloat();
+				trimedPair = skillPair1.Trim();
+				if (trimedPair == "") continue;
 				
-				SetValue(id, value);
+				partPairs.Clear();
+				trimedPair.Split(":", partPairs);
+				if (partPairs.Count() == 2)
+				{
+					SetSkillValue( partPairs.Get(0).ToInt(), partPairs.Get(1).ToFloat());
+				}
+			}
+		}
+		
+		if (mainPairs.Count() >= 2)
+		{
+			mapPairs.Clear();
+			mainPairs.Get(1).Split(";", mapPairs);
+			
+			foreach (string skillPair2 : mapPairs)
+			{
+				trimedPair = skillPair2.Trim();
+				if (trimedPair == "") continue;
+				
+				partPairs.Clear();
+				trimedPair.Split(":", partPairs);
+				if (partPairs.Count() == 2)
+				{
+					SetPerk(partPairs.Get(0).ToInt(), partPairs.Get(1).ToInt());
+				}
 			}
 		}
 	}
 	
 	void AddExpirience(int id, float value)
 	{
-		int skillLevel = (int)GetValue(id);
+		int skillLevel = (int)GetSkillValue(id);
 		float skillMod = GetSyberiaOptions().m_skillModifiers.Get(id);
-		float skillInc = (value * skillMod) / SkillsContainer.CalculateLevelSize(skillLevel);
-		AddValue(id, skillInc);
+		float skillInc = (value * skillMod) / SkillsContainer.CalculateSkillLevelSize(skillLevel);
+		AddSkillValue(id, skillInc);
 	}
 };

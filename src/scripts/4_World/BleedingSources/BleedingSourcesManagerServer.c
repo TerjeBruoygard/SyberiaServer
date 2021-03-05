@@ -33,7 +33,7 @@ modded class BleedingSourcesManagerServer
 	}
 	
 	void ApplyBandage(int level)
-	{		
+	{
 		if (m_Player.m_bulletHits > (m_Player.m_bulletBandage1 + m_Player.m_bulletBandage2))
 		{
 			if (level == 2)
