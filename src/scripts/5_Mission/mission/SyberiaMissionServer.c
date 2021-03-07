@@ -259,25 +259,32 @@ modded class MissionServer
 	
 	override void OnClientDisconnectedEvent(PlayerIdentity identity, PlayerBase player, int logoutTime, bool authFailed)
 	{
-		if (player && player.IsGhostBody())
+		if (player)
 		{
-			InvokeOnDisconnect(player);
-		
-			player.SetAllowDamage(true);
-			player.SetHealth("", "", 0);			
-			if (GetHive())
+			if (player.IsGhostBody())
 			{
-				GetHive().CharacterKill(player);		
+				InvokeOnDisconnect(player);
+			
+				player.SetAllowDamage(true);
+				player.SetHealth("", "", 0);			
+				if (GetHive())
+				{
+					GetHive().CharacterKill(player);		
+				}
+				
+				player.ReleaseNetworkControls();
+				player.Delete();
+				SybLogSrv("Delete ghost player");
+				
+				GetGame().DisconnectPlayer(identity);
+				// Send list of players at all clients
+				GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(SyncEvents.SendPlayerList, 1000);
+				return;
 			}
-			
-			player.ReleaseNetworkControls();
-			player.Delete();
-			SybLogSrv("Delete ghost player");
-			
-			GetGame().DisconnectPlayer(identity);
-			// Send list of players at all clients
-			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(SyncEvents.SendPlayerList, 1000);
-			return;
+			else
+			{
+				GetSyberiaCharacters().Save(identity);
+			}
 		}
 		
 		super.OnClientDisconnectedEvent(identity, player, logoutTime, authFailed);
