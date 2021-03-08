@@ -19,6 +19,7 @@ modded class MissionServer
 		GetSyberiaRPC().RegisterHandler(SyberiaRPC.SYBRPC_STARTGAME_REQUEST, this, "OnStartGameRequest");
 		GetSyberiaRPC().RegisterHandler(SyberiaRPC.SYBRPC_RESPAWN_REQUEST, this, "OnRespawnRequest");
 		GetSyberiaRPC().RegisterHandler(SyberiaRPC.SYBRPC_DELETECHAR_REQUEST, this, "OnDeleteCharRequest");
+		GetSyberiaRPC().RegisterHandler(SyberiaRPC.SYBRPC_SKILLS_ACTIVATE, this, "OnSkillActivate");
 		SybLogSrv("Syberia server mission initialized");
 	}
 	
@@ -491,6 +492,23 @@ modded class MissionServer
 		{
 			SybLogSrv("SYBRPC_STARTGAME_REQUEST Player kicked because profile not found: " + sender);
 			GetGame().DisconnectPlayer(sender);
+		}
+	}
+	
+	void OnSkillActivate(ref ParamsReadContext ctx, ref PlayerIdentity sender)
+	{
+		ref CharProfile profile = GetSyberiaCharacters().Get(sender);
+		if (profile && profile.m_skills)
+		{
+			Param2<int, int> clientData;
+       		if ( !ctx.Read( clientData ) ) return;
+			
+			int perkId = clientData.param1;
+			int perkLvl = clientData.param2;
+			if ( profile.m_skills.CanActivatePerk(perkId, perkLvl) )
+			{
+				profile.m_skills.SetPerk(perkId, perkLvl);
+			}
 		}
 	}
 };
