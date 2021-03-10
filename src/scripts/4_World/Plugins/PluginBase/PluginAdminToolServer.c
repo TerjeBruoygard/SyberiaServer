@@ -115,13 +115,13 @@ modded class PluginAdminTool
 					ItemBase itemBase = ItemBase.Cast( entity );
 					if (itemBase)
 					{
-						itemBase.SetQuantity(quantity * GetGame().ConfigGetFloat(preffix + " " + context.m_classname + " varQuantityMax"));
+						itemBase.SetQuantity(Math.Floor(quantity * GetGame().ConfigGetFloat(preffix + " " + context.m_classname + " varQuantityMax")));
 					}	
 					
 					Magazine magazine = Magazine.Cast( entity );
 					if (magazine)
 					{
-						float ammoCount = quantity * GetGame().ConfigGetFloat(preffix + " " + context.m_classname + " count");
+						float ammoCount = Math.Floor(quantity * GetGame().ConfigGetFloat(preffix + " " + context.m_classname + " count"));
 						magazine.ServerSetAmmoCount((int)ammoCount);
 					}	
 					
