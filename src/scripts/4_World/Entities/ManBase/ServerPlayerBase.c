@@ -604,14 +604,24 @@ modded class PlayerBase
 			SetStomatchPoison(STOMATCHPOISON_DIRTY_HANDS[0], STOMATCHPOISON_DIRTY_HANDS[1] * amount);
 		}
 		
-		if (consume_type == EConsumeType.ENVIRO_POND && Math.RandomFloat01() < STOMATCHPOISON_CHANCE_DRINK_POND)
+		if (consume_type == EConsumeType.ENVIRO_POND)
 		{
-			SetStomatchPoison(STOMATCHPOISON_DRINK_POND[0], STOMATCHPOISON_DRINK_POND[1] * amount);
+			GetStatHeatBuffer().Add(temperature * amount * TEMPERATURE_DRINK_POND_PENALTY);
+			
+			if (Math.RandomFloat01() < STOMATCHPOISON_CHANCE_DRINK_POND)
+			{
+				SetStomatchPoison(STOMATCHPOISON_DRINK_POND[0], STOMATCHPOISON_DRINK_POND[1] * amount);
+			}
 		}
 		
-		if (consume_type == EConsumeType.ENVIRO_WELL && Math.RandomFloat01() < STOMATCHPOISON_CHANCE_DRINK_WELL)
+		if (consume_type == EConsumeType.ENVIRO_WELL)
 		{
-			SetStomatchPoison(STOMATCHPOISON_DRINK_WELL[0], STOMATCHPOISON_DRINK_WELL[1] * amount);
+			GetStatHeatBuffer().Add(temperature * amount * TEMPERATURE_DRINK_WELL_PENALTY);
+			
+			if (Math.RandomFloat01() < STOMATCHPOISON_CHANCE_DRINK_WELL)
+			{
+				SetStomatchPoison(STOMATCHPOISON_DRINK_WELL[0], STOMATCHPOISON_DRINK_WELL[1] * amount);
+			}
 		}
 	
 		bool result = super.Consume(source, amount, consume_type);
