@@ -161,9 +161,9 @@ modded class BleedingSourcesManagerServer
 	
 	void SetPainLevel(int value)
 	{
-		if (value == 1) m_Player.m_painTimer = m_Player.m_painTimer + PAIN_LVL1_TIME_SEC;
-		else if (value == 2) m_Player.m_painTimer = m_Player.m_painTimer + PAIN_LVL2_TIME_SEC;
-		else if (value == 3) m_Player.m_painTimer = m_Player.m_painTimer + PAIN_LVL3_TIME_SEC;
+		if (value == 1) m_Player.m_painTimer = m_Player.m_painTimer + GetSyberiaConfig().m_painLvl1TimeSec;
+		else if (value == 2) m_Player.m_painTimer = m_Player.m_painTimer + GetSyberiaConfig().m_painLvl2TimeSec;
+		else if (value == 3) m_Player.m_painTimer = m_Player.m_painTimer + GetSyberiaConfig().m_painLvl3TimeSec;
 		
 		if (m_Player.m_painLevel < value)
 		{
@@ -196,18 +196,18 @@ modded class BleedingSourcesManagerServer
 				}
 			}
 			
-			float zvirusInfectionChance = ZVIRUS_ZOMBIE_HIT_CHANCE;
-			float zedHematomaChance = HEMATOMA_ZOMBIE_HIT_CHANCE;
+			float zvirusInfectionChance = GetSyberiaConfig().m_zvirusZombieHitChance;
+			float zedHematomaChance = GetSyberiaConfig().m_hematomaZombieHitChance;
 			if (blockZedDamage)
 			{
 				zedHematomaChance = zedHematomaChance * 0.5;
 			}
 			
-			if (!blockZedDamage && Math.RandomFloat01() < BLEEDING_ZOMBIE_HIT_CHANCE)
+			if (!blockZedDamage && Math.RandomFloat01() < GetSyberiaConfig().m_bleedingZombieHitChance)
 			{
 				zvirusInfectionChance = zvirusInfectionChance * 1.5;
 				AttemptAddBleedingSource(component);
-				if (Math.RandomFloat01() < SEPSIS_ZOMBIE_HIT_CHANCE)
+				if (Math.RandomFloat01() < GetSyberiaConfig().m_sepsisZombieHitChance)
 				{
 					SetBloodInfection(true);
 				}
@@ -271,7 +271,7 @@ modded class BleedingSourcesManagerServer
 					if (source.IsAnimal() || ammo.Contains("_Heavy") || Math.RandomFloat01() >= 0.4)
 					{
 						AddKnifeHit();
-						if (zone == "Torso" && Math.RandomFloat01() < VISCERA_KNIFEHIT_TORSO_CHANCE)
+						if (zone == "Torso" && Math.RandomFloat01() < GetSyberiaConfig().m_visceraKnifehitTorsoChance)
 						{
 							AddVisceraHit();
 						}
@@ -281,14 +281,14 @@ modded class BleedingSourcesManagerServer
 						AttemptAddBleedingSource(component);
 					}
 					
-					if (Math.RandomFloat01() < SEPSIS_KNIFE_HIT_CHANCE)
+					if (Math.RandomFloat01() < GetSyberiaConfig().m_sepsisKnifeHitChance)
 					{
 						SetBloodInfection(true);
 					}
 				}
 				else
 				{
-					if (Math.RandomFloat01() < HEMATOMA_PLAYERHANDS_HIT_CHANCE)
+					if (Math.RandomFloat01() < GetSyberiaConfig().m_hematomaPlayerhandsHitChance)
 					{
 						AddHematomaHit();
 					}
@@ -319,7 +319,7 @@ modded class BleedingSourcesManagerServer
 					}
 				}
 				
-				if (!isBulletStopped && Math.RandomFloat01() < VISCERA_BULLETHIT_TORSO_CHANCE)
+				if (!isBulletStopped && Math.RandomFloat01() < GetSyberiaConfig().m_visceraBullethitTorsoChance)
 				{
 					AddVisceraHit();
 				}
@@ -340,7 +340,7 @@ modded class BleedingSourcesManagerServer
 			
 			if (!isBulletStopped)
 			{
-				if (Math.RandomFloat01() < SEPSIS_BULLET_HIT_CHANCE)
+				if (Math.RandomFloat01() < GetSyberiaConfig().m_sepsisBulletHitChance)
 				{
 					SetBloodInfection(true);
 				}

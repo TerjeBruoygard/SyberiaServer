@@ -486,8 +486,8 @@ modded class PluginAdminTool
 			
 			playerContext.m_stats.Insert(new PluginAdminTool_PlayerStatContext("Water", player.GetStatWater().GetMin(), player.GetStatWater().GetMax(), player.GetStatWater().Get()));
 			playerContext.m_stats.Insert(new PluginAdminTool_PlayerStatContext("Energy", player.GetStatEnergy().GetMin(), player.GetStatEnergy().GetMax(), player.GetStatEnergy().Get()));
-			playerContext.m_stats.Insert(new PluginAdminTool_PlayerStatContext("Mind", 0, MINDSTATE_MAX_VALUE, player.m_mindStateValue));
-			playerContext.m_stats.Insert(new PluginAdminTool_PlayerStatContext("Sleeping", 0, SLEEPING_MAX_VALUE, player.m_sleepingValue));
+			playerContext.m_stats.Insert(new PluginAdminTool_PlayerStatContext("Mind", 0, GetSyberiaConfig().m_mindstateMaxValue, player.m_mindStateValue));
+			playerContext.m_stats.Insert(new PluginAdminTool_PlayerStatContext("Sleeping", 0, GetSyberiaConfig().m_sleepingMaxValue, player.m_sleepingValue));
 			playerContext.m_stats.Insert(new PluginAdminTool_PlayerStatContext("HeatBuffer", player.GetStatHeatBuffer().GetMin(), player.GetStatHeatBuffer().GetMax(), player.GetStatHeatBuffer().Get()));
 			
 			playerContext.m_stats.Insert(new PluginAdminTool_PlayerStatContext("BrokenLegs", 0, 2, player.m_BrokenLegState));

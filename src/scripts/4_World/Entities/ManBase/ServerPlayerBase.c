@@ -280,7 +280,7 @@ modded class PlayerBase
 	private void OnTickSleeping()
 	{
 		int sleepingDiff = 0;		
-		sleepingDiff = sleepingDiff - SLEEPING_DEC_PER_SEC;
+		sleepingDiff = sleepingDiff - GetSyberiaConfig().m_sleepingDecPerSec;
 		
 		if (m_sleepingBoostTimer > 0)
 		{
@@ -311,12 +311,12 @@ modded class PlayerBase
 			else if (m_HasHeatBuffer)
 			{
 				sleepingLevel = SyberiaSleepingLevel.SYBSL_PERFECT;
-				sleepingDiff = sleepingDiff + SLEEPING_INC_PER_SLEEPING_LVL2_SEC;
+				sleepingDiff = sleepingDiff + GetSyberiaConfig().m_sleepingIncPerSleepingLvl2Sec;
 			}
 			else
 			{
 				sleepingLevel = SyberiaSleepingLevel.SYBSL_COMFORT;
-				sleepingDiff = sleepingDiff + SLEEPING_INC_PER_SLEEPING_LVL1_SEC;
+				sleepingDiff = sleepingDiff + GetSyberiaConfig().m_sleepingIncPerSleepingLvl1Sec;
 			}
 		}
 		
@@ -338,8 +338,8 @@ modded class PlayerBase
 			}
 			
 			float maxHealth = GetMaxHealth("GlobalHealth","Health");
-			AddHealth("GlobalHealth", "Health", maxHealth * SLEEPING_HEAL_PER_SEC_01);						
-			if (m_influenzaLevel <= 1 && Math.RandomFloat01() < SLEEPING_HEAL_INFLUENZA_CHANCE)
+			AddHealth("GlobalHealth", "Health", maxHealth * GetSyberiaConfig().m_sleepingHealPerSec01);						
+			if (m_influenzaLevel <= 1 && Math.RandomFloat01() < GetSyberiaConfig().m_sleepingHealInfluenzaChance)
 			{
 				m_influenzaLevel = 0;
 				m_influenzaTimer = 0;
@@ -356,19 +356,19 @@ modded class PlayerBase
 		
 		if (m_sleepingValue <= 0) 
 		{
-			if (SLEEPING_UNCONSION_ENABLED)
+			if (GetSyberiaConfig().m_sleepingUnconsionEnabled)
 			{
 				m_UnconsciousEndTime = -60;
 				SetHealth("","Shock",0);
-				SetSleepingBoost(SLEEPING_INC_PER_UNCONSION_BOOST_TIME, SLEEPING_INC_PER_UNCONSION_BOOST_VALUE);
+				SetSleepingBoost(GetSyberiaConfig().m_sleepingIncPerUnconsionBoostTime, GetSyberiaConfig().m_sleepingIncPerUnconsionBoostValue);
 			}
 			
 			m_sleepingValue = 0;
 		}
 		
-		if (m_sleepingValue > SLEEPING_MAX_VALUE)
+		if (m_sleepingValue > GetSyberiaConfig().m_sleepingMaxValue)
 		{
-			m_sleepingValue = SLEEPING_MAX_VALUE;
+			m_sleepingValue = GetSyberiaConfig().m_sleepingMaxValue;
 		}
 				
 		SetSynchDirty();
@@ -379,14 +379,14 @@ modded class PlayerBase
 		float currHeatComf = GetStatHeatComfort().Get();
 		if (currHeatComf < -0.5)
 		{
-			if (Math.RandomFloat01() < INFLUENZA_APPLY_ON_COLD_CRIT_CHANCE)
+			if (Math.RandomFloat01() < GetSyberiaConfig().m_influenzaApplyOnColdCritChance)
 			{
 				AddInfluenza();
 			}
 		}
 		else if (currHeatComf < -0.9)
 		{
-			if (Math.RandomFloat01() < INFLUENZA_APPLY_ON_COLD_WARN_CHANCE)
+			if (Math.RandomFloat01() < GetSyberiaConfig().m_influenzaApplyOnColdWarnChance)
 			{
 				AddInfluenza();
 			}
@@ -403,7 +403,7 @@ modded class PlayerBase
 		
 		if (m_stomatchpoisonLevel > 0)
 		{
-			m_stomatchpoisonTimer = Math.Clamp(m_stomatchpoisonTimer + time, 0, STOMATCHPOISON_DEFAULT_TIMES[m_stomatchpoisonLevel - 1]);
+			m_stomatchpoisonTimer = Math.Clamp(m_stomatchpoisonTimer + time, 0, GetSyberiaConfig().m_stomatchpoisonDefaultTimes[m_stomatchpoisonLevel - 1]);
 		}
 	}
 	
@@ -412,21 +412,21 @@ modded class PlayerBase
 		int symptomDuration = 0;
 		if (m_stomatchpoisonLevel == 1)
 		{
-			if (m_stomatchhealLevel < 1 && Math.RandomFloat01() < STOMATCHPOISON_VOMIT_CHANCE[0])
+			if (m_stomatchhealLevel < 1 && Math.RandomFloat01() < GetSyberiaConfig().m_stomatchpoisonVomitChance[0])
 			{
 				symptomDuration = Math.RandomIntInclusive( 5, 10 );
 			}
 		}
 		if (m_stomatchpoisonLevel == 2)
 		{
-			if (m_stomatchhealLevel < 2 && Math.RandomFloat01() < STOMATCHPOISON_VOMIT_CHANCE[1])
+			if (m_stomatchhealLevel < 2 && Math.RandomFloat01() < GetSyberiaConfig().m_stomatchpoisonVomitChance[1])
 			{
 				symptomDuration = Math.RandomIntInclusive( 2, 8 );
 			}
 		}
 		if (m_stomatchpoisonLevel == 3)
 		{
-			if (m_stomatchhealLevel < 3 && Math.RandomFloat01() < STOMATCHPOISON_VOMIT_CHANCE[2])
+			if (m_stomatchhealLevel < 3 && Math.RandomFloat01() < GetSyberiaConfig().m_stomatchpoisonVomitChance[2])
 			{
 				symptomDuration = Math.RandomIntInclusive( 1, 4 );
 			}
@@ -441,8 +441,8 @@ modded class PlayerBase
 				{
 					symptom.SetDuration(symptomDuration);
 					
-					int waterDrain = STOMATCHPOISON_WATER_DRAIN_FROM_VOMIT[m_stomatchpoisonLevel - 1];
-					int energyDrain = STOMATCHPOISON_ENERGY_DRAIN_FROM_VOMIT[m_stomatchpoisonLevel - 1];
+					int waterDrain = GetSyberiaConfig().m_stomatchpoisonWaterDrainFromVomit[m_stomatchpoisonLevel - 1];
+					int energyDrain = GetSyberiaConfig().m_stomatchpoisonEnergyDrainFromVomit[m_stomatchpoisonLevel - 1];
 	
 					if (GetStatWater().Get() > waterDrain)
 						GetStatWater().Add(-1 * waterDrain);
@@ -458,7 +458,7 @@ modded class PlayerBase
 				m_stomatchpoisonLevel = m_stomatchpoisonLevel - 1;
 				if (m_stomatchpoisonLevel > 0 && m_stomatchpoisonLevel <= 3)
 				{
-					m_stomatchpoisonTimer = STOMATCHPOISON_DEFAULT_TIMES[m_stomatchpoisonLevel - 1];
+					m_stomatchpoisonTimer = GetSyberiaConfig().m_stomatchpoisonDefaultTimes[m_stomatchpoisonLevel - 1];
 				}
 				else
 				{
@@ -481,19 +481,19 @@ modded class PlayerBase
 		{
 			m_mindDegradationForce = 0;
 			m_mindDegradationTime = 0;
-			m_mindStateValue = m_mindStateValue + MINDSTATE_HEAL_PER_SEC;
+			m_mindStateValue = m_mindStateValue + GetSyberiaConfig().m_mindstateHealPerSec;
 		}
 				
-		m_mindStateValue = Math.Clamp(m_mindStateValue, 0, MINDSTATE_MAX_VALUE);
+		m_mindStateValue = Math.Clamp(m_mindStateValue, 0, GetSyberiaConfig().m_mindstateMaxValue);
 		
-		if (m_mindStateValue < MINDSTATE_LEVEL_5)
+		if (m_mindStateValue < GetSyberiaConfig().m_mindstateLevel5)
 		{
 			float maxHealth = GetMaxHealth("GlobalHealth","Health");
-			DecreaseHealth("", "Health", maxHealth / MINDSTATE_EMPTY_DEADTIME_SEC);
+			DecreaseHealth("", "Health", maxHealth / GetSyberiaConfig().m_mindstateEmptyDeadtimeSec);
 		}
-		if (m_mindStateValue < MINDSTATE_LEVEL_3)
+		if (m_mindStateValue < GetSyberiaConfig().m_mindstateLevel3)
 		{
-			float laughtChange = 1 - (m_mindStateValue / MINDSTATE_LEVEL_3);
+			float laughtChange = 1 - (m_mindStateValue / GetSyberiaConfig().m_mindstateLevel3);
 			if( Math.RandomFloat01() < laughtChange * 0.1 )
 			{
 				GetSymptomManager().QueueUpPrimarySymptom(SymptomIDs.SYMPTOM_LAUGHTER);
@@ -542,7 +542,7 @@ modded class PlayerBase
 		
 		if (m_influenzaLevel == 0 && m_influenzaTimer == 0)
 		{
-			m_influenzaTimer = INFLUENZA_INCUBATE_PERIODS_SEC[0];
+			m_influenzaTimer = GetSyberiaConfig().m_influenzaIncubatePeriodsSec[0];
 		}
 	}
 	
@@ -567,20 +567,20 @@ modded class PlayerBase
 			{
 				if (source.IsMeat())
 				{
-					if (edibleBaseSource.IsFoodRaw()) SetStomatchPoison(STOMATCHPOISON_RAW_MEAT[0], STOMATCHPOISON_RAW_MEAT[1] * amount);
-					if (edibleBaseSource.IsFoodBurned()) SetStomatchPoison(STOMATCHPOISON_BURNED_MEAT[0], STOMATCHPOISON_BURNED_MEAT[1] * amount);
-					if (edibleBaseSource.IsFoodRotten()) SetStomatchPoison(STOMATCHPOISON_ROTTEN_MEAT[0], STOMATCHPOISON_ROTTEN_MEAT[1] * amount);
+					if (edibleBaseSource.IsFoodRaw()) SetStomatchPoison(GetSyberiaConfig().m_stomatchpoisonRawMeat[0], GetSyberiaConfig().m_stomatchpoisonRawMeat[1] * amount);
+					if (edibleBaseSource.IsFoodBurned()) SetStomatchPoison(GetSyberiaConfig().m_stomatchpoisonBurnedMeat[0], GetSyberiaConfig().m_stomatchpoisonBurnedMeat[1] * amount);
+					if (edibleBaseSource.IsFoodRotten()) SetStomatchPoison(GetSyberiaConfig().m_stomatchpoisonRottenMeat[0], GetSyberiaConfig().m_stomatchpoisonRottenMeat[1] * amount);
 				}
 				else
 				{
-					if (edibleBaseSource.IsFoodRotten()) SetStomatchPoison(STOMATCHPOISON_ROTTEN_FOOD[0], STOMATCHPOISON_ROTTEN_FOOD[1] * amount);					
-					if (edibleBaseSource.IsFoodBurned()) SetStomatchPoison(STOMATCHPOISON_BURNED_FOOD[0], STOMATCHPOISON_BURNED_FOOD[1] * amount);
+					if (edibleBaseSource.IsFoodRotten()) SetStomatchPoison(GetSyberiaConfig().m_stomatchpoisonRottenFood[0], GetSyberiaConfig().m_stomatchpoisonRottenFood[1] * amount);					
+					if (edibleBaseSource.IsFoodBurned()) SetStomatchPoison(GetSyberiaConfig().m_stomatchpoisonBurnedFood[0], GetSyberiaConfig().m_stomatchpoisonBurnedFood[1] * amount);
 				}
 			}
 			
 			if (source.ContainsAgent(eAgents.SALMONELLA) || source.ContainsAgent(eAgents.CHOLERA))
 			{
-				SetStomatchPoison(STOMATCHPOISON_INFECTION[0], STOMATCHPOISON_INFECTION[1] * amount);
+				SetStomatchPoison(GetSyberiaConfig().m_stomatchpoisonInfection[0], GetSyberiaConfig().m_stomatchpoisonInfection[1] * amount);
 			}
 			
 			if (source.IsTemperatureVisible())
@@ -589,38 +589,38 @@ modded class PlayerBase
 				if (temperature > 40)
 				{
 					temperature = (Math.Clamp(temperature, 40.0, 80.0) - 40.0) / 40.0;
-					GetStatHeatBuffer().Add(temperature * amount * TEMPERATURE_HIGH_CONSUME_ITEMS_MOD);
+					GetStatHeatBuffer().Add(temperature * amount * GetSyberiaConfig().m_temperatureHighConsumeItemsMod);
 				}
 				else if (temperature < 20)
 				{
 					temperature = (20.0 - Math.Clamp(temperature, -20.0, 20.0)) / 40.0;
-					GetStatHeatBuffer().Add(temperature * amount * TEMPERATURE_LOW_CONSUME_ITEMS_MOD);
+					GetStatHeatBuffer().Add(temperature * amount * GetSyberiaConfig().m_temperatureLowConsumeItemsMod);
 				}
 			}
 		}
 		
 		if (HasBloodyHands() && !HasMedicalWellGloves())
 		{
-			SetStomatchPoison(STOMATCHPOISON_DIRTY_HANDS[0], STOMATCHPOISON_DIRTY_HANDS[1] * amount);
+			SetStomatchPoison(GetSyberiaConfig().m_stomatchpoisonDirtyHands[0], GetSyberiaConfig().m_stomatchpoisonDirtyHands[1] * amount);
 		}
 		
 		if (consume_type == EConsumeType.ENVIRO_POND)
 		{
-			GetStatHeatBuffer().Add(temperature * amount * TEMPERATURE_DRINK_POND_PENALTY);
+			GetStatHeatBuffer().Add(temperature * amount * GetSyberiaConfig().m_temperatureDrinkPondPenalty);
 			
-			if (Math.RandomFloat01() < STOMATCHPOISON_CHANCE_DRINK_POND)
+			if (Math.RandomFloat01() < GetSyberiaConfig().m_stomatchpoisonChanceDrinkPond)
 			{
-				SetStomatchPoison(STOMATCHPOISON_DRINK_POND[0], STOMATCHPOISON_DRINK_POND[1] * amount);
+				SetStomatchPoison(GetSyberiaConfig().m_stomatchpoisonDrinkPond[0], GetSyberiaConfig().m_stomatchpoisonDrinkPond[1] * amount);
 			}
 		}
 		
 		if (consume_type == EConsumeType.ENVIRO_WELL)
 		{
-			GetStatHeatBuffer().Add(temperature * amount * TEMPERATURE_DRINK_WELL_PENALTY);
+			GetStatHeatBuffer().Add(temperature * amount * GetSyberiaConfig().m_temperatureDrinkWellPenalty);
 			
-			if (Math.RandomFloat01() < STOMATCHPOISON_CHANCE_DRINK_WELL)
+			if (Math.RandomFloat01() < GetSyberiaConfig().m_stomatchpoisonChanceDrinkWell)
 			{
-				SetStomatchPoison(STOMATCHPOISON_DRINK_WELL[0], STOMATCHPOISON_DRINK_WELL[1] * amount);
+				SetStomatchPoison(GetSyberiaConfig().m_stomatchpoisonDrinkWell[0], GetSyberiaConfig().m_stomatchpoisonDrinkWell[1] * amount);
 			}
 		}
 	
@@ -726,8 +726,8 @@ modded class PlayerBase
 			{
 				float maxBlood = GetMaxHealth("GlobalHealth","Blood");
 				float maxHealth = GetMaxHealth("GlobalHealth","Health");
-				DecreaseHealth("", "Blood", maxBlood * ZVIRUS_ANTIDOT_BLOOD_DMG_01);
-				DecreaseHealth("", "Health", maxHealth * ZVIRUS_ANTIDOT_HEALTH_DMG_01);
+				DecreaseHealth("", "Blood", maxBlood * GetSyberiaConfig().m_zvirusAntidotBloodDmg01);
+				DecreaseHealth("", "Health", maxHealth * GetSyberiaConfig().m_zvirusAntidotHealthDmg01);
 			}
 			
 			if (medRemoveZVirus <= 2)
@@ -814,28 +814,28 @@ modded class PlayerBase
 		int kh_opened = m_knifeHits - (m_knifeBandage1 + m_knifeBandage2);
 		
 		float bloodlose = 0;
-		bloodlose = bloodlose + (bh_opened * BLEEDING_BULLETHIT_OPEN_PER_SECOND);
-		bloodlose = bloodlose + (m_bulletBandage1 * BLEEDING_BULLETHIT_CUPD1_PER_SECOND);
-		bloodlose = bloodlose + (m_bulletBandage2 * BLEEDING_BULLETHIT_CUPD2_PER_SECOND);
-		bloodlose = bloodlose + (kh_opened * BLEEDING_KNIFEHIT_OPEN_PER_SECOND);
-		bloodlose = bloodlose + (m_knifeBandage1 * BLEEDING_KNIFEHIT_CUPD1_PER_SECOND);
-		bloodlose = bloodlose + (m_knifeBandage2 * BLEEDING_KNIFEHIT_CUPD2_PER_SECOND);
-		bloodlose = bloodlose + (m_visceraHit * BLEEDING_VISCERA_BLOODLOSE_PER_SECOND);
-		bloodlose = bloodlose + (m_hematomaHits * BLEEDING_HEMATOMA_BLOODLOSE_PER_SECOND);
+		bloodlose = bloodlose + (bh_opened * GetSyberiaConfig().m_bleedingBullethitOpenPerSecond);
+		bloodlose = bloodlose + (m_bulletBandage1 * GetSyberiaConfig().m_bleedingBullethitCupd1PerSecond);
+		bloodlose = bloodlose + (m_bulletBandage2 * GetSyberiaConfig().m_bleedingBullethitCupd2PerSecond);
+		bloodlose = bloodlose + (kh_opened * GetSyberiaConfig().m_bleedingKnifehitOpenPerSecond);
+		bloodlose = bloodlose + (m_knifeBandage1 * GetSyberiaConfig().m_bleedingKnifehitCupd1PerSecond);
+		bloodlose = bloodlose + (m_knifeBandage2 * GetSyberiaConfig().m_bleedingKnifehitCupd2PerSecond);
+		bloodlose = bloodlose + (m_visceraHit * GetSyberiaConfig().m_bleedingVisceraBloodlosePerSecond);
+		bloodlose = bloodlose + (m_hematomaHits * GetSyberiaConfig().m_bleedingHematomaBloodlosePerSecond);
 		if (bloodlose > 0.01)
 		{
 			if (m_bloodHemostaticEffect)
 			{
-				bloodlose = bloodlose * HEMOSTATIC_EFFECT_MODIFIER;
+				bloodlose = bloodlose * GetSyberiaConfig().m_hemostaticEffectModifier;
 			}
 			DecreaseHealth("", "Blood", bloodlose * deltaTime);
 		}
 		
 		float healthlose = 0;
-		healthlose = healthlose + (bh_opened * BLEEDING_BULLETHIT_HEALTHLOSE_PER_SECOND);
-		healthlose = healthlose + (kh_opened * BLEEDING_KNIFEHIT_HEALTHLOSE_PER_SECOND);
-		healthlose = healthlose + (m_visceraHit * BLEEDING_VISCERA_HEALTHLOSE_PER_SECOND);
-		healthlose = healthlose + (m_hematomaHits * BLEEDING_HEMATOMA_HEALTHLOSE_PER_SECOND);
+		healthlose = healthlose + (bh_opened * GetSyberiaConfig().m_bleedingBullethitHealthlosePerSecond);
+		healthlose = healthlose + (kh_opened * GetSyberiaConfig().m_bleedingKnifehitHealthlosePerSecond);
+		healthlose = healthlose + (m_visceraHit * GetSyberiaConfig().m_bleedingVisceraHealthlosePerSecond);
+		healthlose = healthlose + (m_hematomaHits * GetSyberiaConfig().m_bleedingHematomaHealthlosePerSecond);
 		if (healthlose > 0.01)
 		{
 			DecreaseHealth("", "Health", healthlose * deltaTime);
@@ -866,11 +866,11 @@ modded class PlayerBase
 			float hematomaRegenOffset = deltaTime; 
 			if (m_salveEffect)
 			{
-				hematomaRegenOffset = hematomaRegenOffset * HEMATOMA_REGEN_TIME_BOOST_ON_SALVE;
+				hematomaRegenOffset = hematomaRegenOffset * GetSyberiaConfig().m_hematomaRegenTimeBoostOnSalve;
 			}
 			
 			m_hematomaRegenTimer = m_hematomaRegenTimer + hematomaRegenOffset;
-			if (m_hematomaRegenTimer > HEMATOMA_REGEN_TIMER_SEC)
+			if (m_hematomaRegenTimer > GetSyberiaConfig().m_hematomaRegenTimerSec)
 			{
 				m_hematomaRegenTimer = 0;
 				m_hematomaHits = m_hematomaHits - 1;
@@ -884,7 +884,7 @@ modded class PlayerBase
 		if (GetBleedingBits() != 0)
 		{
 			m_cuthitRegenTimer = m_cuthitRegenTimer + deltaTime;
-			if (m_cuthitRegenTimer > CUTHIT_REGEN_TIMER_SEC)
+			if (m_cuthitRegenTimer > GetSyberiaConfig().m_cuthitRegenTimerSec)
 			{
 				m_cuthitRegenTimer = 0;
 				if (m_BleedingManagerServer)
@@ -898,10 +898,10 @@ modded class PlayerBase
 			m_cuthitRegenTimer = 0;
 		}
 		
-		if (BLEEDING_BULLETHIT_REMOVE_BANDAGED_TIME_SEC > 0 && m_bulletHits > 0 && (m_bulletBandage1 + m_bulletBandage2) > 0)
+		if (GetSyberiaConfig().m_bleedingBullethitRemoveBandagedTimeSec > 0 && m_bulletHits > 0 && (m_bulletBandage1 + m_bulletBandage2) > 0)
 		{
 			m_bullethitRegenTimer = m_bullethitRegenTimer + deltaTime;
-			if (m_bullethitRegenTimer > BLEEDING_BULLETHIT_REMOVE_BANDAGED_TIME_SEC)
+			if (m_bullethitRegenTimer > GetSyberiaConfig().m_bleedingBullethitRemoveBandagedTimeSec)
 			{
 				m_bullethitRegenTimer = 0;
 				m_BleedingManagerServer.RemoveBulletHit(true);
@@ -912,10 +912,10 @@ modded class PlayerBase
 			m_bullethitRegenTimer = 0;
 		}
 		
-		if (BLEEDING_KNIFEHIT_REMOVE_BANDAGED_TIME_SEC > 0 && m_knifeHits > 0 && (m_knifeBandage1 + m_knifeBandage2) > 0)
+		if (GetSyberiaConfig().m_bleedingKnifehitRemoveBandagedTimeSec > 0 && m_knifeHits > 0 && (m_knifeBandage1 + m_knifeBandage2) > 0)
 		{
 			m_knifehitRegenTimer = m_knifehitRegenTimer + deltaTime;
-			if (m_knifehitRegenTimer > BLEEDING_KNIFEHIT_REMOVE_BANDAGED_TIME_SEC)
+			if (m_knifehitRegenTimer > GetSyberiaConfig().m_bleedingKnifehitRemoveBandagedTimeSec)
 			{
 				m_knifehitRegenTimer = 0;
 				m_BleedingManagerServer.RemoveKnifeHit(true);
@@ -929,7 +929,7 @@ modded class PlayerBase
 		if (m_concussionHit)
 		{
 			m_concussionRegenTimer = m_concussionRegenTimer + deltaTime;
-			if (m_concussionRegenTimer > CONCUSSION_REGEN_TIME_SEC)
+			if (m_concussionRegenTimer > GetSyberiaConfig().m_concussionRegenTimeSec)
 			{
 				m_concussionRegenTimer = 0;
 				m_BleedingManagerServer.SetConcussionHit(false);
@@ -943,7 +943,7 @@ modded class PlayerBase
 	
 	protected void OnTickAdvMedicine_Pain(float deltaTime)
 	{
-		m_painTimer = Math.Clamp(m_painTimer - deltaTime, 0, PAIN_MAX_DURATION_SEC);
+		m_painTimer = Math.Clamp(m_painTimer - deltaTime, 0, GetSyberiaConfig().m_painMaxDurationSec);
 		if (m_painLevel != 0 && m_painTimer < 0.1)
 		{
 			m_painLevel = 0;
@@ -985,7 +985,7 @@ modded class PlayerBase
 		{
 			m_sepsisTime = m_sepsisTime + deltaTime;
 						
-			if (m_sepsisTime > SEPSIS_STAGE1_TIME_SEC)
+			if (m_sepsisTime > GetSyberiaConfig().m_sepsisStage1TimeSec)
 			{
 				if (m_sepsis == 1)
 				{
@@ -993,10 +993,10 @@ modded class PlayerBase
 					SetSynchDirty();
 				}
 				
-				AddToEnvironmentTemperature(SEPSIS_HIGH_TEMPERATURE_VALUE);
+				AddToEnvironmentTemperature(GetSyberiaConfig().m_sepsisHighTemperatureValue);
 			}
 			
-			if (m_sepsisTime > SEPSIS_STAGE2_TIME_SEC)
+			if (m_sepsisTime > GetSyberiaConfig().m_sepsisStage2TimeSec)
 			{
 				if (m_sepsis == 2)
 				{
@@ -1005,7 +1005,7 @@ modded class PlayerBase
 				}
 				
 				float maxHealth = GetMaxHealth("GlobalHealth","Health");
-				DecreaseHealth("GlobalHealth","Health", (maxHealth / SEPSIS_DEATH_TIME_SEC) * deltaTime);
+				DecreaseHealth("GlobalHealth","Health", (maxHealth / GetSyberiaConfig().m_sepsisDeathTimeSec) * deltaTime);
 			}
 		}
 		else
@@ -1020,7 +1020,7 @@ modded class PlayerBase
 		{
 			m_zvirusTimer = m_zvirusTimer + deltaTime;
 			
-			if (m_zvirusTimer > ZVIRUS_STAGE1_TIME_SEC)
+			if (m_zvirusTimer > GetSyberiaConfig().m_zvirusStage1TimeSec)
 			{
 				if (m_zombieVirus == 1) 
 				{
@@ -1028,10 +1028,10 @@ modded class PlayerBase
 					SetSynchDirty();
 				}
 				
-				AddHealth("GlobalHealth","Blood", ZVIRUS_BLOOD_REGEN_PER_SEC * deltaTime);
+				AddHealth("GlobalHealth","Blood", GetSyberiaConfig().m_zvirusBloodRegenPerSec * deltaTime);
 			}
 			
-			if (m_zvirusTimer > ZVIRUS_STAGE2_TIME_SEC)
+			if (m_zvirusTimer > GetSyberiaConfig().m_zvirusStage2TimeSec)
 			{
 				if (m_zombieVirus == 2)
 				{
@@ -1040,7 +1040,7 @@ modded class PlayerBase
 				}
 				
 				float maxHealth = GetMaxHealth("GlobalHealth","Health");
-				DecreaseHealth("GlobalHealth","Health", (maxHealth / ZVIRUS_DEATH_TIME_SEC) * deltaTime);
+				DecreaseHealth("GlobalHealth","Health", (maxHealth / GetSyberiaConfig().m_zvirusDeathTimeSec) * deltaTime);
 			}
 		}
 		else
@@ -1056,7 +1056,7 @@ modded class PlayerBase
 
 		if (m_stomatchpoisonLevel > 0)
 		{
-			m_stomatchpoisonTimer = m_stomatchpoisonTimer - (deltaTime * m_stomatchhealLevel * STOMATCHHEAL_MODIFIER);
+			m_stomatchpoisonTimer = m_stomatchpoisonTimer - (deltaTime * m_stomatchhealLevel * GetSyberiaConfig().m_stomatchhealModifier);
 		}
 		
 		m_stomatchhealTimer = Math.Clamp(m_stomatchhealTimer - deltaTime, 0, 999999);
@@ -1078,13 +1078,13 @@ modded class PlayerBase
 				if (m_influenzaLevel > 0 && m_influenzaLevel <= m_antibioticsLevel)
 				{
 					float antibioticsMdfrLvl = Math.Clamp((m_antibioticsLevel - m_influenzaLevel) + 1, 1, 4);
-					float antibioticsMdfrMod = m_antibioticsStrange * antibioticsMdfrLvl * deltaTime * ANTIBIOTICS_GLOBAL_EFFECTIVITY_MODIFIER;
+					float antibioticsMdfrMod = m_antibioticsStrange * antibioticsMdfrLvl * deltaTime * GetSyberiaConfig().m_antibioticsGlobalEffectivityModifier;
 					if (Math.RandomFloat01() <= antibioticsMdfrMod)
 					{
 						m_influenzaLevel = m_influenzaLevel - 1;
 						if (m_influenzaLevel > 0 && m_influenzaLevel < 3)
 						{
-							m_influenzaTimer = INFLUENZA_INCUBATE_PERIODS_SEC[m_influenzaLevel];;
+							m_influenzaTimer = GetSyberiaConfig().m_influenzaIncubatePeriodsSec[m_influenzaLevel];;
 						}
 						else
 						{
@@ -1115,12 +1115,12 @@ modded class PlayerBase
 			{
 				if (m_influenzaLevel > 0 && m_antibioticsLevel >= m_influenzaLevel)
 				{
-					m_influenzaTimer = INFLUENZA_INCUBATE_PERIODS_SEC[m_influenzaLevel];
+					m_influenzaTimer = GetSyberiaConfig().m_influenzaIncubatePeriodsSec[m_influenzaLevel];
 				}
 				else if (m_influenzaLevel < 3)
 				{
 					m_influenzaLevel = m_influenzaLevel + 1;
-					m_influenzaTimer = INFLUENZA_INCUBATE_PERIODS_SEC[m_influenzaLevel];
+					m_influenzaTimer = GetSyberiaConfig().m_influenzaIncubatePeriodsSec[m_influenzaLevel];
 					SetSynchDirty();
 				}
 				else
@@ -1133,12 +1133,12 @@ modded class PlayerBase
 		if (m_influenzaLevel > 0 && m_influenzaLevel <= 3)
 		{
 			int influenzaLevelIndex = m_influenzaLevel - 1;	
-			if (INFLUENZA_TEMPERATURE_LEVELS[influenzaLevelIndex] > 0)
+			if (GetSyberiaConfig().m_influenzaTemperatureLevels[influenzaLevelIndex] > 0)
 			{
-				AddToEnvironmentTemperature(INFLUENZA_TEMPERATURE_LEVELS[influenzaLevelIndex]);
+				AddToEnvironmentTemperature(GetSyberiaConfig().m_influenzaTemperatureLevels[influenzaLevelIndex]);
 			}
 			
-			if ( Math.RandomFloat01() < INFLUENZA_SYMPTHOM_CHANCE[influenzaLevelIndex] * deltaTime )
+			if ( Math.RandomFloat01() < GetSyberiaConfig().m_influenzaSympthomChance[influenzaLevelIndex] * deltaTime )
 			{
 				if (influenzaLevelIndex == 0)
 				{
@@ -1150,7 +1150,7 @@ modded class PlayerBase
 				}
 			}
 			
-			float healthloseTime = INFLUENZA_DEATH_TIME[influenzaLevelIndex];
+			float healthloseTime = GetSyberiaConfig().m_influenzaDeathTime[influenzaLevelIndex];
 			if (healthloseTime > 0)
 			{
 				float maxHealth = GetMaxHealth("GlobalHealth","Health");
@@ -1166,7 +1166,7 @@ modded class PlayerBase
 			float curShock = GetHealth("", "Shock");
 			if (curShock > 50)
 			{
-				if (Math.RandomFloat01() < OVERDOSE_UNCON_CHANGE_PER_SEC * deltaTime)
+				if (Math.RandomFloat01() < GetSyberiaConfig().m_overdoseUnconChangePerSec * deltaTime)
 				{
 					m_UnconsciousEndTime = -60;
 					SetHealth("","Shock",0);
@@ -1183,7 +1183,7 @@ modded class PlayerBase
         if (m_overdosedValue > 0)
         {
 			int lastOverdoseInt = (int)m_overdosedValue;
-            m_overdosedValue = m_overdosedValue - (OVERDOSE_DECREMENT_PER_SEC * deltaTime);
+            m_overdosedValue = m_overdosedValue - (GetSyberiaConfig().m_overdoseDecrementPerSec * deltaTime);
 			int newOverdoseInt = (int)m_overdosedValue;
 			if (lastOverdoseInt != newOverdoseInt)
 			{
@@ -1230,7 +1230,7 @@ modded class PlayerBase
 			}
 			else
 			{
-				AddHealth("", "Blood", HEMATOPOIESIS_EFFECT_BLOOD_PER_SEC * deltaTime);
+				AddHealth("", "Blood", GetSyberiaConfig().m_hematopoiesisEffectBloodPerSec * deltaTime);
 			}
 		}
 	}
@@ -1249,9 +1249,9 @@ modded class PlayerBase
 			{
 				float shockEffectValue = 0;
 				float maxShock = GetMaxHealth("GlobalHealth","Shock");
-				if (m_adrenalinEffect == 1) shockEffectValue = ADRENALIN_EFFECT_SHOCK_01_LVL1_PER_SEC; 
-				else if (m_adrenalinEffect == 2) shockEffectValue = ADRENALIN_EFFECT_SHOCK_01_LVL2_PER_SEC;
-				else if (m_adrenalinEffect == 3) shockEffectValue = ADRENALIN_EFFECT_SHOCK_01_LVL3_PER_SEC;
+				if (m_adrenalinEffect == 1) shockEffectValue = GetSyberiaConfig().m_adrenalinEffectShock01Lvl1PerSec; 
+				else if (m_adrenalinEffect == 2) shockEffectValue = GetSyberiaConfig().m_adrenalinEffectShock01Lvl2PerSec;
+				else if (m_adrenalinEffect == 3) shockEffectValue = GetSyberiaConfig().m_adrenalinEffectShock01Lvl3PerSec;
 				AddHealth("", "Shock", shockEffectValue * maxShock * deltaTime);
 			}
 		}

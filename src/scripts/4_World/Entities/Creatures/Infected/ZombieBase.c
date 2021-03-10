@@ -10,7 +10,7 @@ modded class ZombieBase extends DayZInfected
 	
 	override bool ModCommandHandlerInside(float pDt, int pCurrentCommandID, bool pCurrentCommandFinished)
 	{
-		if (ZOMBIE_OPEN_DOOR_ENABLE && m_ActualTarget)
+		if (GetSyberiaConfig().m_zombieOpenDoorEnable && m_ActualTarget)
 		{
 			m_doorsCheckTimer = m_doorsCheckTimer + pDt;		
 			if (m_doorsCheckTimer > 1.5)
@@ -26,7 +26,7 @@ modded class ZombieBase extends DayZInfected
 	private void HandleHouseDoors()
 	{
 		array<Object> objects = new array<Object>;
-		GetGame().GetObjectsAtPosition(GetPosition(), ZOMBIE_FIND_HOUSE_DISTANCE, objects, NULL);
+		GetGame().GetObjectsAtPosition(GetPosition(), GetSyberiaConfig().m_zombieFindHouseDistance, objects, NULL);
 
 		if (objects.Count() > 0)
 		{
@@ -49,7 +49,7 @@ modded class ZombieBase extends DayZInfected
 			if ( !building.IsDoorOpen(i) && !building.IsDoorLocked(i))
 			{
 				vector doorPos = building.GetDoorSoundPos(i);
-				if (vector.Distance(doorPos, GetPosition()) < ZOMBIE_OPEN_DOOR_DISTANCE)
+				if (vector.Distance(doorPos, GetPosition()) < GetSyberiaConfig().m_zombieOpenDoorDistance)
 				{
 					building.OpenDoor(i);
 					SyberiaSoundEmitter.Spawn("ZombieDoorBreak" + Math.RandomIntInclusive(1, 5) + "_SoundEmitter", doorPos);
