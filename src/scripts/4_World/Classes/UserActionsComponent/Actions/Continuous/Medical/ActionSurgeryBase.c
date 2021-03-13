@@ -15,7 +15,7 @@ modded class ActionSurgeryBase
             player.m_BleedingManagerServer.RemoveKnifeHit(false);
         }
         
-        if (Math.RandomFloat01() < GetSyberiaConfig().m_sepsisDitryHandsSyrgeryChance && operator.HasBloodyHands() && !operator.HasMedicalWellGloves())
+        if (Math.RandomFloat01() < GetSyberiaConfig().m_sepsisDitryHandsSyrgeryChance && operator.HasDirtyHands())
 		{
 			player.m_BleedingManagerServer.SetBloodInfection(true);
 		}

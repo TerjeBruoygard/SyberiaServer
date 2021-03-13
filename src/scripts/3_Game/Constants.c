@@ -39,6 +39,7 @@ modded class SyberiaConfig
 	float m_zvirusDeathTimeSec;
 	float m_zvirusBloodRegenPerSec;
 	float m_zvirusZombieHitChance;
+	float m_zvirusZombieBloodTransferChance;
 	float m_zvirusAntidotBloodDmg01;
 	float m_zvirusAntidotHealthDmg01;
 	float m_painLvl1TimeSec;
@@ -118,6 +119,11 @@ modded class SyberiaConfig
 	bool m_isWinterMap;
 	float m_clothingHeatIsolationGlobal;
 	
+	// Attack system
+	float m_damageNonWeaponItemInHandsOnAttack;
+	float m_damageGlovesOnHandsOnAttack;
+	float m_damageHandsOnAttackChance;
+	
 	// Others
 	int m_bookPagesCountToCut;
 	
@@ -154,6 +160,7 @@ modded class SyberiaConfig
 		m_zvirusDeathTimeSec = ConfigGetFloat("CfgSyberia MedicineSystem zvirusDeathTimeSec");
 		m_zvirusBloodRegenPerSec = ConfigGetFloat("CfgSyberia MedicineSystem zvirusBloodRegenPerSec");
 		m_zvirusZombieHitChance = ConfigGetFloat("CfgSyberia MedicineSystem zvirusZombieHitChance");
+		m_zvirusZombieBloodTransferChance = ConfigGetFloat("CfgSyberia MedicineSystem zvirusZombieBloodTransferChance");
 		m_zvirusAntidotBloodDmg01 = ConfigGetFloat("CfgSyberia MedicineSystem zvirusAntidotBloodDmg01");
 		m_zvirusAntidotHealthDmg01 = ConfigGetFloat("CfgSyberia MedicineSystem zvirusAntidotHealthDmg01");
 		m_painLvl1TimeSec = ConfigGetFloat("CfgSyberia MedicineSystem painLvl1TimeSec");
@@ -232,6 +239,11 @@ modded class SyberiaConfig
     	m_temperatureSnowDrain = ConfigGetFloat("CfgWorlds " + worldName + " temperatureSnowDrain");
 		m_isWinterMap = ConfigGetInt("CfgWorlds " + worldName + " winterWorld") == 1;
 		m_clothingHeatIsolationGlobal = ConfigGetFloat("CfgWorlds " + worldName + " clothingHeatIsolationGlobal");
+		
+		// Attack system
+		m_damageNonWeaponItemInHandsOnAttack = ConfigGetFloat("CfgSyberia AttackSystem damageNonWeaponItemInHandsOnAttack");
+		m_damageGlovesOnHandsOnAttack = ConfigGetFloat("CfgSyberia AttackSystem damageGlovesOnHandsOnAttack");
+		m_damageHandsOnAttackChance = ConfigGetFloat("CfgSyberia AttackSystem damageHandsOnAttackChance");
 		
 		// Others
 		m_bookPagesCountToCut = ConfigGetInt("CfgSyberia IngameSystem bookPagesCountToCut");
