@@ -18,8 +18,8 @@ modded class SyberiaConfig
     bool m_sleepingUnconsionEnabled;
     int m_sleepingIncPerUnconsionBoostValue;
     int m_sleepingIncPerUnconsionBoostTime;
-    int m_sleepingIncPerSleepingLvl1Sec;
-    int m_sleepingIncPerSleepingLvl2Sec;
+    float m_sleepingIncPerSleepingLvl1Sec;
+    float m_sleepingIncPerSleepingLvl2Sec;
     float m_sleepingHealPerSec01;
     float m_sleepingHealInfluenzaChance;
 	
@@ -127,6 +127,15 @@ modded class SyberiaConfig
 	// Others
 	int m_bookPagesCountToCut;
 	
+	// Skills Experience System
+	float m_skillsExpImmunityPain;
+    float m_skillsExpImmunityHematoma;
+    float m_skillsExpImmunityInfluenza;
+    float m_skillsExpImmunityStomatch;
+    float m_skillsExpImmunityZVirus;
+    float m_skillsExpImmunitySepsis;
+    float m_skillsExpImmunityOverdose;
+	
 	override void Init()
 	{
 		super.Init();
@@ -139,8 +148,8 @@ modded class SyberiaConfig
 	    m_sleepingUnconsionEnabled = ConfigGetInt("CfgSyberia SleepingSystem sleepingUnconsionEnabled") == 1;
 	    m_sleepingIncPerUnconsionBoostValue = ConfigGetInt("CfgSyberia SleepingSystem sleepingIncPerUnconsionBoostValue");
 	    m_sleepingIncPerUnconsionBoostTime = ConfigGetInt("CfgSyberia SleepingSystem sleepingIncPerUnconsionBoostTime");
-	    m_sleepingIncPerSleepingLvl1Sec = ConfigGetInt("CfgSyberia SleepingSystem sleepingIncPerSleepingLvl1Sec");
-	    m_sleepingIncPerSleepingLvl2Sec = ConfigGetInt("CfgSyberia SleepingSystem sleepingIncPerSleepingLvl2Sec");
+	    m_sleepingIncPerSleepingLvl1Sec = ConfigGetFloat("CfgSyberia SleepingSystem sleepingIncPerSleepingLvl1Sec");
+	    m_sleepingIncPerSleepingLvl2Sec = ConfigGetFloat("CfgSyberia SleepingSystem sleepingIncPerSleepingLvl2Sec");
 	    m_sleepingHealPerSec01 = ConfigGetFloat("CfgSyberia SleepingSystem sleepingHealPerSec01");
 	    m_sleepingHealInfluenzaChance = ConfigGetFloat("CfgSyberia SleepingSystem sleepingHealInfluenzaChance");
 		
@@ -247,5 +256,14 @@ modded class SyberiaConfig
 		
 		// Others
 		m_bookPagesCountToCut = ConfigGetInt("CfgSyberia IngameSystem bookPagesCountToCut");
+		
+		// Skills Experience System
+		m_skillsExpImmunityPain = ConfigGetFloat("CfgSyberia SkillsExperienceSystem skillsExpImmunityPain");
+	    m_skillsExpImmunityHematoma = ConfigGetFloat("CfgSyberia SkillsExperienceSystem skillsExpImmunityHematoma");
+	    m_skillsExpImmunityInfluenza = ConfigGetFloat("CfgSyberia SkillsExperienceSystem skillsExpImmunityInfluenza");
+	    m_skillsExpImmunityStomatch = ConfigGetFloat("CfgSyberia SkillsExperienceSystem skillsExpImmunityStomatch");
+	    m_skillsExpImmunityZVirus = ConfigGetFloat("CfgSyberia SkillsExperienceSystem skillsExpImmunityZVirus");
+	    m_skillsExpImmunitySepsis = ConfigGetFloat("CfgSyberia SkillsExperienceSystem skillsExpImmunitySepsis");
+	    m_skillsExpImmunityOverdose = ConfigGetFloat("CfgSyberia SkillsExperienceSystem skillsExpImmunityOverdose");
 	}
 };
