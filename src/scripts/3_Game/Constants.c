@@ -1,5 +1,5 @@
 const string SyberiaServer_ModPreffix = "[SYBERIA SERVER] ";
-const bool SyberiaServer_DebugMode = false;
+const bool SyberiaServer_DebugMode = true;
 
 void SybLogSrv(string message)
 {
@@ -65,15 +65,15 @@ modded class SyberiaConfig
 	float m_hematomaZombieHitChance;
 	float m_hematomaRegenTimerSec;
 	float m_hematomaRegenTimeBoostOnSalve;
+	float m_hematomaPainChance;
 	float m_cuthitRegenTimerSec;
 	float m_visceraKnifehitTorsoChance;
 	float m_visceraBullethitTorsoChance;
 	float m_concussionRegenTimeSec;
 	float m_hemostaticEffectModifier;
 	float m_hematopoiesisEffectBloodPerSec;
-	float m_adrenalinEffectShock01Lvl1PerSec;
-	float m_adrenalinEffectShock01Lvl2PerSec;
-	float m_adrenalinEffectShock01Lvl3PerSec;
+	ref array<float> m_adrenalinEffectShockUpPerSec = new array<float>;
+	ref array<float> m_adrenalinEffectStaminaDepletionMod = new array<float>;
 	float m_overdoseDecrementPerSec;
 	float m_overdoseUnconChangePerSec;
 	float m_mindstateHealPerSec;
@@ -200,10 +200,10 @@ modded class SyberiaConfig
 		m_visceraBullethitTorsoChance = ConfigGetFloat("CfgSyberia MedicineSystem visceraBullethitTorsoChance");
 		m_concussionRegenTimeSec = ConfigGetFloat("CfgSyberia MedicineSystem concussionRegenTimeSec");
 		m_hemostaticEffectModifier = ConfigGetFloat("CfgSyberia MedicineSystem hemostaticEffectModifier");
-		m_hematopoiesisEffectBloodPerSec = ConfigGetFloat("CfgSyberia MedicineSystem hematopoiesisEffectBloodPerSec");
-		m_adrenalinEffectShock01Lvl1PerSec = ConfigGetFloat("CfgSyberia MedicineSystem adrenalinEffectShock01Lvl1PerSec");
-		m_adrenalinEffectShock01Lvl2PerSec = ConfigGetFloat("CfgSyberia MedicineSystem adrenalinEffectShock01Lvl2PerSec");
-		m_adrenalinEffectShock01Lvl3PerSec = ConfigGetFloat("CfgSyberia MedicineSystem adrenalinEffectShock01Lvl3PerSec");
+		m_hematopoiesisEffectBloodPerSec = ConfigGetFloat("CfgSyberia MedicineSystem hematopoiesisEffectBloodPerSec");	
+		m_hematomaPainChance = ConfigGetFloat("CfgSyberia MedicineSystem hematomaPainChance");	
+		ConfigGetFloatArray("CfgSyberia MedicineSystem adrenalinEffectShockUpPerSec", m_adrenalinEffectShockUpPerSec, 3);
+		ConfigGetFloatArray("CfgSyberia MedicineSystem adrenalinEffectStaminaDepletionMod", m_adrenalinEffectStaminaDepletionMod, 3);		
 		m_overdoseDecrementPerSec = ConfigGetFloat("CfgSyberia MedicineSystem overdoseDecrementPerSec");
 		m_overdoseUnconChangePerSec = ConfigGetFloat("CfgSyberia MedicineSystem overdoseUnconChangePerSec");
 		m_mindstateHealPerSec = ConfigGetFloat("CfgSyberia MedicineSystem mindstateHealPerSec");

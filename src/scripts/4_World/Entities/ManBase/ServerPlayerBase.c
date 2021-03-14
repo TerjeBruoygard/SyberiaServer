@@ -244,6 +244,7 @@ modded class PlayerBase
 				OnTickMindState();
 				OnTickSickCheck();
 				OnTickStomatchpoison();
+				OnTickUnconsition();
 				OnTickSkills();
 			}
 			
@@ -274,6 +275,18 @@ modded class PlayerBase
 			m_skillsSaveDirty = false;
 			m_skillsSaveInterval = 0;
 			GetSyberiaCharacters().Save( GetIdentity() );
+		}
+	}
+	
+	private void OnTickUnconsition()
+	{
+		if ( GetModifiersManager().IsModifierActive(eModifiers.MDF_UNCONSCIOUSNESS ) )
+		{
+			m_ShockHandler.SetMultiplier( GetPerkFloatValue(SyberiaPerkType.SYBPERK_IMMUNITY_UNCUNSION_TIME, 1, 1) );
+		}
+		else
+		{
+			m_ShockHandler.SetMultiplier( GetPerkFloatValue(SyberiaPerkType.SYBPERK_IMMUNITY_UNCUNSION_CHANCE, 1, 1) );
 		}
 	}
 	
@@ -339,7 +352,7 @@ modded class PlayerBase
 			
 			float maxHealth = GetMaxHealth("GlobalHealth","Health");
 			AddHealth("GlobalHealth", "Health", maxHealth * GetSyberiaConfig().m_sleepingHealPerSec01);						
-			if (m_influenzaLevel <= 1 && Math.RandomFloat01() < GetSyberiaConfig().m_sleepingHealInfluenzaChance)
+			if (m_influenzaLevel <= 1 && GetPerkBoolValue(SyberiaPerkType.SYBPERK_IMMUNITY_INFLUENZA_FIREPLACE_HEAL) && Math.RandomFloat01() < GetSyberiaConfig().m_sleepingHealInfluenzaChance)
 			{
 				m_influenzaLevel = 0;
 				m_influenzaTimer = 0;
@@ -790,6 +803,8 @@ modded class PlayerBase
 				float medAdrenalinTimeSec = GetGame().ConfigGetFloat( "CfgVehicles " + classname + " medAdrenalinTimeSec" );
 				m_adrenalinEffectTimer = m_adrenalinEffectTimer + (medAdrenalinTimeSec * amount);
 			}
+			
+			GetStaminaHandler().SetStamina( GetStaminaHandler().GetStaminaMax() );
 		}
 		
 		m_overdosedValue = m_overdosedValue + overdosedIncrement;		
@@ -991,7 +1006,7 @@ modded class PlayerBase
 	{
 		if (m_sepsis > 0)
 		{
-			m_sepsisTime = m_sepsisTime + deltaTime;
+			m_sepsisTime = m_sepsisTime + (deltaTime * GetPerkFloatValue(SyberiaPerkType.SYBPERK_IMMUNITY_SEPSIS_TIME, 1, 1));
 						
 			if (m_sepsisTime > GetSyberiaConfig().m_sepsisStage1TimeSec)
 			{
@@ -1026,7 +1041,7 @@ modded class PlayerBase
 	{
 		if (m_zombieVirus)
 		{
-			m_zvirusTimer = m_zvirusTimer + deltaTime;
+			m_zvirusTimer = m_zvirusTimer + (deltaTime * GetPerkFloatValue(SyberiaPerkType.SYBPERK_IMMUNITY_ZVIRUS_TIME, 1, 1));
 			
 			if (m_zvirusTimer > GetSyberiaConfig().m_zvirusStage1TimeSec)
 			{
@@ -1262,17 +1277,27 @@ modded class PlayerBase
 			}
 			else
 			{
-				float shockEffectValue = 0;
-				float maxShock = GetMaxHealth("GlobalHealth","Shock");
-				if (m_adrenalinEffect == 1) shockEffectValue = GetSyberiaConfig().m_adrenalinEffectShock01Lvl1PerSec; 
-				else if (m_adrenalinEffect == 2) shockEffectValue = GetSyberiaConfig().m_adrenalinEffectShock01Lvl2PerSec;
-				else if (m_adrenalinEffect == 3) shockEffectValue = GetSyberiaConfig().m_adrenalinEffectShock01Lvl3PerSec;
-				AddHealth("", "Shock", shockEffectValue * maxShock * deltaTime);
+				if (m_adrenalinEffect >= 1 && m_adrenalinEffect <= 3)
+				{		
+					float maxShock = GetMaxHealth("GlobalHealth","Shock");			
+					float shockEffectValue = GetSyberiaConfig().m_adrenalinEffectShockUpPerSec[m_adrenalinEffect - 1]; 
+					AddHealth("", "Shock", shockEffectValue * maxShock * deltaTime);
+					
+					float staminaDepMod = GetSyberiaConfig().m_adrenalinEffectStaminaDepletionMod[m_adrenalinEffect - 1];
+					if (GetStaminaHandler().GetDepletionMultiplier() != staminaDepMod)
+					{
+						GetStaminaHandler().SetDepletionMultiplier( staminaDepMod );
+					}
+				}
 			}
 		}
 		else
 		{
 			m_adrenalinEffectTimer = 0;
+			if (GetStaminaHandler().GetDepletionMultiplier() != 1)
+			{
+				GetStaminaHandler().SetDepletionMultiplier( 1 );
+			}
 		}
 	}
 	
@@ -1323,9 +1348,14 @@ modded class PlayerBase
 	
 	float GetPerkFloatValue(int perkId, float defaultValue, float additionValue)
 	{
+		float result = defaultValue;
 		int value = GetPerkIntValue(perkId, -1);
-		if (value == -1) return defaultValue;		
-		return additionValue + ((float)value * 0.01);
+		if (value != -1) 
+		{
+			result = additionValue + ((float)value * 0.01);		
+		}
+		
+		return result;
 	}
 	
 	bool GetPerkBoolValue(int perkId)
