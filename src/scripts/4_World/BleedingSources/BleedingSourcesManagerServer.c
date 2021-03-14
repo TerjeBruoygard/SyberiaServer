@@ -48,12 +48,18 @@ modded class BleedingSourcesManagerServer
 		{
 			if (level == 2)
 			{
+				if (!m_Player.HasGloves()) 
+					m_Player.SetBloodyHands(true);
+				
 				m_Player.m_bulletBandage1 = m_Player.m_bulletBandage1 + 1;
 				m_Player.SetSynchDirty();
 				return;
 			}
 			if (level == 3)
 			{
+				if (!m_Player.HasGloves()) 
+					m_Player.SetBloodyHands(true);
+				
 				m_Player.m_bulletBandage2 = m_Player.m_bulletBandage2 + 1;
 				m_Player.SetSynchDirty();
 				return;
@@ -64,12 +70,18 @@ modded class BleedingSourcesManagerServer
 		{
 			if (level == 2)
 			{
+				if (!m_Player.HasGloves()) 
+					m_Player.SetBloodyHands(true);
+				
 				m_Player.m_knifeBandage1 = m_Player.m_knifeBandage1 + 1;
 				m_Player.SetSynchDirty();
 				return;
 			}
 			if (level == 3)
 			{
+				if (!m_Player.HasGloves()) 
+					m_Player.SetBloodyHands(true);
+				
 				m_Player.m_knifeBandage2 = m_Player.m_knifeBandage2 + 1;
 				m_Player.SetSynchDirty();
 				return;

@@ -19,6 +19,11 @@ modded class ActionSurgeryBase
 		{
 			player.m_BleedingManagerServer.SetBloodInfection(true);
 		}
+        
+        if (!player.HasGloves())
+        {
+            player.SetBloodyHands(true);
+        }
 
         if (item.HasQuantity())
         {

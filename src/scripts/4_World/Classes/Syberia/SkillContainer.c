@@ -11,9 +11,13 @@ modded class SkillsContainer
 		
 		result = result + "|";
 		
-		foreach (int perkId, int perkVal : m_perks)
+		foreach (int perkId, int perkLvl : m_perks)
 		{
-			result = result + perkId + ":" + perkVal + ";";
+			ref PerkInfo perkInfo = PerksCollection.m_Instance.GetPerk(perkId);
+			if (perkInfo && perkLvl <= GetSkillValueInt(perkInfo.GetSkillId()))
+			{
+				result = result + perkId + ":" + perkLvl + ";";
+			}
 		}
 		
 		return result;
@@ -63,7 +67,13 @@ modded class SkillsContainer
 				trimedPair.Split(":", partPairs);
 				if (partPairs.Count() == 2)
 				{
-					SetPerk(partPairs.Get(0).ToInt(), partPairs.Get(1).ToInt());
+					int perkId = partPairs.Get(0).ToInt();
+					int perkLvl = partPairs.Get(1).ToInt();
+					ref PerkInfo perkInfo = PerksCollection.m_Instance.GetPerk(perkId);
+					if (perkInfo && perkLvl <= GetSkillValueInt(perkInfo.GetSkillId()))
+					{
+						SetPerk(perkId, perkLvl);
+					}
 				}
 			}
 		}

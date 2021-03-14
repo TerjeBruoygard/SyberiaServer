@@ -1301,6 +1301,13 @@ modded class PlayerBase
 		}
 	}
 	
+	bool HasGloves()
+	{
+		ItemBase gloves = GetItemOnSlot("Gloves");
+		if (gloves) return true;
+		else return false;
+	}
+	
 	bool HasDirtyHands()
 	{
 		ItemBase gloves = GetItemOnSlot("Gloves");
