@@ -20,7 +20,12 @@ modded class ActionSurgeryBase
 			player.m_BleedingManagerServer.SetBloodInfection(true);
 		}
         
-        if (!player.HasGloves())
+        ItemBase gloves = player.GetItemOnSlot("Gloves");
+        if (gloves)
+        {
+            gloves.AddHealth( "", "", GetSyberiaConfig().m_glovesDamageOnSurgery );
+        }
+        else
         {
             player.SetBloodyHands(true);
         }

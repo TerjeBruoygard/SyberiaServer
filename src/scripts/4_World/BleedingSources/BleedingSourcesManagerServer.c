@@ -42,24 +42,33 @@ modded class BleedingSourcesManagerServer
 		m_Player.SetSynchDirty();
 	}
 	
+    private void ApplyBandageDammageHands()
+    {
+        ItemBase gloves = m_Player.GetItemOnSlot("Gloves");
+        if (gloves)
+        {
+            gloves.AddHealth( "", "", GetSyberiaConfig().m_glovesDamageOnApplyBandage );
+        }
+        else
+        {
+            m_Player.SetBloodyHands(true);
+        }
+    }
+    
 	void ApplyBandage(int level)
 	{
 		if (m_Player.m_bulletHits > (m_Player.m_bulletBandage1 + m_Player.m_bulletBandage2))
 		{
 			if (level == 2)
 			{
-				if (!m_Player.HasGloves()) 
-					m_Player.SetBloodyHands(true);
-				
+				ApplyBandageDammageHands();
 				m_Player.m_bulletBandage1 = m_Player.m_bulletBandage1 + 1;
 				m_Player.SetSynchDirty();
 				return;
 			}
 			if (level == 3)
 			{
-				if (!m_Player.HasGloves()) 
-					m_Player.SetBloodyHands(true);
-				
+				ApplyBandageDammageHands();
 				m_Player.m_bulletBandage2 = m_Player.m_bulletBandage2 + 1;
 				m_Player.SetSynchDirty();
 				return;
@@ -70,18 +79,14 @@ modded class BleedingSourcesManagerServer
 		{
 			if (level == 2)
 			{
-				if (!m_Player.HasGloves()) 
-					m_Player.SetBloodyHands(true);
-				
+				ApplyBandageDammageHands();
 				m_Player.m_knifeBandage1 = m_Player.m_knifeBandage1 + 1;
 				m_Player.SetSynchDirty();
 				return;
 			}
 			if (level == 3)
 			{
-				if (!m_Player.HasGloves()) 
-					m_Player.SetBloodyHands(true);
-				
+				ApplyBandageDammageHands();
 				m_Player.m_knifeBandage2 = m_Player.m_knifeBandage2 + 1;
 				m_Player.SetSynchDirty();
 				return;

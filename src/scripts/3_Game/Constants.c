@@ -101,6 +101,8 @@ modded class SyberiaConfig
 	float m_stomatchpoisonChanceDrinkWell;
 	ref array<int> m_stomatchpoisonDrinkWell = new array<int>;
 	ref array<int> m_stomatchpoisonDefaultTimes = new array<int>;
+    float m_glovesDamageOnApplyBandage;
+    float m_glovesDamageOnSurgery;
 	
 	// Zombies
 	bool m_zombieOpenDoorEnable;
@@ -231,6 +233,8 @@ modded class SyberiaConfig
 		m_stomatchpoisonChanceDrinkWell = ConfigGetFloat("CfgSyberia MedicineSystem stomatchpoisonChanceDrinkWell");
 		ConfigGetIntArray("CfgSyberia MedicineSystem stomatchpoisonDrinkWell", m_stomatchpoisonDrinkWell, 2);
 		ConfigGetIntArray("CfgSyberia MedicineSystem stomatchpoisonDefaultTimes", m_stomatchpoisonDefaultTimes, 3);
+        m_glovesDamageOnApplyBandage = ConfigGetFloat("CfgSyberia MedicineSystem glovesDamageOnApplyBandage");
+        m_glovesDamageOnSurgery = ConfigGetFloat("CfgSyberia MedicineSystem glovesDamageOnSurgery");
 		
 		// Zombies
 		m_zombieOpenDoorEnable = ConfigGetInt("CfgSyberia ZombieSystem zombieOpenDoorEnable") == 1;
