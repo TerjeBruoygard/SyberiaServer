@@ -40,6 +40,7 @@ modded class PlayerBase
 	// Skills
 	int m_skillsSaveInterval = 0;
 	bool m_skillsSaveDirty = false;
+	float m_sprintingTime = 0;
 	
 	override void Init()
 	{
@@ -246,6 +247,7 @@ modded class PlayerBase
 				OnTickStomatchpoison();
 				OnTickUnconsition();
 				OnTickSkills();
+				OnTickExperience();
 			}
 			
 			if (m_freeCamMode)
@@ -256,6 +258,19 @@ modded class PlayerBase
 				{
 					SetPosition(teleportPos);
 				}
+			}
+		}
+	}
+	
+	private void OnTickExperience()
+	{
+		if (m_MovementState.m_iMovement == DayZPlayerConstants.MOVEMENTIDX_SPRINT)
+		{
+			m_sprintingTime = m_sprintingTime + 1;
+			if (m_sprintingTime > GetSyberiaConfig().m_skillsExpAthleticsSprintTime)
+			{
+				m_sprintingTime = 0;
+				AddExperience(SyberiaSkillType.SYBSKILL_ATHLETICS, GetSyberiaConfig().m_skillsExpAthleticsSprintIncrement);
 			}
 		}
 	}
@@ -1332,7 +1347,7 @@ modded class PlayerBase
 		}
 	}
 	
-	int GetPerkIntValue(int perkId, int defaultValue = 0)
+	override int GetPerkIntValue(int perkId, int defaultValue = 0)
 	{
 		if (IsAlive() && m_charProfile && m_charProfile.m_skills)
 		{
@@ -1344,23 +1359,5 @@ modded class PlayerBase
 		}
 		
 		return defaultValue;
-	}
-	
-	float GetPerkFloatValue(int perkId, float defaultValue, float additionValue)
-	{
-		float result = defaultValue;
-		int value = GetPerkIntValue(perkId, -1);
-		if (value != -1) 
-		{
-			result = additionValue + ((float)value * 0.01);		
-		}
-		
-		return result;
-	}
-	
-	bool GetPerkBoolValue(int perkId)
-	{
-		int value = GetPerkIntValue(perkId, -1);
-		return value == 1;
 	}
 };

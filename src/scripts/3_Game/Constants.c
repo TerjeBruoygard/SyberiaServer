@@ -137,6 +137,8 @@ modded class SyberiaConfig
     float m_skillsExpImmunityZVirus;
     float m_skillsExpImmunitySepsis;
     float m_skillsExpImmunityOverdose;
+	float m_skillsExpAthleticsSprintTime;
+	float m_skillsExpAthleticsSprintIncrement;
 	
 	override void Init()
 	{
@@ -269,5 +271,7 @@ modded class SyberiaConfig
 	    m_skillsExpImmunityZVirus = ConfigGetFloat("CfgSyberia SkillsExperienceSystem skillsExpImmunityZVirus");
 	    m_skillsExpImmunitySepsis = ConfigGetFloat("CfgSyberia SkillsExperienceSystem skillsExpImmunitySepsis");
 	    m_skillsExpImmunityOverdose = ConfigGetFloat("CfgSyberia SkillsExperienceSystem skillsExpImmunityOverdose");
+		m_skillsExpAthleticsSprintTime = ConfigGetFloat("CfgSyberia SkillsExperienceSystem skillsExpAthleticsSprintTime");
+	    m_skillsExpAthleticsSprintIncrement = ConfigGetFloat("CfgSyberia SkillsExperienceSystem skillsExpAthleticsSprintIncrement");
 	}
 };
