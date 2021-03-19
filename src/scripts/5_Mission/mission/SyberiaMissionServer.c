@@ -55,6 +55,7 @@ modded class MissionServer
 		ref array<string> startEquipClothes = null;
 		ref array<string> startEquipGuns = null;
 		ref array<string> startEquipItems = null;
+		ref array<string> startSpecialItems = null;
 		ref array<ref array<string>> allowedEquip = null;
 		ref CharProfile profile = GetSyberiaCharacters().Get(identity);
 		if (profile)
@@ -94,6 +95,12 @@ modded class MissionServer
 
 						itemIndex = profile.m_startGear.Get(SyberiaScreenEquipPages.SYBSEP_ITEMS_PAGE);				
 						startEquipItems = GetSyberiaOptions().GetCharacterLoadoutItems(profile, faction, itemIndex);
+						
+						itemIndex = profile.m_startGear.Get(SyberiaScreenEquipPages.SYBSEP_SPECIAL_PAGE);
+						if (itemIndex >= 0 && itemIndex < allowedEquip.Get(SyberiaScreenEquipPages.SYBSEP_SPECIAL_PAGE).Count())
+						{		
+							startSpecialItems = GetSyberiaOptions().GetCharacterSpecialItems(profile, allowedEquip.Get(SyberiaScreenEquipPages.SYBSEP_SPECIAL_PAGE).Get(itemIndex));
+						}
 					}
 					
 					foreach (ref array<string> equip1 : allowedEquip) delete equip1;
@@ -179,6 +186,14 @@ modded class MissionServer
 					foreach (string itemNameGear : startEquipItems)
 					{
 						EquipItemIntoPlayer(player, itemNameGear, false, -1);
+					}
+				}
+				
+				if (startSpecialItems)
+				{
+					foreach (string itemNameSpecial : startSpecialItems)
+					{
+						EquipItemIntoPlayer(player, itemNameSpecial, false, -1);
 					}
 				}
 			}

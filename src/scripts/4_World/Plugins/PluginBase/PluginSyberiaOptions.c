@@ -140,6 +140,13 @@ modded class PluginSyberiaOptions extends PluginBase
 		return loadouts.Get(loadoutId).m_items;		
 	}
 	
+	ref array<string> GetCharacterSpecialItems(ref CharProfile profile, string loadoutName)
+	{
+		if (loadoutName == "#syb_perk_name_3010") return m_main.m_startMedicKit;
+		
+		return null;
+	}
+	
 	ref array<ref array<string>> GetCharacterAllowedEquipment(ref PlayerIdentity identity, ref CharProfile profile, ref PluginSyberiaOptions_GroupFaction faction)
 	{
 		ref array<ref array<string>> result = new array<ref array<string>>;
@@ -236,6 +243,10 @@ modded class PluginSyberiaOptions extends PluginBase
 		
 		// GEAR SPECIAL
 		ref array<string> specGear = new array<string>;
+		if (profile && profile.m_skills)
+		{
+			if (profile.m_skills.HasPerk(SyberiaPerkType.SYBPERK_MEDICINE_START_LOADOUT)) specGear.Insert("#syb_perk_name_3010");
+		}
 		result.Insert(specGear);
 		
 		return result;
@@ -289,6 +300,7 @@ class PluginSyberiaOptions_Main
 	int m_roleplay_mode = 0;
 	ref array<string> m_groups;
 	ref array<ref PluginSyberiaOptions_SkillModifier> m_skillModifiers;
+	ref array<string> m_startMedicKit;
 
 	void ~PluginSyberiaOptions_Main()
 	{

@@ -988,6 +988,25 @@ modded class PlayerBase
 			SetSynchDirty();
 		}
 		
+		if (m_painLevel < 3 && m_visceraHit)
+		{
+			m_painLevel = 3;
+			if (m_painTimer < GetSyberiaConfig().m_painLvl3TimeSec) 
+			{
+				m_painTimer = GetSyberiaConfig().m_painLvl3TimeSec;
+			}
+			SetSynchDirty();
+		}
+		else if (m_painLevel < 2 && (m_knifeHits > 0 || m_bulletHits > 0))
+		{
+			m_painLevel = 2;
+			if (m_painTimer < GetSyberiaConfig().m_painLvl2TimeSec) 
+			{
+				m_painTimer = GetSyberiaConfig().m_painLvl2TimeSec;
+			}
+			SetSynchDirty();
+		}
+		
 		if (m_painkillerEffect != 0)
 		{
 			m_painkillerTime = m_painkillerTime - deltaTime;

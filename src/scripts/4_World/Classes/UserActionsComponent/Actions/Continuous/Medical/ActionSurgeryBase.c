@@ -2,41 +2,106 @@ modded class ActionSurgeryBase
 {
     override void ApplySurgery( ItemBase item, PlayerBase operator, PlayerBase player, bool self)
     {
+		string result = "";
+		float skillRawChance = 0;
+		float skillChanceGain = 0;
+		float sepsisChance = 1.0 - operator.GetPerkFloatValue(SyberiaPerkType.SYBPERK_MEDICINE_SEPSIS_CHANCE_DEC, 0, 0);
+		float toolsDegradationMod = 1.0 - operator.GetPerkFloatValue(SyberiaPerkType.SYBPERK_MEDICINE_TOOLS_DEGRADATION_DEC, 0, 0);
         if ( (GetSyberiaOptions().m_client.m_operateVisceraHimself || !self) && player.m_visceraHit)
         {
-            player.m_BleedingManagerServer.RemoveVisceraHit();
+			skillRawChance = operator.GetPerkFloatValue(SyberiaPerkType.SYBPERK_MEDICINE_SURGEON_VISCERA_HITS, 0, 0);
+			skillChanceGain = GetSyberiaConfig().m_startSurgeryVisceraChance;
+			if (Math.RandomFloat01() < skillRawChance + skillChanceGain)
+			{
+            	player.m_BleedingManagerServer.RemoveVisceraHit();
+				result = result + "#syb_surgery_viscera_ok ";
+			}
+			else
+			{
+				result = result + "#syb_surgery_viscera_fail ";
+			}
         }
         else if (player.m_bulletHits > 0)
         {
-            player.m_BleedingManagerServer.RemoveBulletHit(false);
+			skillRawChance = operator.GetPerkFloatValue(SyberiaPerkType.SYBPERK_MEDICINE_SURGEON_BULLET_HITS, 0, 0);
+			skillChanceGain = GetSyberiaConfig().m_startSurgeryBulletChance;
+			if (Math.RandomFloat01() < skillRawChance + skillChanceGain)
+			{
+            	player.m_BleedingManagerServer.RemoveBulletHit(false);
+				result = result + "#syb_surgery_bullet_ok ";
+			}
+			else
+			{
+				player.m_BleedingManagerServer.RemoveBulletHit(true);
+				player.m_BleedingManagerServer.AddBulletHit();
+				result = result + "#syb_surgery_bullet_fail ";
+			}
         }
         else if (player.m_knifeHits > 0)
         {
-            player.m_BleedingManagerServer.RemoveKnifeHit(false);
+			skillRawChance = operator.GetPerkFloatValue(SyberiaPerkType.SYBPERK_MEDICINE_SURGEON_KNIFE_HITS, 0, 0);
+			skillChanceGain = GetSyberiaConfig().m_startSurgeryKnifeChance;
+			if (Math.RandomFloat01() < skillRawChance + skillChanceGain)
+			{
+            	player.m_BleedingManagerServer.RemoveKnifeHit(false);
+				result = result + "#syb_surgery_knife_ok ";
+			}
+			else
+			{
+				player.m_BleedingManagerServer.RemoveKnifeHit(true);
+				player.m_BleedingManagerServer.AddKnifeHit();
+				result = result + "#syb_surgery_knife_fail ";
+			}
         }
-        
-        if (Math.RandomFloat01() < GetSyberiaConfig().m_sepsisDitryHandsSyrgeryChance && operator.HasDirtyHands())
+		
+		if (Math.RandomFloat01() < 1.0 - skillRawChance)
 		{
-			player.m_BleedingManagerServer.SetBloodInfection(true);
+			int sideEffect = Math.RandomIntInclusive(1, 3);
+			if (sideEffect == 1 && Math.RandomFloat01() < sepsisChance)
+			{
+				player.m_BleedingManagerServer.SetBloodInfection(true);
+				result = result + "#syb_surgery_side_effect1 ";
+			}
+			else if (sideEffect == 2)
+			{
+				player.DecreaseHealth("", "Blood", GetSyberiaConfig().m_surgerySideEffectBloodLoseCount);
+				result = result + "#syb_surgery_side_effect2 ";
+			}
+			else if (sideEffect == 3)
+			{
+				player.DecreaseHealth("", "Health", GetSyberiaConfig().m_surgerySideEffectHealthLoseCount);
+				result = result + "#syb_surgery_side_effect3 ";
+			}
 		}
         
-        ItemBase gloves = player.GetItemOnSlot("Gloves");
+        if (Math.RandomFloat01() < sepsisChance && operator.HasDirtyHands())
+		{
+			player.m_BleedingManagerServer.SetBloodInfection(true);
+			result = result + "#syb_surgery_sepsis ";
+		}
+        
+        ItemBase gloves = operator.GetItemOnSlot("Gloves");
         if (gloves)
         {
-            gloves.AddHealth( "", "", GetSyberiaConfig().m_glovesDamageOnSurgery );
+            gloves.AddHealth( "", "", GetSyberiaConfig().m_glovesDamageOnSurgery * toolsDegradationMod );
         }
         else
         {
-            player.SetBloodyHands(true);
+            operator.SetBloodyHands(true);
         }
 
         if (item.HasQuantity())
         {
-            item.AddQuantity(-1,true);
+            item.AddQuantity(-1 * toolsDegradationMod, true);
         }
         else
         {
             item.Delete();
         }
+		
+		if (result != "")
+		{
+			GetSyberiaRPC().SendToClient(SyberiaRPC.SYBRPC_SCREEN_MESSAGE, operator.GetIdentity(), new Param1<string>(result));	
+		}
     }
 };
