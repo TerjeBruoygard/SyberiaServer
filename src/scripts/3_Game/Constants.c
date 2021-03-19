@@ -146,6 +146,11 @@ modded class SyberiaConfig
     float m_skillsExpStrengthLightAttackChance;
     float m_skillsExpStrengthHeavyAttackValue;
     float m_skillsExpStrengthHeavyAttackChance;
+	float m_skillsExpMedicineBandage;
+	float m_skillsExpMedicineTablets;
+	float m_skillsExpMedicineAmpoule;
+	float m_skillsExpMedicineInjector;
+    float m_skillsExpMedicineSurgery;
 	
 	override void Init()
 	{
@@ -287,5 +292,10 @@ modded class SyberiaConfig
 	    m_skillsExpStrengthLightAttackChance = ConfigGetFloat("CfgSyberia SkillsExperienceSystem skillsExpStrengthLightAttackChance");
 	    m_skillsExpStrengthHeavyAttackValue = ConfigGetFloat("CfgSyberia SkillsExperienceSystem skillsExpStrengthHeavyAttackValue");
 	    m_skillsExpStrengthHeavyAttackChance = ConfigGetFloat("CfgSyberia SkillsExperienceSystem skillsExpStrengthHeavyAttackChance");
+		m_skillsExpMedicineBandage = ConfigGetFloat("CfgSyberia SkillsExperienceSystem skillsExpMedicineBandage");
+		m_skillsExpMedicineTablets = ConfigGetFloat("CfgSyberia SkillsExperienceSystem skillsExpMedicineTablets");
+		m_skillsExpMedicineAmpoule = ConfigGetFloat("CfgSyberia SkillsExperienceSystem skillsExpMedicineAmpoule");
+		m_skillsExpMedicineInjector = ConfigGetFloat("CfgSyberia SkillsExperienceSystem skillsExpMedicineInjector");
+    	m_skillsExpMedicineSurgery = ConfigGetFloat("CfgSyberia SkillsExperienceSystem skillsExpMedicineSurgery");
 	}
 };
