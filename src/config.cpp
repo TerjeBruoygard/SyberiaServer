@@ -53,7 +53,7 @@ class CfgSyberia
         sepsisDeathTimeSec = 1200;
         sepsisHighTemperatureValue = 42;
         sepsisZombieHitChance = 0.04;
-        sepsisKnifeHitChance = 0.04;
+        sepsisKnifeHitChance = 0.1;
         sepsisBulletHitChance = 0.05;
         sepsisDirtySyringeChance = 0.75;
         zvirusStage1TimeSec = 600; // 20 min
@@ -77,7 +77,7 @@ class CfgSyberia
         bleedingKnifehitOpenPerSecond = 6;
         bleedingKnifehitCupd1PerSecond = 0.35;
         bleedingKnifehitCupd2PerSecond = 0.1;
-        bleedingKnifehitRemoveBandagedTimeSec = 1800;
+        bleedingKnifehitRemoveBandagedTimeSec = 3600;
         bleedingVisceraBloodlosePerSecond = 3;
         bleedingVisceraHealthlosePerSecond = 0.005;
         bleedingHematomaBloodlosePerSecond = 0;
