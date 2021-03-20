@@ -269,6 +269,15 @@ modded class PluginAdminTool
 		if (mode == 0)
 		{	
 			teleportPos[1] = GetGame().SurfaceY(teleportPos[0], teleportPos[2]);
+			
+			int contactComponent;
+			vector contactPos, contactDir;
+			vector begPos = teleportPos;
+			begPos[1] = begPos[1] + 1000;
+			if (DayZPhysics.RaycastRV(begPos, teleportPos, contactPos, contactDir, contactComponent))
+			{
+				teleportPos = contactPos;
+			}
 		}
 		else if (mode == 1)
 		{
@@ -375,7 +384,7 @@ modded class PluginAdminTool
 			GetGame().ObjectDelete( serverData.param1 );
 		}
 	}
-	
+
 	private void SetPlayerAllowDamage(PlayerBase player, bool value)
 	{
 		if (player) player.SetAllowDamage(value);
