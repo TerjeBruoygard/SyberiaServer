@@ -142,6 +142,8 @@ modded class SyberiaConfig
     float m_skillsExpImmunityOverdose;
 	float m_skillsExpAthleticsSprintTime;
 	float m_skillsExpAthleticsSprintIncrement;	
+	float m_skillsExpAthleticsJogTime;
+    float m_skillsExpAthleticsJogIncrement;
 	float m_skillsExpStrengthLightAttackValue;
     float m_skillsExpStrengthLightAttackChance;
     float m_skillsExpStrengthHeavyAttackValue;
@@ -288,7 +290,9 @@ modded class SyberiaConfig
 	    m_skillsExpImmunitySepsis = ConfigGetFloat("CfgSyberia SkillsExperienceSystem skillsExpImmunitySepsis");
 	    m_skillsExpImmunityOverdose = ConfigGetFloat("CfgSyberia SkillsExperienceSystem skillsExpImmunityOverdose");
 		m_skillsExpAthleticsSprintTime = ConfigGetFloat("CfgSyberia SkillsExperienceSystem skillsExpAthleticsSprintTime");
-	    m_skillsExpAthleticsSprintIncrement = ConfigGetFloat("CfgSyberia SkillsExperienceSystem skillsExpAthleticsSprintIncrement");		
+	    m_skillsExpAthleticsSprintIncrement = ConfigGetFloat("CfgSyberia SkillsExperienceSystem skillsExpAthleticsSprintIncrement");	
+		m_skillsExpAthleticsJogTime = ConfigGetFloat("CfgSyberia SkillsExperienceSystem skillsExpAthleticsJogTime");	
+	    m_skillsExpAthleticsJogIncrement = ConfigGetFloat("CfgSyberia SkillsExperienceSystem skillsExpAthleticsJogIncrement");	
 		m_skillsExpStrengthLightAttackValue = ConfigGetFloat("CfgSyberia SkillsExperienceSystem skillsExpStrengthLightAttackValue");
 	    m_skillsExpStrengthLightAttackChance = ConfigGetFloat("CfgSyberia SkillsExperienceSystem skillsExpStrengthLightAttackChance");
 	    m_skillsExpStrengthHeavyAttackValue = ConfigGetFloat("CfgSyberia SkillsExperienceSystem skillsExpStrengthHeavyAttackValue");
