@@ -52,7 +52,7 @@ class CfgSyberia
         sepsisStage2TimeSec = 2400;
         sepsisDeathTimeSec = 1200;
         sepsisHighTemperatureValue = 42;
-        sepsisZombieHitChance = 0.04;
+        sepsisZombieHitChance = 0.01;
         sepsisKnifeHitChance = 0.1;
         sepsisBulletHitChance = 0.05;
         sepsisDirtySyringeChance = 0.75;

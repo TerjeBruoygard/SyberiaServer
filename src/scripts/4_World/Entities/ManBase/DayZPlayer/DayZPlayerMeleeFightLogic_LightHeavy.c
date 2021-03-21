@@ -36,7 +36,7 @@ modded class DayZPlayerMeleeFightLogic_LightHeavy
 					PlayerBase player = PlayerBase.Cast(DZPlayer);
 					player.SetBloodyHands(true);
 					
-					if (Math.RandomFloat01() <= GetSyberiaConfig().m_zvirusZombieBloodTransferChance)
+					if (target.IsZombie() && Math.RandomFloat01() <= GetSyberiaConfig().m_zvirusZombieBloodTransferChance)
 					{
 						player.GetBleedingManagerServer().SetZVirus( true );
 					}
