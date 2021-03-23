@@ -42,6 +42,7 @@ modded class PlayerBase
 	bool m_skillsSaveDirty = false;
 	float m_sprintingTime = 0;
 	float m_jogingTime = 0;
+	vector m_skillsLastPos;
 	
 	override void Init()
 	{
@@ -265,22 +266,36 @@ modded class PlayerBase
 	
 	private void OnTickExperience()
 	{
-		if (m_MovementState.m_iMovement == DayZPlayerConstants.MOVEMENTIDX_SPRINT)
+		ItemBase itemInHands = GetItemInHands();
+		if (itemInHands && itemInHands.IsHeavyBehaviour() && CanDropEntity(itemInHands) && GetPerkBoolValue(SyberiaPerkType.SYBPERK_STRENGTH_HEAVY_ITEMS) == false)
 		{
-			m_sprintingTime = m_sprintingTime + 1;
-			if (m_sprintingTime > GetSyberiaConfig().m_skillsExpAthleticsSprintTime)
-			{
-				m_sprintingTime = 0;
-				AddExperience(SyberiaSkillType.SYBSKILL_ATHLETICS, GetSyberiaConfig().m_skillsExpAthleticsSprintIncrement);
-			}
+			GetInventory().DropEntity(InventoryMode.SERVER, this, itemInHands);
+			GetSyberiaRPC().SendToClient(SyberiaRPC.SYBRPC_SCREEN_MESSAGE, GetIdentity(), new Param1<string>("#syb_skill_overweight_item #syb_perk_name_" + SyberiaPerkType.SYBPERK_STRENGTH_HEAVY_ITEMS));
+            SyberiaSoundEmitter.Spawn("JimWow" + Math.RandomIntInclusive(1, 2) + "_SoundEmitter", GetPosition());
 		}
-		else if (m_MovementState.m_iMovement == DayZPlayerConstants.MOVEMENTIDX_RUN)
+		
+		if (!IsSicknesOrInjured())
 		{
-			m_jogingTime = m_jogingTime + 1;
-			if (m_jogingTime > GetSyberiaConfig().m_skillsExpAthleticsJogTime)
+			float moveDist = vector.Distance(m_skillsLastPos, GetPosition());
+			if (m_MovementState.m_iMovement == DayZPlayerConstants.MOVEMENTIDX_SPRINT)
 			{
-				m_jogingTime = 0;
-				AddExperience(SyberiaSkillType.SYBSKILL_ATHLETICS, GetSyberiaConfig().m_skillsExpAthleticsJogIncrement);
+				m_sprintingTime = m_sprintingTime + 1;
+				if (m_sprintingTime > GetSyberiaConfig().m_skillsExpAthleticsSprintTime && moveDist > 10)
+				{
+					m_sprintingTime = 0;
+					m_skillsLastPos = GetPosition();
+					AddExperience(SyberiaSkillType.SYBSKILL_ATHLETICS, GetSyberiaConfig().m_skillsExpAthleticsSprintIncrement);
+				}
+			}
+			else if (m_MovementState.m_iMovement == DayZPlayerConstants.MOVEMENTIDX_RUN && moveDist > 5)
+			{
+				m_jogingTime = m_jogingTime + 1;
+				if (m_jogingTime > GetSyberiaConfig().m_skillsExpAthleticsJogTime)
+				{
+					m_jogingTime = 0;
+					m_skillsLastPos = GetPosition();
+					AddExperience(SyberiaSkillType.SYBSKILL_ATHLETICS, GetSyberiaConfig().m_skillsExpAthleticsJogIncrement);
+				}
 			}
 		}
 	}
