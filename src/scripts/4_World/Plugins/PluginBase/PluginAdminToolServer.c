@@ -344,6 +344,7 @@ modded class PluginAdminTool
 	        	if ( !ctx.Read( serverData ) ) return;
 				player.m_freeCamMode = serverData.param1;
 				
+				SetVelocity(player, "0 0 0");
 				if (serverData.param1)
 				{
 					TeleportFnc(player, player.GetPosition(), 1);
@@ -353,7 +354,6 @@ modded class PluginAdminTool
 					TeleportFnc(player, serverData.param2, 2);
 				}
 				
-				GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(SetPlayerAllowDamage, 1500, false, player, !serverData.param1);
 				GetSyberiaRPC().SendToClient( SyberiaRPC.SYBRPC_ADMINTOOL_FREECAM, sender, serverData );
 			}
 		}
@@ -483,11 +483,6 @@ modded class PluginAdminTool
 				TeleportFnc(other, me.GetPosition(), 0);
 			}
 		}
-	}
-
-	private void SetPlayerAllowDamage(PlayerBase player, bool value)
-	{
-		if (player) player.SetAllowDamage(value);
 	}
 
 	private void ApplyPlayerContextStat(PlayerBase player, string statName, float value)
