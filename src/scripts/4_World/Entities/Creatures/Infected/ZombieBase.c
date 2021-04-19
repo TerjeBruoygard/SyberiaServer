@@ -1,5 +1,7 @@
 modded class ZombieBase extends DayZInfected
 {
+	const float	SHOCK_TO_STUN_MULTIPLIER = 10;
+	
 	float m_doorsCheckTimer;
 	
 	override void Init()
@@ -107,5 +109,15 @@ modded class ZombieBase extends DayZInfected
 		}
 		
 		super.EEHitBy(damageResult, damageType, source, component, dmgZone, ammo, modelPos, speedCoef);
+	}
+	
+	bool FightLogic(int pCurrentCommandID, DayZInfectedInputController pInputController, float pDt)
+	{
+		if ( pCurrentCommandID == DayZInfectedConstants.COMMANDID_ATTACK && m_ActualAttackType )
+		{
+			m_ActualAttackType.m_IsHeavy = 0;
+		}
+		
+		return super.FightLogic(pCurrentCommandID, pInputController, pDt);
 	}
 };
