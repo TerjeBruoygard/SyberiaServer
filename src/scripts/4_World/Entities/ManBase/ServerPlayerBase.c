@@ -1389,6 +1389,20 @@ modded class PlayerBase
 		}
 	}
 	
+	override int GetSkillValue(int skillId)
+	{
+		if (IsAlive() && m_charProfile && m_charProfile.m_skills)
+		{
+			int result = m_charProfile.m_skills.GetSkillValueInt(skillId);
+			if (result != -1)
+			{
+				return result;
+			}
+		}
+		
+		return 0;
+	}
+	
 	override int GetPerkIntValue(int perkId, int defaultValue = 0)
 	{
 		if (IsAlive() && m_charProfile && m_charProfile.m_skills)

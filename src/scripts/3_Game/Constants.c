@@ -153,7 +153,11 @@ modded class SyberiaConfig
 	float m_skillsExpMedicineTablets;
 	float m_skillsExpMedicineAmpoule;
 	float m_skillsExpMedicineInjector;
-    float m_skillsExpMedicineSurgery;
+    float m_skillsExpMedicineSurgery;	
+	float m_skillsExpHuntingButchSmall;
+    float m_skillsExpHuntingButchCommon;
+    float m_skillsExpHuntingButchWolf;
+    float m_skillsExpHuntingButchBear;
 	
 	override void Init()
 	{
@@ -302,6 +306,10 @@ modded class SyberiaConfig
 		m_skillsExpMedicineTablets = ConfigGetFloat("CfgSyberia SkillsExperienceSystem skillsExpMedicineTablets");
 		m_skillsExpMedicineAmpoule = ConfigGetFloat("CfgSyberia SkillsExperienceSystem skillsExpMedicineAmpoule");
 		m_skillsExpMedicineInjector = ConfigGetFloat("CfgSyberia SkillsExperienceSystem skillsExpMedicineInjector");
-    	m_skillsExpMedicineSurgery = ConfigGetFloat("CfgSyberia SkillsExperienceSystem skillsExpMedicineSurgery");
+    	m_skillsExpMedicineSurgery = ConfigGetFloat("CfgSyberia SkillsExperienceSystem skillsExpMedicineSurgery");		
+		m_skillsExpHuntingButchSmall = ConfigGetFloat("CfgSyberia SkillsExperienceSystem skillsExpHuntingButchSmall");
+	    m_skillsExpHuntingButchCommon = ConfigGetFloat("CfgSyberia SkillsExperienceSystem skillsExpHuntingButchCommon");
+	    m_skillsExpHuntingButchWolf = ConfigGetFloat("CfgSyberia SkillsExperienceSystem skillsExpHuntingButchWolf");
+		m_skillsExpHuntingButchBear = ConfigGetFloat("CfgSyberia SkillsExperienceSystem skillsExpHuntingButchBear");
 	}
 };
