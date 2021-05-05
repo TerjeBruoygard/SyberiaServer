@@ -6,8 +6,8 @@ modded class MissionServer
 	
 	override void OnInit()
 	{
-		super.OnInit();
-		
+		super.OnInit();		
+
 		m_maleCharactersPool = new array<ref CharacterMetadata>;
 		m_femaleCharactersPool = new array<ref CharacterMetadata>;
 		m_defaultSkillsContainer = SkillsContainer.Create();		
