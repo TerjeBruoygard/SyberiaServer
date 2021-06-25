@@ -1,5 +1,5 @@
 const string SyberiaServer_ModPreffix = "[SYBERIA SERVER] ";
-const bool SyberiaServer_DebugMode = false;
+const bool SyberiaServer_DebugMode = true;
 
 void SybLogSrv(string message)
 {
@@ -131,6 +131,7 @@ modded class SyberiaConfig
 	float m_damageNonWeaponItemInHandsOnAttack;
 	float m_damageGlovesOnHandsOnAttack;
 	float m_damageHandsOnAttackChance;
+	float m_bodyGuardModifier;
 	
 	// Others
 	int m_bookPagesCountToCut;
@@ -287,6 +288,7 @@ modded class SyberiaConfig
 		m_damageNonWeaponItemInHandsOnAttack = ConfigGetFloat("CfgSyberia AttackSystem damageNonWeaponItemInHandsOnAttack");
 		m_damageGlovesOnHandsOnAttack = ConfigGetFloat("CfgSyberia AttackSystem damageGlovesOnHandsOnAttack");
 		m_damageHandsOnAttackChance = ConfigGetFloat("CfgSyberia AttackSystem damageHandsOnAttackChance");
+		m_bodyGuardModifier = ConfigGetFloat("CfgSyberia AttackSystem bodyGuardModifier");
 		
 		// Others
 		m_bookPagesCountToCut = ConfigGetInt("CfgSyberia IngameSystem bookPagesCountToCut");

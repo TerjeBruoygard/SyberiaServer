@@ -222,7 +222,7 @@ modded class BleedingSourcesManagerServer
 	
 	override void ProcessHit(float damage, EntityAI source, int component, string zone, string ammo, vector modelPos)
 	{
-		//SybLogSrv("ProcessHit " + m_Player.GetIdentity().GetName() + "; Damage: " + damage + "; Source: " + source.GetType() + "; Component: " + component + "; Zone: " + zone + "; Ammo: " + ammo);
+		//SybLogSrv("ProcessHit => Damage: " + damage + "; Source: " + source.GetType() + "; Component: " + component + "; Zone: " + zone + "; Ammo: " + ammo);
 		
 		float bleed_threshold = GetGame().ConfigGetFloat( "CfgAmmo " + ammo + " DamageApplied " + "bleedThreshold" );		
 		string ammoType = GetGame().ConfigGetTextOut( "CfgAmmo " + ammo + " DamageApplied " + "type" );
@@ -356,10 +356,13 @@ modded class BleedingSourcesManagerServer
 				ItemBase itemCheck = m_Player.GetItemOnSlot("Vest");
 				if (itemCheck && !itemCheck.IsRuined())
 				{
-					float bulletSpeed = GetGame().ConfigGetFloat( "CfgAmmo " + ammo + " typicalSpeed" );
+					float distanceMod = Math.Clamp(1300 - vector.Distance(source.GetPosition(), m_Player.GetPosition()), 100, 1000) * 0.001;
+					float bulletSpeed = GetGame().ConfigGetFloat( "CfgAmmo " + ammo + " typicalSpeed" ) * 0.1;
 					float bulletCaliber = GetGame().ConfigGetFloat( "CfgAmmo " + ammo + " caliber" );
-					float plateArmor = GetGame().ConfigGetFloat( "CfgVehicles " + itemCheck.GetType() + " DamageSystem GlobalArmor Projectile Health damage" );
-					float injectModifier = (bulletSpeed * bulletCaliber) * 0.001;
+					float bulletWeight = GetGame().ConfigGetFloat( "CfgAmmo " + ammo + " weight" );
+					float plateArmor = GetGame().ConfigGetFloat( "CfgVehicles " + itemCheck.GetType() + " bulletProofProtection" );
+					float injectModifier = (bulletSpeed * bulletCaliber * bulletWeight * distanceMod) * GetSyberiaConfig().m_bodyGuardModifier;
+					//SybLogSrv("BODY ARMOR VEST PROJECTILE GUARD TEST: " + plateArmor + " / " + injectModifier);
 					if (plateArmor > injectModifier)
 					{
 						// Bullet stoped by armor

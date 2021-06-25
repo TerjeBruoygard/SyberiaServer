@@ -43,7 +43,6 @@ modded class PlayerBase
 	float m_sprintingTime = 0;
 	float m_jogingTime = 0;
 	vector m_skillsLastPos;
-	float m_animalsAgroTimer = 0;
 	
 	override void Init()
 	{
@@ -252,13 +251,6 @@ modded class PlayerBase
 				OnTickSkills();
 				OnTickExperience();
 			}
-			
-			m_animalsAgroTimer = m_animalsAgroTimer + deltaTime;
-			if (m_animalsAgroTimer > 10.0)
-			{
-				m_animalsAgroTimer = 0;
-				OnAnimalsAgroTick();
-			}
 					
 			if (m_freeCamMode)
 			{
@@ -267,21 +259,6 @@ modded class PlayerBase
 				if ( !GameHelpers.GetPlayerVehicle(this) )
 				{
 					SetPosition(teleportPos);
-				}
-			}
-		}
-	}
-	
-	private void OnAnimalsAgroTick()
-	{
-		float distance = (0.8 - GetPerkFloatValue(SyberiaPerkType.SYBPERK_HUNTING_ANIMAL_STEALTH, 0, 0)) * SyberiaConfig.m_animalsAgroDistance;
-		if (distance > 10) {
-			AnimalBase animal;
-			array<Object> objects = new array<Object>;
-			GetGame().GetObjectsAtPosition3D( this.GetPosition(), distance, objects, NULL);
-			foreach (Object obj : objects) {
-				if (AnimalBase.CastTo(animal, obj) && animal.IsAlive()) {
-					animal.DoAgro(this);
 				}
 			}
 		}
