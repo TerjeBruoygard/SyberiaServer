@@ -250,6 +250,7 @@ modded class PlayerBase
 				OnTickUnconsition();
 				OnTickSkills();
 				OnTickExperience();
+				OnTickStethoscope();
 			}
 					
 			if (m_freeCamMode)
@@ -298,6 +299,20 @@ modded class PlayerBase
 				}
 			}
 		}
+	}
+	
+	private void OnTickStethoscope()
+	{
+		Stethoscope itemStatoschope = Stethoscope.Cast(GetItemOnSlot("Eyewear"));
+		if (!itemStatoschope)
+			return;
+		
+		ItemBase itemInHands = GetItemInHands();
+		if (!itemInHands)
+			return;
+		
+		GetInventory().DropEntity(InventoryMode.SERVER, this, itemStatoschope);
+		GetSyberiaRPC().SendToClient(SyberiaRPC.SYBRPC_SCREEN_MESSAGE, GetIdentity(), new Param1<string>("#syb_stethoscope_drop"));
 	}
 	
 	private void OnTickSkills()
