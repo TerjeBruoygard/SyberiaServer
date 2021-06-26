@@ -1,5 +1,5 @@
 const string SyberiaServer_ModPreffix = "[SYBERIA SERVER] ";
-const bool SyberiaServer_DebugMode = true;
+const bool SyberiaServer_DebugMode = false;
 
 void SybLogSrv(string message)
 {
@@ -113,7 +113,7 @@ modded class SyberiaConfig
 	float m_zombieFindHouseDistance;
 	
 	// Animals
-	float m_animalsAgroDistance;
+	float m_animalsButchingKnifeDamage;
 	
 	// Temperature
 	float m_temperatureHighConsumeItemsMod;
@@ -270,7 +270,7 @@ modded class SyberiaConfig
 		m_zombieFindHouseDistance = ConfigGetFloat("CfgSyberia ZombieSystem zombieFindHouseDistance");
 		
 		// Animals
-		m_animalsAgroDistance = ConfigGetFloat("CfgSyberia AnimalsSystem animalsAgroDistance");
+		m_animalsButchingKnifeDamage = ConfigGetFloat("CfgSyberia AnimalsSystem animalsButchingKnifeDamage");
 		
 		// Temperature
 		m_temperatureHighConsumeItemsMod = ConfigGetFloat("CfgWorlds " + worldName + " temperatureHighConsumeItemsMod");
