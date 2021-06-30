@@ -44,6 +44,9 @@ modded class PlayerBase
 	float m_jogingTime = 0;
 	vector m_skillsLastPos;
 	
+	// Zones
+	float m_zoneLeaveTimer = 0;
+	
 	override void Init()
 	{
 		super.Init();
@@ -79,6 +82,9 @@ modded class PlayerBase
 		// Mind state
 		m_mindDegradationForce = 0;
 		m_mindDegradationTime = 0;
+		
+		// Zones
+		m_isPveIntruder = false;
 	}
 	
 	override void OnStoreSave( ParamsWriteContext ctx )
@@ -251,6 +257,7 @@ modded class PlayerBase
 				OnTickSkills();
 				OnTickExperience();
 				OnTickStethoscope();
+				OnTickZones();
 			}
 					
 			if (m_freeCamMode)
@@ -262,6 +269,60 @@ modded class PlayerBase
 					SetPosition(teleportPos);
 				}
 			}
+		}
+	}
+	
+	private void OnTickZones()
+	{
+		PluginZones pluginZones = PluginZones.Cast(GetPlugin(PluginZones));
+		if (!pluginZones)
+			return;
+		
+		ref ZoneDefinition currentZone = null;
+		vector pos = GetPosition();
+		
+		if (pluginZones.m_config.m_customZones)
+		{
+			foreach (ref ZoneDefinition zone : pluginZones.m_config.m_customZones)
+			{
+				if (vector.Distance(pos, zone.m_position) < zone.m_radius)
+				{
+					currentZone = zone;
+				}
+			}
+		}
+		
+		if (currentZone == null)
+		{
+			if (m_zone != null && m_zone.m_id != pluginZones.m_config.m_defaultZone.m_id && m_zone.m_leaveTime > 0)
+			{
+				if (m_zoneLeaveTimer < m_zone.m_leaveTime)
+				{
+					m_zoneLeaveTimer = m_zoneLeaveTimer + 1.0;
+					return;
+				}
+			}
+			
+			currentZone = pluginZones.m_config.m_defaultZone;
+			m_zoneLeaveTimer = 0;
+		}
+		
+		if (m_zone == null || m_zone.m_id != currentZone.m_id)
+		{
+			if (m_zone != null && m_zone.m_godMode == 1)
+			{
+				SetAllowDamage(true);
+			}
+			
+			if (currentZone.m_godMode == 1 && !m_isPveIntruder)
+			{
+				SetAllowDamage(false);
+			}
+			
+			m_zone = currentZone;
+			m_zoneLeaveTimer = 0;
+			GetSyberiaRPC().SendToClient(SyberiaRPC.SYBRPC_CURRENT_ZONE_SYNC, GetIdentity(), new Param1<ref ZoneDefinition>(currentZone));
+			SetSynchDirty();
 		}
 	}
 	
@@ -1432,14 +1493,41 @@ modded class PlayerBase
 		return defaultValue;
 	}
 	
+	override void EEKilled(Object killer)
+	{
+		super.EEKilled(killer);
+		
+		PlayerBase otherPlayer = PlayerBase.Cast(killer);
+		if (otherPlayer && !this.m_isPveIntruder)
+		{
+			if (otherPlayer.IsInversedDammageEnabled() || this.IsInversedDammageEnabled())
+			{
+				otherPlayer.SetAllowDamage(true);
+				otherPlayer.SetHealth("", "", 0);
+			}
+		}
+	}
+	
 	override void EEHitBy(TotalDamageResult damageResult, int damageType, EntityAI source, int component, string dmgZone, string ammo, vector modelPos, float speedCoef)
 	{
-		super.EEHitBy(damageResult, damageType, source, component, dmgZone, ammo, modelPos, speedCoef);
-		
-		if (damageResult != null && source != null)
+		bool inverseDammage = false;
+		PlayerBase sourcePlayer = PlayerBase.Cast( source.GetHierarchyRootPlayer() );
+		if (sourcePlayer)
 		{
-			PlayerBase sourcePlayer = PlayerBase.Cast( source.GetHierarchyRootPlayer() );
-			if (sourcePlayer)
+			if (sourcePlayer.IsInversedDammageEnabled() || this.IsInversedDammageEnabled())
+			{
+				if (!this.m_isPveIntruder)
+				{
+					this.AddHealth("", "", damageResult.GetDamage("", ""));
+					
+					sourcePlayer.SetAllowDamage(true);
+					sourcePlayer.DecreaseHealth("", "", damageResult.GetDamage("", ""));
+					sourcePlayer.m_isPveIntruder = true;
+					sourcePlayer.SetSynchDirty();
+					inverseDammage = true;
+				}
+			}
+			else if (damageResult != null && source != null)
 			{
 				string ammoType = GetGame().ConfigGetTextOut( "CfgAmmo " + ammo + " DamageApplied " + "type" );
 				if (ammoType == "Melee")
@@ -1476,6 +1564,15 @@ modded class PlayerBase
 					}
 				}
 			}
+		}
+		
+		if (inverseDammage && sourcePlayer)
+		{
+			sourcePlayer.EEHitBy(damageResult, damageType, this, component, dmgZone, ammo, modelPos, speedCoef);
+		}
+		else
+		{
+			super.EEHitBy(damageResult, damageType, source, component, dmgZone, ammo, modelPos, speedCoef);
 		}
 	}
 	
