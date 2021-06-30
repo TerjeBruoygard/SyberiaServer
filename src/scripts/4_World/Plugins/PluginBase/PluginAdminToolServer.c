@@ -610,6 +610,7 @@ modded class PluginAdminTool
 		playerContext.m_nickname = player.GetIdentity().GetName();
 		playerContext.m_isGhost = player.IsGhostBody();
 		playerContext.m_isAdmin = IsPlayerAdmin(player.GetIdentity(), false);
+		playerContext.m_position = player.GetPosition();
 		
 		ref CharProfile profile = GetSyberiaCharacters().Get(player.GetIdentity());
 		if (profile)
