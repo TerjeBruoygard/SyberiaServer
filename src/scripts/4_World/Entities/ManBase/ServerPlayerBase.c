@@ -614,6 +614,14 @@ modded class PlayerBase
 			m_mindDegradationTime = 0;
 			m_mindStateValue = m_mindStateValue + GetSyberiaConfig().m_mindstateHealPerSec;
 		}
+		
+		if (m_zone != null)
+		{
+			if (m_zone.m_psi > 0)
+			{
+				m_mindStateValue = m_mindStateValue - m_zone.m_psi;
+			}
+		}
 				
 		m_mindStateValue = Math.Clamp(m_mindStateValue, 0, GetSyberiaConfig().m_mindstateMaxValue);
 		
