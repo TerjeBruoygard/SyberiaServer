@@ -46,6 +46,8 @@ modded class PlayerBase
 	
 	// Zones
 	float m_zoneLeaveTimer = 0;
+	int m_zoneToxicEffect = 0;
+	float m_zoneToxicValue = 0;
 	
 	override void Init()
 	{
@@ -258,6 +260,7 @@ modded class PlayerBase
 				OnTickExperience();
 				OnTickStethoscope();
 				OnTickZones();
+				OnTickZoneEffect();
 			}
 					
 			if (m_freeCamMode)
@@ -323,6 +326,69 @@ modded class PlayerBase
 			m_zoneLeaveTimer = 0;
 			GetSyberiaRPC().SendToClient(SyberiaRPC.SYBRPC_CURRENT_ZONE_SYNC, GetIdentity(), new Param1<ref ZoneDefinition>(currentZone));
 			SetSynchDirty();
+		}
+	}
+	
+	private void OnTickZoneEffect()
+	{
+		if (m_zone == null)
+		{
+			return;
+		}
+		
+		if (m_zoneToxicEffect > 0)
+		{
+			if (m_zoneToxicEffect < 10)
+			{
+				if (m_zoneToxicEffect % 2 == 0)
+				{
+					GetSymptomManager().QueueUpPrimarySymptom(SymptomIDs.SYMPTOM_COUGH);
+				}
+			}
+			else
+			{			
+				if (m_zoneToxicEffect % 10 == 0)
+				{
+					SymptomBase symptom = GetSymptomManager().QueueUpPrimarySymptom(SymptomIDs.SYMPTOM_VOMIT);				
+					if( symptom )
+					{
+						symptom.SetDuration(5);
+						
+						int waterDrain = GetSyberiaConfig().m_stomatchpoisonWaterDrainFromVomit[1];
+						int energyDrain = GetSyberiaConfig().m_stomatchpoisonEnergyDrainFromVomit[1];
+		
+						if (GetStatWater().Get() > waterDrain)
+							GetStatWater().Add(-1 * waterDrain);
+						
+						if (GetStatEnergy().Get() > energyDrain)
+							GetStatEnergy().Add(-1 * energyDrain);
+					}
+				}
+				
+				DecreaseHealth("", "Health", m_zoneToxicValue);
+				SetSynchDirty();
+			}
+		}
+		
+		bool filterProtection = false;
+		if (m_zone.m_gas > 0)
+		{
+			ItemBase filter = GetGasMaskFilter();
+			if (filter && filter.GetQuantity() > 0)
+			{
+				filter.AddQuantity(GetSyberiaConfig().m_gasMaskFilterDegradationInToxicZone);
+				filterProtection = true;
+			}
+		}
+		
+		if (m_zone.m_gas > 0 && !filterProtection)
+		{
+			m_zoneToxicEffect = m_zoneToxicEffect + 1;
+			m_zoneToxicValue = m_zone.m_gas;
+		}
+		else if (m_zoneToxicEffect > 0)
+		{
+			m_zoneToxicEffect = m_zoneToxicEffect - 1;
 		}
 	}
 	
@@ -1588,5 +1654,13 @@ modded class PlayerBase
 	{
 		if (!IsAlive()) return;
 		SetHealth("", "Shock", 50);
+	}
+	
+	ItemBase GetGasMaskFilter()
+	{
+		ItemBase itemMask = GetItemOnSlot("Mask");
+		if (!itemMask) return null;
+		
+		return itemMask.GetInventory().FindAttachmentByName("GasMaskFilter");
 	}
 };
