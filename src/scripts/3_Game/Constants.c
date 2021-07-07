@@ -10,6 +10,7 @@ const string SYBERIA_DB_NAME = "Syberia";
 
 // STORAGE VERSIONING
 const int SYBERIA_V100_VERSION = 7834100;
+const int SYBERIA_V101_VERSION = 7834101;
 
 modded class SyberiaConfig
 {
@@ -106,6 +107,10 @@ modded class SyberiaConfig
     float m_startSurgeryKnifeChance;
 	float m_surgerySideEffectBloodLoseCount;
     float m_surgerySideEffectHealthLoseCount;
+	float m_radiationDoseDecrementPerSec;
+	ref array<float> m_radiationLevels = new array<float>;
+	ref array<float> m_radiationHealthDamage = new array<float>;
+	float m_radiationSleepingDec;
 	
 	// Zombies
 	bool m_zombieOpenDoorEnable;
@@ -136,6 +141,8 @@ modded class SyberiaConfig
 	// Others
 	int m_bookPagesCountToCut;
 	float m_gasMaskFilterDegradationInToxicZone;
+	float m_gasMaskFilterDegradationInRadZone;
+	float m_gasMaskFilterDegradationDefault;
 	
 	// Skills Experience System
 	float m_skillsExpImmunityPain;
@@ -264,6 +271,10 @@ modded class SyberiaConfig
 	    m_startSurgeryKnifeChance = ConfigGetFloat("CfgSyberia MedicineSystem startSurgeryKnifeChance");
 		m_surgerySideEffectBloodLoseCount = ConfigGetFloat("CfgSyberia MedicineSystem surgerySideEffectBloodLoseCount");
 	    m_surgerySideEffectHealthLoseCount = ConfigGetFloat("CfgSyberia MedicineSystem surgerySideEffectHealthLoseCount");
+		m_radiationDoseDecrementPerSec = ConfigGetFloat("CfgSyberia MedicineSystem radiationDoseDecrementPerSec");
+		ConfigGetFloatArray("CfgSyberia MedicineSystem radiationLevels", m_radiationLevels, 3);	
+		ConfigGetFloatArray("CfgSyberia MedicineSystem radiationHealthDamage", m_radiationHealthDamage, 3);
+		m_radiationSleepingDec = ConfigGetFloat("CfgSyberia MedicineSystem radiationSleepingDec");
 		
 		// Zombies
 		m_zombieOpenDoorEnable = ConfigGetInt("CfgSyberia ZombieSystem zombieOpenDoorEnable") == 1;
@@ -294,6 +305,8 @@ modded class SyberiaConfig
 		// Others
 		m_bookPagesCountToCut = ConfigGetInt("CfgSyberia IngameSystem bookPagesCountToCut");
 		m_gasMaskFilterDegradationInToxicZone = ConfigGetFloat("CfgSyberia IngameSystem gasMaskFilterDegradationInToxicZone");
+		m_gasMaskFilterDegradationInRadZone = ConfigGetFloat("CfgSyberia IngameSystem gasMaskFilterDegradationInRadZone");
+		m_gasMaskFilterDegradationDefault = ConfigGetFloat("CfgSyberia IngameSystem gasMaskFilterDegradationDefault");
 		
 		// Skills Experience System
 		m_skillsExpImmunityPain = ConfigGetFloat("CfgSyberia SkillsExperienceSystem skillsExpImmunityPain");
