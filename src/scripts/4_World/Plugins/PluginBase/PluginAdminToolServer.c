@@ -563,6 +563,11 @@ modded class PluginAdminTool
 			player.m_adrenalinEffect = (int)value;
 			if (player.m_adrenalinEffect > 0) player.m_adrenalinEffectTimer = 300;
 		}
+		else if (statName == "RadiationProtector") 
+		{
+			player.m_radioprotectionLevel = (int)value;
+			if (player.m_radioprotectionLevel > 0) player.m_radioprotectionTimer = 300;
+		}
         else if (statName == "Overdose") player.m_overdosedValue = value;		
 		else if (statName == "Immunity") profile.m_skills.SetSkillValue(SyberiaSkillType.SYBSKILL_IMMUNITY, value);
 		else if (statName == "Athletics") profile.m_skills.SetSkillValue(SyberiaSkillType.SYBSKILL_ATHLETICS, value);
@@ -660,6 +665,8 @@ modded class PluginAdminTool
 			playerContext.m_stats.Insert(new PluginAdminTool_PlayerStatContext("StomatchHeal", 0, 3, player.m_stomatchhealLevel));
 			
 			playerContext.m_stats.Insert(new PluginAdminTool_PlayerStatContext("Adrenalin", 0, 3, player.m_adrenalinEffect));
+			playerContext.m_stats.Insert(new PluginAdminTool_PlayerStatContext("RadiationProtector", 0, 3, player.GetRadioprotectionLevel()));
+			
 			playerContext.m_stats.Insert(new PluginAdminTool_PlayerStatContext("Overdose", 0, 3, player.m_overdosedValue));
 			
 			playerContext.m_stats.Insert(new PluginAdminTool_PlayerStatContext("Immunity", 0, 100, profile.m_skills.GetSkillValue(SyberiaSkillType.SYBSKILL_IMMUNITY)));
