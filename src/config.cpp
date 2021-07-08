@@ -134,6 +134,7 @@ class CfgSyberia
         radiationLevels[] = { 20, 60, 120 };
         radiationHealthDamage[] = { 0.09, 0.2, 0.8 };
         radiationSleepingDec = 3;
+        shockDecrementOnLowHealthAndBlood = 1.5;
     };
 
     class AttackSystem
