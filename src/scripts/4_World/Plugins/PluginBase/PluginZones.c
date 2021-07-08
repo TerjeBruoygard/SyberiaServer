@@ -11,6 +11,22 @@ class PluginZones extends PluginBase
 		{
 			m_config = new PluginZones_Config;
 			JsonFileLoader<ref PluginZones_Config>.JsonLoadFile(path, m_config);
+			if (m_config && m_config.m_customZones)
+			{
+				int i = 0;
+				while (i < m_config.m_customZones.Count())
+				{
+					ref ZoneDefinition zone = m_config.m_customZones.Get(i);
+					if (zone.m_spawnChance == 1.0 || Math.RandomFloat01() < zone.m_spawnChance)
+					{
+						i = i + 1;			
+					}
+					else
+					{
+						m_config.m_customZones.Remove(i);						
+					}
+				}				
+			}
 		}
 	}
 	

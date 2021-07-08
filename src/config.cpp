@@ -56,10 +56,11 @@ class CfgSyberia
         sepsisKnifeHitChance = 0.1;
         sepsisBulletHitChance = 0.05;
         sepsisDirtySyringeChance = 0.75;
-        zvirusStage1TimeSec = 600; // 20 min
+        zvirusStage1TimeSec = 600; // 10 min
         zvirusStage2TimeSec = 2400; // zvirusStage1TimeSec + 40 min
         zvirusDeathTimeSec = 1200;
-        zvirusBloodRegenPerSec = 4;
+        zvirusBloodRegenPerSec = 2;
+        zvirusOnHitIncrementTimer = 300;
         zvirusZombieHitChance = 0.2;
         zvirusZombieBloodTransferChance = 0.1;
         zvirusAntidotBloodDmg01 = 0.15;
