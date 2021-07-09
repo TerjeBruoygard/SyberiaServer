@@ -37,12 +37,12 @@ class PluginZones extends PluginBase
 		{
 			foreach (ref ZoneDefinition zone : m_config.m_customZones)
 			{
-				if (zone.m_gas > 0)
+				if (zone.m_gas.Length() > 0)
 				{
 					ref ToxicZone tz = new ToxicZone;
 					tz.m_position = zone.m_position;
 					tz.m_radius = zone.m_radius;
-					tz.m_value = zone.m_gas;
+					tz.m_color = zone.m_gas;
 					toxicZones.Insert(tz);
 				}
 			}

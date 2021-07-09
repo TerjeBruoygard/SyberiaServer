@@ -48,7 +48,6 @@ modded class PlayerBase
 	// Zones
 	float m_zoneLeaveTimer = 0;
 	int m_zoneToxicEffect = 0;
-	float m_zoneToxicValue = 0;
 	float m_radiationDose = 0;
 	
 	override void Init()
@@ -311,14 +310,32 @@ modded class PlayerBase
 		
 		ref ZoneDefinition currentZone = null;
 		vector pos = GetPosition();
+		float landPos = GetGame().SurfaceY(pos[0], pos[2]);
+		vector pos2d = pos;
+		vector zone2d;
+		float landDiff;
+		pos2d[1] = 0;
 		
 		if (pluginZones.m_config.m_customZones)
 		{
 			foreach (ref ZoneDefinition zone : pluginZones.m_config.m_customZones)
 			{
-				if (vector.Distance(pos, zone.m_position) < zone.m_radius)
+				if (zone.m_height < 0)
 				{
-					currentZone = zone;
+					if (vector.Distance(pos, zone.m_position) < zone.m_radius && pos[1] > landPos)
+					{
+						currentZone = zone;
+					}
+				}
+				else
+				{
+					zone2d = zone.m_position;
+					zone2d[1] = 0;
+
+					if (vector.Distance(pos2d, zone2d) < zone.m_radius && pos[1] >= zone.m_position[1] && pos[1] < zone.m_position[1] + zone.m_height)
+					{
+						currentZone = zone;
+					}
 				}
 			}
 		}
@@ -396,7 +413,7 @@ modded class PlayerBase
 					}
 				}
 				
-				DecreaseHealth("", "Health", m_zoneToxicValue);
+				DecreaseHealth("", "Health", 1);
 				SetSynchDirty();
 			}
 		}
@@ -406,7 +423,7 @@ modded class PlayerBase
 		if (filter && filter.GetQuantity() > 0)
 		{
 			filterProtection = true;
-			if (m_zone.m_gas > 0)
+			if (m_zone.m_gas.Length() > 0)
 			{
 				filter.AddQuantity(GetSyberiaConfig().m_gasMaskFilterDegradationInToxicZone);				
 			}
@@ -420,10 +437,9 @@ modded class PlayerBase
 			}
 		}
 		
-		if (m_zone.m_gas > 0 && !filterProtection)
+		if (m_zone.m_gas.Length() > 0 && !filterProtection)
 		{
 			m_zoneToxicEffect = m_zoneToxicEffect + 1;
-			m_zoneToxicValue = m_zone.m_gas;
 		}
 		else if (m_zoneToxicEffect > 0)
 		{
