@@ -8,7 +8,7 @@ modded class BleedingSourcesManagerServer
 			{
 				m_Player.m_zombieVirus = 1;
 			}
-			else
+			else if (m_Player.m_zombieVirus == 2)
 			{
 				m_Player.m_zvirusTimer = m_Player.m_zvirusTimer + GetSyberiaConfig().m_zvirusOnHitIncrementTimer;
 			}
