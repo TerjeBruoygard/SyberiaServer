@@ -278,6 +278,7 @@ modded class PlayerBase
 				OnTickStethoscope();
 				OnTickZones();
 				OnTickZoneEffect();
+				OnTickDisinfectedHands();
 			}
 					
 			if (m_freeCamMode)
@@ -289,6 +290,30 @@ modded class PlayerBase
 					SetPosition(teleportPos);
 				}
 			}
+		}
+	}
+	
+	private void OnTickDisinfectedHands()
+	{
+		bool lastValue = m_disinfectedHands;
+		
+		ItemBase gloves = GetItemOnSlot("Gloves");
+		if (gloves && gloves.IsCleanness())
+		{
+			m_disinfectedHands = true;
+		}
+		else if (!gloves && !HasBloodyHands() && GetModifiersManager().IsModifierActive(eModifiers.MDF_DISINFECTION))
+		{
+			m_disinfectedHands = true;
+		}
+		else
+		{
+			m_disinfectedHands = false;
+		}
+		
+		if (m_disinfectedHands != lastValue)
+		{
+			SetSynchDirty();
 		}
 	}
 	
@@ -1653,19 +1678,7 @@ modded class PlayerBase
 	bool HasDirtyHands()
 	{
 		ItemBase gloves = GetItemOnSlot("Gloves");
-		if (gloves)
-		{
-			if (gloves.GetHealthLevel() != GameConstants.STATE_PRISTINE)
-			{
-				return true;
-			}
-			
-			/*if (GetGame().ConfigGetInt("CfgVehicles " + gloves.GetType() + " medGloves") == 1)
-			{
-				return false;
-			}*/
-		}
-		else if (HasBloodyHands())
+		if (!gloves && HasBloodyHands())
 		{
 			return true;
 		}

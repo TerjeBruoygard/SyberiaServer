@@ -124,11 +124,9 @@ class CfgSyberia
         stomatchpoisonChanceDrinkWell = 0.01;
         stomatchpoisonDrinkWell[] = { 1, 60 };
         stomatchpoisonDefaultTimes[] = { 1800, 900, 600 }; // lvl1, lvl2, lvl3
-        glovesDamageOnApplyBandage = -5;
-        glovesDamageOnSurgery = -15;
-        startSurgeryVisceraChance = 0.1;
-        startSurgeryBulletChance = 0.2;
-        startSurgeryKnifeChance = 0.3;
+        startSurgeryVisceraChance = 0.15;
+        startSurgeryBulletChance = 0.3;
+        startSurgeryKnifeChance = 0.5;
         surgerySideEffectBloodLoseCount = 500;
         surgerySideEffectHealthLoseCount = 20;
         radiationDoseDecrementPerSec[] = { -0.02, -0.08, -0.2, -0.5 };

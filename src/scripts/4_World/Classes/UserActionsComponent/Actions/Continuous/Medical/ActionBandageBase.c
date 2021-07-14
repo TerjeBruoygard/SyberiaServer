@@ -7,8 +7,17 @@ modded class ActionBandageBase: ActionContinuousBase
 		
 		player.ApplyAdvMedicineItem(item.GetType(), 1.0);
 		
-		float sepsisChance = 1.0 - operator.GetPerkFloatValue(SyberiaPerkType.SYBPERK_MEDICINE_SEPSIS_CHANCE_DEC, 0, 0);
-		if (Math.RandomFloat01() < sepsisChance && player.HasDirtyHands())
+		float itemSpesisChance = item.GetInfectionChance();
+		float skillSepsisChance = 1.0 - operator.GetPerkFloatValue(SyberiaPerkType.SYBPERK_MEDICINE_SEPSIS_CHANCE_DEC, 0, 0);
+		if (player.HasDirtyHands() && Math.RandomFloat01() < skillSepsisChance)
+		{
+			player.m_BleedingManagerServer.SetBloodInfection(true);
+		}
+        else if (!player.HasDisinfectedHands() && Math.RandomFloat01() < skillSepsisChance * 0.1)
+		{
+			player.m_BleedingManagerServer.SetBloodInfection(true);
+		}
+		else if (Math.RandomFloat01() < itemSpesisChance * skillSepsisChance)
 		{
 			player.m_BleedingManagerServer.SetBloodInfection(true);
 		}

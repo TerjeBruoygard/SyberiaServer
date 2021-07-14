@@ -51,7 +51,7 @@ modded class BleedingSourcesManagerServer
         ItemBase gloves = m_Player.GetItemOnSlot("Gloves");
         if (gloves)
         {
-            gloves.AddHealth( "", "", GetSyberiaConfig().m_glovesDamageOnApplyBandage );
+            gloves.SetCleanness(0);
         }
         else
         {

@@ -101,8 +101,6 @@ modded class SyberiaConfig
 	float m_stomatchpoisonChanceDrinkWell;
 	ref array<int> m_stomatchpoisonDrinkWell = new array<int>;
 	ref array<int> m_stomatchpoisonDefaultTimes = new array<int>;
-    float m_glovesDamageOnApplyBandage;
-    float m_glovesDamageOnSurgery;
 	float m_startSurgeryVisceraChance;
     float m_startSurgeryBulletChance;
     float m_startSurgeryKnifeChance;
@@ -266,9 +264,7 @@ modded class SyberiaConfig
 		ConfigGetIntArray("CfgSyberia MedicineSystem stomatchpoisonDrinkPond", m_stomatchpoisonDrinkPond, 2);
 		m_stomatchpoisonChanceDrinkWell = ConfigGetFloat("CfgSyberia MedicineSystem stomatchpoisonChanceDrinkWell");
 		ConfigGetIntArray("CfgSyberia MedicineSystem stomatchpoisonDrinkWell", m_stomatchpoisonDrinkWell, 2);
-		ConfigGetIntArray("CfgSyberia MedicineSystem stomatchpoisonDefaultTimes", m_stomatchpoisonDefaultTimes, 3);
-        m_glovesDamageOnApplyBandage = ConfigGetFloat("CfgSyberia MedicineSystem glovesDamageOnApplyBandage");
-        m_glovesDamageOnSurgery = ConfigGetFloat("CfgSyberia MedicineSystem glovesDamageOnSurgery");		
+		ConfigGetIntArray("CfgSyberia MedicineSystem stomatchpoisonDefaultTimes", m_stomatchpoisonDefaultTimes, 3);	
 		m_startSurgeryVisceraChance = ConfigGetFloat("CfgSyberia MedicineSystem startSurgeryVisceraChance");
 	    m_startSurgeryBulletChance = ConfigGetFloat("CfgSyberia MedicineSystem startSurgeryBulletChance");
 	    m_startSurgeryKnifeChance = ConfigGetFloat("CfgSyberia MedicineSystem startSurgeryKnifeChance");
