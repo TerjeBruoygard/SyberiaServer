@@ -99,7 +99,7 @@ class CfgSyberia
         adrenalinEffectStaminaDepletionMod[] = { 0.5, 0.25, 0.1 };
         overdoseDecrementPerSec = 0.001;
         overdoseUnconChangePerSec = 0.025;
-        mindstateHealPerSec = 0.04;
+        mindstateHealPerSec = 0.02;
         mindstateEmptyDeadtimeSec = 600;
         influenzaIncubatePeriodsSec[] = { 300, 1500, 1800 };
         influenzaTemperatureLevels[] = { -1.0, 37.0, 40.0 };
@@ -108,10 +108,10 @@ class CfgSyberia
         influenzaApplyOnColdWarnChance = 0.0005;
         influenzaApplyOnColdCritChance = 0.002;
         antibioticsGlobalEffectivityModifier = 0.006;
-        stomatchpoisonVomitChance[] = { 0.008333, 0.016666, 0.033333 };
-        stomatchpoisonWaterDrainFromVomit[] = { 100, 300, 500 };
-        stomatchpoisonEnergyDrainFromVomit[] = { 150, 400, 1000 };
-        stomatchhealModifier = 10;
+        stomatchpoisonVomitChance[] = { 0.01, 0.02, 0.04 };
+        stomatchpoisonWaterDrainFromVomit[] = { 200, 350, 500 };
+        stomatchpoisonEnergyDrainFromVomit[] = { 300, 600, 1000 };
+        stomatchhealModifier = 5;
         stomatchpoisonRawMeat[] = { 1, 300 }; // level, seconds * amount
         stomatchpoisonBurnedMeat[] = { 1, 300 }; // level, seconds * amount
         stomatchpoisonRottenMeat[] = { 2, 300 }; // level, seconds * amount

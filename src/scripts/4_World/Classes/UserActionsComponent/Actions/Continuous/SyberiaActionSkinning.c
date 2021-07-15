@@ -9,8 +9,6 @@ modded class ActionSkinning
 			AnimalBase body_EB = AnimalBase.Cast(targetObject);
 			body_EB.SetAsSkinned();
 			body_EB.DoSkinning(action_data.m_Player, action_data.m_MainItem);
-			PluginLifespan module_lifespan = PluginLifespan.Cast( GetPlugin( PluginLifespan ) );
-			module_lifespan.UpdateBloodyHandsVisibility( action_data.m_Player, true );
 		}
 		else
 		{
@@ -24,5 +22,15 @@ modded class ActionSkinning
 			float itemMaxHealth = action_data.m_MainItem.GetMaxHealth("", "");
 			action_data.m_MainItem.DecreaseHealth("", "", skill * dmgFactor * itemMaxHealth );
 		}
+		
+		ItemBase gloves = action_data.m_Player.GetItemOnSlot("Gloves");
+        if (gloves)
+        {
+            gloves.SetCleanness(0);
+        }
+        else
+        {
+            action_data.m_Player.SetBloodyHands(true);
+        }
 	}
 };

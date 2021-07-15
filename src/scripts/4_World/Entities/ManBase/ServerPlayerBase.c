@@ -299,8 +299,15 @@ modded class PlayerBase
 		
 		ItemBase gloves = GetItemOnSlot("Gloves");
 		if (gloves && gloves.IsCleanness())
-		{
+		{			
 			m_disinfectedHands = true;
+			
+			ItemBase itemInHands = GetItemInHands();
+			if (itemInHands && !itemInHands.IsCleanness() && Math.RandomFloat01() < 0.001)
+			{
+				gloves.SetCleanness(0);
+				m_disinfectedHands = false;
+			}
 		}
 		else if (!gloves && !HasBloodyHands() && GetModifiersManager().IsModifierActive(eModifiers.MDF_DISINFECTION))
 		{
@@ -981,6 +988,16 @@ modded class PlayerBase
 		if (hasBrainAgents)
 		{
 			source.InsertAgent(eAgents.BRAIN);
+		}
+		
+		ItemBase gloves = GetItemOnSlot("Gloves");
+		if (gloves)
+		{
+			gloves.SetCleanness(0);
+		}
+		else if ( GetModifiersManager().IsModifierActive(eModifiers.MDF_DISINFECTION))
+		{
+			GetModifiersManager().DeactivateModifier( eModifiers.MDF_DISINFECTION );
 		}
 		
 		return result;
@@ -1802,6 +1819,18 @@ modded class PlayerBase
 		else
 		{
 			super.EEHitBy(damageResult, damageType, source, component, dmgZone, ammo, modelPos, speedCoef);
+		}
+	}
+	
+	override void SetBloodyHands( bool show )
+	{
+		super.SetBloodyHands(show);
+		if (show)
+		{
+			if ( GetModifiersManager().IsModifierActive(eModifiers.MDF_DISINFECTION))
+			{
+				GetModifiersManager().DeactivateModifier( eModifiers.MDF_DISINFECTION );
+			}
 		}
 	}
 	
