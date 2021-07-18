@@ -282,6 +282,8 @@ modded class BleedingSourcesManagerServer
 			{
 				SetZVirus(true);
 			}
+			
+			m_Player.AddMindDegradation( GetSyberiaConfig().m_zombieHitDecreaseMind[0], GetSyberiaConfig().m_zombieHitDecreaseMind[1] );
 		}
 		else if ( ammo.ToType().IsInherited(Nonlethal_Base) )
 		{

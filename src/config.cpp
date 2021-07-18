@@ -99,7 +99,7 @@ class CfgSyberia
         adrenalinEffectStaminaDepletionMod[] = { 0.5, 0.25, 0.1 };
         overdoseDecrementPerSec = 0.001;
         overdoseUnconChangePerSec = 0.025;
-        mindstateHealPerSec = 0.02;
+        mindstateHealPerSec = 0.01;
         mindstateEmptyDeadtimeSec = 600;
         influenzaIncubatePeriodsSec[] = { 300, 1500, 1800 };
         influenzaTemperatureLevels[] = { -1.0, 37.0, 40.0 };
@@ -112,17 +112,17 @@ class CfgSyberia
         stomatchpoisonWaterDrainFromVomit[] = { 200, 350, 500 };
         stomatchpoisonEnergyDrainFromVomit[] = { 300, 600, 1000 };
         stomatchhealModifier = 5;
-        stomatchpoisonRawMeat[] = { 1, 300 }; // level, seconds * amount
-        stomatchpoisonBurnedMeat[] = { 1, 300 }; // level, seconds * amount
-        stomatchpoisonRottenMeat[] = { 2, 300 }; // level, seconds * amount
+        stomatchpoisonRawMeat[] = { 1, 400 }; // level, seconds * amount
+        stomatchpoisonBurnedMeat[] = { 1, 500 }; // level, seconds * amount
+        stomatchpoisonRottenMeat[] = { 2, 600 }; // level, seconds * amount
         stomatchpoisonBurnedFood[] = { 1, 300 }; // level, seconds * amount
-        stomatchpoisonRottenFood[] = { 2, 300 }; // level, seconds * amount
+        stomatchpoisonRottenFood[] = { 2, 600 }; // level, seconds * amount
         stomatchpoisonDirtyHands[] = { 1, 300 }; // level, seconds * amount
-        stomatchpoisonInfection[] = { 1, 300 }; // level, seconds * amount
-        stomatchpoisonChanceDrinkPond = 0.8;
-        stomatchpoisonDrinkPond[] = { 1, 120 };
+        stomatchpoisonInfection[] = { 1, 500 }; // level, seconds * amount
+        stomatchpoisonChanceDrinkPond = 0.5;
+        stomatchpoisonDrinkPond[] = { 2, 200 };
         stomatchpoisonChanceDrinkWell = 0.01;
-        stomatchpoisonDrinkWell[] = { 1, 60 };
+        stomatchpoisonDrinkWell[] = { 1, 100 };
         stomatchpoisonDefaultTimes[] = { 1800, 900, 600 }; // lvl1, lvl2, lvl3
         startSurgeryVisceraChance = 0.15;
         startSurgeryBulletChance = 0.3;
@@ -134,6 +134,9 @@ class CfgSyberia
         radiationHealthDamage[] = { 0.09, 0.2, 0.8 };
         radiationSleepingDec = 3;
         shockDecrementOnLowHealthAndBlood = 1.5;
+        zombieHitDecreaseMind[] = { 0.2, 5 }; // amount, time
+        zombieKillDecreaseMind[] = { 0.1, 10 }; // amount, time
+        antidepresantMindInc[] = { 0.1, 0.25, 0.5 };
     };
 
     class AttackSystem
