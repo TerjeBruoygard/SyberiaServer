@@ -517,7 +517,7 @@ modded class PluginAdminTool
 		else if (statName == "BulletWounds") player.m_bulletHits = (int)value;
         else if (statName == "Hematomas") player.m_hematomaHits = (int)value;
         else if (statName == "Viscera") player.m_visceraHit = (value > 0.5);
-        else if (statName == "Sepsis") player.m_sepsis = (value > 0.5);
+        else if (statName == "Sepsis") player.m_sepsis = (int)value;
         else if (statName == "Concussion") player.m_concussionHit = (value > 0.5);
         else if (statName == "Hemostasis") 
 		{
@@ -647,7 +647,7 @@ modded class PluginAdminTool
 			playerContext.m_stats.Insert(new PluginAdminTool_PlayerStatContext("Hematomas", 0, 99, player.m_hematomaHits));
 			
 			playerContext.m_stats.Insert(new PluginAdminTool_PlayerStatContext("Viscera", 0, 1, (int)player.m_visceraHit));
-			playerContext.m_stats.Insert(new PluginAdminTool_PlayerStatContext("Sepsis", 0, 1, (int)player.m_sepsis));
+			playerContext.m_stats.Insert(new PluginAdminTool_PlayerStatContext("Sepsis", 0, 2, (int)player.m_sepsis));
 			playerContext.m_stats.Insert(new PluginAdminTool_PlayerStatContext("Concussion", 0, 1, (int)player.m_concussionHit));
 			playerContext.m_stats.Insert(new PluginAdminTool_PlayerStatContext("Hemostasis", 0, 1, (int)player.m_bloodHemostaticEffect));
 			playerContext.m_stats.Insert(new PluginAdminTool_PlayerStatContext("Hemopoesis", 0, 1, (int)player.m_hematopoiesisEffect));
