@@ -446,9 +446,10 @@ modded class PluginAdminTool
         	if ( !ctx.Read( serverData ) ) return;
 			
 			PlayerBase player = GetPlayerByGUID(serverData.param1);
-			if (player)
+			if (player && player.GetIdentity())
 			{
-				GetGame().DisconnectPlayer(player.GetIdentity());
+                GetGame().RemoveFromReconnectCache(player.GetIdentity().GetId());
+				GetGame().DisconnectPlayer(player.GetIdentity(), player.GetIdentity().GetId());
 			}
 		}
 	}
