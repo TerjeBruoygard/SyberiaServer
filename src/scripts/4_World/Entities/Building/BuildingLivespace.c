@@ -63,7 +63,7 @@ modded class BuildingLivespace
 			string doorClass = "BuildingDoor_T" + doorType + "_L" + level;
 			
 			vector localPos = GetGame().ConfigGetVector(doorPath + " pos");
-			vector localOffset = GetGame().ConfigGetVector(CFG_VEHICLESPATH + " " + doorClass + " indoorOffset");
+			vector localOffset = GetGame().ConfigGetVector(CFG_VEHICLESPATH + " " + doorClass + " placeOffset");
 			localPos[0] = localPos[0] + localOffset[0];
 			localPos[1] = localPos[1] + localOffset[1];
 			localPos[2] = localPos[2] + localOffset[2];
