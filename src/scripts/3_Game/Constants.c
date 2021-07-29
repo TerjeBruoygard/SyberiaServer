@@ -163,6 +163,8 @@ modded class SyberiaConfig
     float m_skillsExpStrengthLightAttackChance;
     float m_skillsExpStrengthHeavyAttackValue;
     float m_skillsExpStrengthHeavyAttackChance;
+	float m_skillsExpStrengthSilentAttackValue;
+    float m_skillsExpStrengthSilentAttackChance;
 	float m_skillsExpStrengthMineWoodOrStone;	
 	float m_skillsExpMedicineBandage;
 	float m_skillsExpMedicineTablets;
@@ -329,7 +331,9 @@ modded class SyberiaConfig
 		m_skillsExpStrengthLightAttackValue = ConfigGetFloat("CfgSyberia SkillsExperienceSystem skillsExpStrengthLightAttackValue");
 	    m_skillsExpStrengthLightAttackChance = ConfigGetFloat("CfgSyberia SkillsExperienceSystem skillsExpStrengthLightAttackChance");
 	    m_skillsExpStrengthHeavyAttackValue = ConfigGetFloat("CfgSyberia SkillsExperienceSystem skillsExpStrengthHeavyAttackValue");
-	    m_skillsExpStrengthHeavyAttackChance = ConfigGetFloat("CfgSyberia SkillsExperienceSystem skillsExpStrengthHeavyAttackChance");
+	    m_skillsExpStrengthHeavyAttackChance = ConfigGetFloat("CfgSyberia SkillsExperienceSystem skillsExpStrengthHeavyAttackChance");		
+		m_skillsExpStrengthSilentAttackValue = ConfigGetFloat("CfgSyberia SkillsExperienceSystem skillsExpStrengthSilentAttackValue");
+	    m_skillsExpStrengthSilentAttackChance = ConfigGetFloat("CfgSyberia SkillsExperienceSystem skillsExpStrengthSilentAttackChance");	
 		m_skillsExpStrengthMineWoodOrStone = ConfigGetFloat("CfgSyberia SkillsExperienceSystem skillsExpStrengthMineWoodOrStone");
 		m_skillsExpMedicineBandage = ConfigGetFloat("CfgSyberia SkillsExperienceSystem skillsExpMedicineBandage");
 		m_skillsExpMedicineTablets = ConfigGetFloat("CfgSyberia SkillsExperienceSystem skillsExpMedicineTablets");
