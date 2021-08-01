@@ -124,11 +124,32 @@ modded class ZombieBase extends DayZInfected
 		}
 	}
 	
-	bool FightLogic(int pCurrentCommandID, DayZInfectedInputController pInputController, float pDt)
+	override bool FightLogic(int pCurrentCommandID, DayZInfectedInputController pInputController, float pDt)
 	{
-		if ( pCurrentCommandID == DayZInfectedConstants.COMMANDID_ATTACK && m_ActualAttackType )
+		if (pCurrentCommandID == DayZInfectedConstants.COMMANDID_MOVE)
 		{
-			m_ActualAttackType.m_IsHeavy = 0;
+			if ( m_ActualAttackType )
+			{
+				m_ActualAttackType.m_IsHeavy = 0;
+				
+				int mindState = pInputController.GetMindState();
+				if (mindState == DayZInfectedConstants.MINDSTATE_CHASE)
+				{
+					m_ActualAttackType.m_Distance = GetSyberiaConfig().m_zombieAttackDistanceChase;
+				}
+				else if (mindState == DayZInfectedConstants.MINDSTATE_FIGHT)
+				{
+					m_ActualAttackType.m_Distance = GetSyberiaConfig().m_zombieAttackDistanceFight;
+				}
+			}
+		}
+		else if ( pCurrentCommandID == DayZInfectedConstants.COMMANDID_ATTACK )
+		{
+			if ( m_ActualAttackType )
+			{
+				m_ActualAttackType.m_IsHeavy = 0;
+				m_ActualAttackType.m_Distance = GetSyberiaConfig().m_zombieAttackDistanceFight;
+			}
 		}
 		
 		return super.FightLogic(pCurrentCommandID, pInputController, pDt);
