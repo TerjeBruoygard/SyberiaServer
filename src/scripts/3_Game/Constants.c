@@ -119,6 +119,7 @@ modded class SyberiaConfig
 	bool m_zombieOpenDoorEnable;
 	float m_zombieOpenDoorDistance;
 	float m_zombieFindHouseDistance;
+	float m_zombieBloodHandsChanceOnLooting;
 	
 	// Animals
 	float m_animalsButchingKnifeDamage;
@@ -290,6 +291,7 @@ modded class SyberiaConfig
 		m_zombieOpenDoorEnable = ConfigGetInt("CfgSyberia ZombieSystem zombieOpenDoorEnable") == 1;
 		m_zombieOpenDoorDistance = ConfigGetFloat("CfgSyberia ZombieSystem zombieOpenDoorDistance");
 		m_zombieFindHouseDistance = ConfigGetFloat("CfgSyberia ZombieSystem zombieFindHouseDistance");
+		m_zombieBloodHandsChanceOnLooting = ConfigGetFloat("CfgSyberia ZombieSystem zombieBloodHandsChanceOnLooting");
 		
 		// Animals
 		m_animalsButchingKnifeDamage = ConfigGetFloat("CfgSyberia AnimalsSystem animalsButchingKnifeDamage");
