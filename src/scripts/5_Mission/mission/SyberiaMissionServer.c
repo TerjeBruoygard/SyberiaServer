@@ -539,4 +539,15 @@ modded class MissionServer
 			}
 		}
 	}
+	
+	override void OnMissionStart() 
+	{
+		super.OnMissionStart();
+
+		PluginTrader traderPlugin = PluginTrader.Cast(GetPlugin(PluginTrader));
+		if (traderPlugin)
+		{
+			traderPlugin.InitializeTraders();
+		}
+	}
 };
