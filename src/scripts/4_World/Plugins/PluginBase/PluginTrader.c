@@ -69,6 +69,12 @@ modded class PluginTrader
 			}
 		}
 		
+		PlayerBase traderHuman;
+		if (PlayerBase.CastTo(traderHuman, traderObj))
+		{
+			traderHuman.MarkAsNPC();
+		}
+		
 		TraderPoint traderPoint = TraderPoint.Cast( GetGame().CreateObject("TraderPoint", traider.m_position) );
 		traderPoint.SetPosition(traider.m_position);
 		traderPoint.SetAllowDamage(false);
