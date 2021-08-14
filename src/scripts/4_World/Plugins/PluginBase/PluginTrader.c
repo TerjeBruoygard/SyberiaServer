@@ -8,6 +8,7 @@ modded class PluginTrader
 	override void OnInit()
 	{
 		GetSyberiaRPC().RegisterHandler(SyberiaRPC.SYBRPC_CLOSE_TRADER_MENU, this, "RpcRequstTraderMenuClose"); 
+		GetSyberiaRPC().RegisterHandler(SyberiaRPC.SYBRPC_ACTION_TRADER, this, "RpcRequstTraderAction"); 
 		
 		MakeDirectory("$profile:Syberia");
 
@@ -131,6 +132,72 @@ modded class PluginTrader
 		{
 			traderPoint.SetActiveUser(null);
 		}
+	}
+	
+	void RpcRequstTraderAction(ref ParamsReadContext ctx, ref PlayerIdentity sender)
+	{
+		// Prepare
+		Param2<int, ref array<ItemBase>> clientData;
+       	if ( !ctx.Read( clientData ) ) return;
+		
+		int traderId = clientData.param1;
+		ref array<ItemBase>	sellItems = clientData.param2;
+		
+		ref PluginTrader_TraderServer traderInfo;
+		if (!m_traderCache.Find(traderId, traderInfo))
+			return;
+		
+		ref PluginTrader_Data traderData;
+		if ( !m_traderData.Find(traderId, traderData) )
+			return;
+		
+		// Validation
+		int resultPrice = 0;
+		foreach (ItemBase sellItem1 : sellItems)
+		{
+			resultPrice = resultPrice + CalculateSellPrice(PluginTrader_Trader.Cast(traderInfo), traderData, sellItem1);
+		}
+		
+		if (resultPrice < 0)
+		{
+			return;
+		}
+		
+		
+		
+		// Sell items		
+		foreach (ItemBase sellItem2 : sellItems)
+		{
+			if (sellItem2)
+			{
+				string classname = sellItem2.GetType();
+				float maxQuantity = CalculateTraiderItemQuantityMax(traderInfo, classname);
+				float itemQuantity = CalculateItemQuantity01(sellItem2);
+				
+				if (traderData.m_items.Contains(classname))
+				{
+					traderData.m_items.Set( classname, Math.Min(maxQuantity, traderData.m_items.Get(classname) + itemQuantity) );
+				}
+				else
+				{
+					traderData.m_items.Set( classname, Math.Min(maxQuantity, itemQuantity) );
+				}
+				
+				SybLogSrv("TRADER " + traderId + " BUY ITEM " + classname + ":" + itemQuantity);
+			}
+		}
+		
+		// Delete sell items
+		foreach (ItemBase sellItem2 : sellItems)
+		{
+			if (sellItem2)
+			{
+				GetGame().ObjectDelete(sellItem2);				
+			}
+		}
+		
+		// Send response
+		GetSyberiaRPC().SendToClient(SyberiaRPC.SYBRPC_ACTION_TRADER, sender, new Param1<ref PluginTrader_Data>(traderData));
 	}
 	
 	override void OnDestroy()
