@@ -172,7 +172,7 @@ modded class PluginTrader
 		
 		foreach (string buyClassname1, float buyQuantity1 : buyItems)
 		{
-			resultPrice = resultPrice - CalculateBuyPrice(traderInfo, buyClassname1, buyQuantity1);
+			resultPrice = resultPrice - CalculateBuyPrice(traderInfo, traderData, buyClassname1, buyQuantity1);
 		}
 		
 		if (resultPrice < 0)
