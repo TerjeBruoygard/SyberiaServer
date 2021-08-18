@@ -103,6 +103,9 @@ modded class PluginTrader
 		if (!player)
 			return;
 		
+		if (!player.GetIdentity())
+			return;
+		
 		ref PluginTrader_TraderServer trader;
 		if (!m_traderCache.Find(traderId, trader))
 			return;
@@ -115,6 +118,10 @@ modded class PluginTrader
 		if ( !m_traderData.Find(traderId, traderData) )
 			return;
 		
+		PluginAdminTool pluginAdminTool = PluginAdminTool.Cast(GetPlugin(PluginAdminTool));
+		if (!pluginAdminTool)
+			return;
+		
 		if (traderPoint.HasActiveUser())
 		{
 			GetSyberiaRPC().SendToClient(SyberiaRPC.SYBRPC_SCREEN_MESSAGE, player.GetIdentity(), new Param1<string>("#syb_trader_blocked"));
@@ -123,8 +130,9 @@ modded class PluginTrader
 		
 		traderPoint.SetActiveUser(player);
 		
-		Param3<int, ref PluginTrader_Trader, ref PluginTrader_Data> params = 
-			new Param3<int, ref PluginTrader_Trader, ref PluginTrader_Data>(traderId, trader, traderData);
+		bool isPlayerAdmin = pluginAdminTool.IsPlayerAdmin(player.GetIdentity());
+		Param4<int, ref PluginTrader_Trader, ref PluginTrader_Data, bool> params = 
+			new Param4<int, ref PluginTrader_Trader, ref PluginTrader_Data, bool>(traderId, trader, traderData, isPlayerAdmin);
 		
 		GetSyberiaRPC().SendToClient(SyberiaRPC.SYBRPC_OPEN_TRADE_MENU, player.GetIdentity(), params);
 	}
@@ -143,6 +151,10 @@ modded class PluginTrader
 	
 	void RpcRequstTraderAction(ref ParamsReadContext ctx, ref PlayerIdentity sender)
 	{
+		PluginAdminTool pluginAdminTool = PluginAdminTool.Cast(GetPlugin(PluginAdminTool));
+		if (!pluginAdminTool)
+			return;
+		
 		PlayerBase player = GetPlayerByIdentity(sender);
 		if (!player)
 			return;
@@ -154,6 +166,7 @@ modded class PluginTrader
 		int traderId = clientData.param1;
 		ref array<ItemBase>	sellItems = clientData.param2;
 		ref map<string, float> buyItems = clientData.param3;
+		bool isPlayerAdmin = pluginAdminTool.IsPlayerAdmin(sender);
 		
 		ref PluginTrader_TraderServer traderInfo;
 		if (!m_traderCache.Find(traderId, traderInfo))
@@ -181,16 +194,19 @@ modded class PluginTrader
 			}
 		}
 		
-		if (resultPrice < 0)
+		if (!isPlayerAdmin)
 		{
-			return;
+			if (resultPrice < 0)
+			{
+				return;
+			}
 		}
 		
 		// Sell items		
 		TStringArray updateDbQueries = new TStringArray;
 		foreach (ItemBase sellItem2 : sellItems)
 		{
-			if (sellItem2 && CanSellItem(traderInfo, sellItem2))
+			if (sellItem2 && (CanSellItem(traderInfo, sellItem2) || isPlayerAdmin) )
 			{
 				string classname = sellItem2.GetType();
 				float maxQuantity = CalculateTraiderItemQuantityMax(traderInfo, classname);
@@ -216,7 +232,7 @@ modded class PluginTrader
 		
 		foreach (string buyClassname2, float buyQuantity2 : buyItems)
 		{
-			if (CanBuyItem(traderInfo, buyClassname2))
+			if (CanBuyItem(traderInfo, buyClassname2) || isPlayerAdmin)
 			{
 				if (traderData.m_items.Contains(buyClassname2) && traderData.m_items.Get(buyClassname2) >= buyQuantity2)
 				{
@@ -252,7 +268,7 @@ modded class PluginTrader
 		// Spawn buy items
 		foreach (string buyClassname3, float buyQuantity3 : buyItems)
 		{
-			if (CanBuyItem(traderInfo, buyClassname3))
+			if (CanBuyItem(traderInfo, buyClassname3) || isPlayerAdmin)
 			{
 				float calcQuantity = buyQuantity3;
 				while (calcQuantity > 0)
