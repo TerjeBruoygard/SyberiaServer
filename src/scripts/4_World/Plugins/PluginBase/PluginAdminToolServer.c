@@ -485,6 +485,21 @@ modded class PluginAdminTool
 			}
 		}
 	}
+	
+	void PlayerMessage( ref ParamsReadContext ctx, ref PlayerIdentity sender )
+	{
+		if (sender && IsPlayerAdmin(sender))
+		{
+			Param2< string, string > serverData;
+        	if ( !ctx.Read( serverData ) ) return;
+			
+			PlayerBase other = GetPlayerByGUID(serverData.param1);
+			if (other && other.GetIdentity())
+			{
+				GetSyberiaRPC().SendToClient( SyberiaRPC.SYBRPC_ADMINTOOL_MESSAGE, other.GetIdentity(), new Param1< string >( serverData.param2 ) );
+			}
+		}
+	}
 
 	private void ApplyPlayerContextStat(PlayerBase player, string statName, float value)
 	{
