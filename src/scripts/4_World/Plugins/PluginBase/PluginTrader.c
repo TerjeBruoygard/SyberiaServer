@@ -279,7 +279,7 @@ modded class PluginTrader
 					InventoryLocation inv_loc = new InventoryLocation;
 					if (player.GetInventory().FindFirstFreeLocationForNewEntity(buyClassname3, FindInventoryLocationType.ANY, inv_loc))
 					{
-						buyEntity = ItemBase.Cast( player.SpawnItemOnLocation(buyClassname3, inv_loc, false) );
+						buyEntity = ItemBase.Cast( player.SpawnItemOnLocation(buyClassname3, inv_loc, true) );
 					}
 					else
 					{
@@ -301,6 +301,10 @@ modded class PluginTrader
 							{
 								buyMagazine.ServerSetAmmoCount(0);
 							}
+						}
+						else if (GetGame().ConfigIsExisting(CFG_VEHICLESPATH + " " + buyClassname3 + " liquidContainerType"))
+						{
+							buyEntity.SetQuantityNormalized(0);
 						}
 						else
 						{
