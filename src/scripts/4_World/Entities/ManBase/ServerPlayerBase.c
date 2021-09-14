@@ -551,7 +551,7 @@ modded class PlayerBase
             SyberiaSoundEmitter.Spawn("JimWow" + Math.RandomIntInclusive(1, 2) + "_SoundEmitter", GetPosition());
 		}
 		
-		if (!IsSicknesOrInjured())
+		if (!IsSicknesOrInjured() && m_MovementState.m_iStanceIdx == DayZPlayerConstants.STANCEIDX_ERECT)
 		{
 			float moveDist = vector.Distance(m_skillsLastPos, GetPosition());
 			if (m_MovementState.m_iMovement == DayZPlayerConstants.MOVEMENTIDX_SPRINT)
