@@ -3,6 +3,8 @@ modded class PluginSyberiaOptions extends PluginBase
 	ref PluginSyberiaOptions_Main m_main;
 	ref PluginSyberiaOptions_GroupDefault m_groupDefault;
 	ref map<string, ref PluginSyberiaOptions_GroupFaction> m_groupFactions;
+	ref array<ref PluginSyberiaOptions_GroupSingleUser> m_customLoadoutsRaw;
+	ref map<string, ref PluginSyberiaOptions_GroupSingleUser> m_customLoadouts;
 	ref map<int, float> m_skillModifiers;
 	
 	override void OnInit()
@@ -65,6 +67,18 @@ modded class PluginSyberiaOptions extends PluginBase
 				m_skillModifiers.Insert(i, skillModValue);
 			}
 		}
+		
+		path = "$profile:Syberia\\CustomLoadouts.json";
+		if (FileExist(path))
+		{
+			m_customLoadouts = new map<string, ref PluginSyberiaOptions_GroupSingleUser>;
+			m_customLoadoutsRaw = new array<ref PluginSyberiaOptions_GroupSingleUser>;
+			JsonFileLoader<ref array<ref PluginSyberiaOptions_GroupSingleUser>>.JsonLoadFile(path, m_customLoadoutsRaw);
+			foreach (ref PluginSyberiaOptions_GroupSingleUser singleUserLoadout : m_customLoadoutsRaw)
+			{
+				m_customLoadouts.Set(singleUserLoadout.m_uid, singleUserLoadout);
+			}
+		}
 	}
 	
 	void ~PluginSyberiaOptions()
@@ -86,8 +100,17 @@ modded class PluginSyberiaOptions extends PluginBase
 		return SyberiaScreenEquipPages.SYBSEP_TOTAL_COUNT;
 	}
 	
-	ref SpawnpointInfo GetCharacterSpawnpoint(ref CharProfile profile, ref PluginSyberiaOptions_GroupFaction faction, int spawnpointId)
+	ref SpawnpointInfo GetCharacterSpawnpoint(ref PlayerIdentity identity, ref CharProfile profile, ref PluginSyberiaOptions_GroupFaction faction, int spawnpointId)
 	{
+		ref PluginSyberiaOptions_GroupSingleUser customLoadout = null;
+		if (m_customLoadouts)
+		{
+			if (!m_customLoadouts.Find(identity.GetPlainId(), customLoadout))
+			{
+				m_customLoadouts.Find(identity.GetId(), customLoadout);
+			}
+		}
+		
 		ref array<ref SpawnpointInfo> spawnPoints = new array<ref SpawnpointInfo>;
 		if (faction && faction.m_spawnpoints)
 		{
@@ -103,6 +126,13 @@ modded class PluginSyberiaOptions extends PluginBase
 				spawnPoints.Insert(sp2);
 			}		
 		}
+		if (customLoadout != null)
+		{
+			foreach (ref SpawnpointInfo sp3 : customLoadout.m_spawnpoints)
+			{
+				spawnPoints.Insert(sp3);
+			}
+		}
 		
 		if (spawnpointId < 0 || spawnpointId >= spawnPoints.Count())
 		{
@@ -114,8 +144,17 @@ modded class PluginSyberiaOptions extends PluginBase
 		return result;
 	}
 	
-	ref array<string> GetCharacterLoadoutItems(ref CharProfile profile, ref PluginSyberiaOptions_GroupFaction faction, int loadoutId)
+	ref array<string> GetCharacterLoadoutItems(ref PlayerIdentity identity, ref CharProfile profile, ref PluginSyberiaOptions_GroupFaction faction, int loadoutId)
 	{			
+		ref PluginSyberiaOptions_GroupSingleUser customLoadout = null;
+		if (m_customLoadouts)
+		{
+			if (!m_customLoadouts.Find(identity.GetPlainId(), customLoadout))
+			{
+				m_customLoadouts.Find(identity.GetId(), customLoadout);
+			}
+		}
+		
 		array<ref PluginSyberiaOptions_ItemsLoadout> loadouts = new array<ref PluginSyberiaOptions_ItemsLoadout>;
 		if (faction && faction.m_gearItems)
 		{
@@ -129,6 +168,13 @@ modded class PluginSyberiaOptions extends PluginBase
 			foreach (ref PluginSyberiaOptions_ItemsLoadout sp2 : m_groupDefault.m_gearItems)
 			{
 				loadouts.Insert(sp2);
+			}		
+		}
+		if (customLoadout != null)
+		{
+			foreach (ref PluginSyberiaOptions_ItemsLoadout sp3 : m_groupDefault.m_gearItems)
+			{
+				loadouts.Insert(sp3);
 			}		
 		}
 		
@@ -149,6 +195,15 @@ modded class PluginSyberiaOptions extends PluginBase
 	
 	ref array<ref array<string>> GetCharacterAllowedEquipment(ref PlayerIdentity identity, ref CharProfile profile, ref PluginSyberiaOptions_GroupFaction faction)
 	{
+		ref PluginSyberiaOptions_GroupSingleUser customLoadout = null;
+		if (m_customLoadouts)
+		{
+			if (!m_customLoadouts.Find(identity.GetPlainId(), customLoadout))
+			{
+				m_customLoadouts.Find(identity.GetId(), customLoadout);
+			}
+		}
+		
 		ref array<ref array<string>> result = new array<ref array<string>>;
 		
 		// SPAWNPOINTS
@@ -167,60 +222,76 @@ modded class PluginSyberiaOptions extends PluginBase
 				spawnPoints.Insert(sp2.m_name);
 			}		
 		}
+		if (customLoadout != null)
+		{
+			foreach (ref SpawnpointInfo sp3 : customLoadout.m_spawnpoints)
+			{
+				spawnPoints.Insert(sp3.m_name);
+			}
+		}
 		result.Insert(spawnPoints);
 		
 		// GEAR BODY
 		ref array<string> bodyGear = new array<string>;
 		if (faction && faction.m_gearBody) bodyGear.InsertAll(faction.m_gearBody);
 		if (!faction || faction.m_allowDefaultLoadout) bodyGear.InsertAll(m_groupDefault.m_gearBody);
+		if (customLoadout != null) bodyGear.InsertAll(customLoadout.m_gearBody);
 		result.Insert(bodyGear);
 		
 		// GEAR PANTS
 		ref array<string> pantsGear = new array<string>;
 		if (faction && faction.m_gearPants) pantsGear.InsertAll(faction.m_gearPants);
 		if (!faction || faction.m_allowDefaultLoadout) pantsGear.InsertAll(m_groupDefault.m_gearPants);
+		if (customLoadout != null) pantsGear.InsertAll(customLoadout.m_gearPants);
 		result.Insert(pantsGear);
 		
 		// GEAR FOOT
 		ref array<string> footGear = new array<string>;
 		if (faction && faction.m_gearFoot) footGear.InsertAll(faction.m_gearFoot);
 		if (!faction || faction.m_allowDefaultLoadout) footGear.InsertAll(m_groupDefault.m_gearFoot);
+		if (customLoadout != null) footGear.InsertAll(customLoadout.m_gearFoot);
 		result.Insert(footGear);
 		
 		// GEAR HEAD
 		ref array<string> headGear = new array<string>;
 		if (faction && faction.m_gearHead) headGear.InsertAll(faction.m_gearHead);
 		if (!faction || faction.m_allowDefaultLoadout) headGear.InsertAll(m_groupDefault.m_gearHead);
+		if (customLoadout != null) headGear.InsertAll(customLoadout.m_gearHead);
 		result.Insert(headGear);
 		
 		// GEAR MASK
 		ref array<string> maskGear = new array<string>;
 		if (faction && faction.m_gearMask) maskGear.InsertAll(faction.m_gearMask);
 		if (!faction || faction.m_allowDefaultLoadout) maskGear.InsertAll(m_groupDefault.m_gearMask);
+		if (customLoadout != null) maskGear.InsertAll(customLoadout.m_gearMask);
 		result.Insert(maskGear); 
 		
 		// GEAR GLOVES
 		ref array<string> glovesGear = new array<string>;
 		if (faction && faction.m_gearGloves) glovesGear.InsertAll(faction.m_gearGloves);
 		if (!faction || faction.m_allowDefaultLoadout) glovesGear.InsertAll(m_groupDefault.m_gearGloves);
+		if (customLoadout != null) glovesGear.InsertAll(customLoadout.m_gearGloves);
 		result.Insert(glovesGear); 
 		
 		// GEAR VEST
 		ref array<string> vestGear = new array<string>;
 		if (faction && faction.m_gearVest) vestGear.InsertAll(faction.m_gearVest);
 		if (!faction || faction.m_allowDefaultLoadout) vestGear.InsertAll(m_groupDefault.m_gearVest);
+		if (customLoadout != null) vestGear.InsertAll(customLoadout.m_gearVest);
 		result.Insert(vestGear); 
 		
 		// GEAR BACKPACKS
 		ref array<string> backpackGear = new array<string>;
 		if (faction && faction.m_gearBackpack) backpackGear.InsertAll(faction.m_gearBackpack);
 		if (!faction || faction.m_allowDefaultLoadout) backpackGear.InsertAll(m_groupDefault.m_gearBackpack);
+		if (customLoadout != null) backpackGear.InsertAll(customLoadout.m_gearBackpack);
 		result.Insert(backpackGear); 
 		
 		// GEAR WEAPON
 		ref array<string> weapGear = new array<string>;
 		if (faction && faction.m_gearWeapon) weapGear.InsertAll(faction.m_gearWeapon);
 		if (!faction || faction.m_allowDefaultLoadout) weapGear.InsertAll(m_groupDefault.m_gearWeapon);
+		if (customLoadout != null) weapGear.InsertAll(customLoadout.m_gearWeapon);
 		result.Insert(weapGear);
 		
 		// GEAR ITEMS
@@ -238,6 +309,13 @@ modded class PluginSyberiaOptions extends PluginBase
 			{
 				itemsGear.Insert(il2.m_name);
 			}		
+		}
+		if (customLoadout != null)
+		{
+			foreach (ref PluginSyberiaOptions_ItemsLoadout il3 : customLoadout.m_gearItems)
+			{
+				itemsGear.Insert(il3.m_name);
+			}
 		}
 		result.Insert(itemsGear);
 		
@@ -427,4 +505,9 @@ class PluginSyberiaOptions_GroupFaction : PluginSyberiaOptions_GroupDefault
 			}
 		}
 	}
+};
+
+class PluginSyberiaOptions_GroupSingleUser : PluginSyberiaOptions_GroupDefault
+{
+	string m_uid;
 };
