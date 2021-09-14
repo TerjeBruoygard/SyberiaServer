@@ -56,6 +56,7 @@ modded class SyberiaConfig
 	float m_bleedingKnifehitCupd1PerSecond;
 	float m_bleedingKnifehitCupd2PerSecond;
 	float m_bleedingKnifehitRemoveBandagedTimeSec;
+	float m_bleedingKnifehitZombieChance;
 	float m_bleedingVisceraBloodlosePerSecond;
 	float m_bleedingVisceraHealthlosePerSecond;
 	float m_bleedingHematomaBloodlosePerSecond;
@@ -70,6 +71,7 @@ modded class SyberiaConfig
 	float m_visceraKnifehitTorsoChance;
 	float m_visceraBullethitTorsoChance;
 	float m_concussionRegenTimeSec;
+	float m_concussionZombieHitChance;
 	float m_hemostaticEffectModifier;
 	float m_hematopoiesisEffectBloodPerSec;
 	ref array<float> m_adrenalinEffectShockUpPerSec = new array<float>;
@@ -228,6 +230,7 @@ modded class SyberiaConfig
 		m_bleedingKnifehitCupd1PerSecond = ConfigGetFloat("CfgSyberia MedicineSystem bleedingKnifehitCupd1PerSecond");
 		m_bleedingKnifehitCupd2PerSecond = ConfigGetFloat("CfgSyberia MedicineSystem bleedingKnifehitCupd2PerSecond");
 		m_bleedingKnifehitRemoveBandagedTimeSec = ConfigGetFloat("CfgSyberia MedicineSystem bleedingKnifehitRemoveBandagedTimeSec");
+		m_bleedingKnifehitZombieChance = ConfigGetFloat("CfgSyberia MedicineSystem bleedingKnifehitZombieChance");
 		m_bleedingVisceraBloodlosePerSecond = ConfigGetFloat("CfgSyberia MedicineSystem bleedingVisceraBloodlosePerSecond");
 		m_bleedingVisceraHealthlosePerSecond = ConfigGetFloat("CfgSyberia MedicineSystem bleedingVisceraHealthlosePerSecond");
 		m_bleedingHematomaBloodlosePerSecond = ConfigGetFloat("CfgSyberia MedicineSystem bleedingHematomaBloodlosePerSecond");
@@ -241,6 +244,7 @@ modded class SyberiaConfig
 		m_visceraKnifehitTorsoChance = ConfigGetFloat("CfgSyberia MedicineSystem visceraKnifehitTorsoChance");
 		m_visceraBullethitTorsoChance = ConfigGetFloat("CfgSyberia MedicineSystem visceraBullethitTorsoChance");
 		m_concussionRegenTimeSec = ConfigGetFloat("CfgSyberia MedicineSystem concussionRegenTimeSec");
+		m_concussionZombieHitChance = ConfigGetFloat("CfgSyberia MedicineSystem concussionZombieHitChance");
 		m_hemostaticEffectModifier = ConfigGetFloat("CfgSyberia MedicineSystem hemostaticEffectModifier");
 		m_hematopoiesisEffectBloodPerSec = ConfigGetFloat("CfgSyberia MedicineSystem hematopoiesisEffectBloodPerSec");	
 		m_hematomaPainChance = ConfigGetFloat("CfgSyberia MedicineSystem hematomaPainChance");	
