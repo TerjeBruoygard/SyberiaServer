@@ -1,0 +1,39 @@
+{
+    "m_defaultZone":{
+        "m_id":0,
+        "m_position":[0, 0, 0],
+        "m_radius":0,
+        "m_height":0,
+        "m_enterMessage":"",
+        "m_leaveMessage":"",
+        "m_leaveTime": 0,
+        "m_godMode":0,
+        "m_inverseDammage":0,
+        "m_blockBuildingMode":0,
+        "m_blockInteractionWithPlayers":0,
+        "m_radiation": 0,
+        "m_psi": 0,
+        "m_gas": "",
+        "m_spawnChance": 0
+    },
+    "m_customZones":[
+        {
+            "m_name": "Kumyrna",
+            "m_id":1,
+            "m_position":[8354.06, 293.143, 5995.87],
+            "m_radius":100,
+            "m_height":-1,
+            "m_enterMessage":"Welcome to the club.",
+            "m_leaveMessage":"Bye",
+            "m_leaveTime": 2,
+            "m_godMode":0,
+            "m_inverseDammage":1,
+            "m_blockBuildingMode":0,
+            "m_blockInteractionWithPlayers":0,
+            "m_radiation": 0,
+            "m_psi": 0,
+            "m_gas": "",
+            "m_spawnChance": 1
+        }
+    ]
+}

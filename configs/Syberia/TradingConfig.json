@@ -1,0 +1,20 @@
+{
+    "m_traders": [
+        {
+            "m_traderId": 0,
+            "m_classname": "SurvivorM_Boris",
+            "m_attachments": ["FlatCap_Brown", "OMNOGloves_Gray", "RidersJacket_Black", "JungleBoots_Black", "Breeches_Black", "ThickFramesGlasses"],
+            "m_position": [8176.6, 474.0, 9122.6],
+            "m_rotation": 160,
+            "m_buyFilter": ["Inventory_Base", "DefaultWeapon", "DefaultMagazine"],
+            "m_sellFilter": ["Inventory_Base", "DefaultWeapon", "DefaultMagazine", "!RDG2SmokeGrenade_ColorBase", "!M18SmokeGrenade_ColorBase"],
+            "m_storageMaxSize": 1000,
+            "m_storageCommission": 0.25,
+            "m_dumpingByAmountAlgorithm": "linear",
+            "m_dumpingByAmountModifier": 0.01,
+            "m_dumpingByBadQuality": 0.5,
+            "m_sellMaxQuantityPercent": 0.1,
+            "m_buyMaxQuantityPercent": 0.1
+        }
+    ]
+}

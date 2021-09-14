@@ -1,0 +1,34 @@
+{
+    "m_startSoulsCount": 0,
+    "m_respawnSoulsPrice": 0,
+    "m_newchar_points": 10,
+    "m_roleplay_mode": 0,
+    "m_groups": [
+        "Sample"
+    ],
+    "m_skillModifiers": [
+        { "m_id": 0, "m_mod": 1, "m_decreaseOnDeath": 0.1 },
+        { "m_id": 1, "m_mod": 1, "m_decreaseOnDeath": 1.0 },
+        { "m_id": 2, "m_mod": 1, "m_decreaseOnDeath": 2.5 },
+        { "m_id": 3, "m_mod": 1, "m_decreaseOnDeath": 0 },
+        { "m_id": 4, "m_mod": 1, "m_decreaseOnDeath": 0 },
+        { "m_id": 5, "m_mod": 1, "m_decreaseOnDeath": 0 },
+        { "m_id": 6, "m_mod": 1, "m_decreaseOnDeath": 0 },
+        { "m_id": 7, "m_mod": 1, "m_decreaseOnDeath": 0 },
+        { "m_id": 8, "m_mod": 1, "m_decreaseOnDeath": 0 },
+        { "m_id": 9, "m_mod": 1, "m_decreaseOnDeath": 0 },
+        { "m_id": 10, "m_mod": 1, "m_decreaseOnDeath": 0 },
+        { "m_id": 11, "m_mod": 1, "m_decreaseOnDeath": 0 },
+        { "m_id": 12, "m_mod": 1, "m_decreaseOnDeath": 0 },
+        { "m_id": 13, "m_mod": 1, "m_decreaseOnDeath": 0 },
+        { "m_id": 14, "m_mod": 1, "m_decreaseOnDeath": 0 },
+        { "m_id": 15, "m_mod": 1, "m_decreaseOnDeath": 0 },
+        { "m_id": 16, "m_mod": 1, "m_decreaseOnDeath": 0 },
+        { "m_id": 17, "m_mod": 1, "m_decreaseOnDeath": 0 }
+    ],
+    "m_startMedicKit": [
+        "BandageDressing",
+        "AmpouleAlcohol",
+        "TabletsAnalgin"
+    ]
+}

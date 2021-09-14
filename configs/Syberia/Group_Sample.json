@@ -1,0 +1,45 @@
+{
+	"m_displayName": "Sample Group",
+	"m_maxMembers": 30,
+    "m_allowDefaultSpawnpoints": 0,
+	"m_allowDefaultLoadout": 0,
+	"m_leaders": [
+        "76561198061847702"
+    ],
+    "m_spawnpoints": [
+        {
+            "m_name": "Baza",
+            "m_positions": [
+                {
+                    "m_pos": [5952, 0, 10365],
+                    "m_radius": 100
+                }
+            ]
+        }
+    ],
+    "m_gearBody": [
+        "GorkaEJacket_Flat; H0.4"
+    ],
+    "m_gearPants": [
+        "GorkaPants_Flat"
+    ],
+    "m_gearFoot": [
+        "JungleBoots_Black"
+    ],
+    "m_gearHead": [
+        "BallisticHelmet_Green"
+    ],
+    "m_gearMask": [],
+    "m_gearGloves": [],
+    "m_gearVest": [],
+    "m_gearBackpack": [],
+    "m_gearWeapon": [
+        "M4A1; @M4_CarryHandleOptic,M4_CQBBttstck,M4_RISHndgrd; &Mag_STANAGCoupled_30Rnd; H0.5"
+    ],
+    "m_gearItems": [
+        {
+            "m_name": "Bomj Nabor",
+            "m_items": ["PowderedMilk", "SodaCan_Cola", "CombatKnife"]
+        }
+    ]
+}
