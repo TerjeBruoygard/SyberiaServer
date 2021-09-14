@@ -488,6 +488,14 @@ modded class MissionServer
 				return;
 			}
 			
+			if (profile.m_skills)
+			{
+				foreach (ref PluginSyberiaOptions_SkillModifier skillMod : GetSyberiaOptions().m_main.m_skillModifiers)
+				{					
+					profile.m_skills.AddSkillValue(skillMod.m_id, -1.0 * skillMod.m_decreaseOnDeath);
+				}
+			}
+			
 			profile.m_needToConfigureGear = true;
 			profile.m_souls = profile.m_souls - soulsPrice;
 			GetSyberiaCharacters().Save(sender);			
