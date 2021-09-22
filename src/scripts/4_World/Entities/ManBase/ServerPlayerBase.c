@@ -1920,6 +1920,7 @@ modded class PlayerBase
 	{
 		ItemBase itemMask = GetItemOnSlot("Mask");
 		if (!itemMask) return null;
+		if (itemMask.IsInherited(GasMask)) return itemMask;
 		
 		return ItemBase.Cast( itemMask.GetInventory().FindAttachmentByName("GasMaskFilter") );
 	}
