@@ -16,6 +16,10 @@ modded class Edible_Base
         {
             InsertAgent(eAgents.FOOD_POISON, 1);
         }
+		else if (IsMushroom() && Math.RandomFloat01() < 0.6)
+        {
+            InsertAgent(eAgents.FOOD_POISON, 1);
+        }
     }
 	
 	override void OnStoreSave( ParamsWriteContext ctx )
