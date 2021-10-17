@@ -9,9 +9,9 @@ modded class ActionOpenDoors
 			if ( doorIndex != -1 )
 			{
 				building.OpenDoor(doorIndex);
-				if (building.IsInherited(BuildingDoorBase))
+				if (building.IsInherited(BuildingLivespace))
 				{
-					BuildingDoorBase.Cast(building).OpenDoorLinked(doorIndex);
+					BuildingLivespace.Cast(building).OpenDoorLinked(doorIndex);
 				}
 			}
 		}

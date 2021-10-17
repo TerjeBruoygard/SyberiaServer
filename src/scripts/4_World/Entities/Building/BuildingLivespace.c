@@ -1,9 +1,18 @@
 modded class BuildingLivespace
 {
 	House m_house;
-	BuildingHomeBook m_homebook;
-	ref array<BuildingDoorBase> m_doors = new array<BuildingDoorBase>;
-	ref array<BuildingWindowBase> m_windows = new array<BuildingWindowBase>;
+
+	static BuildingLivespace SpawnLivespace(House house, int livespaceId)
+	{
+		string configPath = "CfgBuildingInfo " + house.GetType() + " Livespace" + livespaceId + " classname";
+		string classname = GetGame().ConfigGetTextOut(configPath);
+		BuildingLivespace livespace = BuildingLivespace.Cast( GetGame().CreateObject(classname, house.GetPosition()) );
+		SybLogSrv("Spawn livespace " + classname + " => " + livespace);
+		livespace.SetPosition(house.GetPosition());
+		livespace.SetYawPitchRoll(house.GetYawPitchRoll());
+		livespace.Setup(house, livespaceId);
+		return livespace;
+	}
 	
    	void Setup(House house, int livespaceId)
 	{
@@ -17,143 +26,62 @@ modded class BuildingLivespace
 			return;
 		}
 		
-		SetupHomebook();
 		SetupDoors();
-		SetupWindows();
+		SetupBarricades();
+		m_ready = true;
 		
-		m_ready = true;		
+		SychDirtyLevels();
 	}
 	
-	private void SetupHomebook()
+	override void SetupBarricades()
 	{
-		vector pos = m_house.ModelToWorld(GetGame().ConfigGetVector(m_livespacePath + " homeBookPos"));
-		m_homebook = BuildingHomeBook.Cast( GetGame().CreateObject("BuildingHomeBook", pos) );
-		
-		vector rot = m_house.GetLocalYawPitchRoll();
-		rot[0] = rot[0] + GetGame().ConfigGetFloat(m_livespacePath + " homeBookRot");
-		m_homebook.SetPosition(pos);
-		m_homebook.SetYawPitchRoll(rot);
-		m_homebook.SetLivespace(this);
-	}
-	
-	private void SetupWindows()
-	{
-		int windowId = 0;
-		while ( GetGame().ConfigIsExisting(m_livespacePath + " Window" + windowId) )
+		int barricadeId = 0;
+		while ( GetGame().ConfigIsExisting(m_livespacePath + " Barricade" + barricadeId) )
 		{
-			m_windows.Insert(null);
-			m_windowLevels.Insert(1);
-			SetupWindow(windowId);
-			windowId = windowId + 1;
-		}
-	}
-	
-	private void SetupWindow(int id)
-	{
-		if (m_windows[id] != null)
-		{
-			GetGame().ObjectDelete(m_windows[id]);
-			m_windows[id] = null;
+			m_barricadeLevels.Insert(1);
+			barricadeId = barricadeId + 1;
 		}
 		
-		string windowPath = m_livespacePath + " Window" + id;
-		int maxLevel = GetGame().ConfigGetInt(windowPath + " maxLevel");
-		int level = (int)Math.Clamp(m_windowLevels[id], 0, maxLevel);
-		if (level > 0)
-		{
-			int windowType = GetGame().ConfigGetInt(windowPath + " type");
-			string windowClass = "BuildingWindow_T" + windowType + "_L" + level;
-			
-			vector localPos = GetGame().ConfigGetVector(windowPath + " pos" + level);
-			vector windowPos = m_house.ModelToWorld(localPos);
-			float windowRot = GetGame().ConfigGetFloat(windowPath + " rot");
-			BuildingWindowBase windowObj = BuildingWindowBase.Cast( GetGame().CreateObject(windowClass, windowPos) );
-			if (windowObj)
-			{
-				vector rot = m_house.GetLocalYawPitchRoll();
-				rot[0] = rot[0] + windowRot;
-				windowObj.SetPosition(windowPos);
-				windowObj.SetYawPitchRoll(rot);
-				windowObj.SetLivespace(this);
-				windowObj.SetMetadata(id);
-				m_windows[id] = windowObj;
-			}
-		}
+		super.SetupBarricades();
 	}
 	
-	int GetWindowLevel(int id)
+	int GetBarricadeLevel(int id)
 	{
-		return m_windowLevels[id];
+		return m_barricadeLevels[id];
 	}
 	
-	void SetWindowLevel(int id, int level)
+	void SetBarricadeLevel(int id, int level)
 	{
-		int lastLevel = m_windowLevels[id];
+		int lastLevel = m_barricadeLevels[id];
 		if (lastLevel != level)
 		{
-			m_windowLevels[id] = level;
-			SetupWindow(id);
+			m_barricadeLevels[id] = level;
+			SychDirtyLevels();
 		}
 	}
 	
-	void UpgradeWindow(int id)
+	void UpgradeBarricade(int id)
 	{
-		int maxLevel = GetGame().ConfigGetInt(m_livespacePath + " Window" + id + " maxLevel");
-		int level = GetWindowLevel(id) + 1;
+		int maxLevel = GetGame().ConfigGetInt(m_livespacePath + " Barricade" + id + " maxLevel");
+		int level = GetBarricadeLevel(id) + 1;
 		if (level <= maxLevel)
 		{
-			SetWindowLevel(id, level);
+			SetBarricadeLevel(id, level);
 		}
 	}
 	
-	private void SetupDoors()
+	override void SetupDoors()
 	{
 		int doorId = 0;
 		while ( GetGame().ConfigIsExisting(m_livespacePath + " Door" + doorId) )
 		{
-			m_doors.Insert(null);
 			m_doorLevels.Insert(1);
-			SetupDoor(doorId);
 			doorId = doorId + 1;
 		}
-	}
-	
-	private void SetupDoor(int id)
-	{
-		if (m_doors[id] != null)
-		{
-			GetGame().ObjectDelete(m_doors[id]);
-			m_doors[id] = null;
-		}
 		
-		string doorPath = m_livespacePath + " Door" + id;
-		int maxLevel = GetGame().ConfigGetInt(doorPath + " maxLevel");
-		int level = (int)Math.Clamp(m_doorLevels[id], 0, maxLevel);
-		if (level > 0)
-		{
-			int doorType = GetGame().ConfigGetInt(doorPath + " type");
-			int doorId = GetGame().ConfigGetInt(doorPath + " id");
-			string doorClass = "BuildingDoor_T" + doorType + "_L" + level;
-			
-			vector localPos = GetGame().ConfigGetVector(doorPath + " pos" + level);
-			vector doorPos = m_house.ModelToWorld(localPos);
-			float doorRot = GetGame().ConfigGetFloat(doorPath + " rot");
-			BuildingDoorBase doorObj = BuildingDoorBase.Cast( GetGame().CreateObject(doorClass, doorPos) );
-			if (doorObj)
-			{
-				vector rot = m_house.GetLocalYawPitchRoll();
-				rot[0] = rot[0] + doorRot;
-				doorObj.SetPosition(doorPos);
-				doorObj.SetYawPitchRoll(rot);
-				doorObj.SetLivespace(this);
-				doorObj.SetMetadata(id, doorId);
-				m_doors[id] = doorObj;
-			}
-			
-			m_house.CloseDoor(doorId);
-		}
+		super.SetupDoors();
 	}
-	
+
 	int GetDoorLevel(int id)
 	{
 		return m_doorLevels[id];
@@ -165,7 +93,7 @@ modded class BuildingLivespace
 		if (lastLevel != level)
 		{
 			m_doorLevels[id] = level;
-			SetupDoor(id);
+			SychDirtyLevels();
 		}
 	}
 	
@@ -179,6 +107,28 @@ modded class BuildingLivespace
 		}
 	}
 	
+	void OpenDoorLinked(int componentId)
+	{
+		SybLogSrv("OpenDoorLinked " + componentId);
+	}
+	
+	void CloseDoorLinked(int componentId)
+	{
+		SybLogSrv("OpenDoorLinked " + componentId);
+	}
+	
+	private void SychDirtyLevels(PlayerIdentity sender = NULL)
+	{
+		if (!m_ready) return;
+			
+		int houseNetId1, houseNetId2;
+		m_house.GetNetworkID(houseNetId1, houseNetId2);
+		
+		Param6<string, int, int, int, ref array<int>, ref array<int>> params = 
+			new Param6<string, int, int, int, ref array<int>, ref array<int>>(m_livespacePath, m_livespaceId, houseNetId1, houseNetId2, m_doorLevels, m_barricadeLevels);
+		RPCSingleParam(SyberiaERPC.SYBERPC_SYNCH_LIVESPACE_SERVER, params, true, sender);
+	}
+	
 	override House GetHouse()
 	{
 		return m_house;
@@ -190,45 +140,12 @@ modded class BuildingLivespace
 		
 		if (rpc_type == SyberiaERPC.SYBERPC_SYNCH_LIVESPACE_CLIENT)
 		{
-			if (!m_ready) return;
-			
-			int houseNetId1, houseNetId2;
-			m_house.GetNetworkID(houseNetId1, houseNetId2);
-			
-			int homebookNetId1, homebookNetId2;
-			m_homebook.GetNetworkID(homebookNetId1, homebookNetId2);
-			
-			Param7<string, int, int, int, int, int, ref array<int>> params = 
-				new Param7<string, int, int, int, int, int, ref array<int>>(m_livespacePath, m_livespaceId, houseNetId1, houseNetId2, homebookNetId1, homebookNetId2, m_doorLevels);
-			RPCSingleParam(SyberiaERPC.SYBERPC_SYNCH_LIVESPACE_SERVER, params, true, sender);
+			SychDirtyLevels(sender);
 		}
 	}
 	
 	override void EEDelete(EntityAI parent)
 	{
 		super.EEDelete(parent);
-		
-		if (m_homebook)
-		{
-			GetGame().ObjectDelete(m_homebook);
-		}
-		
-		foreach (BuildingDoorBase door : m_doors)
-		{
-			if (door)
-			{
-				GetGame().ObjectDelete(door);
-			}
-		}
-		delete m_doors;
-        
-        foreach (BuildingWindowBase window : m_windows)
-		{
-			if (window)
-			{
-				GetGame().ObjectDelete(window);
-			}
-		}
-		delete m_windows;
 	}
 };

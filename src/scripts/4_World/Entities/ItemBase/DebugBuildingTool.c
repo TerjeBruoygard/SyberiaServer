@@ -34,20 +34,17 @@ modded class DebugBuildingTool
 			int livespaceId = 0;
 			while ( GetGame().ConfigIsExisting(configPath + " Livespace" + livespaceId) )
 			{
-				BuildingLivespace livespace = BuildingLivespace.Cast( GetGame().CreateObject("BuildingLivespace", house.GetPosition()) );
-				livespace.SetPosition(house.GetPosition());
-				livespace.SetYawPitchRoll(house.GetYawPitchRoll());
-				livespace.Setup(house, livespaceId);
-
+				BuildingLivespace livespace = BuildingLivespace.SpawnLivespace(house, livespaceId);
 				m_livespaces.Insert(livespace);
 				livespaceId = livespaceId + 1;
 			}
 		}
 	}
 	
-	override void UpgradeElement(BuildingLeveledElement element)
+	override void UpgradeElement(BuildingLivespace livespace, int componentId)
 	{
-		if (!m_linkedHouse)
+		SybLogSrv("DebugBuildingTool " + livespace + " upgrade element: " + componentId);
+		/*if (!m_linkedHouse)
 			return;
 		
 		if (!element)
@@ -65,6 +62,6 @@ modded class DebugBuildingTool
 		{
 			BuildingWindowBase window = BuildingWindowBase.Cast( element );
 			window.GetLivespace().UpgradeWindow(window.GetWindowId());
-		}
+		}*/
 	}
 };
