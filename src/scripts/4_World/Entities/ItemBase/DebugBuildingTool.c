@@ -41,27 +41,19 @@ modded class DebugBuildingTool
 		}
 	}
 	
-	override void UpgradeElement(BuildingLivespace livespace, int componentId)
+	override void UpgradeElement(BuildingLivespace livespace, int componentIndex)
 	{
-		SybLogSrv("DebugBuildingTool " + livespace + " upgrade element: " + componentId);
-		/*if (!m_linkedHouse)
+		if (!m_linkedHouse)
 			return;
 		
-		if (!element)
-			return;
-		
-		if (!element.GetLivespace())
-			return;
-		
-		if (element.IsInherited(BuildingDoorBase))
+		for (int i = 0; i < livespace.GetData().m_doors.Count(); i++)
 		{
-			BuildingDoorBase door = BuildingDoorBase.Cast( element );
-			door.GetLivespace().UpgradeDoor(door.GetDoorId());
-		}	
-		else if (element.IsInherited(BuildingWindowBase))
+			livespace.UpgradeDoor(i);
+		}
+		
+		for (int q = 0; q < livespace.GetData().m_barricades.Count(); q++)
 		{
-			BuildingWindowBase window = BuildingWindowBase.Cast( element );
-			window.GetLivespace().UpgradeWindow(window.GetWindowId());
-		}*/
+			livespace.UpgradeBarricade(q);
+		}
 	}
 };

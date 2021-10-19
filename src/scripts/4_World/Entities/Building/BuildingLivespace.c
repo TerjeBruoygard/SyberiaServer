@@ -1,14 +1,18 @@
 modded class BuildingLivespace
 {
-	House m_house;
+	private House m_house;
 
 	static BuildingLivespace SpawnLivespace(House house, int livespaceId)
 	{
-		string configPath = "CfgBuildingInfo " + house.GetType() + " Livespace" + livespaceId + " classname";
-		string classname = GetGame().ConfigGetTextOut(configPath);
-		BuildingLivespace livespace = BuildingLivespace.Cast( GetGame().CreateObject(classname, house.GetPosition()) );
+		string configPath = "CfgBuildingInfo " + house.GetType() + " Livespace" + livespaceId;
+		string classname = GetGame().ConfigGetTextOut(configPath + " classname");
+		vector offset = GetGame().ConfigGetVector(configPath + " offset");
+		vector position = house.ModelToWorld(offset);
+		
+		BuildingLivespace livespace = BuildingLivespace.Cast( GetGame().CreateObject(classname, position) );
 		SybLogSrv("Spawn livespace " + classname + " => " + livespace);
-		livespace.SetPosition(house.GetPosition());
+			
+		livespace.SetPosition(position);
 		livespace.SetYawPitchRoll(house.GetYawPitchRoll());
 		livespace.Setup(house, livespaceId);
 		return livespace;
@@ -19,12 +23,7 @@ modded class BuildingLivespace
 		m_house = house;
 		m_livespaceId = livespaceId;
 		m_livespacePath = "CfgBuildingInfo " + house.GetType() + " Livespace" + livespaceId;
-		
-		if (!GetGame().ConfigIsExisting(m_livespacePath))
-		{
-			GetGame().ObjectDelete(this);
-			return;
-		}
+		m_data = new LivespaceData(m_livespacePath);
 		
 		SetupDoors();
 		SetupBarricades();
@@ -35,13 +34,11 @@ modded class BuildingLivespace
 	
 	override void SetupBarricades()
 	{
-		int barricadeId = 0;
-		while ( GetGame().ConfigIsExisting(m_livespacePath + " Barricade" + barricadeId) )
+		for (int i = 0; i < m_data.m_barricades.Count(); i++)
 		{
 			m_barricadeLevels.Insert(1);
-			barricadeId = barricadeId + 1;
 		}
-		
+
 		super.SetupBarricades();
 	}
 	
@@ -62,7 +59,7 @@ modded class BuildingLivespace
 	
 	void UpgradeBarricade(int id)
 	{
-		int maxLevel = GetGame().ConfigGetInt(m_livespacePath + " Barricade" + id + " maxLevel");
+		int maxLevel = m_data.m_barricades.Get(id).m_levels.Count();
 		int level = GetBarricadeLevel(id) + 1;
 		if (level <= maxLevel)
 		{
@@ -72,11 +69,9 @@ modded class BuildingLivespace
 	
 	override void SetupDoors()
 	{
-		int doorId = 0;
-		while ( GetGame().ConfigIsExisting(m_livespacePath + " Door" + doorId) )
+		for (int i = 0; i < m_data.m_doors.Count(); i++)
 		{
 			m_doorLevels.Insert(1);
-			doorId = doorId + 1;
 		}
 		
 		super.SetupDoors();
@@ -99,7 +94,7 @@ modded class BuildingLivespace
 	
 	void UpgradeDoor(int id)
 	{
-		int maxLevel = GetGame().ConfigGetInt(m_livespacePath + " Door" + id + " maxLevel");
+		int maxLevel = m_data.m_doors.Get(id).m_levels.Count();
 		int level = GetDoorLevel(id) + 1;
 		if (level <= maxLevel)
 		{
@@ -107,14 +102,68 @@ modded class BuildingLivespace
 		}
 	}
 	
+	ref LivespaceDoorData FindDoorByComponent(int componentId)
+	{
+		foreach (ref LivespaceDoorData doorData : m_data.m_doors)
+		{
+			foreach (string compName : doorData.m_components)
+			{
+				if (IsActionComponentPartOfSelection(componentId, compName))
+				{					
+					return doorData;
+				}
+			}			
+		}
+		
+		return null;
+	}
+	
 	void OpenDoorLinked(int componentId)
 	{
-		SybLogSrv("OpenDoorLinked " + componentId);
+		ref LivespaceDoorData doorData = FindDoorByComponent(componentId);
+		if (doorData != null)
+		{
+			foreach (int linkedDoorId : doorData.m_linkedDoorIds)
+			{
+				GetHouse().OpenDoor(linkedDoorId);
+			}
+			
+			foreach (string component : doorData.m_components)
+			{
+				if ( m_actionComponents.Contains(component) )
+				{
+					int doorIndex = GetDoorIndex( m_actionComponents.Get(component) );
+					if (doorIndex != -1)
+					{
+						OpenDoor( doorIndex );
+					}
+				}
+			}
+		}
 	}
 	
 	void CloseDoorLinked(int componentId)
 	{
-		SybLogSrv("OpenDoorLinked " + componentId);
+		ref LivespaceDoorData doorData = FindDoorByComponent(componentId);
+		if (doorData != null)
+		{
+			foreach (int linkedDoorId : doorData.m_linkedDoorIds)
+			{
+				GetHouse().CloseDoor(linkedDoorId);
+			}
+			
+			foreach (string component : doorData.m_components)
+			{
+				if ( m_actionComponents.Contains(component) )
+				{
+					int doorIndex = GetDoorIndex( m_actionComponents.Get(component) );
+					if (doorIndex != -1)
+					{
+						CloseDoor( doorIndex );
+					}
+				}
+			}
+		}
 	}
 	
 	private void SychDirtyLevels(PlayerIdentity sender = NULL)
