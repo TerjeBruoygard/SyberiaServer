@@ -102,25 +102,25 @@ modded class BuildingLivespace
 		}
 	}
 	
-	ref LivespaceDoorData FindDoorByComponent(int componentId)
+	ref LivespaceDoorData FindDoorByDoorIndex(int doorIndex)
 	{
-		foreach (ref LivespaceDoorData doorData : m_data.m_doors)
+		if (doorIndex != -1)
 		{
-			foreach (string compName : doorData.m_components)
+			foreach (ref LivespaceDoorData doorData : m_data.m_doors)
 			{
-				if (IsActionComponentPartOfSelection(componentId, compName))
-				{					
-					return doorData;
-				}
-			}			
+				if (doorData.m_selfDoorId == doorIndex)
+				{
+					return doorData; 
+				}	
+			}
 		}
 		
 		return null;
 	}
 	
-	void OpenDoorLinked(int componentId)
+	void OpenDoorLinked(int doorIndex)
 	{
-		ref LivespaceDoorData doorData = FindDoorByComponent(componentId);
+		ref LivespaceDoorData doorData = FindDoorByDoorIndex(doorIndex);
 		if (doorData != null)
 		{
 			foreach (int linkedDoorId : doorData.m_linkedDoorIds)
@@ -128,23 +128,13 @@ modded class BuildingLivespace
 				GetHouse().OpenDoor(linkedDoorId);
 			}
 			
-			foreach (string component : doorData.m_components)
-			{
-				if ( m_actionComponents.Contains(component) )
-				{
-					int doorIndex = GetDoorIndex( m_actionComponents.Get(component) );
-					if (doorIndex != -1)
-					{
-						OpenDoor( doorIndex );
-					}
-				}
-			}
+			//OpenDoor( doorData.m_selfDoorId );			
 		}
 	}
 	
-	void CloseDoorLinked(int componentId)
+	void CloseDoorLinked(int doorIndex)
 	{
-		ref LivespaceDoorData doorData = FindDoorByComponent(componentId);
+		ref LivespaceDoorData doorData = FindDoorByDoorIndex(doorIndex);
 		if (doorData != null)
 		{
 			foreach (int linkedDoorId : doorData.m_linkedDoorIds)
@@ -152,17 +142,7 @@ modded class BuildingLivespace
 				GetHouse().CloseDoor(linkedDoorId);
 			}
 			
-			foreach (string component : doorData.m_components)
-			{
-				if ( m_actionComponents.Contains(component) )
-				{
-					int doorIndex = GetDoorIndex( m_actionComponents.Get(component) );
-					if (doorIndex != -1)
-					{
-						CloseDoor( doorIndex );
-					}
-				}
-			}
+			//CloseDoor( doorData.m_selfDoorId );
 		}
 	}
 	
