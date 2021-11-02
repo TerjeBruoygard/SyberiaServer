@@ -72,6 +72,12 @@ modded class BuildingLivespace
 		for (int i = 0; i < m_data.m_doors.Count(); i++)
 		{
 			m_doorLevels.Insert(1);
+			
+			ref LivespaceDoorData doorData = m_data.m_doors[i];
+			foreach (int linkedDoorId : doorData.m_linkedDoorIds)
+			{
+				GetHouse().CloseDoor(linkedDoorId);
+			}
 		}
 		
 		super.SetupDoors();

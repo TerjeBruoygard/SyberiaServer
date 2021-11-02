@@ -48,7 +48,9 @@ modded class PlayerBase
 	vector m_skillsLastPos;
 	
 	// Zones
-	float m_zoneLeaveTimer = 0;
+	float m_zoneGasTotalValue = 0;
+	float m_zoneRadTotalValue = 0;
+	float m_zonePsiTotalValue = 0;
 	int m_zoneToxicEffect = 0;
 	float m_radiationDose = 0;
 	
@@ -349,13 +351,18 @@ modded class PlayerBase
 		if (!pluginZones)
 			return;
 		
-		ref ZoneDefinition currentZone = null;
+		ref array<ref ZoneDefinition> currentZones = new array<ref ZoneDefinition>;
 		vector pos = GetPosition();
 		float landPos = GetGame().SurfaceY(pos[0], pos[2]);
 		vector pos2d = pos;
 		vector zone2d;
 		float landDiff;
 		pos2d[1] = 0;
+		
+		if (pluginZones.m_config.m_defaultZone)
+		{
+			currentZones.Insert(pluginZones.m_config.m_defaultZone);
+		}
 		
 		if (pluginZones.m_config.m_customZones)
 		{
@@ -365,7 +372,7 @@ modded class PlayerBase
 				{
 					if (vector.Distance(pos, zone.m_position) < zone.m_radius && pos[1] > landPos)
 					{
-						currentZone = zone;
+						currentZones.Insert(zone);
 					}
 				}
 				else
@@ -375,53 +382,119 @@ modded class PlayerBase
 
 					if (vector.Distance(pos2d, zone2d) < zone.m_radius && pos[1] >= zone.m_position[1] && pos[1] < zone.m_position[1] + zone.m_height)
 					{
-						currentZone = zone;
+						currentZones.Insert(zone);
 					}
 				}
 			}
 		}
 		
-		if (currentZone == null)
+		bool zonesDirty = false;
+		ref ZoneImplementation zoneImpl;
+		for (int i = 0; i < m_zones.Count(); i++)
 		{
-			if (m_zone != null && m_zone.m_id != pluginZones.m_config.m_defaultZone.m_id && m_zone.m_leaveTime > 0)
+			zoneImpl = m_zones[i];
+			if (currentZones.Find(zoneImpl.m_zone) == -1)
 			{
-				if (m_zoneLeaveTimer < m_zone.m_leaveTime)
+				if (zoneImpl.m_zoneLeaveTimer < zoneImpl.m_zone.m_leaveTime)
 				{
-					m_zoneLeaveTimer = m_zoneLeaveTimer + 1.0;
-					return;
+					zoneImpl.m_zoneLeaveTimer = zoneImpl.m_zoneLeaveTimer + 1.0;
+				}
+				else
+				{
+					if (zoneImpl.m_zone.m_leaveMessage && zoneImpl.m_zone.m_leaveMessage.LengthUtf8() > 0)
+					{
+						GetSyberiaRPC().SendToClient(SyberiaRPC.SYBRPC_SCREEN_MESSAGE, GetIdentity(), new Param1<string>(zoneImpl.m_zone.m_leaveMessage));
+					}
+					
+					m_zones.Remove(i);
+					zonesDirty = true;
+					
+					if (GetIdentity() != null && m_charProfile != null)
+					{
+						SybLogSrv("PLAYER " + m_charProfile.m_name + " (" + GetIdentity().GetId() + ") LEAVE FROM ZONE " + zoneImpl.m_zone.m_id + "; ACTIVE ZONES COUNT " + m_zones.Count());
+					}
+					
+					delete zoneImpl;
+					zoneImpl = null;
+					break;
 				}
 			}
-			
-			currentZone = pluginZones.m_config.m_defaultZone;
-			m_zoneLeaveTimer = 0;
 		}
 		
-		if (m_zone == null || m_zone.m_id != currentZone.m_id)
+		if (!zonesDirty)
 		{
-			if (m_zone != null && m_zone.m_godMode == 1)
+			for (int q = 0; q < currentZones.Count(); q++)
+			{
+				bool found = false;
+				ref ZoneDefinition zoneDef = currentZones[q];
+				for (int e = 0; e < m_zones.Count(); e++)
+				{
+					zoneImpl = m_zones[e];
+					if (zoneImpl.m_zone == zoneDef)
+					{
+						found = true;
+						break;
+					}
+				}
+				
+				if (!found)
+				{				
+					if (zoneDef.m_enterMessage && zoneDef.m_enterMessage.LengthUtf8() > 0)
+					{
+						GetSyberiaRPC().SendToClient(SyberiaRPC.SYBRPC_SCREEN_MESSAGE, GetIdentity(), new Param1<string>(zoneDef.m_enterMessage));
+					}
+					
+					m_zones.Insert( new ZoneImplementation(zoneDef) );
+					zonesDirty = true;
+					
+					if (GetIdentity() != null && m_charProfile != null)
+					{
+						SybLogSrv("PLAYER " + m_charProfile.m_name + " (" + GetIdentity().GetId() + ") ENTER TO ZONE " + zoneDef.m_id + "; ACTIVE ZONES COUNT " + m_zones.Count());
+					}
+					
+					break;
+				}
+			}
+		}
+		
+		bool enableGodMode = false;
+		m_zoneGasTotalValue = 0;
+		m_zoneRadTotalValue = 0;
+		m_zonePsiTotalValue = 0;
+		for (int y = 0; y < m_zones.Count(); y++)
+		{
+			zoneImpl = m_zones[y];
+			if (zoneImpl.m_zone.m_godMode == 1 && !m_isPveIntruder)
+			{
+				enableGodMode = true;
+			}
+			
+			m_zoneGasTotalValue = m_zoneGasTotalValue + zoneImpl.m_zone.m_gas;
+			m_zoneRadTotalValue = m_zoneRadTotalValue + zoneImpl.m_zone.m_radiation;
+			m_zonePsiTotalValue = m_zonePsiTotalValue + zoneImpl.m_zone.m_psi;
+		}
+		
+		if (zonesDirty)
+		{
+			if (enableGodMode)
+			{
+				SetAllowDamage(false);
+			}
+			else
 			{
 				SetAllowDamage(true);
 			}
 			
-			if (currentZone.m_godMode == 1 && !m_isPveIntruder)
-			{
-				SetAllowDamage(false);
-			}
-			
-			m_zone = currentZone;
-			m_zoneLeaveTimer = 0;
-			GetSyberiaRPC().SendToClient(SyberiaRPC.SYBRPC_CURRENT_ZONE_SYNC, GetIdentity(), new Param1<ref ZoneDefinition>(currentZone));
+			GetSyberiaRPC().SendToClient(SyberiaRPC.SYBRPC_CURRENT_ZONE_SYNC, GetIdentity(), new Param1<ref array<ref ZoneImplementation>>(m_zones));
 			SetSynchDirty();
 		}
+		
+		currentZones.Clear();
+		delete currentZones;
 	}
 	
 	private void OnTickZoneEffect()
 	{
-		if (m_zone == null)
-		{
-			return;
-		}
-		
 		int waterDrain;
 		int energyDrain;
 		
@@ -464,11 +537,11 @@ modded class PlayerBase
 		if (filter && filter.GetQuantity() > 0)
 		{
 			filterProtection = true;
-			if (m_zone.m_gas > 0)
+			if (m_zoneGasTotalValue > 0)
 			{
 				filter.AddQuantity(GetSyberiaConfig().m_gasMaskFilterDegradationInToxicZone);				
 			}
-			else if (m_zone.m_radiation > 0)
+			else if (m_zoneRadTotalValue > 0)
 			{
 				filter.AddQuantity(GetSyberiaConfig().m_gasMaskFilterDegradationInRadZone);	
 			}
@@ -478,7 +551,7 @@ modded class PlayerBase
 			}
 		}
 		
-		if (m_zone.m_gas > 0 && !filterProtection)
+		if (m_zoneGasTotalValue > 0 && !filterProtection)
 		{
 			m_zoneToxicEffect = m_zoneToxicEffect + 1;
 		}
@@ -487,9 +560,9 @@ modded class PlayerBase
 			m_zoneToxicEffect = m_zoneToxicEffect - 1;
 		}
 		
-		if (m_zone.m_radiation > 0)
+		if (m_zoneRadTotalValue > 0)
 		{
-			float radIncrement = (1.0 - GetRadiationProtection()) * m_zone.m_radiation;
+			float radIncrement = (1.0 - GetRadiationProtection()) * m_zoneRadTotalValue;
 			if (radIncrement > 0)
 			{
 				AddRadiationDose(radIncrement);
@@ -850,13 +923,10 @@ modded class PlayerBase
 			m_mindStateValue = m_mindStateValue + GetSyberiaConfig().m_antidepresantMindInc[m_antidepresantLevel - 1];
 		}
 		
-		if (m_zone != null)
+		if (m_zonePsiTotalValue > 0)
 		{
-			if (m_zone.m_psi > 0)
-			{
-				float perkMod = 1 - GetPerkFloatValue(SyberiaPerkType.SYBPERK_IMMUNITY_MENTAL_TIME, 0, 0);
-				m_mindStateValue = m_mindStateValue - (m_zone.m_psi * perkMod);
-			}
+			float perkMod = 1 - GetPerkFloatValue(SyberiaPerkType.SYBPERK_IMMUNITY_MENTAL_TIME, 0, 0);
+			m_mindStateValue = m_mindStateValue - (m_zonePsiTotalValue * perkMod);
 		}
 				
 		m_mindStateValue = Math.Clamp(m_mindStateValue, 0, GetSyberiaConfig().m_mindstateMaxValue);
@@ -1804,6 +1874,7 @@ modded class PlayerBase
 			{
 				otherPlayer.SetAllowDamage(true);
 				otherPlayer.SetHealth("", "", 0);
+				otherPlayer.m_isPveIntruder = true;
 			}
 		}
 	}
