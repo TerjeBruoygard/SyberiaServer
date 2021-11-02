@@ -359,11 +359,6 @@ modded class PlayerBase
 		float landDiff;
 		pos2d[1] = 0;
 		
-		if (pluginZones.m_config.m_defaultZone)
-		{
-			currentZones.Insert(pluginZones.m_config.m_defaultZone);
-		}
-		
 		if (pluginZones.m_config.m_customZones)
 		{
 			foreach (ref ZoneDefinition zone : pluginZones.m_config.m_customZones)
@@ -386,6 +381,11 @@ modded class PlayerBase
 					}
 				}
 			}
+		}
+		
+		if (pluginZones.m_config.m_defaultZone && currentZones.Count() == 0)
+		{
+			currentZones.Insert(pluginZones.m_config.m_defaultZone);
 		}
 		
 		bool zonesDirty = false;
