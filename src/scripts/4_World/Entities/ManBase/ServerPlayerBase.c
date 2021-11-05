@@ -45,7 +45,9 @@ modded class PlayerBase
 	bool m_skillsSaveDirty = false;
 	float m_sprintingTime = 0;
 	float m_jogingTime = 0;
-	vector m_skillsLastPos;
+	float m_crouchTime = 0;
+	vector m_skillsRunLastPos;
+	vector m_skillsCrouchLastPos;
 	
 	// Zones
 	float m_zoneGasTotalValue = 0;
@@ -92,6 +94,9 @@ modded class PlayerBase
 		// Mind state
 		m_mindDegradationForce = 0;
 		m_mindDegradationTime = 0;
+		
+		m_skillsRunLastPos = GetPosition();
+		m_skillsCrouchLastPos = GetPosition();
 		
 		// Zones
 		m_isPveIntruder = false;
@@ -624,27 +629,42 @@ modded class PlayerBase
             SyberiaSoundEmitter.Spawn("JimWow" + Math.RandomIntInclusive(1, 2) + "_SoundEmitter", GetPosition());
 		}
 		
-		if (!IsSicknesOrInjured() && m_MovementState.m_iStanceIdx == DayZPlayerConstants.STANCEIDX_ERECT)
+		if (!IsSicknesOrInjured())
 		{
-			float moveDist = vector.Distance(m_skillsLastPos, GetPosition());
-			if (m_MovementState.m_iMovement == DayZPlayerConstants.MOVEMENTIDX_SPRINT)
+			float moveDist;
+			if (m_MovementState.m_iStanceIdx == DayZPlayerConstants.STANCEIDX_ERECT)
 			{
-				m_sprintingTime = m_sprintingTime + 1;
-				if (m_sprintingTime > GetSyberiaConfig().m_skillsExpAthleticsSprintTime && moveDist > 10)
+				moveDist = vector.Distance(m_skillsRunLastPos, GetPosition());
+				if (m_MovementState.m_iMovement == DayZPlayerConstants.MOVEMENTIDX_SPRINT)
 				{
-					m_sprintingTime = 0;
-					m_skillsLastPos = GetPosition();
-					AddExperience(SyberiaSkillType.SYBSKILL_ATHLETICS, GetSyberiaConfig().m_skillsExpAthleticsSprintIncrement);
+					m_sprintingTime = m_sprintingTime + 1;
+					if (m_sprintingTime > GetSyberiaConfig().m_skillsExpAthleticsSprintTime && moveDist > 10)
+					{
+						m_sprintingTime = 0;
+						m_skillsRunLastPos = GetPosition();
+						AddExperience(SyberiaSkillType.SYBSKILL_ATHLETICS, GetSyberiaConfig().m_skillsExpAthleticsSprintIncrement);
+					}
+				}
+				else if (m_MovementState.m_iMovement == DayZPlayerConstants.MOVEMENTIDX_RUN && moveDist > 5)
+				{
+					m_jogingTime = m_jogingTime + 1;
+					if (m_jogingTime > GetSyberiaConfig().m_skillsExpAthleticsJogTime)
+					{
+						m_jogingTime = 0;
+						m_skillsRunLastPos = GetPosition();
+						AddExperience(SyberiaSkillType.SYBSKILL_ATHLETICS, GetSyberiaConfig().m_skillsExpAthleticsJogIncrement);
+					}
 				}
 			}
-			else if (m_MovementState.m_iMovement == DayZPlayerConstants.MOVEMENTIDX_RUN && moveDist > 5)
+			else if (m_MovementState.m_iStanceIdx == DayZPlayerConstants.STANCEIDX_CROUCH)
 			{
-				m_jogingTime = m_jogingTime + 1;
-				if (m_jogingTime > GetSyberiaConfig().m_skillsExpAthleticsJogTime)
+				moveDist = vector.Distance(m_skillsCrouchLastPos, GetPosition());
+				m_crouchTime = m_crouchTime + 1;
+				if (m_crouchTime > GetSyberiaConfig().m_skillsExpStealthCrouchTime && moveDist > 5)
 				{
-					m_jogingTime = 0;
-					m_skillsLastPos = GetPosition();
-					AddExperience(SyberiaSkillType.SYBSKILL_ATHLETICS, GetSyberiaConfig().m_skillsExpAthleticsJogIncrement);
+					m_crouchTime = 0;
+					m_skillsCrouchLastPos = GetPosition();
+					AddExperience(SyberiaSkillType.SYBSKILL_STEALTH, GetSyberiaConfig().m_skillsExpStealthCrouchIncrement);
 				}
 			}
 		}
@@ -666,6 +686,22 @@ modded class PlayerBase
 	
 	private void OnTickSkills()
 	{		
+		bool dirty = false;
+		float skillsStealthStepVolume = 1.0 - Math.Clamp(GetPerkFloatValue(SyberiaPerkType.SYBPERK_STEALTH_STEPS_SOUND_DEC, 0, 0), 0, 1);
+		float skillsStealthVoiceVolume = 1.0 - Math.Clamp(GetPerkFloatValue(SyberiaPerkType.SYBPERK_STEALTH_VOICE_SOUND_DEC, 0, 0), 0, 1);
+		float skillsStealthWeaponsVolume = 1.0 - Math.Clamp(GetPerkFloatValue(SyberiaPerkType.SYBPERK_STEALTH_WEAPONS_SOUND_DEC, 0, 0), 0, 1);
+		float skillsStealthEquipmentVolume = 1.0 - Math.Clamp(GetPerkFloatValue(SyberiaPerkType.SYBPERK_STEALTH_EQUIPMENT_SOUND_DEC, 0, 0), 0, 1);
+		
+		if (m_skillsStealthStepVolume != skillsStealthStepVolume) { m_skillsStealthStepVolume = skillsStealthStepVolume; dirty = true; }
+		if (m_skillsStealthVoiceVolume != skillsStealthVoiceVolume) { m_skillsStealthVoiceVolume = skillsStealthVoiceVolume; dirty = true; }
+		if (m_skillsStealthWeaponsVolume != skillsStealthWeaponsVolume) { m_skillsStealthWeaponsVolume = skillsStealthWeaponsVolume; dirty = true; }
+		if (m_skillsStealthEquipmentVolume != skillsStealthEquipmentVolume) { m_skillsStealthEquipmentVolume = skillsStealthEquipmentVolume; dirty = true; }
+		
+		if (dirty)
+		{
+			SetSynchDirty();
+		}
+		
 		if (m_charProfile && m_charProfile.m_skills && m_charProfile.m_skills.m_dirty)
 		{
 			m_charProfile.m_skills.m_dirty = false;			
@@ -2067,6 +2103,12 @@ modded class PlayerBase
 	override bool CanBeTargetedByAI(EntityAI ai)
 	{
 		return !IsDamageDestroyed();
+	}
+	
+	override void SetVisibilityCoef(float pVisibility)
+	{
+		float visibilitySkillMod = 1.0 - Math.Clamp(GetPerkFloatValue(SyberiaPerkType.SYBPERK_STEALTH_ZOMBIE_AGRO_DEC, 0, 0), 0, 1);
+		m_VisibilityCoef = Math.Clamp(pVisibility * (visibilitySkillMod * 2.0), 0, 1.5);
 	}
 	
 	void MarkAsNPC()
