@@ -2,6 +2,9 @@ modded class PlayerBase
 {	
 	ref CharProfile m_charProfile;
 	
+	// Stats
+	bool m_sybstatsDirty;
+	
 	// Sleeping
 	float m_sleepingDecTimer;
 	float m_sleepingBoostTimer;
@@ -32,6 +35,7 @@ modded class PlayerBase
 	float m_radioprotectionTimer;
 	float m_antidepresantTimer;
 	float m_lastStomatchpoisonHeal;
+	float m_overdosedValue;	
 	
 	// Mind state
 	float m_mindDegradationForce;
@@ -59,6 +63,9 @@ modded class PlayerBase
 	override void Init()
 	{
 		super.Init();
+		
+		// Stats
+		m_sybstatsDirty = false;
 		
 		// Sleeping
 		m_sleepingDecTimer = 0;
@@ -91,15 +98,13 @@ modded class PlayerBase
 		m_antidepresantTimer = 0;
 		m_lastStomatchpoisonHeal = 0;
 		
+		
 		// Mind state
 		m_mindDegradationForce = 0;
 		m_mindDegradationTime = 0;
 		
 		m_skillsRunLastPos = GetPosition();
 		m_skillsCrouchLastPos = GetPosition();
-		
-		// Zones
-		m_isPveIntruder = false;
 	}
 	
 	override void OnStoreSave( ParamsWriteContext ctx )
@@ -111,44 +116,44 @@ modded class PlayerBase
         ctx.Write( m_sleepingValue );
         ctx.Write( m_sleepingBoostTimer );
         ctx.Write( m_sleepingBoostValue );
-        ctx.Write( m_bulletHits );
-        ctx.Write( m_knifeHits );
-        ctx.Write( m_hematomaHits );
-        ctx.Write( m_visceraHit );
-        ctx.Write( m_concussionHit );
-        ctx.Write( m_painLevel );
+        ctx.Write( m_sybstats.m_bulletHits );
+        ctx.Write( m_sybstats.m_knifeHits );
+        ctx.Write( m_sybstats.m_hematomaHits );
+        ctx.Write( m_sybstats.m_visceraHit );
+        ctx.Write( m_sybstats.m_concussionHit );
+        ctx.Write( m_sybstats.m_painLevel );
         ctx.Write( m_painTimer );
         ctx.Write( m_hematomaRegenTimer );
         ctx.Write( m_cuthitRegenTimer );
-        ctx.Write( m_painkillerEffect );
+        ctx.Write( m_sybstats.m_painkillerEffect );
         ctx.Write( m_painkillerTime );
-        ctx.Write( m_stomatchpoisonLevel );
-		ctx.Write( m_stomatchhealLevel );
+        ctx.Write( m_sybstats.m_stomatchpoisonLevel );
+		ctx.Write( m_sybstats.m_stomatchhealLevel );
         ctx.Write( m_stomatchhealTimer );
         ctx.Write( m_hemologicShock );
-        ctx.Write( m_sepsis );
+        ctx.Write( m_sybstats.m_sepsis );
         ctx.Write( m_sepsisTime );
-        ctx.Write( m_zombieVirus );
+        ctx.Write( m_sybstats.m_zombieVirus );
         ctx.Write( m_zvirusTimer );		
-        ctx.Write( m_bulletBandage1 );
-        ctx.Write( m_bulletBandage2 );
-        ctx.Write( m_knifeBandage1 );
-        ctx.Write( m_knifeBandage2 );
+        ctx.Write( m_sybstats.m_bulletBandage1 );
+        ctx.Write( m_sybstats.m_bulletBandage2 );
+        ctx.Write( m_sybstats.m_knifeBandage1 );
+        ctx.Write( m_sybstats.m_knifeBandage2 );
         ctx.Write( m_bullethitRegenTimer );
         ctx.Write( m_knifehitRegenTimer );
         ctx.Write( m_concussionRegenTimer );
-        ctx.Write( m_bloodHemostaticEffect );
+        ctx.Write( m_sybstats.m_bloodHemostaticEffect );
         ctx.Write( m_bloodHemostaticTimer );		
-        ctx.Write( m_hematopoiesisEffect );		
+        ctx.Write( m_sybstats.m_hematopoiesisEffect );		
         ctx.Write( m_hematopoiesisTimer );
-        ctx.Write( m_salveEffect );
+        ctx.Write( m_sybstats.m_salveEffect );
         ctx.Write( m_salveEffectTimer );		
-        ctx.Write( m_adrenalinEffect );
+        ctx.Write( m_sybstats.m_adrenalinEffect );
         ctx.Write( m_adrenalinEffectTimer );
         ctx.Write( m_overdosedValue );
-		ctx.Write( m_influenzaLevel );
+		ctx.Write( m_sybstats.m_influenzaLevel );
 		ctx.Write( m_influenzaTimer );
-		ctx.Write( m_antibioticsLevel );
+		ctx.Write( m_sybstats.m_antibioticsLevel );
 		ctx.Write( m_antibioticsTimer );
 		ctx.Write( m_antibioticsStrange );
 		ctx.Write( m_stomatchpoisonTimer );
@@ -158,11 +163,11 @@ modded class PlayerBase
 		
 		// VER 100
         ctx.Write( SYBERIA_V101_VERSION );
-		ctx.Write( m_radiationSickness );
+		ctx.Write( m_sybstats.m_radiationSickness );
 		ctx.Write( m_radiationDose );
-		ctx.Write( m_radioprotectionLevel );
+		ctx.Write( m_sybstats.m_radioprotectionLevel );
 		ctx.Write( m_radioprotectionTimer );
-		ctx.Write( m_antidepresantLevel );
+		ctx.Write( m_sybstats.m_antidepresantLevel );
 		ctx.Write( m_antidepresantTimer );
 	}
 	
@@ -181,44 +186,44 @@ modded class PlayerBase
 			if(!ctx.Read( m_sleepingBoostValue )) return false;
 			
 			// Adv medicine
-			if(!ctx.Read( m_bulletHits )) return false;		
-			if(!ctx.Read( m_knifeHits )) return false;		
-			if(!ctx.Read( m_hematomaHits )) return false;		
-			if(!ctx.Read( m_visceraHit )) return false;		
-			if(!ctx.Read( m_concussionHit )) return false;		
-			if(!ctx.Read( m_painLevel )) return false;		
+			if(!ctx.Read( m_sybstats.m_bulletHits )) return false;		
+			if(!ctx.Read( m_sybstats.m_knifeHits )) return false;		
+			if(!ctx.Read( m_sybstats.m_hematomaHits )) return false;		
+			if(!ctx.Read( m_sybstats.m_visceraHit )) return false;		
+			if(!ctx.Read( m_sybstats.m_concussionHit )) return false;		
+			if(!ctx.Read( m_sybstats.m_painLevel )) return false;		
 			if(!ctx.Read( m_painTimer )) return false;		
 			if(!ctx.Read( m_hematomaRegenTimer )) return false;		
 			if(!ctx.Read( m_cuthitRegenTimer )) return false;		
-			if(!ctx.Read( m_painkillerEffect )) return false;		
+			if(!ctx.Read( m_sybstats.m_painkillerEffect )) return false;		
 			if(!ctx.Read( m_painkillerTime )) return false;		
-			if(!ctx.Read( m_stomatchpoisonLevel )) return false;		
-			if(!ctx.Read( m_stomatchhealLevel )) return false;	
+			if(!ctx.Read( m_sybstats.m_stomatchpoisonLevel )) return false;		
+			if(!ctx.Read( m_sybstats.m_stomatchhealLevel )) return false;	
 			if(!ctx.Read( m_stomatchhealTimer )) return false;		
 			if(!ctx.Read( m_hemologicShock )) return false;		
-			if(!ctx.Read( m_sepsis )) return false;		
+			if(!ctx.Read( m_sybstats.m_sepsis )) return false;		
 			if(!ctx.Read( m_sepsisTime )) return false;		
-			if(!ctx.Read( m_zombieVirus )) return false;	
+			if(!ctx.Read( m_sybstats.m_zombieVirus )) return false;	
 			if(!ctx.Read( m_zvirusTimer )) return false;		
-			if(!ctx.Read( m_bulletBandage1 )) return false;		
-			if(!ctx.Read( m_bulletBandage2 )) return false;		
-			if(!ctx.Read( m_knifeBandage1 )) return false;		
-			if(!ctx.Read( m_knifeBandage2 )) return false;		
+			if(!ctx.Read( m_sybstats.m_bulletBandage1 )) return false;		
+			if(!ctx.Read( m_sybstats.m_bulletBandage2 )) return false;		
+			if(!ctx.Read( m_sybstats.m_knifeBandage1 )) return false;		
+			if(!ctx.Read( m_sybstats.m_knifeBandage2 )) return false;		
 			if(!ctx.Read( m_bullethitRegenTimer )) return false;		
 			if(!ctx.Read( m_knifehitRegenTimer )) return false;		
 			if(!ctx.Read( m_concussionRegenTimer )) return false;		
-			if(!ctx.Read( m_bloodHemostaticEffect )) return false;		
+			if(!ctx.Read( m_sybstats.m_bloodHemostaticEffect )) return false;		
 			if(!ctx.Read( m_bloodHemostaticTimer )) return false;		
-			if(!ctx.Read( m_hematopoiesisEffect )) return false;		
+			if(!ctx.Read( m_sybstats.m_hematopoiesisEffect )) return false;		
 			if(!ctx.Read( m_hematopoiesisTimer )) return false;		
-			if(!ctx.Read( m_salveEffect )) return false;		
+			if(!ctx.Read( m_sybstats.m_salveEffect )) return false;		
 			if(!ctx.Read( m_salveEffectTimer )) return false;		
-			if(!ctx.Read( m_adrenalinEffect )) return false;
+			if(!ctx.Read( m_sybstats.m_adrenalinEffect )) return false;
 			if(!ctx.Read( m_adrenalinEffectTimer )) return false;
 			if(!ctx.Read( m_overdosedValue )) return false;
-			if(!ctx.Read( m_influenzaLevel )) return false;
+			if(!ctx.Read( m_sybstats.m_influenzaLevel )) return false;
 			if(!ctx.Read( m_influenzaTimer )) return false;
-			if(!ctx.Read( m_antibioticsLevel )) return false;
+			if(!ctx.Read( m_sybstats.m_antibioticsLevel )) return false;
 			if(!ctx.Read( m_antibioticsTimer )) return false;
 			if(!ctx.Read( m_antibioticsStrange )) return false;
 			if(!ctx.Read( m_stomatchpoisonTimer )) return false;
@@ -236,11 +241,11 @@ modded class PlayerBase
 		
 		if(ctx.Read( syb_ver ) && syb_ver == SYBERIA_V101_VERSION)
 		{
-			if(!ctx.Read( m_radiationSickness )) return false;
+			if(!ctx.Read( m_sybstats.m_radiationSickness )) return false;
 			if(!ctx.Read( m_radiationDose )) return false;
-			if(!ctx.Read( m_radioprotectionLevel )) return false;
+			if(!ctx.Read( m_sybstats.m_radioprotectionLevel )) return false;
 			if(!ctx.Read( m_radioprotectionTimer )) return false;
-			if(!ctx.Read( m_antidepresantLevel )) return false;
+			if(!ctx.Read( m_sybstats.m_antidepresantLevel )) return false;
 			if(!ctx.Read( m_antidepresantTimer )) return false;
 		}
 		else
@@ -311,32 +316,32 @@ modded class PlayerBase
 	
 	private void OnTickDisinfectedHands()
 	{
-		bool lastValue = m_disinfectedHands;
+		bool lastValue = m_sybstats.m_disinfectedHands;
 		
 		ItemBase gloves = GetItemOnSlot("Gloves");
 		if (gloves && gloves.IsCleanness())
 		{			
-			m_disinfectedHands = true;
+			m_sybstats.m_disinfectedHands = true;
 			
 			ItemBase itemInHands = GetItemInHands();
 			if (itemInHands && !itemInHands.IsCleanness() && Math.RandomFloat01() < 0.001)
 			{
 				gloves.SetCleanness(0);
-				m_disinfectedHands = false;
+				m_sybstats.m_disinfectedHands = false;
 			}
 		}
 		else if (!gloves && !HasBloodyHands() && GetModifiersManager().IsModifierActive(eModifiers.MDF_DISINFECTION))
 		{
-			m_disinfectedHands = true;
+			m_sybstats.m_disinfectedHands = true;
 		}
 		else
 		{
-			m_disinfectedHands = false;
+			m_sybstats.m_disinfectedHands = false;
 		}
 		
-		if (m_disinfectedHands != lastValue)
+		if (m_sybstats.m_disinfectedHands != lastValue)
 		{
-			SetSynchDirty();
+			MarkSybStatsDirty();
 		}
 	}
 	
@@ -469,7 +474,7 @@ modded class PlayerBase
 		for (int y = 0; y < m_zones.Count(); y++)
 		{
 			zoneImpl = m_zones[y];
-			if (zoneImpl.m_zone.m_godMode == 1 && !m_isPveIntruder)
+			if (zoneImpl.m_zone.m_godMode == 1 && !m_sybstats.m_isPveIntruder)
 			{
 				enableGodMode = true;
 			}
@@ -576,17 +581,17 @@ modded class PlayerBase
 
 		if (GetRadiationDose() > 0)
 		{
-			if (m_radioprotectionLevel >= 0 && m_radioprotectionLevel <= 3) {
-				AddRadiationDose(GetSyberiaConfig().m_radiationDoseDecrementPerSec[m_radioprotectionLevel]);
+			if (m_sybstats.m_radioprotectionLevel >= 0 && m_sybstats.m_radioprotectionLevel <= 3) {
+				AddRadiationDose(GetSyberiaConfig().m_radiationDoseDecrementPerSec[m_sybstats.m_radioprotectionLevel]);
 			}
 		}
 		
-		if (m_radiationSickness > 0)
+		if (m_sybstats.m_radiationSickness > 0)
 		{
-			DecreaseHealth("", "Health", GetSyberiaConfig().m_radiationHealthDamage[m_radiationSickness - 1]);
+			DecreaseHealth("", "Health", GetSyberiaConfig().m_radiationHealthDamage[m_sybstats.m_radiationSickness - 1]);
 		}
 		
-		if (m_radiationSickness >= 2 && Math.RandomFloat01() < 0.05)
+		if (m_sybstats.m_radiationSickness >= 2 && Math.RandomFloat01() < 0.05)
 		{
 			// Vomit
 			SymptomBase symptom2 = GetSymptomManager().QueueUpPrimarySymptom(SymptomIDs.SYMPTOM_VOMIT);				
@@ -605,7 +610,7 @@ modded class PlayerBase
 			}
 		}
 		
-		if (m_radiationSickness == 3)
+		if (m_sybstats.m_radiationSickness == 3)
 		{
 			if (Math.RandomFloat01() < 0.1)
 			{
@@ -692,14 +697,14 @@ modded class PlayerBase
 		float skillsStealthWeaponsVolume = 1.0 - Math.Clamp(GetPerkFloatValue(SyberiaPerkType.SYBPERK_STEALTH_WEAPONS_SOUND_DEC, 0, 0), 0, 1);
 		float skillsStealthEquipmentVolume = 1.0 - Math.Clamp(GetPerkFloatValue(SyberiaPerkType.SYBPERK_STEALTH_EQUIPMENT_SOUND_DEC, 0, 0), 0, 1);
 		
-		if (m_skillsStealthStepVolume != skillsStealthStepVolume) { m_skillsStealthStepVolume = skillsStealthStepVolume; dirty = true; }
-		if (m_skillsStealthVoiceVolume != skillsStealthVoiceVolume) { m_skillsStealthVoiceVolume = skillsStealthVoiceVolume; dirty = true; }
-		if (m_skillsStealthWeaponsVolume != skillsStealthWeaponsVolume) { m_skillsStealthWeaponsVolume = skillsStealthWeaponsVolume; dirty = true; }
-		if (m_skillsStealthEquipmentVolume != skillsStealthEquipmentVolume) { m_skillsStealthEquipmentVolume = skillsStealthEquipmentVolume; dirty = true; }
+		if (m_sybstats.m_skillsStealthStepVolume != skillsStealthStepVolume) { m_sybstats.m_skillsStealthStepVolume = skillsStealthStepVolume; dirty = true; }
+		if (m_sybstats.m_skillsStealthVoiceVolume != skillsStealthVoiceVolume) { m_sybstats.m_skillsStealthVoiceVolume = skillsStealthVoiceVolume; dirty = true; }
+		if (m_sybstats.m_skillsStealthWeaponsVolume != skillsStealthWeaponsVolume) { m_sybstats.m_skillsStealthWeaponsVolume = skillsStealthWeaponsVolume; dirty = true; }
+		if (m_sybstats.m_skillsStealthEquipmentVolume != skillsStealthEquipmentVolume) { m_sybstats.m_skillsStealthEquipmentVolume = skillsStealthEquipmentVolume; dirty = true; }
 		
 		if (dirty)
 		{
-			SetSynchDirty();
+			MarkSybStatsDirty();
 		}
 		
 		if (m_charProfile && m_charProfile.m_skills && m_charProfile.m_skills.m_dirty)
@@ -735,7 +740,7 @@ modded class PlayerBase
 		int sleepingDiff = 0;		
 		sleepingDiff = sleepingDiff - GetSyberiaConfig().m_sleepingDecPerSec;
 		
-		if (m_radiationSickness > 0)
+		if (m_sybstats.m_radiationSickness > 0)
 		{
 			sleepingDiff = sleepingDiff - GetSyberiaConfig().m_radiationSleepingDec;
 		}
@@ -779,10 +784,10 @@ modded class PlayerBase
 		}
 		
 		int sleepingLvlInt = (int)sleepingLevel;
-		if (sleepingLvlInt != m_sleepingLevel)
+		if (sleepingLvlInt != m_sybstats.m_sleepingLevel)
 		{
-			m_sleepingLevel = sleepingLvlInt;
-			SetSynchDirty();
+			m_sybstats.m_sleepingLevel = sleepingLvlInt;
+			MarkSybStatsDirty();
 		}
 		
 		if (sleepingLvlInt > 0)
@@ -797,11 +802,12 @@ modded class PlayerBase
 			
 			float maxHealth = GetMaxHealth("GlobalHealth","Health");
 			AddHealth("GlobalHealth", "Health", maxHealth * GetSyberiaConfig().m_sleepingHealPerSec01);						
-			if (m_influenzaLevel <= 1 && GetPerkBoolValue(SyberiaPerkType.SYBPERK_IMMUNITY_INFLUENZA_FIREPLACE_HEAL) && Math.RandomFloat01() < GetSyberiaConfig().m_sleepingHealInfluenzaChance)
+			if (m_sybstats.m_influenzaLevel <= 1 && GetPerkBoolValue(SyberiaPerkType.SYBPERK_IMMUNITY_INFLUENZA_FIREPLACE_HEAL) && Math.RandomFloat01() < GetSyberiaConfig().m_sleepingHealInfluenzaChance)
 			{
-				m_influenzaLevel = 0;
+				m_sybstats.m_influenzaLevel = 0;
 				m_influenzaTimer = 0;
 				SetSynchDirty();
+				MarkSybStatsDirty();
 			}
 		}
 		else
@@ -830,6 +836,7 @@ modded class PlayerBase
 		}
 				
 		SetSynchDirty();
+		MarkSybStatsDirty();
 	}
 	
 	private void OnTickSickCheck()
@@ -853,15 +860,15 @@ modded class PlayerBase
 	
 	void SetStomatchPoison(int level, float time)
 	{
-		if (level > m_stomatchpoisonLevel)
+		if (level > m_sybstats.m_stomatchpoisonLevel)
 		{
-			m_stomatchpoisonLevel = Math.Clamp(level, 0, 3);
-			SetSynchDirty();
+			m_sybstats.m_stomatchpoisonLevel = Math.Clamp(level, 0, 3);
+			MarkSybStatsDirty();
 		}
 		
-		if (m_stomatchpoisonLevel > 0)
+		if (m_sybstats.m_stomatchpoisonLevel > 0)
 		{
-			float max = GetSyberiaConfig().m_stomatchpoisonDefaultTimes[m_stomatchpoisonLevel - 1];
+			float max = GetSyberiaConfig().m_stomatchpoisonDefaultTimes[m_sybstats.m_stomatchpoisonLevel - 1];
 			m_stomatchpoisonTimer = Math.Clamp(m_stomatchpoisonTimer + time, 0, max);
 			if (m_stomatchpoisonTimer < 60)
 			{
@@ -873,30 +880,30 @@ modded class PlayerBase
 	private void OnTickStomatchpoison()
 	{
 		int symptomDuration = 0;
-		if (m_stomatchpoisonLevel == 1)
+		if (m_sybstats.m_stomatchpoisonLevel == 1)
 		{
-			if (m_stomatchhealLevel < 1 && Math.RandomFloat01() < GetSyberiaConfig().m_stomatchpoisonVomitChance[0])
+			if (m_sybstats.m_stomatchhealLevel < 1 && Math.RandomFloat01() < GetSyberiaConfig().m_stomatchpoisonVomitChance[0])
 			{
 				symptomDuration = Math.RandomIntInclusive( 5, 10 );
 			}
 		}
-		if (m_stomatchpoisonLevel == 2)
+		if (m_sybstats.m_stomatchpoisonLevel == 2)
 		{
-			if (m_stomatchhealLevel < 2 && Math.RandomFloat01() < GetSyberiaConfig().m_stomatchpoisonVomitChance[1])
+			if (m_sybstats.m_stomatchhealLevel < 2 && Math.RandomFloat01() < GetSyberiaConfig().m_stomatchpoisonVomitChance[1])
 			{
 				symptomDuration = Math.RandomIntInclusive( 2, 8 );
 			}
 		}
-		if (m_stomatchpoisonLevel == 3)
+		if (m_sybstats.m_stomatchpoisonLevel == 3)
 		{
-			if (m_stomatchhealLevel < 3 && Math.RandomFloat01() < GetSyberiaConfig().m_stomatchpoisonVomitChance[2])
+			if (m_sybstats.m_stomatchhealLevel < 3 && Math.RandomFloat01() < GetSyberiaConfig().m_stomatchpoisonVomitChance[2])
 			{
 				symptomDuration = Math.RandomIntInclusive( 1, 4 );
 			}
 		}
 				
 		m_lastStomatchpoisonHeal = m_lastStomatchpoisonHeal + 1;
-		if (m_stomatchpoisonLevel > 0 && m_stomatchpoisonLevel <= 3)
+		if (m_sybstats.m_stomatchpoisonLevel > 0 && m_sybstats.m_stomatchpoisonLevel <= 3)
 		{
 			if (symptomDuration > 0)
 			{
@@ -905,8 +912,8 @@ modded class PlayerBase
 				{
 					symptom.SetDuration(symptomDuration);
 					
-					int waterDrain = GetSyberiaConfig().m_stomatchpoisonWaterDrainFromVomit[m_stomatchpoisonLevel - 1];
-					int energyDrain = GetSyberiaConfig().m_stomatchpoisonEnergyDrainFromVomit[m_stomatchpoisonLevel - 1];
+					int waterDrain = GetSyberiaConfig().m_stomatchpoisonWaterDrainFromVomit[m_sybstats.m_stomatchpoisonLevel - 1];
+					int energyDrain = GetSyberiaConfig().m_stomatchpoisonEnergyDrainFromVomit[m_sybstats.m_stomatchpoisonLevel - 1];
 	
 					if (GetStatWater().Get() > waterDrain)
 						GetStatWater().Add(-1 * waterDrain);
@@ -919,10 +926,10 @@ modded class PlayerBase
 			m_stomatchpoisonTimer = m_stomatchpoisonTimer - GetPerkFloatValue(SyberiaPerkType.SYBPERK_IMMUNITY_STOMATCHPOISON_TIME, 1, 1);
 			if (m_stomatchpoisonTimer < 0)
 			{
-				m_stomatchpoisonLevel = m_stomatchpoisonLevel - 1;
-				if (m_stomatchpoisonLevel > 0 && m_stomatchpoisonLevel <= 3)
+				m_sybstats.m_stomatchpoisonLevel = m_sybstats.m_stomatchpoisonLevel - 1;
+				if (m_sybstats.m_stomatchpoisonLevel > 0 && m_sybstats.m_stomatchpoisonLevel <= 3)
 				{
-					m_stomatchpoisonTimer = GetSyberiaConfig().m_stomatchpoisonDefaultTimes[m_stomatchpoisonLevel - 1];
+					m_stomatchpoisonTimer = GetSyberiaConfig().m_stomatchpoisonDefaultTimes[m_sybstats.m_stomatchpoisonLevel - 1];
 				}
 				else
 				{
@@ -954,9 +961,9 @@ modded class PlayerBase
 			m_mindStateValue = m_mindStateValue + (GetSyberiaConfig().m_mindstateHealPerSec * GetPerkFloatValue(SyberiaPerkType.SYBPERK_IMMUNITY_MENTAL_TIME, 1, 1));
 		}
 		
-		if (m_antidepresantLevel > 0 && m_antidepresantLevel <= 3)
+		if (m_sybstats.m_antidepresantLevel > 0 && m_sybstats.m_antidepresantLevel <= 3)
 		{
-			m_mindStateValue = m_mindStateValue + GetSyberiaConfig().m_antidepresantMindInc[m_antidepresantLevel - 1];
+			m_mindStateValue = m_mindStateValue + GetSyberiaConfig().m_antidepresantMindInc[m_sybstats.m_antidepresantLevel - 1];
 		}
 		
 		if (m_zonePsiTotalValue > 0)
@@ -983,7 +990,7 @@ modded class PlayerBase
 		
 		if (m_mindStateLast != m_mindStateValue)
 		{
-			SetSynchDirty();
+			MarkSybStatsDirty();
 		}
 	}
 	
@@ -1019,9 +1026,9 @@ modded class PlayerBase
 	
 	void AddInfluenza()
 	{
-		if (m_antibioticsLevel > 0) return;
+		if (m_sybstats.m_antibioticsLevel > 0) return;
 		
-		if (m_influenzaLevel == 0 && m_influenzaTimer == 0)
+		if (m_sybstats.m_influenzaLevel == 0 && m_influenzaTimer == 0)
 		{
 			m_influenzaTimer = GetSyberiaConfig().m_influenzaIncubatePeriodsSec[0];
 		}
@@ -1165,9 +1172,9 @@ modded class PlayerBase
 		{
 			overdosedIncrement = ProcessOverdosedPostinc(m_painkillerTime, overdosedIncrement);
 			float medPainkillerTimeSec = GetGame().ConfigGetFloat( "CfgVehicles " + classname + " medPainkillerTimeSec" );
-			if (medPainkillerLevel >= m_painkillerEffect && medPainkillerTimeSec > 0)
+			if (medPainkillerLevel >= m_sybstats.m_painkillerEffect && medPainkillerTimeSec > 0)
 			{				
-				m_painkillerEffect = medPainkillerLevel;
+				m_sybstats.m_painkillerEffect = medPainkillerLevel;
 				m_painkillerTime = m_painkillerTime + (medPainkillerTimeSec * amount);
 			}
 		}
@@ -1177,9 +1184,9 @@ modded class PlayerBase
 		{
 			overdosedIncrement = ProcessOverdosedPostinc(m_stomatchhealTimer, overdosedIncrement);
 			float medStomatchhealTimeSec = GetGame().ConfigGetFloat( "CfgVehicles " + classname + " medStomatchhealTimeSec" );
-			if (medStomatchhealLevel >= m_stomatchhealLevel && medStomatchhealTimeSec > 0)
+			if (medStomatchhealLevel >= m_sybstats.m_stomatchhealLevel && medStomatchhealTimeSec > 0)
 			{
-				m_stomatchhealLevel = medStomatchhealLevel;
+				m_sybstats.m_stomatchhealLevel = medStomatchhealLevel;
 				m_stomatchhealTimer = m_stomatchhealTimer + (medStomatchhealTimeSec * amount);
 			}
 		}
@@ -1190,9 +1197,9 @@ modded class PlayerBase
 			overdosedIncrement = ProcessOverdosedPostinc(m_antibioticsTimer, overdosedIncrement);
 			float medAntibioticsTimeSec = GetGame().ConfigGetFloat( "CfgVehicles " + classname + " medAntibioticsTimeSec" );
 			float medAntibioticsStrength = GetGame().ConfigGetFloat( "CfgVehicles " + classname + " medAntibioticsStrength" );
-			if (medAntibioticLevel >= m_antibioticsLevel && medAntibioticsTimeSec > 0 && medAntibioticsStrength > 0)
+			if (medAntibioticLevel >= m_sybstats.m_antibioticsLevel && medAntibioticsTimeSec > 0 && medAntibioticsStrength > 0)
 			{
-				m_antibioticsLevel = medAntibioticLevel;
+				m_sybstats.m_antibioticsLevel = medAntibioticLevel;
 				m_antibioticsTimer = m_antibioticsTimer + (medAntibioticsTimeSec * amount);
 				m_antibioticsStrange = medAntibioticsStrength;
 			}			
@@ -1245,7 +1252,7 @@ modded class PlayerBase
 		int medBloodHemostatic = GetGame().ConfigGetInt( "CfgVehicles " + classname + " medBloodHemostatic" );
 		if (medBloodHemostatic > 0)
 		{
-			m_bloodHemostaticEffect = true;
+			m_sybstats.m_bloodHemostaticEffect = true;
 			float medBloodHemostaticTimeSec = GetGame().ConfigGetFloat( "CfgVehicles " + classname + " medBloodHemostaticTimeSec" );
 			overdosedIncrement = ProcessOverdosedPostinc(m_bloodHemostaticTimer, overdosedIncrement);
 			m_bloodHemostaticTimer = m_bloodHemostaticTimer + (medBloodHemostaticTimeSec * amount);
@@ -1254,7 +1261,7 @@ modded class PlayerBase
 		int medBloodHematopoiesis = GetGame().ConfigGetInt( "CfgVehicles " + classname + " medBloodHematopoiesis" );
 		if (medBloodHematopoiesis > 0)
 		{
-			m_hematopoiesisEffect = true;
+			m_sybstats.m_hematopoiesisEffect = true;
 			float medBloodHematopoiesisTimeSec = GetGame().ConfigGetFloat( "CfgVehicles " + classname + " medBloodHematopoiesisTimeSec" );
 			overdosedIncrement = ProcessOverdosedPostinc(m_hematopoiesisTimer, overdosedIncrement);
 			m_hematopoiesisTimer = m_hematopoiesisTimer + (medBloodHematopoiesisTimeSec * amount);
@@ -1263,7 +1270,7 @@ modded class PlayerBase
 		int medHematomaHeal = GetGame().ConfigGetInt( "CfgVehicles " + classname + " medHematomaHeal" );
 		if (medHematomaHeal > 0)
 		{
-			m_salveEffect = true;
+			m_sybstats.m_salveEffect = true;
 			float medHematomaHealTimeSec = GetGame().ConfigGetFloat( "CfgVehicles " + classname + " medHematomaHealTimeSec" );
 			overdosedIncrement = ProcessOverdosedPostinc(m_salveEffectTimer, overdosedIncrement);
 			m_salveEffectTimer = m_salveEffectTimer + (medHematomaHealTimeSec * amount);
@@ -1273,9 +1280,9 @@ modded class PlayerBase
 		if (medAdrenalinLevel > 0)
 		{
 			overdosedIncrement = ProcessOverdosedPostinc(m_adrenalinEffectTimer, overdosedIncrement);
-			if (m_adrenalinEffect <= medAdrenalinLevel)
+			if (m_sybstats.m_adrenalinEffect <= medAdrenalinLevel)
 			{
-				m_adrenalinEffect = medAdrenalinLevel;
+				m_sybstats.m_adrenalinEffect = medAdrenalinLevel;
 				float medAdrenalinTimeSec = GetGame().ConfigGetFloat( "CfgVehicles " + classname + " medAdrenalinTimeSec" );
 				m_adrenalinEffectTimer = m_adrenalinEffectTimer + (medAdrenalinTimeSec * amount);
 			}
@@ -1288,9 +1295,9 @@ modded class PlayerBase
 		{
 			overdosedIncrement = ProcessOverdosedPostinc(m_radioprotectionTimer, overdosedIncrement);
 			float medRadprotectTimeSec = GetGame().ConfigGetFloat( "CfgVehicles " + classname + " medRadioprotectionTimer" );
-			if (medRadprotectLevel >= m_radioprotectionLevel && medRadprotectTimeSec > 0)
+			if (medRadprotectLevel >= m_sybstats.m_radioprotectionLevel && medRadprotectTimeSec > 0)
 			{
-				m_radioprotectionLevel = medRadprotectLevel;
+				m_sybstats.m_radioprotectionLevel = medRadprotectLevel;
 				m_radioprotectionTimer = m_radioprotectionTimer + (medRadprotectTimeSec * amount);
 			}
 		}
@@ -1300,48 +1307,48 @@ modded class PlayerBase
 		{
 			overdosedIncrement = ProcessOverdosedPostinc(m_antidepresantTimer, overdosedIncrement);
 			float medAntidepTimeSec = GetGame().ConfigGetFloat( "CfgVehicles " + classname + " medAntidepresantTimer" );
-			if (medAntidepLevel >= m_antidepresantLevel && medAntidepTimeSec > 0)
+			if (medAntidepLevel >= m_sybstats.m_antidepresantLevel && medAntidepTimeSec > 0)
 			{
-				m_antidepresantLevel = medAntidepLevel;
+				m_sybstats.m_antidepresantLevel = medAntidepLevel;
 				m_antidepresantTimer = m_antidepresantTimer + (medAntidepTimeSec * amount);
 			}
 		}
 		
 		m_overdosedValue = m_overdosedValue + overdosedIncrement;		
-		SetSynchDirty();
+		MarkSybStatsDirty();
 	}
 	
 	protected void OnTickAdvMedicine_Bloodlose(float deltaTime)
 	{		
-		while (m_bulletBandage1 + m_bulletBandage2 > m_bulletHits)
+		while (m_sybstats.m_bulletBandage1 + m_sybstats.m_bulletBandage2 > m_sybstats.m_bulletHits)
 		{
-			if (m_bulletBandage1 > 0) m_bulletBandage1 = m_bulletBandage1 - 1;
-			else if (m_bulletBandage2 > 0) m_bulletBandage2 = m_bulletBandage2 - 1;
-			SetSynchDirty();
+			if (m_sybstats.m_bulletBandage1 > 0) m_sybstats.m_bulletBandage1 = m_sybstats.m_bulletBandage1 - 1;
+			else if (m_sybstats.m_bulletBandage2 > 0) m_sybstats.m_bulletBandage2 = m_sybstats.m_bulletBandage2 - 1;
+			MarkSybStatsDirty();
 		}
 		
-		while (m_knifeBandage1 + m_knifeBandage2 > m_knifeHits)
+		while (m_sybstats.m_knifeBandage1 + m_sybstats.m_knifeBandage2 > m_sybstats.m_knifeHits)
 		{
-			if (m_knifeBandage1 > 0) m_knifeBandage1 = m_knifeBandage1 - 1;
-			else if (m_knifeBandage2 > 0) m_knifeBandage2 = m_knifeBandage2 - 1;
-			SetSynchDirty();
+			if (m_sybstats.m_knifeBandage1 > 0) m_sybstats.m_knifeBandage1 = m_sybstats.m_knifeBandage1 - 1;
+			else if (m_sybstats.m_knifeBandage2 > 0) m_sybstats.m_knifeBandage2 = m_sybstats.m_knifeBandage2 - 1;
+			MarkSybStatsDirty();
 		}
 		
-		int bh_opened = m_bulletHits - (m_bulletBandage1 + m_bulletBandage2);
-		int kh_opened = m_knifeHits - (m_knifeBandage1 + m_knifeBandage2);
+		int bh_opened = m_sybstats.m_bulletHits - (m_sybstats.m_bulletBandage1 + m_sybstats.m_bulletBandage2);
+		int kh_opened = m_sybstats.m_knifeHits - (m_sybstats.m_knifeBandage1 + m_sybstats.m_knifeBandage2);
 		
 		float bloodlose = 0;
 		bloodlose = bloodlose + (bh_opened * GetSyberiaConfig().m_bleedingBullethitOpenPerSecond);
-		bloodlose = bloodlose + (m_bulletBandage1 * GetSyberiaConfig().m_bleedingBullethitCupd1PerSecond);
-		bloodlose = bloodlose + (m_bulletBandage2 * GetSyberiaConfig().m_bleedingBullethitCupd2PerSecond);
+		bloodlose = bloodlose + (m_sybstats.m_bulletBandage1 * GetSyberiaConfig().m_bleedingBullethitCupd1PerSecond);
+		bloodlose = bloodlose + (m_sybstats.m_bulletBandage2 * GetSyberiaConfig().m_bleedingBullethitCupd2PerSecond);
 		bloodlose = bloodlose + (kh_opened * GetSyberiaConfig().m_bleedingKnifehitOpenPerSecond);
-		bloodlose = bloodlose + (m_knifeBandage1 * GetSyberiaConfig().m_bleedingKnifehitCupd1PerSecond);
-		bloodlose = bloodlose + (m_knifeBandage2 * GetSyberiaConfig().m_bleedingKnifehitCupd2PerSecond);
-		bloodlose = bloodlose + (m_visceraHit * GetSyberiaConfig().m_bleedingVisceraBloodlosePerSecond);
-		bloodlose = bloodlose + (m_hematomaHits * GetSyberiaConfig().m_bleedingHematomaBloodlosePerSecond);
+		bloodlose = bloodlose + (m_sybstats.m_knifeBandage1 * GetSyberiaConfig().m_bleedingKnifehitCupd1PerSecond);
+		bloodlose = bloodlose + (m_sybstats.m_knifeBandage2 * GetSyberiaConfig().m_bleedingKnifehitCupd2PerSecond);
+		bloodlose = bloodlose + (m_sybstats.m_visceraHit * GetSyberiaConfig().m_bleedingVisceraBloodlosePerSecond);
+		bloodlose = bloodlose + (m_sybstats.m_hematomaHits * GetSyberiaConfig().m_bleedingHematomaBloodlosePerSecond);
 		if (bloodlose > 0.01)
 		{
-			if (m_bloodHemostaticEffect)
+			if (m_sybstats.m_bloodHemostaticEffect)
 			{
 				bloodlose = bloodlose * GetSyberiaConfig().m_hemostaticEffectModifier;
 			}
@@ -1351,8 +1358,8 @@ modded class PlayerBase
 		float healthlose = 0;
 		healthlose = healthlose + (bh_opened * GetSyberiaConfig().m_bleedingBullethitHealthlosePerSecond);
 		healthlose = healthlose + (kh_opened * GetSyberiaConfig().m_bleedingKnifehitHealthlosePerSecond);
-		healthlose = healthlose + (m_visceraHit * GetSyberiaConfig().m_bleedingVisceraHealthlosePerSecond);
-		healthlose = healthlose + (m_hematomaHits * GetSyberiaConfig().m_bleedingHematomaHealthlosePerSecond);
+		healthlose = healthlose + (m_sybstats.m_visceraHit * GetSyberiaConfig().m_bleedingVisceraHealthlosePerSecond);
+		healthlose = healthlose + (m_sybstats.m_hematomaHits * GetSyberiaConfig().m_bleedingHematomaHealthlosePerSecond);
 		if (healthlose > 0.01)
 		{
 			DecreaseHealth("", "Health", healthlose * deltaTime);
@@ -1361,13 +1368,13 @@ modded class PlayerBase
 	
 	protected void OnTickAdvMedicine_Salve(float deltaTime)
 	{
-		if (m_salveEffect)
+		if (m_sybstats.m_salveEffect)
 		{
 			m_salveEffectTimer = m_salveEffectTimer - deltaTime;
 			if (m_salveEffectTimer < 0)
 			{
-				m_salveEffect = false;
-				SetSynchDirty();
+				m_sybstats.m_salveEffect = false;
+				MarkSybStatsDirty();
 			}
 		}
 		else
@@ -1378,10 +1385,10 @@ modded class PlayerBase
 	
 	protected void OnTickAdvMedicine_Regen(float deltaTime)
 	{
-		if (m_hematomaHits > 0)
+		if (m_sybstats.m_hematomaHits > 0)
 		{
 			float hematomaRegenOffset = deltaTime * GetPerkFloatValue(SyberiaPerkType.SYBPERK_IMMUNITY_HEMATOMA_TIME, 1, 1); 
-			if (m_salveEffect)
+			if (m_sybstats.m_salveEffect)
 			{
 				hematomaRegenOffset = hematomaRegenOffset * GetSyberiaConfig().m_hematomaRegenTimeBoostOnSalve;
 			}
@@ -1390,7 +1397,8 @@ modded class PlayerBase
 			if (m_hematomaRegenTimer > GetSyberiaConfig().m_hematomaRegenTimerSec)
 			{
 				m_hematomaRegenTimer = 0;
-				m_hematomaHits = m_hematomaHits - 1;
+				m_sybstats.m_hematomaHits = m_sybstats.m_hematomaHits - 1;
+				MarkSybStatsDirty();
 				
 				AddExperience(SyberiaSkillType.SYBSKILL_IMMUNITY, GetSyberiaConfig().m_skillsExpImmunityHematoma);
 			}
@@ -1417,7 +1425,7 @@ modded class PlayerBase
 			m_cuthitRegenTimer = 0;
 		}
 		
-		if (GetSyberiaConfig().m_bleedingBullethitRemoveBandagedTimeSec > 0 && m_bulletHits > 0 && (m_bulletBandage1 + m_bulletBandage2) > 0)
+		if (GetSyberiaConfig().m_bleedingBullethitRemoveBandagedTimeSec > 0 && m_sybstats.m_bulletHits > 0 && (m_sybstats.m_bulletBandage1 + m_sybstats.m_bulletBandage2) > 0)
 		{
 			m_bullethitRegenTimer = m_bullethitRegenTimer + deltaTime;
 			if (m_bullethitRegenTimer > GetSyberiaConfig().m_bleedingBullethitRemoveBandagedTimeSec)
@@ -1431,7 +1439,7 @@ modded class PlayerBase
 			m_bullethitRegenTimer = 0;
 		}
 		
-		if (GetSyberiaConfig().m_bleedingKnifehitRemoveBandagedTimeSec > 0 && m_knifeHits > 0 && (m_knifeBandage1 + m_knifeBandage2) > 0)
+		if (GetSyberiaConfig().m_bleedingKnifehitRemoveBandagedTimeSec > 0 && m_sybstats.m_knifeHits > 0 && (m_sybstats.m_knifeBandage1 + m_sybstats.m_knifeBandage2) > 0)
 		{
 			m_knifehitRegenTimer = m_knifehitRegenTimer + deltaTime;
 			if (m_knifehitRegenTimer > GetSyberiaConfig().m_bleedingKnifehitRemoveBandagedTimeSec)
@@ -1445,7 +1453,7 @@ modded class PlayerBase
 			m_knifehitRegenTimer = 0;
 		}
 		
-		if (m_concussionHit)
+		if (m_sybstats.m_concussionHit)
 		{
 			m_concussionRegenTimer = m_concussionRegenTimer + deltaTime;
 			if (m_concussionRegenTimer > GetSyberiaConfig().m_concussionRegenTimeSec)
@@ -1463,43 +1471,43 @@ modded class PlayerBase
 	protected void OnTickAdvMedicine_Pain(float deltaTime)
 	{
 		m_painTimer = Math.Clamp(m_painTimer - deltaTime, 0, GetSyberiaConfig().m_painMaxDurationSec);
-		if (m_painLevel > 0 && m_painTimer < 0.1)
+		if (m_sybstats.m_painLevel > 0 && m_painTimer < 0.1)
 		{
-			AddExperience(SyberiaSkillType.SYBSKILL_IMMUNITY, GetSyberiaConfig().m_skillsExpImmunityPain * m_painLevel);
+			AddExperience(SyberiaSkillType.SYBSKILL_IMMUNITY, GetSyberiaConfig().m_skillsExpImmunityPain * m_sybstats.m_painLevel);
 			
-			m_painLevel = m_painLevel - 1;
-			if (m_painLevel == 2) m_painTimer = GetSyberiaConfig().m_painLvl2TimeSec;
-			else if (m_painLevel == 1) m_painTimer = GetSyberiaConfig().m_painLvl1TimeSec;
-			SetSynchDirty();
+			m_sybstats.m_painLevel = m_sybstats.m_painLevel - 1;
+			if (m_sybstats.m_painLevel == 2) m_painTimer = GetSyberiaConfig().m_painLvl2TimeSec;
+			else if (m_sybstats.m_painLevel == 1) m_painTimer = GetSyberiaConfig().m_painLvl1TimeSec;
+			MarkSybStatsDirty();
 		}
 		
-		if (m_painLevel < 3 && m_visceraHit)
+		if (m_sybstats.m_painLevel < 3 && m_sybstats.m_visceraHit)
 		{
-			m_painLevel = 3;
+			m_sybstats.m_painLevel = 3;
 			if (m_painTimer < GetSyberiaConfig().m_painLvl3TimeSec) 
 			{
 				m_painTimer = GetSyberiaConfig().m_painLvl3TimeSec;
 			}
-			SetSynchDirty();
+			MarkSybStatsDirty();
 		}
-		else if (m_painLevel < 2 && (m_knifeHits > 0 || m_bulletHits > 0))
+		else if (m_sybstats.m_painLevel < 2 && (m_sybstats.m_knifeHits > 0 || m_sybstats.m_bulletHits > 0))
 		{
-			m_painLevel = 2;
+			m_sybstats.m_painLevel = 2;
 			if (m_painTimer < GetSyberiaConfig().m_painLvl2TimeSec) 
 			{
 				m_painTimer = GetSyberiaConfig().m_painLvl2TimeSec;
 			}
-			SetSynchDirty();
+			MarkSybStatsDirty();
 		}
 		
-		if (m_painkillerEffect != 0)
+		if (m_sybstats.m_painkillerEffect != 0)
 		{
 			m_painkillerTime = m_painkillerTime - deltaTime;
 			if (m_painkillerTime < 0)
 			{
-				m_painkillerEffect = 0;
+				m_sybstats.m_painkillerEffect = 0;
 				m_painkillerTime = 0;
-				SetSynchDirty();
+				MarkSybStatsDirty();
 			}
 		}
 		
@@ -1512,7 +1520,7 @@ modded class PlayerBase
 				DecreaseHealth("", "Shock", 20);
 			}
 		}
-		else if ((m_concussionHit || currentPainLvl == 2) && currentShock > 60)
+		else if ((m_sybstats.m_concussionHit || currentPainLvl == 2) && currentShock > 60)
 		{
 			if (Math.RandomFloat01() <= deltaTime)
 			{
@@ -1523,16 +1531,16 @@ modded class PlayerBase
 	
 	protected void OnTickAdvMedicine_Sepsis(float deltaTime)
 	{
-		if (m_sepsis > 0)
+		if (m_sybstats.m_sepsis > 0)
 		{
 			m_sepsisTime = m_sepsisTime + (deltaTime * GetPerkFloatValue(SyberiaPerkType.SYBPERK_IMMUNITY_SEPSIS_TIME, 1, 1));
 						
 			if (m_sepsisTime > GetSyberiaConfig().m_sepsisStage1TimeSec)
 			{
-				if (m_sepsis == 1)
+				if (m_sybstats.m_sepsis == 1)
 				{
-					m_sepsis = 2;
-					SetSynchDirty();
+					m_sybstats.m_sepsis = 2;
+					MarkSybStatsDirty();
 				}
 				
 				AddToEnvironmentTemperature(GetSyberiaConfig().m_sepsisHighTemperatureValue);
@@ -1540,10 +1548,10 @@ modded class PlayerBase
 			
 			if (m_sepsisTime > GetSyberiaConfig().m_sepsisStage2TimeSec)
 			{
-				if (m_sepsis == 2)
+				if (m_sybstats.m_sepsis == 2)
 				{
-					m_sepsis = 3;
-					SetSynchDirty();
+					m_sybstats.m_sepsis = 3;
+					MarkSybStatsDirty();
 				}
 				
 				float maxHealth = GetMaxHealth("GlobalHealth","Health");
@@ -1558,16 +1566,16 @@ modded class PlayerBase
 	
 	protected void OnTickAdvMedicine_ZVirus(float deltaTime)
 	{
-		if (m_zombieVirus)
+		if (m_sybstats.m_zombieVirus)
 		{
 			m_zvirusTimer = m_zvirusTimer + (deltaTime * GetPerkFloatValue(SyberiaPerkType.SYBPERK_IMMUNITY_ZVIRUS_TIME, 1, 1));
 			
 			if (m_zvirusTimer > GetSyberiaConfig().m_zvirusStage1TimeSec)
 			{
-				if (m_zombieVirus == 1) 
+				if (m_sybstats.m_zombieVirus == 1) 
 				{
-					m_zombieVirus = 2;
-					SetSynchDirty();
+					m_sybstats.m_zombieVirus = 2;
+					MarkSybStatsDirty();
 				}
 				
 				AddHealth("GlobalHealth","Blood", GetSyberiaConfig().m_zvirusBloodRegenPerSec * deltaTime);
@@ -1575,10 +1583,10 @@ modded class PlayerBase
 			
 			if (m_zvirusTimer > GetSyberiaConfig().m_zvirusStage2TimeSec)
 			{
-				if (m_zombieVirus == 2)
+				if (m_sybstats.m_zombieVirus == 2)
 				{
-					m_zombieVirus = 3;
-					SetSynchDirty();
+					m_sybstats.m_zombieVirus = 3;
+					MarkSybStatsDirty();
 				}
 				
 				float maxHealth = GetMaxHealth("GlobalHealth","Health");
@@ -1593,40 +1601,40 @@ modded class PlayerBase
 	
 	protected void OnTickAdvMedicine_Stomatchheal(float deltaTime)
 	{
-		if (m_stomatchhealLevel == 0)
+		if (m_sybstats.m_stomatchhealLevel == 0)
 			return;
 
-		if (m_stomatchpoisonLevel > 0)
+		if (m_sybstats.m_stomatchpoisonLevel > 0)
 		{
-			m_stomatchpoisonTimer = m_stomatchpoisonTimer - (deltaTime * m_stomatchhealLevel * GetSyberiaConfig().m_stomatchhealModifier);
+			m_stomatchpoisonTimer = m_stomatchpoisonTimer - (deltaTime * m_sybstats.m_stomatchhealLevel * GetSyberiaConfig().m_stomatchhealModifier);
 		}
 		
 		m_stomatchhealTimer = Math.Clamp(m_stomatchhealTimer - deltaTime, 0, 999999);
 		if (m_stomatchhealTimer < 0.1)
 		{
-			m_stomatchhealLevel = 0;
+			m_sybstats.m_stomatchhealLevel = 0;
 			m_stomatchhealTimer = 0;			
-			SetSynchDirty();
+			MarkSybStatsDirty();
 		}		
 	}
 	
 	protected void OnTickAdvMedicine_Antibiotics(float deltaTime)
 	{
-		if (m_antibioticsLevel > 0)
+		if (m_sybstats.m_antibioticsLevel > 0)
 		{
 			if (m_antibioticsTimer > 0)
 			{
 				m_antibioticsTimer = m_antibioticsTimer - deltaTime;
-				if (m_influenzaLevel > 0 && m_influenzaLevel <= m_antibioticsLevel)
+				if (m_sybstats.m_influenzaLevel > 0 && m_sybstats.m_influenzaLevel <= m_sybstats.m_antibioticsLevel)
 				{
-					float antibioticsMdfrLvl = Math.Clamp((m_antibioticsLevel - m_influenzaLevel) + 1, 1, 4);
+					float antibioticsMdfrLvl = Math.Clamp((m_sybstats.m_antibioticsLevel - m_sybstats.m_influenzaLevel) + 1, 1, 4);
 					float antibioticsMdfrMod = m_antibioticsStrange * antibioticsMdfrLvl * deltaTime * GetSyberiaConfig().m_antibioticsGlobalEffectivityModifier;
 					if (Math.RandomFloat01() <= antibioticsMdfrMod)
 					{
-						m_influenzaLevel = m_influenzaLevel - 1;
-						if (m_influenzaLevel > 0 && m_influenzaLevel < 3)
+						m_sybstats.m_influenzaLevel = m_sybstats.m_influenzaLevel - 1;
+						if (m_sybstats.m_influenzaLevel > 0 && m_sybstats.m_influenzaLevel < 3)
 						{
-							m_influenzaTimer = GetSyberiaConfig().m_influenzaIncubatePeriodsSec[m_influenzaLevel];
+							m_influenzaTimer = GetSyberiaConfig().m_influenzaIncubatePeriodsSec[m_sybstats.m_influenzaLevel];
 						}
 						else
 						{
@@ -1634,16 +1642,16 @@ modded class PlayerBase
 							AddExperience(SyberiaSkillType.SYBSKILL_IMMUNITY, GetSyberiaConfig().m_skillsExpImmunityInfluenza);
 						}
 						
-						SetSynchDirty();
+						MarkSybStatsDirty();
 					}
 				}
 			}
 			else
 			{
 				m_antibioticsTimer = 0;
-				m_antibioticsLevel = 0;
+				m_sybstats.m_antibioticsLevel = 0;
 				m_antibioticsStrange = 0;
-				SetSynchDirty();
+				MarkSybStatsDirty();
 			}
 		}
 		
@@ -1657,15 +1665,15 @@ modded class PlayerBase
 			m_influenzaTimer = m_influenzaTimer - (deltaTime * GetPerkFloatValue(SyberiaPerkType.SYBPERK_IMMUNITY_INFLUENZA_TIME, 1, 1));
 			if (m_influenzaTimer <= 0)
 			{
-				if (m_influenzaLevel > 0 && m_antibioticsLevel >= m_influenzaLevel)
+				if (m_sybstats.m_influenzaLevel > 0 && m_sybstats.m_antibioticsLevel >= m_sybstats.m_influenzaLevel)
 				{
-					m_influenzaTimer = GetSyberiaConfig().m_influenzaIncubatePeriodsSec[m_influenzaLevel];
+					m_influenzaTimer = GetSyberiaConfig().m_influenzaIncubatePeriodsSec[m_sybstats.m_influenzaLevel];
 				}
-				else if (m_influenzaLevel < 3)
+				else if (m_sybstats.m_influenzaLevel < 3)
 				{
-					m_influenzaLevel = m_influenzaLevel + 1;
-					m_influenzaTimer = GetSyberiaConfig().m_influenzaIncubatePeriodsSec[m_influenzaLevel];
-					SetSynchDirty();
+					m_sybstats.m_influenzaLevel = m_sybstats.m_influenzaLevel + 1;
+					m_influenzaTimer = GetSyberiaConfig().m_influenzaIncubatePeriodsSec[m_sybstats.m_influenzaLevel];
+					MarkSybStatsDirty();
 				}
 				else
 				{
@@ -1674,9 +1682,9 @@ modded class PlayerBase
 			}
 		}
 		
-		if (m_influenzaLevel > 0 && m_influenzaLevel <= 3)
+		if (m_sybstats.m_influenzaLevel > 0 && m_sybstats.m_influenzaLevel <= 3)
 		{
-			int influenzaLevelIndex = m_influenzaLevel - 1;	
+			int influenzaLevelIndex = m_sybstats.m_influenzaLevel - 1;	
 			if (GetSyberiaConfig().m_influenzaTemperatureLevels[influenzaLevelIndex] > 0)
 			{
 				AddToEnvironmentTemperature(GetSyberiaConfig().m_influenzaTemperatureLevels[influenzaLevelIndex]);
@@ -1705,6 +1713,7 @@ modded class PlayerBase
 	
 	protected void OnTickAdvMedicine_Overdose(float deltaTime)
 	{
+		int lastOverdoseInt = m_sybstats.m_overdosedLevel;
 		if (m_overdosedValue > 2)
 		{
 			float curShock = GetHealth("", "Shock");
@@ -1726,19 +1735,20 @@ modded class PlayerBase
 		
         if (m_overdosedValue > 0)
         {
-			int lastOverdoseInt = (int)m_overdosedValue;
             m_overdosedValue = m_overdosedValue - (GetSyberiaConfig().m_overdoseDecrementPerSec * GetPerkFloatValue(SyberiaPerkType.SYBPERK_IMMUNITY_OVERDOSE_STRONG, 1, 1) * deltaTime);
-			int newOverdoseInt = (int)m_overdosedValue;
-			if (lastOverdoseInt != newOverdoseInt)
-			{
-				SetSynchDirty();
-			}
-			
-			if (lastOverdoseInt > 0 && newOverdoseInt == 0)
-			{
-				AddExperience(SyberiaSkillType.SYBSKILL_IMMUNITY, GetSyberiaConfig().m_skillsExpImmunityOverdose);
-			}
-        }
+ 			m_overdosedValue = Math.Max(0, m_overdosedValue);
+		}
+		
+		m_sybstats.m_overdosedLevel = (int)Math.Clamp(m_overdosedValue, 0, 3);
+		if (lastOverdoseInt != m_sybstats.m_overdosedLevel)
+		{
+			MarkSybStatsDirty();
+		}
+		
+		if (lastOverdoseInt > 0 && m_sybstats.m_overdosedLevel == 0)
+		{
+			AddExperience(SyberiaSkillType.SYBSKILL_IMMUNITY, GetSyberiaConfig().m_skillsExpImmunityOverdose);
+		}
 	}
 	
 	/*protected void OnTickAdvMedicine_HemorlogicShock(float deltaTime)
@@ -1756,26 +1766,26 @@ modded class PlayerBase
 	
 	protected void OnTickAdvMedicine_HemostatickEffect(float deltaTime)
 	{
-		if (m_bloodHemostaticEffect)
+		if (m_sybstats.m_bloodHemostaticEffect)
 		{
 			m_bloodHemostaticTimer = m_bloodHemostaticTimer - deltaTime;
 			if (m_bloodHemostaticTimer < 0)
 			{
-				m_bloodHemostaticEffect = false;
-				SetSynchDirty();
+				m_sybstats.m_bloodHemostaticEffect = false;
+				MarkSybStatsDirty();
 			}
 		}
 	}
 	
 	protected void OnTickAdvMedicine_HematopoiesisEffect(float deltaTime)
 	{
-		if (m_hematopoiesisEffect)
+		if (m_sybstats.m_hematopoiesisEffect)
 		{
 			m_hematopoiesisTimer = m_hematopoiesisTimer - deltaTime;
 			if (m_hematopoiesisTimer < 0)
 			{
-				m_hematopoiesisEffect = false;
-				SetSynchDirty();
+				m_sybstats.m_hematopoiesisEffect = false;
+				MarkSybStatsDirty();
 			}
 			else
 			{
@@ -1787,23 +1797,23 @@ modded class PlayerBase
 	protected void OnTickAdvMedicine_Adrenalin(float deltaTime)
 	{
 		float staminaDepMod = 1;
-		if (m_adrenalinEffect > 0)
+		if (m_sybstats.m_adrenalinEffect > 0)
 		{
 			m_adrenalinEffectTimer = m_adrenalinEffectTimer - deltaTime;
 			if (m_adrenalinEffectTimer < 0)
 			{
-				m_adrenalinEffect = 0;
-				SetSynchDirty();
+				m_sybstats.m_adrenalinEffect = 0;
+				MarkSybStatsDirty();
 			}
 			else
 			{
-				if (m_adrenalinEffect >= 1 && m_adrenalinEffect <= 3)
+				if (m_sybstats.m_adrenalinEffect >= 1 && m_sybstats.m_adrenalinEffect <= 3)
 				{		
 					float maxShock = GetMaxHealth("GlobalHealth","Shock");			
-					float shockEffectValue = GetSyberiaConfig().m_adrenalinEffectShockUpPerSec[m_adrenalinEffect - 1]; 
+					float shockEffectValue = GetSyberiaConfig().m_adrenalinEffectShockUpPerSec[m_sybstats.m_adrenalinEffect - 1]; 
 					AddHealth("", "Shock", shockEffectValue * maxShock * deltaTime);
 					
-					staminaDepMod = GetSyberiaConfig().m_adrenalinEffectStaminaDepletionMod[m_adrenalinEffect - 1];
+					staminaDepMod = GetSyberiaConfig().m_adrenalinEffectStaminaDepletionMod[m_sybstats.m_adrenalinEffect - 1];
 				}
 			}
 		}
@@ -1820,13 +1830,13 @@ modded class PlayerBase
 
 	protected void OnTickAdvMedicine_Antidepresant(float deltaTime)
 	{
-		if (m_antidepresantLevel > 0)
+		if (m_sybstats.m_antidepresantLevel > 0)
 		{
 			m_antidepresantTimer = m_antidepresantTimer - deltaTime;
 			if (m_antidepresantTimer < 0)
 			{
-				m_antidepresantLevel = 0;
-				SetSynchDirty();
+				m_sybstats.m_antidepresantLevel = 0;
+				MarkSybStatsDirty();
 			}
 		}
 		else
@@ -1837,13 +1847,13 @@ modded class PlayerBase
 		
 	protected void OnTickAdvMedicine_Radprotector(float deltaTime)
 	{
-		if (m_radioprotectionLevel > 0)
+		if (m_sybstats.m_radioprotectionLevel > 0)
 		{
 			m_radioprotectionTimer = m_radioprotectionTimer - deltaTime;
 			if (m_radioprotectionTimer < 0)
 			{
-				m_radioprotectionLevel = 0;
-				SetSynchDirty();
+				m_sybstats.m_radioprotectionLevel = 0;
+				MarkSybStatsDirty();
 			}
 		}
 		else
@@ -1904,13 +1914,13 @@ modded class PlayerBase
 		super.EEKilled(killer);
 		
 		PlayerBase otherPlayer = PlayerBase.Cast(killer);
-		if (otherPlayer && !this.m_isPveIntruder)
+		if (otherPlayer && !this.m_sybstats.m_isPveIntruder)
 		{
 			if (otherPlayer.IsInversedDammageEnabled() || this.IsInversedDammageEnabled())
 			{
 				otherPlayer.SetAllowDamage(true);
 				otherPlayer.SetHealth("", "", 0);
-				otherPlayer.m_isPveIntruder = true;
+				otherPlayer.m_sybstats.m_isPveIntruder = true;
 			}
 		}
 	}
@@ -1942,15 +1952,16 @@ modded class PlayerBase
 		{
 			if ( sourcePlayer != this && (sourcePlayer.IsInversedDammageEnabled() || this.IsInversedDammageEnabled()) )
 			{
-				if (!this.m_isPveIntruder)
+				if (!this.m_sybstats.m_isPveIntruder)
 				{
 					float healthLose = damageResult.GetDamage(dmgZone, "Health");
 					float bloodLose = damageResult.GetDamage(dmgZone, "Blood");
 					float shockLose = damageResult.GetDamage(dmgZone, "Shock");
 					
 					sourcePlayer.SetAllowDamage(true);
-					sourcePlayer.m_isPveIntruder = true;
+					sourcePlayer.m_sybstats.m_isPveIntruder = true;
 					sourcePlayer.SetSynchDirty();
+					sourcePlayer.MarkSybStatsDirty();
 					inverseDammage = true;
 					
 					GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(this.PostEEHitByAction, 10, false, sourcePlayer, dmgZone, healthLose, bloodLose, shockLose);
@@ -2048,10 +2059,10 @@ modded class PlayerBase
 			newRadLevel = 1;
 		}
 		
-		if (newRadLevel != m_radiationSickness)
+		if (newRadLevel != m_sybstats.m_radiationSickness)
 		{
-			m_radiationSickness = newRadLevel;
-			SetSynchDirty();
+			m_sybstats.m_radiationSickness = newRadLevel;
+			MarkSybStatsDirty();
 		}
 	}
 	
@@ -2113,7 +2124,12 @@ modded class PlayerBase
 	
 	void MarkAsNPC()
 	{
-		m_isNPC = true;
-		SetSynchDirty();
+		m_sybstats.m_isNPC = true;
+		MarkSybStatsDirty();
+	}
+	
+	void MarkSybStatsDirty()
+	{
+		m_sybstatsDirty = true;
 	}
 };
