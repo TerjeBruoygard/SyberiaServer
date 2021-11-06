@@ -4,6 +4,7 @@ modded class PlayerBase
 	
 	// Stats
 	bool m_sybstatsDirty;
+	float m_sybstatTimer;
 	
 	// Sleeping
 	float m_sleepingDecTimer;
@@ -66,6 +67,7 @@ modded class PlayerBase
 		
 		// Stats
 		m_sybstatsDirty = false;
+		m_sybstatTimer = -1.5;
 		
 		// Sleeping
 		m_sleepingDecTimer = 0;
@@ -253,7 +255,19 @@ modded class PlayerBase
 			return false;
 		}
 		
+		MarkSybStatsDirty(0);
 		return true;
+	}
+	
+	override void OnRPC(PlayerIdentity sender, int rpc_type, ParamsReadContext ctx)
+	{
+		super.OnRPC(sender, rpc_type, ctx);
+		
+		if (rpc_type == SyberiaERPC.SYBERPC_SYNCH_PLAYER_SYBSTATS_REQUEST)
+		{
+			Param1<ref SyberiaPlayerStats> params = new Param1<ref SyberiaPlayerStats>(m_sybstats);
+			RPCSingleParam(SyberiaERPC.SYBERPC_SYNCH_PLAYER_SYBSTATS_RESPONSE, params, true, sender);
+		}
 	}
 	
 	override void OnScheduledTick(float deltaTime)
@@ -301,7 +315,19 @@ modded class PlayerBase
 				OnTickZoneEffect();
 				OnTickDisinfectedHands();
 			}
-					
+				
+			m_sybstatTimer = m_sybstatTimer + deltaTime;
+			if (m_sybstatTimer > 0.2)
+			{
+				m_sybstatTimer = 0;
+				if (m_sybstatsDirty)
+				{
+					m_sybstatsDirty = false;
+					Param1<ref SyberiaPlayerStats> params = new Param1<ref SyberiaPlayerStats>(m_sybstats);
+					RPCSingleParam(SyberiaERPC.SYBERPC_SYNCH_PLAYER_SYBSTATS_RESPONSE, params, true);
+				}
+			}
+				
 			if (m_freeCamMode)
 			{
 				vector teleportPos = GetPosition();
@@ -341,7 +367,7 @@ modded class PlayerBase
 		
 		if (m_sybstats.m_disinfectedHands != lastValue)
 		{
-			MarkSybStatsDirty();
+			MarkSybStatsDirty(1);
 		}
 	}
 	
@@ -704,7 +730,7 @@ modded class PlayerBase
 		
 		if (dirty)
 		{
-			MarkSybStatsDirty();
+			MarkSybStatsDirty(2);
 		}
 		
 		if (m_charProfile && m_charProfile.m_skills && m_charProfile.m_skills.m_dirty)
@@ -787,7 +813,7 @@ modded class PlayerBase
 		if (sleepingLvlInt != m_sybstats.m_sleepingLevel)
 		{
 			m_sybstats.m_sleepingLevel = sleepingLvlInt;
-			MarkSybStatsDirty();
+			MarkSybStatsDirty(3);
 		}
 		
 		if (sleepingLvlInt > 0)
@@ -806,8 +832,7 @@ modded class PlayerBase
 			{
 				m_sybstats.m_influenzaLevel = 0;
 				m_influenzaTimer = 0;
-				SetSynchDirty();
-				MarkSybStatsDirty();
+				MarkSybStatsDirty(4);
 			}
 		}
 		else
@@ -822,8 +847,7 @@ modded class PlayerBase
 		{
 			if (GetSyberiaConfig().m_sleepingUnconsionEnabled)
 			{
-				m_UnconsciousEndTime = -60;
-				SetHealth("","Shock",0);
+				SetHealth("GlobalHealth","Shock",0);
 				SetSleepingBoost(GetSyberiaConfig().m_sleepingIncPerUnconsionBoostTime, GetSyberiaConfig().m_sleepingIncPerUnconsionBoostValue);
 			}
 			
@@ -834,9 +858,6 @@ modded class PlayerBase
 		{
 			m_sleepingValue = GetSyberiaConfig().m_sleepingMaxValue;
 		}
-				
-		SetSynchDirty();
-		MarkSybStatsDirty();
 	}
 	
 	private void OnTickSickCheck()
@@ -863,7 +884,7 @@ modded class PlayerBase
 		if (level > m_sybstats.m_stomatchpoisonLevel)
 		{
 			m_sybstats.m_stomatchpoisonLevel = Math.Clamp(level, 0, 3);
-			MarkSybStatsDirty();
+			MarkSybStatsDirty(5);
 		}
 		
 		if (m_sybstats.m_stomatchpoisonLevel > 0)
@@ -990,7 +1011,7 @@ modded class PlayerBase
 		
 		if (m_mindStateLast != m_mindStateValue)
 		{
-			MarkSybStatsDirty();
+			SetSynchDirty();
 		}
 	}
 	
@@ -1315,7 +1336,7 @@ modded class PlayerBase
 		}
 		
 		m_overdosedValue = m_overdosedValue + overdosedIncrement;		
-		MarkSybStatsDirty();
+		MarkSybStatsDirty(7);
 	}
 	
 	protected void OnTickAdvMedicine_Bloodlose(float deltaTime)
@@ -1324,14 +1345,14 @@ modded class PlayerBase
 		{
 			if (m_sybstats.m_bulletBandage1 > 0) m_sybstats.m_bulletBandage1 = m_sybstats.m_bulletBandage1 - 1;
 			else if (m_sybstats.m_bulletBandage2 > 0) m_sybstats.m_bulletBandage2 = m_sybstats.m_bulletBandage2 - 1;
-			MarkSybStatsDirty();
+			MarkSybStatsDirty(8);
 		}
 		
 		while (m_sybstats.m_knifeBandage1 + m_sybstats.m_knifeBandage2 > m_sybstats.m_knifeHits)
 		{
 			if (m_sybstats.m_knifeBandage1 > 0) m_sybstats.m_knifeBandage1 = m_sybstats.m_knifeBandage1 - 1;
 			else if (m_sybstats.m_knifeBandage2 > 0) m_sybstats.m_knifeBandage2 = m_sybstats.m_knifeBandage2 - 1;
-			MarkSybStatsDirty();
+			MarkSybStatsDirty(9);
 		}
 		
 		int bh_opened = m_sybstats.m_bulletHits - (m_sybstats.m_bulletBandage1 + m_sybstats.m_bulletBandage2);
@@ -1374,7 +1395,7 @@ modded class PlayerBase
 			if (m_salveEffectTimer < 0)
 			{
 				m_sybstats.m_salveEffect = false;
-				MarkSybStatsDirty();
+				MarkSybStatsDirty(10);
 			}
 		}
 		else
@@ -1398,7 +1419,7 @@ modded class PlayerBase
 			{
 				m_hematomaRegenTimer = 0;
 				m_sybstats.m_hematomaHits = m_sybstats.m_hematomaHits - 1;
-				MarkSybStatsDirty();
+				MarkSybStatsDirty(11);
 				
 				AddExperience(SyberiaSkillType.SYBSKILL_IMMUNITY, GetSyberiaConfig().m_skillsExpImmunityHematoma);
 			}
@@ -1478,7 +1499,7 @@ modded class PlayerBase
 			m_sybstats.m_painLevel = m_sybstats.m_painLevel - 1;
 			if (m_sybstats.m_painLevel == 2) m_painTimer = GetSyberiaConfig().m_painLvl2TimeSec;
 			else if (m_sybstats.m_painLevel == 1) m_painTimer = GetSyberiaConfig().m_painLvl1TimeSec;
-			MarkSybStatsDirty();
+			MarkSybStatsDirty(12);
 		}
 		
 		if (m_sybstats.m_painLevel < 3 && m_sybstats.m_visceraHit)
@@ -1488,7 +1509,7 @@ modded class PlayerBase
 			{
 				m_painTimer = GetSyberiaConfig().m_painLvl3TimeSec;
 			}
-			MarkSybStatsDirty();
+			MarkSybStatsDirty(13);
 		}
 		else if (m_sybstats.m_painLevel < 2 && (m_sybstats.m_knifeHits > 0 || m_sybstats.m_bulletHits > 0))
 		{
@@ -1497,7 +1518,7 @@ modded class PlayerBase
 			{
 				m_painTimer = GetSyberiaConfig().m_painLvl2TimeSec;
 			}
-			MarkSybStatsDirty();
+			MarkSybStatsDirty(14);
 		}
 		
 		if (m_sybstats.m_painkillerEffect != 0)
@@ -1507,7 +1528,7 @@ modded class PlayerBase
 			{
 				m_sybstats.m_painkillerEffect = 0;
 				m_painkillerTime = 0;
-				MarkSybStatsDirty();
+				MarkSybStatsDirty(15);
 			}
 		}
 		
@@ -1540,7 +1561,7 @@ modded class PlayerBase
 				if (m_sybstats.m_sepsis == 1)
 				{
 					m_sybstats.m_sepsis = 2;
-					MarkSybStatsDirty();
+					MarkSybStatsDirty(16);
 				}
 				
 				AddToEnvironmentTemperature(GetSyberiaConfig().m_sepsisHighTemperatureValue);
@@ -1551,7 +1572,7 @@ modded class PlayerBase
 				if (m_sybstats.m_sepsis == 2)
 				{
 					m_sybstats.m_sepsis = 3;
-					MarkSybStatsDirty();
+					MarkSybStatsDirty(17);
 				}
 				
 				float maxHealth = GetMaxHealth("GlobalHealth","Health");
@@ -1575,7 +1596,7 @@ modded class PlayerBase
 				if (m_sybstats.m_zombieVirus == 1) 
 				{
 					m_sybstats.m_zombieVirus = 2;
-					MarkSybStatsDirty();
+					MarkSybStatsDirty(18);
 				}
 				
 				AddHealth("GlobalHealth","Blood", GetSyberiaConfig().m_zvirusBloodRegenPerSec * deltaTime);
@@ -1586,7 +1607,7 @@ modded class PlayerBase
 				if (m_sybstats.m_zombieVirus == 2)
 				{
 					m_sybstats.m_zombieVirus = 3;
-					MarkSybStatsDirty();
+					MarkSybStatsDirty(19);
 				}
 				
 				float maxHealth = GetMaxHealth("GlobalHealth","Health");
@@ -1614,7 +1635,7 @@ modded class PlayerBase
 		{
 			m_sybstats.m_stomatchhealLevel = 0;
 			m_stomatchhealTimer = 0;			
-			MarkSybStatsDirty();
+			MarkSybStatsDirty(20);
 		}		
 	}
 	
@@ -1642,7 +1663,7 @@ modded class PlayerBase
 							AddExperience(SyberiaSkillType.SYBSKILL_IMMUNITY, GetSyberiaConfig().m_skillsExpImmunityInfluenza);
 						}
 						
-						MarkSybStatsDirty();
+						MarkSybStatsDirty(21);
 					}
 				}
 			}
@@ -1651,7 +1672,7 @@ modded class PlayerBase
 				m_antibioticsTimer = 0;
 				m_sybstats.m_antibioticsLevel = 0;
 				m_antibioticsStrange = 0;
-				MarkSybStatsDirty();
+				MarkSybStatsDirty(22);
 			}
 		}
 		
@@ -1673,7 +1694,7 @@ modded class PlayerBase
 				{
 					m_sybstats.m_influenzaLevel = m_sybstats.m_influenzaLevel + 1;
 					m_influenzaTimer = GetSyberiaConfig().m_influenzaIncubatePeriodsSec[m_sybstats.m_influenzaLevel];
-					MarkSybStatsDirty();
+					MarkSybStatsDirty(23);
 				}
 				else
 				{
@@ -1742,7 +1763,7 @@ modded class PlayerBase
 		m_sybstats.m_overdosedLevel = (int)Math.Clamp(m_overdosedValue, 0, 3);
 		if (lastOverdoseInt != m_sybstats.m_overdosedLevel)
 		{
-			MarkSybStatsDirty();
+			MarkSybStatsDirty(24);
 		}
 		
 		if (lastOverdoseInt > 0 && m_sybstats.m_overdosedLevel == 0)
@@ -1772,7 +1793,7 @@ modded class PlayerBase
 			if (m_bloodHemostaticTimer < 0)
 			{
 				m_sybstats.m_bloodHemostaticEffect = false;
-				MarkSybStatsDirty();
+				MarkSybStatsDirty(25);
 			}
 		}
 	}
@@ -1785,7 +1806,7 @@ modded class PlayerBase
 			if (m_hematopoiesisTimer < 0)
 			{
 				m_sybstats.m_hematopoiesisEffect = false;
-				MarkSybStatsDirty();
+				MarkSybStatsDirty(26);
 			}
 			else
 			{
@@ -1803,7 +1824,7 @@ modded class PlayerBase
 			if (m_adrenalinEffectTimer < 0)
 			{
 				m_sybstats.m_adrenalinEffect = 0;
-				MarkSybStatsDirty();
+				MarkSybStatsDirty(27);
 			}
 			else
 			{
@@ -1836,7 +1857,7 @@ modded class PlayerBase
 			if (m_antidepresantTimer < 0)
 			{
 				m_sybstats.m_antidepresantLevel = 0;
-				MarkSybStatsDirty();
+				MarkSybStatsDirty(28);
 			}
 		}
 		else
@@ -1853,7 +1874,7 @@ modded class PlayerBase
 			if (m_radioprotectionTimer < 0)
 			{
 				m_sybstats.m_radioprotectionLevel = 0;
-				MarkSybStatsDirty();
+				MarkSybStatsDirty(29);
 			}
 		}
 		else
@@ -1961,7 +1982,7 @@ modded class PlayerBase
 					sourcePlayer.SetAllowDamage(true);
 					sourcePlayer.m_sybstats.m_isPveIntruder = true;
 					sourcePlayer.SetSynchDirty();
-					sourcePlayer.MarkSybStatsDirty();
+					sourcePlayer.MarkSybStatsDirty(30);
 					inverseDammage = true;
 					
 					GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(this.PostEEHitByAction, 10, false, sourcePlayer, dmgZone, healthLose, bloodLose, shockLose);
@@ -2062,7 +2083,7 @@ modded class PlayerBase
 		if (newRadLevel != m_sybstats.m_radiationSickness)
 		{
 			m_sybstats.m_radiationSickness = newRadLevel;
-			MarkSybStatsDirty();
+			MarkSybStatsDirty(31);
 		}
 	}
 	
@@ -2125,11 +2146,12 @@ modded class PlayerBase
 	void MarkAsNPC()
 	{
 		m_sybstats.m_isNPC = true;
-		MarkSybStatsDirty();
+		MarkSybStatsDirty(32);
 	}
 	
-	void MarkSybStatsDirty()
+	void MarkSybStatsDirty(int synchIndexDebug)
 	{
 		m_sybstatsDirty = true;
+		SybLogSrv("MARK SYBSTATS DIRTY FOR PLAYER " + this + " WITH DEBUG INDEX " + synchIndexDebug);
 	}
 };
