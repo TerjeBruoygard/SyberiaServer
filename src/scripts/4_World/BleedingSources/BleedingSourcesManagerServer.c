@@ -228,6 +228,26 @@ modded class BleedingSourcesManagerServer
 		return super.AttemptAddBleedingSource(component);
 	}
 	
+	override bool AttemptAddBleedingSourceBySelection(string selection_name)
+	{
+		if (selection_name == "RightFoot" || selection_name == "LeftFoot")
+		{
+			if ( Math.RandomFloat01() < m_Player.GetPerkFloatValue(SyberiaPerkType.SYBPERK_SURVIVAL_CUTHIT_LEGS_DEC, 0, 0) )
+			{
+				return false;
+			}
+		}
+		else if (selection_name == "LeftForeArmRoll" || selection_name == "RightForeArmRoll")
+		{
+			if ( Math.RandomFloat01() < m_Player.GetPerkFloatValue(SyberiaPerkType.SYBPERK_SURVIVAL_CUTHIT_HANDS_DEC, 0, 0) )
+			{
+				return false;
+			}
+		}
+		
+		return super.AttemptAddBleedingSourceBySelection(selection_name);
+	}
+	
 	override void ProcessHit(float damage, EntityAI source, int component, string zone, string ammo, vector modelPos)
 	{
 		//SybLogSrv("ProcessHit => Damage: " + damage + "; Source: " + source.GetType() + "; Component: " + component + "; Zone: " + zone + "; Ammo: " + ammo);

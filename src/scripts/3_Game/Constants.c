@@ -138,6 +138,7 @@ modded class SyberiaConfig
     float m_temperatureSnowDrain;
 	bool m_isWinterMap;
 	float m_clothingHeatIsolationGlobal;
+	float m_additionalTemperatureResistForSurvivalSkill;
 	
 	// Attack system
 	float m_damageNonWeaponItemInHandsOnAttack;
@@ -152,6 +153,7 @@ modded class SyberiaConfig
 	float m_gasMaskFilterDegradationInToxicZone;
 	float m_gasMaskFilterDegradationInRadZone;
 	float m_gasMaskFilterDegradationDefault;
+	float m_igniteFireplaceBaseSkillcheckChance;
 	
 	// Skills Experience System
 	float m_skillsExpImmunityPain;
@@ -183,6 +185,8 @@ modded class SyberiaConfig
     float m_skillsExpHuntingButchCommon;
     float m_skillsExpHuntingButchWolf;
     float m_skillsExpHuntingButchBear;
+	float m_skillsExpSurvivalIgniteFireSuccess;
+	float m_skillsExpSurvivalIgniteFireFailed;
 	
 	override void Init()
 	{
@@ -314,6 +318,7 @@ modded class SyberiaConfig
     	m_temperatureSnowDrain = ConfigGetFloat("CfgWorlds " + worldName + " temperatureSnowDrain");
 		m_isWinterMap = ConfigGetInt("CfgWorlds " + worldName + " winterWorld") == 1;
 		m_clothingHeatIsolationGlobal = ConfigGetFloat("CfgWorlds " + worldName + " clothingHeatIsolationGlobal");
+		m_additionalTemperatureResistForSurvivalSkill = ConfigGetFloat("CfgWorlds " + worldName + " additionalTemperatureResistForSurvivalSkill");
 		
 		// Attack system
 		m_damageNonWeaponItemInHandsOnAttack = ConfigGetFloat("CfgSyberia AttackSystem damageNonWeaponItemInHandsOnAttack");
@@ -328,6 +333,7 @@ modded class SyberiaConfig
 		m_gasMaskFilterDegradationInToxicZone = ConfigGetFloat("CfgSyberia IngameSystem gasMaskFilterDegradationInToxicZone");
 		m_gasMaskFilterDegradationInRadZone = ConfigGetFloat("CfgSyberia IngameSystem gasMaskFilterDegradationInRadZone");
 		m_gasMaskFilterDegradationDefault = ConfigGetFloat("CfgSyberia IngameSystem gasMaskFilterDegradationDefault");
+		m_igniteFireplaceBaseSkillcheckChance = ConfigGetFloat("CfgSyberia IngameSystem igniteFireplaceBaseSkillcheckChance");
 		
 		// Skills Experience System
 		m_skillsExpImmunityPain = ConfigGetFloat("CfgSyberia SkillsExperienceSystem skillsExpImmunityPain");
@@ -359,5 +365,8 @@ modded class SyberiaConfig
 	    m_skillsExpHuntingButchCommon = ConfigGetFloat("CfgSyberia SkillsExperienceSystem skillsExpHuntingButchCommon");
 	    m_skillsExpHuntingButchWolf = ConfigGetFloat("CfgSyberia SkillsExperienceSystem skillsExpHuntingButchWolf");
 		m_skillsExpHuntingButchBear = ConfigGetFloat("CfgSyberia SkillsExperienceSystem skillsExpHuntingButchBear");
+		
+		m_skillsExpSurvivalIgniteFireSuccess = ConfigGetFloat("CfgSyberia SkillsExperienceSystem skillsExpSurvivalIgniteFireSuccess");
+		m_skillsExpSurvivalIgniteFireFailed = ConfigGetFloat("CfgSyberia SkillsExperienceSystem skillsExpSurvivalIgniteFireFailed");
 	}
 };
