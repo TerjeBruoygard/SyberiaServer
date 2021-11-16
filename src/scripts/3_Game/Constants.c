@@ -154,6 +154,7 @@ modded class SyberiaConfig
 	float m_gasMaskFilterDegradationInRadZone;
 	float m_gasMaskFilterDegradationDefault;
 	float m_igniteFireplaceBaseSkillcheckChance;
+	float m_igniteFireplaceIndoorAdditionalChance;
 	
 	// Skills Experience System
 	float m_skillsExpImmunityPain;
@@ -334,6 +335,7 @@ modded class SyberiaConfig
 		m_gasMaskFilterDegradationInRadZone = ConfigGetFloat("CfgSyberia IngameSystem gasMaskFilterDegradationInRadZone");
 		m_gasMaskFilterDegradationDefault = ConfigGetFloat("CfgSyberia IngameSystem gasMaskFilterDegradationDefault");
 		m_igniteFireplaceBaseSkillcheckChance = ConfigGetFloat("CfgSyberia IngameSystem igniteFireplaceBaseSkillcheckChance");
+		m_igniteFireplaceIndoorAdditionalChance = ConfigGetFloat("CfgSyberia IngameSystem igniteFireplaceIndoorAdditionalChance");
 		
 		// Skills Experience System
 		m_skillsExpImmunityPain = ConfigGetFloat("CfgSyberia SkillsExperienceSystem skillsExpImmunityPain");
