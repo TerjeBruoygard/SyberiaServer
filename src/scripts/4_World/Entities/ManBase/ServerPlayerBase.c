@@ -53,6 +53,7 @@ modded class PlayerBase
 	float m_crouchTime = 0;
 	vector m_skillsRunLastPos;
 	vector m_skillsCrouchLastPos;
+	int m_fireplaceLastIgnition = 0;
 	
 	// Zones
 	float m_zoneGasTotalValue = 0;
@@ -679,6 +680,10 @@ modded class PlayerBase
 	
 	private void OnTickExperience()
 	{
+		// Increment survival timers
+		m_fireplaceLastIgnition = m_fireplaceLastIgnition + 1;
+		
+		// Calculate overweight perk
 		ItemBase itemInHands = GetItemInHands();
 		if (itemInHands && itemInHands.IsHeavyBehaviour() && CanDropEntity(itemInHands) && GetPerkBoolValue(SyberiaPerkType.SYBPERK_STRENGTH_HEAVY_ITEMS) == false)
 		{
@@ -687,6 +692,7 @@ modded class PlayerBase
             SyberiaSoundEmitter.Spawn("JimWow" + Math.RandomIntInclusive(1, 2) + "_SoundEmitter", GetPosition());
 		}
 		
+		// Calculate athletic
 		if (!IsSicknesOrInjured())
 		{
 			float moveDist;
@@ -2178,6 +2184,22 @@ modded class PlayerBase
 	{
 		float visibilitySkillMod = 1.0 - Math.Clamp(GetPerkFloatValue(SyberiaPerkType.SYBPERK_STEALTH_ZOMBIE_AGRO_DEC, 0, 0), 0, 1);
 		m_VisibilityCoef = Math.Clamp(pVisibility * (visibilitySkillMod * 2.0), 0, 1.5);
+	}
+	
+	void AddExperienceOnIgniteFireplace(int state)
+	{
+		if (state == 1)
+		{
+			if (m_fireplaceLastIgnition > 300)
+			{
+				AddExperience(SyberiaSkillType.SYBSKILL_SURVIVAL, GetSyberiaConfig().m_skillsExpSurvivalIgniteFireSuccess);
+				m_fireplaceLastIgnition = 0;
+			}
+		}
+		else if (state == -1)
+		{
+			AddExperience(SyberiaSkillType.SYBSKILL_SURVIVAL, GetSyberiaConfig().m_skillsExpSurvivalIgniteFireFailed);
+		}
 	}
 	
 	void MarkAsNPC()
