@@ -101,7 +101,7 @@ class CfgSyberia
         adrenalinEffectStaminaDepletionMod[] = { 0.5, 0.25, 0.1 };
         overdoseDecrementPerSec = 0.001;
         overdoseUnconChangePerSec = 0.025;
-        mindstateHealPerSec = 0.01;
+        mindstateHealPerSec = 0.003;
         mindstateEmptyDeadtimeSec = 600;
         influenzaIncubatePeriodsSec[] = { 300, 1500, 1800 };
         influenzaTemperatureLevels[] = { -1.0, 37.0, 40.0 };
@@ -136,8 +136,8 @@ class CfgSyberia
         radiationHealthDamage[] = { 0.09, 0.2, 0.8 };
         radiationSleepingDec = 3;
         shockDecrementOnLowHealthAndBlood = 1.5;
-        zombieHitDecreaseMind[] = { 0.2, 5 }; // amount, time
-        zombieKillDecreaseMind[] = { 0.1, 10 }; // amount, time
+        zombieHitDecreaseMind[] = { 0.5, 5 }; // amount, time
+        zombieKillDecreaseMind[] = { 0.25, 10 }; // amount, time
         antidepresantMindInc[] = { 0.1, 0.25, 0.5 };
     };
 

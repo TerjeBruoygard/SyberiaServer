@@ -752,7 +752,7 @@ modded class PluginAdminTool
 			playerContext.m_stats.Insert(new PluginAdminTool_PlayerStatContext("Adrenalin", 0, 3, player.GetSybStats().m_adrenalinEffect));
 			playerContext.m_stats.Insert(new PluginAdminTool_PlayerStatContext("RadiationProtector", 0, 3, player.GetRadioprotectionLevel()));
 			
-			playerContext.m_stats.Insert(new PluginAdminTool_PlayerStatContext("Overdose", 0, 3, player.m_overdosedValue));
+			playerContext.m_stats.Insert(new PluginAdminTool_PlayerStatContext("Overdose", 0, 10, player.m_overdosedValue));
 			
 			playerContext.m_stats.Insert(new PluginAdminTool_PlayerStatContext("Immunity", 0, 100, profile.m_skills.GetSkillValue(SyberiaSkillType.SYBSKILL_IMMUNITY)));
 			playerContext.m_stats.Insert(new PluginAdminTool_PlayerStatContext("Athletics", 0, 100, profile.m_skills.GetSkillValue(SyberiaSkillType.SYBSKILL_ATHLETICS)));
