@@ -2,4 +2,8 @@
 /manager/obj
 /manager/packages
 /manager/.vs
-/manager/DayzDatabaseServer.csproj.user
+/updater/bin
+/updater/obj
+/updater/packages
+/updater/.vs
+/*/*.csproj.user

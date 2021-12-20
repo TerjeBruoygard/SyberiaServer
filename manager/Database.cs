@@ -169,15 +169,7 @@ namespace SyberiaServerManager
 
         private string GetStorageFolder()
         {
-            var profilesFolder = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "..", "profiles");
-            if (Directory.Exists(profilesFolder))
-            {
-                return Path.GetFullPath(Path.Combine(profilesFolder, "storage"));
-            }
-            else
-            {
-                return Path.GetFullPath(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "storage"));
-            }
+            return Path.GetFullPath(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "storage"));
         }
     }
 }
