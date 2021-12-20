@@ -10,9 +10,10 @@ modded class ActionSkinning
 			body_EB.SetAsSkinned();
 			body_EB.DoSkinning(action_data.m_Player, action_data.m_MainItem);
 		}
-		else
+		else if (targetObject && targetObject.IsInherited(Edible_Base))
 		{
-			super.OnFinishProgressServer(action_data);
+			Edible_Base edibleBase = Edible_Base.Cast(targetObject);
+			edibleBase.DoSkinning(action_data.m_Player, action_data.m_MainItem);
 		}
 		
 		if (action_data.m_MainItem)
