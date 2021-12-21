@@ -5,8 +5,11 @@ namespace SyberiaServerManager
 {
     public class CommandLineOptions
     {
-        [Option('p', "port", Required = false, Default = Constants.DEFAULT_SERVER_PORT, HelpText = "Sets the server port.")]
-        public int Port { get; set; }
+        [Option('p', "port", Required = true, HelpText = "Web server port.")]
+        public int WebServerPort { get; set; }
+
+        [Option('s', "serverdir", Required = true, HelpText = "Path to DayZ server directory.")]
+        public string ServerDir { get; set; }
 
         [Option("no-logs", Required = false, Default = false, HelpText = "Disable logging to file and output.")]
         public bool NoLogs { get; set; }
