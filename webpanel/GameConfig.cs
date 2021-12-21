@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SyberiaServerManager
+namespace SyberiaWebPanel
 {
     public class GameConfig
     {

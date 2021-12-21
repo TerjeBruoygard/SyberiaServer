@@ -23,7 +23,7 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugType>pdbonly</DebugType>
+    <DebugType>none</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
@@ -60,6 +60,9 @@
   <ItemGroup>
     <Compile Include="GameConfig.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="RestApi.cs" />
+    <Compile Include="RestErrorHandler.cs" />
+    <Compile Include="WebPanel.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
