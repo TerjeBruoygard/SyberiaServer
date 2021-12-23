@@ -16,53 +16,78 @@ namespace SyberiaUpdaterServer
 
         public RestApi()
         {
-            Get("/update/database", x => {
+            Get("/whitelist/add", x => {
+                var clientAddress = this.Request.UserHostAddress;
                 var accessKey = this.Request.Query["accessKey"];
-                if (Program.ValidateAccessKey(accessKey))
+                var addressToAdd = this.Request.Query["address"];
+                if (Program.ValidateMasterKey(accessKey, clientAddress))
                 {
-                    logger.Info("[/update/database] Success download from " + this.Context.Request.UserHostAddress);
+                    if (Program.AddToWhitelist(addressToAdd))
+                    {
+                        logger.Info($"[/whitelist/add] Add ip address {addressToAdd} to whitelist requested from {clientAddress}");
+                        return "Success";
+                    }
+                }
+
+                return new NotFoundResponse();
+            });
+
+            Get("/whitelist/remove", x => {
+                var clientAddress = this.Request.UserHostAddress;
+                var accessKey = this.Request.Query["accessKey"];
+                var addressToAdd = this.Request.Query["address"];
+                if (Program.ValidateMasterKey(accessKey, clientAddress))
+                {
+                    if (Program.RemoveFromWhitelist(addressToAdd))
+                    {
+                        logger.Info($"[/whitelist/remove] Remove ip address {addressToAdd} from whitelist requested from {clientAddress}");
+                        return "Success";
+                    }
+                }
+
+                return new NotFoundResponse();
+            });
+
+            Get("/update/database", x => {
+                var clientAddress = this.Request.UserHostAddress;
+                var accessKey = this.Request.Query["accessKey"];
+                if (Program.ValidateAccessKey(accessKey, clientAddress))
+                {
+                    logger.Info($"[/update/database] Success download from {clientAddress}");
                     string filename = "SyberiaDatabase.zip";
                     string path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Resources", filename);
                     return new GenericFileResponse(path, this.Context).AsAttachment(filename);
                 }
 
-                logger.Warn("[/update/database] Invalid AccessKey from " + this.Context.Request.UserHostAddress);
                 return new NotFoundResponse();
             });
 
             Get("/update/pbo", x => {
+                var clientAddress = this.Request.UserHostAddress;
                 var accessKey = this.Request.Query["accessKey"];
-                if (Program.ValidateAccessKey(accessKey))
+                if (Program.ValidateAccessKey(accessKey, clientAddress))
                 {
-                    logger.Info("[/update/pbo] Success download from " + this.Context.Request.UserHostAddress);
+                    logger.Info($"[/update/pbo] Success download from {clientAddress}");
                     string filename = "SyberiaServer.pbo";
                     string path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Resources", filename);
                     return new GenericFileResponse(path, this.Context).AsAttachment(filename);
                 }
 
-                logger.Warn("[/update/pbo] Invalid AccessKey from " + this.Context.Request.UserHostAddress);
                 return new NotFoundResponse();
             });
 
             Get("/access/check", x =>
             {
                 var clientAddress = this.Request.UserHostAddress;
-                var blackListPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "blacklist.txt");
-                if (!File.Exists(blackListPath))
+                if (Program.ValidateWhitelistAddress(clientAddress))
                 {
-                    File.WriteAllText(blackListPath, string.Empty);
-                }
-
-                var blackListLines = File.ReadAllLines(blackListPath);
-                if (blackListLines.Contains(clientAddress))
-                {
-                    logger.Warn("[/access/check] Server address in blacklist " + this.Context.Request.UserHostAddress);
-                    return "Deny";
+                    logger.Info($"[/access/check] Server start check successfull from {clientAddress}");
+                    return "Allow";
                 }
                 else
                 {
-                    logger.Info("[/access/check] Server check successfull " + this.Context.Request.UserHostAddress);
-                    return "Allow";
+                    logger.Warn($"[/access/check] Server start check FAILED from {clientAddress}");
+                    return "Deny";
                 }
             });
         }
