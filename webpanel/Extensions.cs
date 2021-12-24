@@ -16,5 +16,20 @@ namespace SyberiaWebPanel
             response.Headers.Add("Expires", "0");
             return response;
         }
+
+        public static void  Replace(this StringBuilder builder, string from, int to)
+        {
+            builder.Replace(from, to.ToString());
+        }
+
+        public static void Replace(this StringBuilder builder, string from, bool to)
+        {
+            builder.Replace(from, to ? "checked" : "");
+        }
+
+        public static void Replace(this StringBuilder builder, string from, float to)
+        {
+            builder.Replace(from, to.ToString().Replace(',', '.'));
+        }
     }
 }
