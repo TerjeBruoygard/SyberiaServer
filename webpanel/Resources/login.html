@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.0.0/core.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/3.1.9-1/md5.js"></script>
+    <title>Syberia Project Tools</title>
+</head>
+<body>
+    <style>
+        .outer {
+            display: table;
+            position: absolute;
+            top: 0;
+            left: 0;
+            height: 100%;
+            width: 100%;
+        }
+
+        .middle {
+            display: table-cell;
+            vertical-align: middle;
+        }
+
+        .inner {
+            margin-left: auto;
+            margin-right: auto;
+            width: 400px;
+        }
+    </style>
+    <div class="outer">
+        <div class="middle">
+            <div class="inner">
+                <h2>Syberia Project Tools</h2>
+                <br>
+                <form id="loginForm">
+                    <div class="form-group">
+                        <label for="inputUsername">Username</label>
+                        <input type="text" class="form-control" id="inputUsername" placeholder="Username" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="inputPassword">Password</label>
+                        <input type="password" class="form-control" id="inputPassword" placeholder="Password" required>
+                    </div>
+                    <div class="alert alert-danger" role="alert" style="visibility: hidden" id="alertMessage"></div>
+                    <br>
+                    <button type="submit" class="btn btn-primary">Login</button>
+                </form>
+            </div>
+        </div>
+    </div>
+    <script>
+        $("#loginForm").submit(function (event) {
+            event.preventDefault();
+            let userData = {
+                login: $('#inputUsername').val(),
+                pass: CryptoJS.MD5($('#inputPassword').val()).toString(CryptoJS.enc.Base64)
+            };
+            $.post("/login", userData, function (data) {
+                console.log('Successfully authorized.');
+                $('body').html(data);
+            }).fail(function (err) {
+                $('#inputPassword').val('');
+                $("#alertMessage").css('visibility', 'visible');
+                if (err.status == 500) {
+                    $("#alertMessage").html('Invalid login or password.');
+                }
+                else if (err.status == 403) {
+                    $("#alertMessage").html('Too many failed login attempts. Please try again later.');
+                }
+                else {
+                    $("#alertMessage").html('Service is temporarily unavailable.');
+                }
+            });
+        });
+    </script>
+</body>
+</html>

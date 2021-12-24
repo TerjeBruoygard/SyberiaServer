@@ -18,17 +18,9 @@ namespace SyberiaServerManager
 
         private static Logger logger = null;
 
-        private static HttpClient httpClient = null;
-
         private static string dayzServerDir = null;
 
         private static WebPanel webPanel = null;
-
-#if DEBUG
-        private static readonly int[] updateServerAddress = new int[5] { 127, 0, 0, 1, 8055 };
-#else
-        private static readonly int[] updateServerAddress = new int[5] { 91, 103, 77, 230, 8055 };
-#endif
 
         private static void Main(string[] args)
         {
@@ -59,6 +51,7 @@ namespace SyberiaServerManager
                 logger = LogManager.GetCurrentClassLogger();
 
                 // Check access server
+#if !DEBUG
                 httpClient = new HttpClient();
                 try
                 {
@@ -74,6 +67,7 @@ namespace SyberiaServerManager
                     Environment.Exit(255);
                     return;
                 }
+#endif
 
                 // Read database server options
                 dayzServerDir = options.ServerDir;
@@ -128,7 +122,11 @@ namespace SyberiaServerManager
 
         private static string GetUpdateServerAddress()
         {
-            return "http://" + updateServerAddress[0] + '.' + updateServerAddress[1] + '.' + updateServerAddress[2] + '.' + updateServerAddress[3] + ':' + updateServerAddress[4];
+#if DEBUG
+            return "http://localhost";
+#else
+            return "https://syberia-project.com";
+#endif
         }
 
         public static string GetDayzServerDir()
