@@ -1,5 +1,6 @@
 ﻿using Nancy;
 using Nancy.Responses;
+using Newtonsoft.Json.Linq;
 using NLog;
 using System;
 using System.Collections.Generic;
@@ -89,19 +90,70 @@ namespace SyberiaUpdaterServer
                 return new NotFoundResponse();
             });
 
-            Get("/access/check", x =>
+            Post("/access/check", x =>
             {
                 var clientAddress = this.Request.UserHostAddress;
                 if (Program.ValidateWhitelistAddress(clientAddress))
                 {
-                    logger.Info($"[/access/check] Server start check successfull from {clientAddress}");
-                    return "Allow";
+                    var bodyData = new StreamReader(this.Request.Body).ReadToEnd();
+                    var bodyObj = Newtonsoft.Json.JsonConvert.DeserializeObject(bodyData) as JObject;
+                    if (bodyObj != null)
+                    {
+                        Program.AddServiceStartToStatistic(clientAddress, bodyObj);
+                        logger.Info($"[/access/check] Server start check successfull from {clientAddress}:{bodyObj["dbPort"].Value<int>()}");
+                        return "Allow";
+                    }
                 }
-                else
+
+                logger.Warn($"[/access/check] Server start check FAILED from {clientAddress}");
+                return "Deny";
+            });
+
+            Get("/statistic", x =>
+            {
+                var accessKey = this.Request.Query["accessKey"];
+                var date = this.Request.Query["date"];
+                if (Program.ValidateStatisticKey(accessKey) && !string.IsNullOrEmpty(date))
                 {
-                    logger.Warn($"[/access/check] Server start check FAILED from {clientAddress}");
-                    return "Deny";
+                    string[] lines = Program.GetServiceStatistic(date);
+                    if (lines != null)
+                    {
+                        var uniqueLines = new HashSet<string>();
+                        foreach (var line in lines)
+                        {
+                            var parts = line.Split('|');
+                            var htmlLine = $"<tr><td>{parts[1]}</td><td>{parts[2]}</td><td>{parts[3]}</td><td>{parts[4]}</td><td>{parts[5]}</td></tr>";
+                            if (!uniqueLines.Contains(htmlLine))
+                            {
+                                uniqueLines.Add(htmlLine);
+                            }
+                        }
+
+                        var result = new StringBuilder();
+                        result.AppendLine("<!DOCTYPE html>");
+                        result.AppendLine("<html>");
+                        result.AppendLine("<head>");
+                        result.AppendLine("<link rel=\"stylesheet\" href=\"https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css\" integrity=\"sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm\" crossorigin=\"anonymous\">");
+                        result.AppendLine("</head>");
+                        result.AppendLine("<body>");
+                        result.AppendLine($"<h1>Running servers at {date}</h1>");
+                        result.AppendLine("<br>");
+                        result.AppendLine("<table class=\"table\">");
+                        result.AppendLine("<thead><tr><th scope=\"col\">IP</th><th scope=\"col\">DB Port</th><th scope=\"col\">Web Panel Port</th><th scope=\"col\">DayZ Server Path</th><th scope=\"col\">Service Path</th></tr></thead>");
+                        result.AppendLine("<tbody>");
+                        foreach (var line in uniqueLines)
+                        {
+                            result.AppendLine(line);
+                        }
+                        result.AppendLine("</tbody>");
+                        result.AppendLine("</table>");
+                        result.AppendLine("</body>");
+                        result.AppendLine("</html>");
+                        return new TextResponse(result.ToString(), "text/html", Encoding.UTF8);
+                    }
                 }
+
+                return new NotFoundResponse();
             });
         }
     }
