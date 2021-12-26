@@ -111,21 +111,38 @@ namespace SyberiaUpdaterServer
 
             Get("/statistic", x =>
             {
+                var currentDate = DateTime.Now;
                 var accessKey = this.Request.Query["accessKey"];
-                var date = this.Request.Query["date"];
-                if (Program.ValidateStatisticKey(accessKey) && !string.IsNullOrEmpty(date))
+                var from = this.Request.Query["from"]?.Value as string;
+                var to = (this.Request.Query["to"]?.Value as string) ?? $"{currentDate.Day}.{currentDate.Month}.{currentDate.Year}";
+                if (Program.ValidateStatisticKey(accessKey) && !string.IsNullOrEmpty(from))
                 {
-                    string[] lines = Program.GetServiceStatistic(date);
-                    if (lines != null)
+                    var statData = Program.GetServiceStatistic(from, to);
+                    if (statData != null)
                     {
-                        var uniqueLines = new HashSet<string>();
-                        foreach (var line in lines)
+                        var uniqueLines = new Dictionary<string, Tuple<DateTime, DateTime>>();
+                        foreach (var stat in statData)
                         {
-                            var parts = line.Split('|');
-                            var htmlLine = $"<tr><td>{parts[1]}</td><td>{parts[2]}</td><td>{parts[3]}</td><td>{parts[4]}</td><td>{parts[5]}</td></tr>";
-                            if (!uniqueLines.Contains(htmlLine))
+                            foreach (var line in stat.Value)
                             {
-                                uniqueLines.Add(htmlLine);
+                                var parts = line.Split('|');
+                                var htmlLine = $"<td>{parts[1]}</td><td>{{PERIOD}}</td><td>{parts[2]}</td><td>{parts[3]}</td><td>{parts[4]}</td><td>{parts[5]}</td>";
+                                if (uniqueLines.ContainsKey(htmlLine))
+                                {
+                                    if (stat.Key < uniqueLines[htmlLine].Item1)
+                                    {
+                                        uniqueLines[htmlLine] = new Tuple<DateTime, DateTime>(stat.Key, uniqueLines[htmlLine].Item2);
+                                    }
+
+                                    if (stat.Key > uniqueLines[htmlLine].Item2)
+                                    {
+                                        uniqueLines[htmlLine] = new Tuple<DateTime, DateTime>(uniqueLines[htmlLine].Item1, stat.Key);
+                                    }
+                                }
+                                else
+                                {
+                                    uniqueLines.Add(htmlLine, new Tuple<DateTime, DateTime>(stat.Key, stat.Key));
+                                }
                             }
                         }
 
@@ -136,14 +153,14 @@ namespace SyberiaUpdaterServer
                         result.AppendLine("<link rel=\"stylesheet\" href=\"https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css\" integrity=\"sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm\" crossorigin=\"anonymous\">");
                         result.AppendLine("</head>");
                         result.AppendLine("<body>");
-                        result.AppendLine($"<h1>Syberia instances list: {date}</h1>");
+                        result.AppendLine($"<h1>Syberia instances list: {from}-{to}</h1>");
                         result.AppendLine("<br>");
                         result.AppendLine("<table class=\"table\">");
-                        result.AppendLine("<thead><tr><th scope=\"col\">IP</th><th scope=\"col\">DB Port</th><th scope=\"col\">Web Panel Port</th><th scope=\"col\">DayZ Server Path</th><th scope=\"col\">Service Path</th></tr></thead>");
+                        result.AppendLine("<thead><tr><th scope=\"col\">IP</th><th scope=\"col\">Period</th><th scope=\"col\">DB Port</th><th scope=\"col\">Web Panel Port</th><th scope=\"col\">DayZ Server Path</th><th scope=\"col\">Service Path</th></tr></thead>");
                         result.AppendLine("<tbody>");
                         foreach (var line in uniqueLines)
                         {
-                            result.AppendLine(line);
+                            result.AppendLine($"<tr>{line.Key}</tr>".Replace("{PERIOD}", $"{line.Value.Item1.Day}.{line.Value.Item1.Month}.{line.Value.Item1.Year} - {line.Value.Item2.Day}.{line.Value.Item2.Month}.{line.Value.Item2.Year}"));
                         }
                         result.AppendLine("</tbody>");
                         result.AppendLine("</table>");

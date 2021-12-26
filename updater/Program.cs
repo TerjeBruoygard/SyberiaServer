@@ -81,16 +81,58 @@ namespace SyberiaUpdaterServer
             return Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "whitelist.txt");
         }
 
-        public static string[] GetServiceStatistic(string date)
+        public static string[] GetServiceStatistic(DateTime date)
         {
-            date = date.Replace(".", "_");
-            var statisticFile = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "statistic", $"stat_{date}.txt");
+            var statisticFile = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "statistic", $"stat_{date.Year}_{date.Month}_{date.Day}.txt");
             if (File.Exists(statisticFile))
             {
                 return File.ReadAllLines(statisticFile);
             }
 
             return null;
+        }
+
+        public static Dictionary<DateTime, string[]> GetServiceStatistic(string from, string to)
+        {
+            var parts = from.Split('.');
+            if (parts.Length != 3)
+            {
+                return null;
+            }
+
+            int fromYear, fromMonth, fromDay;
+            if (!int.TryParse(parts[2], out fromYear) || !int.TryParse(parts[1], out fromMonth) || !int.TryParse(parts[0], out fromDay))
+            {
+                return null;
+            }
+
+            parts = to.Split('.');
+            if (parts.Length != 3)
+            {
+                return null;
+            }
+
+            int toYear, toMonth, toDay;
+            if (!int.TryParse(parts[2], out toYear) || !int.TryParse(parts[1], out toMonth) || !int.TryParse(parts[0], out toDay))
+            {
+                return null;
+            }
+
+            var fromDate = new DateTime(fromYear, fromMonth, fromDay);
+            var toDate = new DateTime(toYear, toMonth, toDay);
+            var result = new Dictionary<DateTime, string[]>();
+            do
+            {
+                var lines = GetServiceStatistic(fromDate);
+                if (lines != null)
+                {
+                    result.Add(fromDate, lines);
+                }
+
+                fromDate = fromDate.AddDays(1);
+            } while (fromDate <= toDate);
+
+            return result;
         }
 
         public static void AddServiceStartToStatistic(string ip, JToken data)

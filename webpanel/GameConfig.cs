@@ -1,10 +1,9 @@
 ﻿using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace SyberiaWebPanel
 {
@@ -101,6 +100,82 @@ namespace SyberiaWebPanel
             foreach (var pair in m_groupFactions)
             {
                 File.WriteAllText(Path.Combine(m_configDir, $"Group_{pair.Key}.json"), JsonConvert.SerializeObject(pair.Value, saveSettings));
+            }
+        }
+
+        public void Apply(JToken token)
+        {
+            MergeObject(this, token);
+        }
+
+        private void MergeObject(object obj, JToken token)
+        {
+            foreach (var jprop in token.Children<JProperty>())
+            {
+                var prop = obj.GetType().GetProperty(jprop.Name);
+                if (prop.PropertyType == typeof(int))
+                {
+                    prop.SetValue(obj, jprop.Value.Value<int>());
+                }
+                else if (prop.PropertyType == typeof(float))
+                {
+                    prop.SetValue(obj, jprop.Value.Value<float>());
+                }
+                else if (prop.PropertyType == typeof(string))
+                {
+                    prop.SetValue(obj, jprop.Value.Value<string>());
+                }
+                else if (prop.PropertyType == typeof(List<string>))
+                {
+                    prop.SetValue(obj, jprop.Value.Values<string>().ToList());
+                }
+                else if (prop.PropertyType == typeof(List<int>))
+                {
+                    prop.SetValue(obj, jprop.Value.Values<int>().ToList());
+                }
+                else if (prop.PropertyType == typeof(List<float>))
+                {
+                    prop.SetValue(obj, jprop.Value.Values<float>().ToList());
+                }
+                else if (prop.PropertyType.IsGenericType && prop.PropertyType.GetGenericTypeDefinition() == typeof(List<>))
+                {
+                    var newValue = Newtonsoft.Json.JsonConvert.DeserializeAnonymousType(jprop.Value.ToString(Formatting.None), prop.PropertyType);
+                    prop.SetValue(obj, newValue);
+                }
+                else if (prop.PropertyType.IsArray && prop.PropertyType.GetElementType() == typeof(string))
+                {
+                    prop.SetValue(obj, jprop.Value.Values<string>().ToArray());
+                }
+                else if (prop.PropertyType.IsArray && prop.PropertyType.GetElementType() == typeof(int))
+                {
+                    prop.SetValue(obj, jprop.Value.Values<int>().ToArray());
+                }
+                else if (prop.PropertyType.IsArray && prop.PropertyType.GetElementType() == typeof(float))
+                {
+                    prop.SetValue(obj, jprop.Value.Values<float>().ToArray());
+                }
+                else if (prop.PropertyType.IsArray && prop.PropertyType.GetElementType().IsClass)
+                {
+                    var array = (Array)prop.GetValue(obj);
+                    var jrray = jprop.Value as JArray;
+                    if (jrray != null && array.Length != jrray.Count)
+                    {
+                        throw new ApplicationException("Missmatch array length.");
+                    }
+
+                    for (int i = 0; i < array.Length; i++)
+                    {
+                        MergeObject(array.GetValue(i), jrray[i]);
+                    }
+                }
+                else if (prop.PropertyType.IsClass && prop.PropertyType.Assembly == GetType().Assembly)
+                {
+                    MergeObject(prop.GetValue(obj), jprop.Value);
+                }
+                else
+                {
+                    throw new ApplicationException("Undefined type to remap.");
+                }
             }
         }
 
