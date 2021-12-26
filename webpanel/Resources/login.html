@@ -71,11 +71,29 @@
                 else if (err.status == 403) {
                     $("#alertMessage").html('Too many failed login attempts. Please try again later.');
                 }
+                else if (err.status == 0) {
+                    $("#alertMessage").html('Service is unreachable. Please check is server running or internet connection.');
+                }
                 else {
                     $("#alertMessage").html('Service is temporarily unavailable.');
                 }
             });
         });
+
+        function validateNumberInput(field) {
+            if ($(field).attr('step') && $(field).attr('step') === '1') {
+                $(field).val(Math.round(parseFloat($(field).val())));
+            }
+            if ($(field).attr('min') && $(field).val() < parseFloat($(field).attr('min'))) {
+                $(field).val(parseFloat($(field).attr('min')));
+            }
+            if ($(field).attr('max') && $(field).val() > parseFloat($(field).attr('max'))) {
+                $(field).val(parseFloat($(field).attr('max')));
+            }
+            if ($(field).attr('pattern') && new RegExp( $(field).attr('pattern') ).test( $(field).val() ) === false ) {
+                $(field).val($(field).attr('min') ? $(field).attr('min') : 0);
+            }
+        }
 
         function savePageSettings(rootElement, alertMessage) {
             var requestData = {
@@ -88,11 +106,13 @@
                 $(alertMessage).addClass('alert-success');
                 $(alertMessage).html('Changes successfully saved. Please restart DayZ server to apply them.');
                 $(alertMessage).css('visibility', 'visible');
+                console.log('Settings successfully changed.');
             }).fail(function (err) {
                 $(alertMessage).removeClass('alert-success');
                 $(alertMessage).addClass('alert-danger');
-                $(alertMessage).html('Internal server error. Failed to save changes.');
+                $(alertMessage).html(err.status == 0 ? 'Service is unreachable. Please check is server running or internet connection.' : 'Internal server error. Failed to save changes.');
                 $(alertMessage).css('visibility', 'visible');
+                console.error('Failed to change settings.');
             });
         };
 
