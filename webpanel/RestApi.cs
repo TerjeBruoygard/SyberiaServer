@@ -54,19 +54,7 @@ namespace SyberiaWebPanel
                 var gameConfig = WebPanel.GetInstance().GetGameConfig();
                 var htmlPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Resources", "main.html");
                 var htmlData = new StringBuilder(File.ReadAllText(htmlPath));
-                htmlData.Replace("${m_mainConfig.m_startSoulsCount}", gameConfig.m_mainConfig.m_startSoulsCount);
-                htmlData.Replace("${m_mainConfig.m_respawnSoulsPrice}", gameConfig.m_mainConfig.m_respawnSoulsPrice);
-                htmlData.Replace("${m_mainConfig.m_newchar_points}", gameConfig.m_mainConfig.m_newchar_points);
-                htmlData.Replace("${m_mainConfig.m_roleplay_mode}", gameConfig.m_mainConfig.m_roleplay_mode == 1);
-                htmlData.Replace("${m_mainConfig.m_startMedicKit}", gameConfig.m_mainConfig.m_startMedicKit);
-                htmlData.Replace("${m_mainConfig.m_startStealthKit}", gameConfig.m_mainConfig.m_startStealthKit);
-                htmlData.Replace("${m_mainConfig.m_startSurvivorKit}", gameConfig.m_mainConfig.m_startSurvivorKit);
-                for (int i = 0; i < gameConfig.m_mainConfig.m_skillModifiers.Length; i++)
-                {
-                    var skill = gameConfig.m_mainConfig.m_skillModifiers[i];
-                    htmlData.Replace($"${{m_mainConfig.m_skillModifiers[{skill.m_id}].m_mod}}", skill.m_mod);
-                    htmlData.Replace($"${{m_mainConfig.m_skillModifiers[{skill.m_id}].m_decreaseOnDeath}}", skill.m_decreaseOnDeath);
-                }
+                WebPanel.GetInstance().GetGameConfig().ReplaceValues(htmlData);
 
                 var timeDiff = DateTime.Now - startTime;
                 logger.Info($"[/login] Successfully logged in from {request.UserHostAddress}. UI rendered in {(int)timeDiff.TotalMilliseconds} ms.");
@@ -102,7 +90,7 @@ namespace SyberiaWebPanel
 
                 var data = bodyObject["data"];
                 WebPanel.GetInstance().GetGameConfig().Apply(data);
-                //WebPanel.GetInstance().GetGameConfig().Save();
+                WebPanel.GetInstance().GetGameConfig().Save();
 
                 return new Response()
                 {
