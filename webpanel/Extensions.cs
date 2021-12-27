@@ -46,5 +46,16 @@ namespace SyberiaWebPanel
         {
             builder.Replace(from, string.Join("; ", to.ToString()));
         }
+
+        public static void ReplaceScriptObject(this StringBuilder builder, string from, object to)
+        {
+            var jsObject = Newtonsoft.Json.JsonConvert.SerializeObject(to, Newtonsoft.Json.Formatting.None);
+            builder.Replace(from, jsObject);
+        }
     }
+}
+
+public class ScriptObjectSerializableAttribute : Attribute
+{
+
 }
