@@ -9,7 +9,10 @@
         <a class="nav-link" id="admins-tab" data-toggle="tab" href="#admins" role="tab" aria-controls="admins" aria-selected="false">Admins</a>
     </li>
     <li class="nav-item">
-        <a class="nav-link" id="groups-tab" data-toggle="tab" href="#groups" role="tab" aria-controls="groups" aria-selected="false">Groups</a>
+        <a class="nav-link" id="default-groups-tab" data-toggle="tab" href="#defaultGroup" role="tab" aria-controls="defaultGroup" aria-selected="false">Respawn settings</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" id="factions-tab" data-toggle="tab" href="#factions" role="tab" aria-controls="factions" aria-selected="false">Factions</a>
     </li>
     <li class="nav-item">
         <a class="nav-link" id="loadouts-tab" data-toggle="tab" href="#loadouts" role="tab" aria-controls="loadouts" aria-selected="false">Loadouts</a>
@@ -291,8 +294,866 @@
             <button type="button" class="btn btn-primary btn-lg" wid onclick="savePageSettings(readPageValues('#adminsForm'), '#alertMessageAdmins')">Save</button>
         </div>
     </div>
-    <div class="tab-pane" id="groups" role="tabpanel" aria-labelledby="groups-tab">
-        Groups
+    <div class="tab-pane" id="defaultGroup" role="tabpanel" aria-labelledby="default-groups-tab">
+        <h3>Respawn settings:</h3>
+        <p><em>Default respawn configuration of starting equipment and spawn points for all players.</em></p>
+        <br>
+        <div class="form-group row">
+            <label for="inputGroupSpawnpointsSelect" class="col-sm-2 col-form-label">Respawn locations:</label>
+            <div class="col-sm-10 input-group-btn">
+                <div class="input-group-prepend">
+                    <button class="btn btn-outline-secondary" type="button" id="inputGroupSpawnpointNew">Add</button>
+                    <select class="form-control custom-select" id="inputGroupSpawnpointsSelect"></select>
+                    <button class="btn btn-outline-secondary" type="button" id="inputGroupSpawnpointDelete">Remove</button>
+                </div>
+                <div class="row">
+                    <div class="col col-sm-1">
+                    </div>
+                    <div class="col col-sm-11">
+                        <label for="inputGroupSpawnpointsName">Name:</label>
+                        <input type="text" class="form-control" id="inputGroupSpawnpointsName" required>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col col-sm-1">
+                    </div>
+                    <div class="col col-sm-11">
+                        <label for="inputGroupSpawnpointsPositionsSelection">Points:</label>
+                        <div class="input-group-prepend">
+                            <button class="btn btn-outline-secondary" type="button" id="inputGroupSpawnpointPositionNew">Add</button>
+                            <select class="form-control custom-select" id="inputGroupSpawnpointsPositionsSelection"></select>
+                            <button class="btn btn-outline-secondary" type="button" id="inputGroupSpawnpointPositionDelete">Remove</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col col-sm-2">
+                    </div>
+                    <div class="col col-sm-6">
+                        <label for="inputGroupSpawnpointsPosition">Position:</label>
+                        <input type="text" class="form-control" onchange="validateVectorInput(this)" id="inputGroupSpawnpointsPosition" required>
+                    </div>
+                    <div class="col col-sm-4">
+                        <label for="inputGroupSpawnpointsRadius">Radius:</label>
+                        <input type="number" min="1" max="100" step="any" class="form-control" id="inputGroupSpawnpointsRadius" onchange="validateNumberInput(this)" required>
+                    </div>
+                </div>
+                <br />
+                <p>
+                    <em>Respawn locations allow the player to select a specific spawn location while respawning.</em><br />
+                    <em>The name of the location for the respawn will be displayed in the list on the player's respawn screen.</em><br />
+                    <em>The points determine the list of possible points of the player's appearance in the given location. The selection of a point from a subset of all available ones occurs randomly.</em><br />
+                    <em>The position is set with 3 numbers on the XYZ axes separated by spaces. You can find out the coordinates of the player's current position in the game using the admin tools.</em><br />
+                    <em>The radius allows you to set a circle relative to the position inside which the player can respawn. Please do not set the radius too high to prevent the player from getting stuck in objects.</em>
+                </p>
+            </div>
+        </div>
+        <br>
+        <br>
+        <h5>Clothing & Weapons presets:</h5>
+        <p><em>A list of items available for the player to select upon respawn from the list for each body part or weapon slot. The classname of each item should start on a new line. You can also set the amount and percent of damage to the item if necessary using additional parameters.</em></p>
+        <div class="form-group row">
+            <label for="inputGroupGearBody" class="col-sm-2 col-form-label">Body clothing:</label>
+            <div class="col-sm-10">
+                <textarea class="form-control" id="inputGroupGearBody"></textarea>
+                <p><em>Example:</em> <span class="badge badge-info">Hoodie_Black; H0.5</span><em> - Black hoodie with 50% health (Damaged)</em></p>
+            </div>
+        </div>
+        <div class="form-group row">
+            <label for="inputGroupGearPants" class="col-sm-2 col-form-label">Pants:</label>
+            <div class="col-sm-10">
+                <textarea class="form-control" id="inputGroupGearPants"></textarea>
+                <p><em>Example:</em> <span class="badge badge-info">Jeans_Blue</span><em> - Blue jeans (Pristine)</em></p>
+            </div>
+        </div>
+        <div class="form-group row">
+            <label for="inputGroupGearShoes" class="col-sm-2 col-form-label">Shoes:</label>
+            <div class="col-sm-10">
+                <textarea class="form-control" id="inputGroupGearShoes"></textarea>
+                <p><em>Example:</em> <span class="badge badge-info">AthleticShoes_Black; H0.8</span><em> - Shoes with 80% health</em></p>
+            </div>
+        </div>
+        <div class="form-group row">
+            <label for="inputGroupGearHeadgears" class="col-sm-2 col-form-label">Headgears:</label>
+            <div class="col-sm-10">
+                <textarea class="form-control" id="inputGroupGearHeadgears"></textarea>
+                <p><em>Example:</em> <span class="badge badge-info">BoonieHat_Olive</span><em> - Boonie Hat (Pristine)</em></p>
+            </div>
+        </div>
+        <div class="form-group row">
+            <label for="inputGroupGearMasks" class="col-sm-2 col-form-label">Masks:</label>
+            <div class="col-sm-10">
+                <textarea class="form-control" id="inputGroupGearMasks"></textarea>
+                <p><em>Example:</em> <span class="badge badge-info">GasMask; @GasMask_Filter</span><em> - Gas mask with filter in attachment.</em></p>
+            </div>
+        </div>
+        <div class="form-group row">
+            <label for="inputGroupGearGloves" class="col-sm-2 col-form-label">Gloves:</label>
+            <div class="col-sm-10">
+                <textarea class="form-control" id="inputGroupGearGloves"></textarea>
+                <p><em>Example:</em> <span class="badge badge-info">OMNOGloves_Gray</span></p>
+            </div>
+        </div>
+        <div class="form-group row">
+            <label for="inputGroupGearVests" class="col-sm-2 col-form-label">Vests:</label>
+            <div class="col-sm-10">
+                <textarea class="form-control" id="inputGroupGearVests"></textarea>
+                <p><em>Example:</em> <span class="badge badge-info">PlateCarrierVest; H0.5; @PlateCarrierPouches,PlateCarrierHolster</span><em> - Damaged plate carrier with pouches and holster in attachments.</em></p>
+            </div>
+        </div>
+        <div class="form-group row">
+            <label for="inputGroupGearBackpacks" class="col-sm-2 col-form-label">Backpacks:</label>
+            <div class="col-sm-10">
+                <textarea class="form-control" id="inputGroupGearBackpacks"></textarea>
+                <p><em>Example:</em> <span class="badge badge-info">DryBag_Orange</span></p>
+            </div>
+        </div>
+        <div class="form-group row">
+            <label for="inputGroupGearWeapons" class="col-sm-2 col-form-label">Weapons:</label>
+            <div class="col-sm-10">
+                <textarea class="form-control" id="inputGroupGearWeapons"></textarea>
+                <p><em>Examples:</em> <span class="badge badge-info">M4A1; @M4_CarryHandleOptic,M4_CQBBttstck,M4_RISHndgrd; &Mag_STANAGCoupled_30Rnd; H0.5</span><em> - M4A1 with attachments or </em><span class="badge badge-info">Izh43Shotgun; &Ammo_12gaPellets</span><em> - double-barreled shotgun with ammo.</em></p>
+            </div>
+        </div>
+        <div class="form-group row">
+            <label for="inputGroupGearItems" class="col-sm-2 col-form-label">Item sets:</label>
+            <div class="col-sm-10 input-group-btn">
+                <div class="input-group-prepend">
+                    <button class="btn btn-outline-secondary" type="button" id="inputGroupGearItemsNew">Add</button>
+                    <select class="form-control custom-select" id="inputGroupGearItems"></select>
+                    <button class="btn btn-outline-secondary" type="button" id="inputGroupGearItemsDelete">Remove</button>
+                </div>
+                <p><em>Determines the sets of items that the player can choose upon respawn. Each set can contain several items at the same time. The name of the set will be displayed to the player when choosing a starting equipment.</em></p>
+                <div class="row">
+                    <div class="col col-sm-1">
+                    </div>
+                    <div class="col col-sm-11">
+                        <label for="inputGroupGearItemsName">Name:</label>
+                        <input type="text" class="form-control" id="inputGroupGearItemsName" required>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col col-sm-1">
+                    </div>
+                    <div class="col col-sm-11">
+                        <label for="inputGroupGearItemsList">Items:</label>
+                        <textarea class="form-control" id="inputGroupGearItemsList"></textarea>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="alert" role="alert" style="visibility: hidden" id="alertMessageGroups"></div>
+        <button type="button" class="btn btn-primary btn-lg" wid onclick="savePageSettings(getGroupsDataObject(), '#alertMessageGroups')">Save</button>
+        <script>
+            var currentGroupSpawnpointId = -1;
+            var currentGroupSpawnpointPosition = -1;
+            var currentGroupItemsId = -1;
+            var defaultGroupDataobject = JSON.parse('#{m_groupDefault}');
+
+            function getGroupsDataObject() {
+                return {
+                    m_groupDefault: defaultGroupDataobject
+                };
+            }
+
+            function initializeGroupsSpawnpointSelection(spawnpoints) {
+                $('#inputGroupSpawnpointsSelect').html('');
+                for (var i = 0; i < spawnpoints.length; i++) {
+                    $('#inputGroupSpawnpointsSelect').append('<option value="' + i + '" ' + (i == (spawnpoints.length - 1) ? 'selected' : '') + '>' + spawnpoints[i]['m_name'] + '</option>');
+                }
+            }
+
+            function initializeGroupsSpawnpointPosition(positions) {
+                $('#inputGroupSpawnpointsPositionsSelection').html('');
+                for (var i = 0; i < positions.length; i++) {
+                    let pos = positions[i]['m_pos'];
+                    $('#inputGroupSpawnpointsPositionsSelection').append('<option value="' + i + '" ' + (i == (positions.length - 1) ? 'selected' : '') + '>' + pos[0] + ' ' + pos[1] + ' ' + pos[2] + '</option>');
+                }
+            }
+
+            function initializeGroupsGearItemsSelection(gearItems) {
+                $('#inputGroupGearItems').html('');
+                for (var i = 0; i < gearItems.length; i++) {
+                    $('#inputGroupGearItems').append('<option value="' + i + '" ' + (i == (gearItems.length - 1) ? 'selected' : '') + '>' + gearItems[i]['m_name'] + '</option>');
+                }
+            }
+
+            $('#inputGroupSpawnpointsSelect').change(function () {
+                let inputs = '#inputGroupSpawnpointsName,#inputGroupSpawnpointsPositionsSelection';
+                $('#inputGroupSpawnpointsPositionsSelection').html('');
+
+                let groupSpawnpointId = $(this).val() != undefined ? parseInt($(this).val()) : -1;
+                if (groupSpawnpointId != -1) {
+                    $(inputs).prop("disabled", false);
+
+                    let spawnpoint = defaultGroupDataobject['m_spawnpoints'][groupSpawnpointId];
+                    $('#inputGroupSpawnpointsName').val(spawnpoint['m_name']);
+
+                    initializeGroupsSpawnpointPosition(spawnpoint['m_positions']);
+                }
+                else {
+                    $(inputs).val('');
+                    $(inputs).prop("disabled", true);
+                }
+
+                currentGroupSpawnpointId = groupSpawnpointId;
+                $('#inputGroupSpawnpointsPositionsSelection').change();
+            });
+
+            $('#inputGroupSpawnpointsPositionsSelection').change(function () {
+                let inputs = '#inputGroupSpawnpointsPosition,#inputGroupSpawnpointsRadius';
+
+                let groupSpawnpointPosition = $(this).val() != undefined ? parseInt($(this).val()) : -1;
+                if (groupSpawnpointPosition != -1 && currentGroupSpawnpointId != -1) {
+                    $(inputs).prop("disabled", false);
+
+                    let position = defaultGroupDataobject['m_spawnpoints'][currentGroupSpawnpointId]['m_positions'][groupSpawnpointPosition];
+                    $('#inputGroupSpawnpointsPosition').val(position['m_pos'][0] + ' ' + position['m_pos'][1] + ' ' + position['m_pos'][2]);
+                    $('#inputGroupSpawnpointsRadius').val(position['m_radius']);
+                }
+                else {
+                    $(inputs).val('');
+                    $(inputs).prop("disabled", true);
+                }
+
+                currentGroupSpawnpointPosition = groupSpawnpointPosition;
+            });
+
+            $('#inputGroupGearItems').change(function () {
+                let inputs = '#inputGroupGearItemsName,#inputGroupGearItemsList';
+
+                let groupItemsId = $(this).val() != undefined ? parseInt($(this).val()) : -1;
+                if (groupItemsId != -1) {
+                    $(inputs).prop("disabled", false);
+
+                    let itemData = defaultGroupDataobject['m_gearItems'][groupItemsId];
+                    $('#inputGroupGearItemsName').val(itemData['m_name']);
+                    $('#inputGroupGearItemsList').val(itemData['m_items'].join('\n'));
+                }
+                else {
+                    $(inputs).val('');
+                    $(inputs).prop("disabled", true);
+                }
+
+                currentGroupItemsId = groupItemsId;
+            });
+
+            $('#inputGroupGearBody').change(function () { defaultGroupDataobject['m_gearBody'] = $(this).val().split('\n').filter(n => n.trim()); });
+            $('#inputGroupGearPants').change(function () { defaultGroupDataobject['m_gearPants'] = $(this).val().split('\n').filter(n => n.trim()); });
+            $('#inputGroupGearShoes').change(function () { defaultGroupDataobject['m_gearFoot'] = $(this).val().split('\n').filter(n => n.trim()); });
+            $('#inputGroupGearHeadgears').change(function () { defaultGroupDataobject['m_gearHead'] = $(this).val().split('\n').filter(n => n.trim()); });
+            $('#inputGroupGearMasks').change(function () { defaultGroupDataobject['m_gearMask'] = $(this).val().split('\n').filter(n => n.trim()); });
+            $('#inputGroupGearGloves').change(function () { defaultGroupDataobject['m_gearGloves'] = $(this).val().split('\n').filter(n => n.trim()); });
+            $('#inputGroupGearVests').change(function () { defaultGroupDataobject['m_gearVest'] = $(this).val().split('\n').filter(n => n.trim()); });
+            $('#inputGroupGearBackpacks').change(function () { defaultGroupDataobject['m_gearBackpack'] = $(this).val().split('\n').filter(n => n.trim()); });
+            $('#inputGroupGearWeapons').change(function () { defaultGroupDataobject['m_gearWeapon'] = $(this).val().split('\n').filter(n => n.trim()); });
+            $('#inputGroupSpawnpointsName').change(function () {
+                if (currentGroupSpawnpointId != -1) {
+                    defaultGroupDataobject['m_spawnpoints'][currentGroupSpawnpointId]['m_name'] = $(this).val();
+                    $('#inputGroupSpawnpointsSelect').find('option[value="' + currentGroupSpawnpointId + '"]').text($(this).val());
+                }
+            });
+            $('#inputGroupSpawnpointsPosition').change(function () {
+                if (currentGroupSpawnpointId != -1 && currentGroupSpawnpointPosition != -1) {
+                    let pos = $(this).val().split(' ').map(parseFloat);
+                    defaultGroupDataobject['m_spawnpoints'][currentGroupSpawnpointId]['m_positions'][currentGroupSpawnpointPosition]['m_pos'] = pos;
+                    $('#inputGroupSpawnpointsPositionsSelection').find('option[value="' + currentGroupSpawnpointPosition + '"]').text($(this).val());
+                }
+            });
+            $('#inputGroupSpawnpointsRadius').change(function () {
+                if (currentGroupSpawnpointId != -1 && currentGroupSpawnpointPosition != -1) {
+                    let radius = parseFloat($(this).val());
+                    defaultGroupDataobject['m_spawnpoints'][currentGroupSpawnpointId]['m_positions'][currentGroupSpawnpointPosition]['m_radius'] = radius;
+                }
+            });
+            $('#inputGroupGearItemsName').change(function () {
+                if (currentGroupItemsId != -1) {
+                    defaultGroupDataobject['m_gearItems'][currentGroupItemsId]['m_name'] = $(this).val();
+                    $('#inputGroupGearItems').find('option[value="' + currentGroupItemsId + '"]').text($(this).val());
+                }
+            });
+            $('#inputGroupGearItemsList').change(function () {
+                if (currentGroupItemsId != -1) {
+                    defaultGroupDataobject['m_gearItems'][currentGroupItemsId]['m_items'] = $(this).val().split('\n').filter(n => n.trim());
+                }
+            });
+
+            $('#inputGroupSpawnpointNew').click(function () {
+                let spawnpoints = defaultGroupDataobject['m_spawnpoints'];
+                spawnpoints.push({
+                    m_name: 'Location ' + (spawnpoints.length + 1),
+                    m_positions: []
+                });
+
+                initializeGroupsSpawnpointSelection(spawnpoints);
+                $('#inputGroupSpawnpointsSelect').change();
+            });
+            $('#inputGroupSpawnpointDelete').click(function () {
+                if (currentGroupSpawnpointId != -1) {
+                    if (confirm('Are you sure you want to delete current spawn location?')) {
+                        let spawnpoints = defaultGroupDataobject['m_spawnpoints'];
+                        spawnpoints.remove(currentGroupSpawnpointId);
+                        initializeGroupsSpawnpointSelection(spawnpoints);
+                        $('#inputGroupSpawnpointsSelect').change();
+                    }
+                }
+            });
+
+            $('#inputGroupSpawnpointPositionNew').click(function () {
+                if (currentGroupSpawnpointId != -1) {
+                    let positions = defaultGroupDataobject['m_spawnpoints'][currentGroupSpawnpointId]['m_positions'];
+                    positions.push({
+                        m_pos: [0, 0, 0],
+                        m_radius: 1
+                    });
+
+                    initializeGroupsSpawnpointPosition(positions);
+                    $('#inputGroupSpawnpointsPositionsSelection').change();
+                }
+            });
+            $('#inputGroupSpawnpointPositionDelete').click(function () {
+                if (currentGroupSpawnpointId != -1 && currentGroupSpawnpointPosition != -1) {
+                    let positions = defaultGroupDataobject['m_spawnpoints'][currentGroupSpawnpointId]['m_positions'];
+                    positions.remove(currentGroupSpawnpointPosition);
+                    initializeGroupsSpawnpointPosition(positions);
+                    $('#inputGroupSpawnpointsPositionsSelection').change();
+                }
+            });
+
+            $('#inputGroupGearItemsNew').click(function () {
+                let gearItems = defaultGroupDataobject['m_gearItems'];
+                gearItems.push({
+                    m_name: 'Items Set ' + (gearItems.length + 1),
+                    m_items: []
+                });
+
+                initializeGroupsGearItemsSelection(gearItems);
+                $('#inputGroupGearItems').change();
+            });
+            $('#inputGroupGearItemsDelete').click(function () {
+                if (currentGroupItemsId != -1) {
+                    if (confirm('Are you sure you want to delete current group items set?')) {
+                        let gearItems = defaultGroupDataobject['m_gearItems'];
+                        gearItems.remove(currentGroupItemsId);
+                        initializeGroupsGearItemsSelection(gearItems);
+                        $('#inputGroupGearItems').change();
+                    }
+                }
+            });
+
+            $('#inputGroupGearBody').val(defaultGroupDataobject['m_gearBody'].join('\n'));
+            $('#inputGroupGearPants').val(defaultGroupDataobject['m_gearPants'].join('\n'));
+            $('#inputGroupGearShoes').val(defaultGroupDataobject['m_gearFoot'].join('\n'));
+            $('#inputGroupGearHeadgears').val(defaultGroupDataobject['m_gearHead'].join('\n'));
+            $('#inputGroupGearMasks').val(defaultGroupDataobject['m_gearMask'].join('\n'));
+            $('#inputGroupGearGloves').val(defaultGroupDataobject['m_gearGloves'].join('\n'));
+            $('#inputGroupGearVests').val(defaultGroupDataobject['m_gearVest'].join('\n'));
+            $('#inputGroupGearBackpacks').val(defaultGroupDataobject['m_gearBackpack'].join('\n'));
+            $('#inputGroupGearWeapons').val(defaultGroupDataobject['m_gearWeapon'].join('\n'));
+
+            initializeGroupsSpawnpointSelection(defaultGroupDataobject['m_spawnpoints']);
+            initializeGroupsGearItemsSelection(defaultGroupDataobject['m_gearItems']);
+            $('#inputGroupSpawnpointsSelect').change();
+            $('#inputGroupGearItems').change();
+        </script>
+    </div>
+    <div class="tab-pane" id="factions" role="tabpanel" aria-labelledby="factions-tab">
+        <h3>Factions:</h3>
+        <div class="input-group">
+            <div class="input-group-prepend">
+                <button class="btn btn-outline-secondary" type="button" id="inputFactionNew">New</button>
+            </div>
+            <select class="custom-select" id="inputFactionsSelect"></select>
+            <div class="input-group-append">
+                <button class="btn btn-outline-secondary" type="button" id="inputFactionDelete">Delete</button>
+            </div>
+        </div>
+        <p><em>Factions allow you to set a specific configuration of starting equipment and spawn points for a specific group of players. Each faction gets a group communication channel in the PDA. If you need to set starting equipment or spawn points for one player, please use the Loadouts tab.</em></p>
+        <br>
+        <h5>Faction parameters:</h5>
+        <div class="form-group row">
+            <label for="inputFactionName" class="col-sm-2 col-form-label">Faction name:</label>
+            <div class="col-sm-10">
+                <input type="text" class="form-control" id="inputFactionName" required>
+                <p><em>The faction name is displayed in the game in admin tools and in PDA.</em></p>
+            </div>
+        </div>
+        <div class="form-group row">
+            <label for="inputFactionLeaders" class="col-sm-2 col-form-label">Leaders:</label>
+            <div class="col-sm-10">
+                <textarea class="form-control" id="inputFactionLeaders"></textarea>
+                <p><em>Specify the list of UIDs or SteamID64s of the leaders of faction. The leaders of the faction will gets an additional tab in the PDA for managing the members of the faction. A player can be a leader or member to only one faction at one time.</em></p>
+            </div>
+        </div>
+        <div class="form-group row">
+            <label for="inputFactionMaxMembers" class="col-sm-2 col-form-label">Maximum members count:</label>
+            <div class="col-sm-10">
+                <input type="number" min="1" max="1000" step="1" class="form-control" id="inputFactionMaxMembers" onchange="validateNumberInput(this)" required>
+                <p><em>The maximum number of members who can simultaneously be in this faction.</em></p>
+            </div>
+        </div>
+        <div class="form-group row">
+            <label for="inputFactionAllowDefaultSpawnpoints" class="col-sm-2 col-form-label">Display default respawn locations on respawn screen:</label>
+            <div class="col-sm-10">
+                <input class="form-check-input" type="checkbox" id="inputFactionAllowDefaultSpawnpoints">
+                <p><em>If this option is disabled - on the respawn screen, the member will have only respawn locations sets by the faction. If this option is enabled - the default locations will be combined with the faction's locations.</em></p>
+            </div>
+        </div>
+        <div class="form-group row">
+            <label for="inputFactionAllowDefaultLoadout" class="col-sm-2 col-form-label">Display default equipment on respawn screen:</label>
+            <div class="col-sm-10">
+                <input class="form-check-input" type="checkbox" id="inputFactionAllowDefaultLoadout">
+                <p><em>If this option is disabled - on the respawn screen, the member will have only equipment sets by the faction. If this option is enabled - default equipment will be combined with the faction's equipment.</em></p>
+            </div>
+        </div>
+        <div class="form-group row">
+            <label for="inputFactionSpawnpointsSelect" class="col-sm-2 col-form-label">Respawn locations:</label>
+            <div class="col-sm-10 input-group-btn">
+                <div class="input-group-prepend">
+                    <button class="btn btn-outline-secondary" type="button" id="inputFactionSpawnpointNew">Add</button>
+                    <select class="form-control custom-select" id="inputFactionSpawnpointsSelect"></select>
+                    <button class="btn btn-outline-secondary" type="button" id="inputFactionSpawnpointDelete">Remove</button>
+                </div>
+                <div class="row">
+                    <div class="col col-sm-1">
+                    </div>
+                    <div class="col col-sm-11">
+                        <label for="inputFactionSpawnpointsName">Name:</label>
+                        <input type="text" class="form-control" id="inputFactionSpawnpointsName" required>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col col-sm-1">
+                    </div>
+                    <div class="col col-sm-11">
+                        <label for="inputFactionSpawnpointsPositionsSelection">Points:</label>
+                        <div class="input-group-prepend">
+                            <button class="btn btn-outline-secondary" type="button" id="inputFactionSpawnpointPositionNew">Add</button>
+                            <select class="form-control custom-select" id="inputFactionSpawnpointsPositionsSelection"></select>
+                            <button class="btn btn-outline-secondary" type="button" id="inputFactionSpawnpointPositionDelete">Remove</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col col-sm-2">
+                    </div>
+                    <div class="col col-sm-6">
+                        <label for="inputFactionSpawnpointsPosition">Position:</label>
+                        <input type="text" class="form-control" onchange="validateVectorInput(this)" id="inputFactionSpawnpointsPosition" required>
+                    </div>
+                    <div class="col col-sm-4">
+                        <label for="inputFactionSpawnpointsRadius">Radius:</label>
+                        <input type="number" min="1" max="100" step="any" class="form-control" id="inputFactionSpawnpointsRadius" onchange="validateNumberInput(this)" required>
+                    </div>
+                </div>
+                <br />
+                <p>
+                    <em>Respawn locations allow the player to select a specific spawn location while respawning. These spawn locations will be added to the list of default spawn locations.</em><br />
+                    <em>The name of the location for the respawn will be displayed in the list on the player's respawn screen.</em><br />
+                    <em>The points determine the list of possible points of the player's appearance in the given location. The selection of a point from a subset of all available ones occurs randomly.</em><br />
+                    <em>The position is set with 3 numbers on the XYZ axes separated by spaces. You can find out the coordinates of the player's current position in the game using the admin tools.</em><br />
+                    <em>The radius allows you to set a circle relative to the position inside which the player can respawn. Please do not set the radius too high to prevent the player from getting stuck in objects.</em>
+                </p>
+            </div>
+        </div>
+        <br>
+        <br>
+        <h5>Clothing & Weapons presets:</h5>
+        <p><em>A list of items available for the player to select upon respawn from the list for each body part or weapon slot. The classname of each item should start on a new line. You can also set the amount and percent of damage to the item if necessary using additional parameters.</em></p>
+        <div class="form-group row">
+            <label for="inputFactionGearBody" class="col-sm-2 col-form-label">Body clothing:</label>
+            <div class="col-sm-10">
+                <textarea class="form-control" id="inputFactionGearBody"></textarea>
+                <p><em>Example:</em> <span class="badge badge-info">Hoodie_Black; H0.5</span><em> - Black hoodie with 50% health (Damaged)</em></p>
+            </div>
+        </div>
+        <div class="form-group row">
+            <label for="inputFactionGearPants" class="col-sm-2 col-form-label">Pants:</label>
+            <div class="col-sm-10">
+                <textarea class="form-control" id="inputFactionGearPants"></textarea>
+                <p><em>Example:</em> <span class="badge badge-info">Jeans_Blue</span><em> - Blue jeans (Pristine)</em></p>
+            </div>
+        </div>
+        <div class="form-group row">
+            <label for="inputFactionGearShoes" class="col-sm-2 col-form-label">Shoes:</label>
+            <div class="col-sm-10">
+                <textarea class="form-control" id="inputFactionGearShoes"></textarea>
+                <p><em>Example:</em> <span class="badge badge-info">AthleticShoes_Black; H0.8</span><em> - Shoes with 80% health</em></p>
+            </div>
+        </div>
+        <div class="form-group row">
+            <label for="inputFactionGearHeadgears" class="col-sm-2 col-form-label">Headgears:</label>
+            <div class="col-sm-10">
+                <textarea class="form-control" id="inputFactionGearHeadgears"></textarea>
+                <p><em>Example:</em> <span class="badge badge-info">BoonieHat_Olive</span><em> - Boonie Hat (Pristine)</em></p>
+            </div>
+        </div>
+        <div class="form-group row">
+            <label for="inputFactionGearMasks" class="col-sm-2 col-form-label">Masks:</label>
+            <div class="col-sm-10">
+                <textarea class="form-control" id="inputFactionGearMasks"></textarea>
+                <p><em>Example:</em> <span class="badge badge-info">GasMask; @GasMask_Filter</span><em> - Gas mask with filter in attachment.</em></p>
+            </div>
+        </div>
+        <div class="form-group row">
+            <label for="inputFactionGearGloves" class="col-sm-2 col-form-label">Gloves:</label>
+            <div class="col-sm-10">
+                <textarea class="form-control" id="inputFactionGearGloves"></textarea>
+                <p><em>Example:</em> <span class="badge badge-info">OMNOGloves_Gray</span></p>
+            </div>
+        </div>
+        <div class="form-group row">
+            <label for="inputFactionGearVests" class="col-sm-2 col-form-label">Vests:</label>
+            <div class="col-sm-10">
+                <textarea class="form-control" id="inputFactionGearVests"></textarea>
+                <p><em>Example:</em> <span class="badge badge-info">PlateCarrierVest; H0.5; @PlateCarrierPouches,PlateCarrierHolster</span><em> - Damaged plate carrier with pouches and holster in attachments.</em></p>
+            </div>
+        </div>
+        <div class="form-group row">
+            <label for="inputFactionGearBackpacks" class="col-sm-2 col-form-label">Backpacks:</label>
+            <div class="col-sm-10">
+                <textarea class="form-control" id="inputFactionGearBackpacks"></textarea>
+                <p><em>Example:</em> <span class="badge badge-info">DryBag_Orange</span></p>
+            </div>
+        </div>
+        <div class="form-group row">
+            <label for="inputFactionGearWeapons" class="col-sm-2 col-form-label">Weapons:</label>
+            <div class="col-sm-10">
+                <textarea class="form-control" id="inputFactionGearWeapons"></textarea>
+                <p><em>Examples:</em> <span class="badge badge-info">M4A1; @M4_CarryHandleOptic,M4_CQBBttstck,M4_RISHndgrd; &Mag_STANAGCoupled_30Rnd; H0.5</span><em> - M4A1 with attachments or </em><span class="badge badge-info">Izh43Shotgun; &Ammo_12gaPellets</span><em> - double-barreled shotgun with ammo.</em></p>
+            </div>
+        </div>
+        <div class="form-group row">
+            <label for="inputFactionGearItems" class="col-sm-2 col-form-label">Item sets:</label>
+            <div class="col-sm-10 input-group-btn">
+                <div class="input-group-prepend">
+                    <button class="btn btn-outline-secondary" type="button" id="inputFactionGearItemsNew">Add</button>
+                    <select class="form-control custom-select" id="inputFactionGearItems"></select>
+                    <button class="btn btn-outline-secondary" type="button" id="inputFactionGearItemsDelete">Remove</button>
+                </div>
+                <p><em>Determines the sets of items that the player can choose upon respawn. Each set can contain several items at the same time. The name of the set will be displayed to the player when choosing a starting equipment.</em></p>
+                <div class="row">
+                    <div class="col col-sm-1">
+                    </div>
+                    <div class="col col-sm-11">
+                        <label for="inputFactionGearItemsName">Name:</label>
+                        <input type="text" class="form-control" id="inputFactionGearItemsName" required>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col col-sm-1">
+                    </div>
+                    <div class="col col-sm-11">
+                        <label for="inputFactionGearItemsList">Items:</label>
+                        <textarea class="form-control" id="inputFactionGearItemsList"></textarea>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="alert" role="alert" style="visibility: hidden" id="alertMessageFactions"></div>
+        <button type="button" class="btn btn-primary btn-lg" wid onclick="savePageSettings(getFactionsDataObject(), '#alertMessageFactions')">Save</button>
+        <script>
+            var currentFactionId = -1;
+            var currentFactionSpawnpointId = -1;
+            var currentFactionSpawnpointPosition = -1;
+            var currentFactionItemsId = -1;
+            var factionsDataobject = JSON.parse('#{m_groupFactions}');
+
+            function getFactionsDataObject() {
+                return {
+                    m_mainConfig: {
+                        m_groups: factionsDataobject.map((faction, index) => {
+                            return String(index)
+                        })
+                    },
+                    m_groupFactions: factionsDataobject
+                };
+            }
+
+            function initializeFactionsSelection() {
+                $('#inputFactionsSelect').html('');
+                for (var i = 0; i < factionsDataobject.length; i++) {
+                    let factionObject = factionsDataobject[i];
+                    $('#inputFactionsSelect').append('<option value="' + i + '" ' + (i == (factionsDataobject.length - 1) ? 'selected' : '') + '>' + factionObject['m_displayName'] + '</option>');
+                }
+            }
+
+            function initializeFactionsSpawnpointSelection(spawnpoints) {
+                $('#inputFactionSpawnpointsSelect').html('');
+                for (var i = 0; i < spawnpoints.length; i++) {
+                    $('#inputFactionSpawnpointsSelect').append('<option value="' + i + '" ' + (i == (spawnpoints.length - 1) ? 'selected' : '') + '>' + spawnpoints[i]['m_name'] + '</option>');
+                }
+            }
+
+            function initializeFactionsSpawnpointPosition(positions) {
+                $('#inputFactionSpawnpointsPositionsSelection').html('');
+                for (var i = 0; i < positions.length; i++) {
+                    let pos = positions[i]['m_pos'];
+                    $('#inputFactionSpawnpointsPositionsSelection').append('<option value="' + i + '" ' + (i == (positions.length - 1) ? 'selected' : '') + '>' + pos[0] + ' ' + pos[1] + ' ' + pos[2] + '</option>');
+                }
+            }
+
+            function initializeFactionsGearItemsSelection(gearItems) {
+                $('#inputFactionGearItems').html('');
+                for (var i = 0; i < gearItems.length; i++) {
+                    $('#inputFactionGearItems').append('<option value="' + i + '" ' + (i == (gearItems.length - 1) ? 'selected' : '') + '>' + gearItems[i]['m_name'] + '</option>');
+                }
+            }
+
+            initializeFactionsSelection();
+
+            $('#inputFactionsSelect').change(function () {
+                let inputs = '#inputFactionName,#inputFactionLeaders,#inputFactionMaxMembers,#inputFactionAllowDefaultSpawnpoints,#inputFactionAllowDefaultLoadout,#inputFactionGearBody,#inputFactionGearPants,#inputFactionGearShoes,#inputFactionGearHeadgears,' +
+                    '#inputFactionGearMasks,#inputFactionGearGloves,#inputFactionGearVests,#inputFactionGearBackpacks,#inputFactionGearWeapons,#inputFactionSpawnpointsSelect';
+                $('#inputFactionSpawnpointsSelect').html('');
+                $('#inputFactionGearItems').html('');
+
+                let factionId = $(this).val() != undefined ? parseInt($(this).val()) : -1;
+                if (factionId != -1) {
+                    $(inputs).prop("disabled", false);
+
+                    let faction = factionsDataobject[factionId];
+                    $('#inputFactionName').val(faction['m_displayName']);
+                    $('#inputFactionLeaders').val(faction['m_leaders'].join('\n'));
+                    $('#inputFactionMaxMembers').val(faction['m_maxMembers']);
+                    if (faction['m_allowDefaultSpawnpoints'] == 1) {
+                        $('#inputFactionAllowDefaultSpawnpoints').attr('checked', true);
+                    }
+                    if (faction['m_allowDefaultLoadout'] == 1) {
+                        $('#inputFactionAllowDefaultLoadout').attr('checked', true);
+                    }
+                    $('#inputFactionGearBody').val(faction['m_gearBody'].join('\n'));
+                    $('#inputFactionGearPants').val(faction['m_gearPants'].join('\n'));
+                    $('#inputFactionGearShoes').val(faction['m_gearFoot'].join('\n'));
+                    $('#inputFactionGearHeadgears').val(faction['m_gearHead'].join('\n'));
+                    $('#inputFactionGearMasks').val(faction['m_gearMask'].join('\n'));
+                    $('#inputFactionGearGloves').val(faction['m_gearGloves'].join('\n'));
+                    $('#inputFactionGearVests').val(faction['m_gearVest'].join('\n'));
+                    $('#inputFactionGearBackpacks').val(faction['m_gearBackpack'].join('\n'));
+                    $('#inputFactionGearWeapons').val(faction['m_gearWeapon'].join('\n'));
+
+                    initializeFactionsSpawnpointSelection(faction['m_spawnpoints']);
+                    initializeFactionsGearItemsSelection(faction['m_gearItems']);
+                }
+                else {
+                    $(inputs).val('');
+                    $(inputs).prop("disabled", true);
+                }
+
+                currentFactionId = factionId;
+                $('#inputFactionSpawnpointsSelect').change();
+                $('#inputFactionGearItems').change();
+            });
+
+            $('#inputFactionSpawnpointsSelect').change(function () {
+                let inputs = '#inputFactionSpawnpointsName,#inputFactionSpawnpointsPositionsSelection';
+                $('#inputFactionSpawnpointsPositionsSelection').html('');
+
+                let factionSpawnpointId = $(this).val() != undefined ? parseInt($(this).val()) : -1;
+                if (factionSpawnpointId != -1 && currentFactionId != -1) {
+                    $(inputs).prop("disabled", false);
+
+                    let spawnpoint = factionsDataobject[currentFactionId]['m_spawnpoints'][factionSpawnpointId];
+                    $('#inputFactionSpawnpointsName').val(spawnpoint['m_name']);
+
+                    initializeFactionsSpawnpointPosition(spawnpoint['m_positions']);
+                }
+                else {
+                    $(inputs).val('');
+                    $(inputs).prop("disabled", true);
+                }
+
+                currentFactionSpawnpointId = factionSpawnpointId;
+                $('#inputFactionSpawnpointsPositionsSelection').change();
+            });
+
+            $('#inputFactionSpawnpointsPositionsSelection').change(function () {
+                let inputs = '#inputFactionSpawnpointsPosition,#inputFactionSpawnpointsRadius';
+
+                let factionSpawnpointPosition = $(this).val() != undefined ? parseInt($(this).val()) : -1;
+                if (factionSpawnpointPosition != -1 && currentFactionSpawnpointId != -1 && currentFactionId != -1) {
+                    $(inputs).prop("disabled", false);
+
+                    let position = factionsDataobject[currentFactionId]['m_spawnpoints'][currentFactionSpawnpointId]['m_positions'][factionSpawnpointPosition];
+                    $('#inputFactionSpawnpointsPosition').val(position['m_pos'][0] + ' ' + position['m_pos'][1] + ' ' + position['m_pos'][2]);
+                    $('#inputFactionSpawnpointsRadius').val(position['m_radius']);
+                }
+                else {
+                    $(inputs).val('');
+                    $(inputs).prop("disabled", true);
+                }
+
+                currentFactionSpawnpointPosition = factionSpawnpointPosition;
+            });
+
+            $('#inputFactionGearItems').change(function () {
+                let inputs = '#inputFactionGearItemsName,#inputFactionGearItemsList';
+
+                let factionItemsId = $(this).val() != undefined ? parseInt($(this).val()) : -1;
+                if (factionItemsId != -1 && currentFactionId != -1) {
+                    $(inputs).prop("disabled", false);
+
+                    let itemData = factionsDataobject[currentFactionId]['m_gearItems'][factionItemsId];
+                    $('#inputFactionGearItemsName').val(itemData['m_name']);
+                    $('#inputFactionGearItemsList').val(itemData['m_items'].join('\n'));
+                }
+                else {
+                    $(inputs).val('');
+                    $(inputs).prop("disabled", true);
+                }
+
+                currentFactionItemsId = factionItemsId;
+            });
+
+            $('#inputFactionName').change(function () {
+                if (currentFactionId != -1) {
+                    factionsDataobject[currentFactionId]['m_displayName'] = $(this).val();
+                    $('#inputFactionsSelect').find('option[value="' + currentFactionId + '"]').text($(this).val());
+                }
+            });
+            $('#inputFactionLeaders').change(function () { if (currentFactionId != -1) factionsDataobject[currentFactionId]['m_leaders'] = $(this).val().split('\n').filter(n => n.trim()); });
+            $('#inputFactionMaxMembers').change(function () { if (currentFactionId != -1) factionsDataobject[currentFactionId]['m_maxMembers'] = parseInt($(this).val()); });
+            $('#inputFactionAllowDefaultSpawnpoints').change(function () { if (currentFactionId != -1) factionsDataobject[currentFactionId]['m_allowDefaultSpawnpoints'] = $(this).is(':checked') ? 1 : 0; });
+            $('#inputFactionAllowDefaultLoadout').change(function () { if (currentFactionId != -1) factionsDataobject[currentFactionId]['m_allowDefaultLoadout'] = $(this).is(':checked') ? 1 : 0; });
+            $('#inputFactionGearBody').change(function () { if (currentFactionId != -1) factionsDataobject[currentFactionId]['m_gearBody'] = $(this).val().split('\n').filter(n => n.trim()); });
+            $('#inputFactionGearPants').change(function () { if (currentFactionId != -1) factionsDataobject[currentFactionId]['m_gearPants'] = $(this).val().split('\n').filter(n => n.trim()); });
+            $('#inputFactionGearShoes').change(function () { if (currentFactionId != -1) factionsDataobject[currentFactionId]['m_gearFoot'] = $(this).val().split('\n').filter(n => n.trim()); });
+            $('#inputFactionGearHeadgears').change(function () { if (currentFactionId != -1) factionsDataobject[currentFactionId]['m_gearHead'] = $(this).val().split('\n').filter(n => n.trim()); });
+            $('#inputFactionGearMasks').change(function () { if (currentFactionId != -1) factionsDataobject[currentFactionId]['m_gearMask'] = $(this).val().split('\n').filter(n => n.trim()); });
+            $('#inputFactionGearGloves').change(function () { if (currentFactionId != -1) factionsDataobject[currentFactionId]['m_gearGloves'] = $(this).val().split('\n').filter(n => n.trim()); });
+            $('#inputFactionGearVests').change(function () { if (currentFactionId != -1) factionsDataobject[currentFactionId]['m_gearVest'] = $(this).val().split('\n').filter(n => n.trim()); });
+            $('#inputFactionGearBackpacks').change(function () { if (currentFactionId != -1) factionsDataobject[currentFactionId]['m_gearBackpack'] = $(this).val().split('\n').filter(n => n.trim()); });
+            $('#inputFactionGearWeapons').change(function () { if (currentFactionId != -1) factionsDataobject[currentFactionId]['m_gearWeapon'] = $(this).val().split('\n').filter(n => n.trim()); });
+            $('#inputFactionSpawnpointsName').change(function () {
+                if (currentFactionId != -1 && currentFactionSpawnpointId != -1) {
+                    factionsDataobject[currentFactionId]['m_spawnpoints'][currentFactionSpawnpointId]['m_name'] = $(this).val();
+                    $('#inputFactionSpawnpointsSelect').find('option[value="' + currentFactionSpawnpointId + '"]').text($(this).val());
+                }
+            });
+            $('#inputFactionSpawnpointsPosition').change(function () {
+                if (currentFactionId != -1 && currentFactionSpawnpointId != -1 && currentFactionSpawnpointPosition != -1) {
+                    let pos = $(this).val().split(' ').map(parseFloat);
+                    factionsDataobject[currentFactionId]['m_spawnpoints'][currentFactionSpawnpointId]['m_positions'][currentFactionSpawnpointPosition]['m_pos'] = pos;
+                    $('#inputFactionSpawnpointsPositionsSelection').find('option[value="' + currentFactionSpawnpointPosition + '"]').text($(this).val());
+                }
+            });
+            $('#inputFactionSpawnpointsRadius').change(function () {
+                if (currentFactionId != -1 && currentFactionSpawnpointId != -1 && currentFactionSpawnpointPosition != -1) {
+                    let radius = parseFloat($(this).val());
+                    factionsDataobject[currentFactionId]['m_spawnpoints'][currentFactionSpawnpointId]['m_positions'][currentFactionSpawnpointPosition]['m_radius'] = radius;
+                }
+            });
+            $('#inputFactionGearItemsName').change(function () {
+                if (currentFactionId != -1 && currentFactionItemsId != -1) {
+                    factionsDataobject[currentFactionId]['m_gearItems'][currentFactionItemsId]['m_name'] = $(this).val();
+                    $('#inputFactionGearItems').find('option[value="' + currentFactionItemsId + '"]').text($(this).val());
+                }
+            });
+            $('#inputFactionGearItemsList').change(function () {
+                if (currentFactionId != -1 && currentFactionItemsId != -1) {
+                    factionsDataobject[currentFactionId]['m_gearItems'][currentFactionItemsId]['m_items'] = $(this).val().split('\n').filter(n => n.trim());
+                }
+            });
+
+            $('#inputFactionNew').click(function () {
+                factionsDataobject.push({
+                    m_displayName: 'Faction ' + (factionsDataobject.length + 1),
+                    m_uid: '',
+                    m_spawnpoints: [],
+                    m_gearBody: [],
+                    m_gearPants: [],
+                    m_gearFoot: [],
+                    m_gearHead: [],
+                    m_gearMask: [],
+                    m_gearGloves: [],
+                    m_gearVest: [],
+                    m_gearBackpack: [],
+                    m_gearWeapon: [],
+                    m_gearItems: []
+                });
+
+                initializeFactionsSelection();
+                $('#inputFactionsSelect').change();
+            });
+            $('#inputFactionDelete').click(function () {
+                if (currentFactionId != -1) {
+                    if (confirm('Are you sure you want to delete current faction?')) {
+                        factionsDataobject.remove(currentFactionId);
+                        initializeFactionsSelection();
+                        $('#inputFactionsSelect').change();
+                    }
+                }
+            });
+
+            $('#inputFactionSpawnpointNew').click(function () {
+                if (currentFactionId != -1) {
+                    let spawnpoints = factionsDataobject[currentFactionId]['m_spawnpoints'];
+                    spawnpoints.push({
+                        m_name: 'Location ' + (spawnpoints.length + 1),
+                        m_positions: []
+                    });
+
+                    initializeFactionsSpawnpointSelection(spawnpoints);
+                    $('#inputFactionSpawnpointsSelect').change();
+                }
+            });
+            $('#inputFactionSpawnpointDelete').click(function () {
+                if (currentFactionId != -1 && currentFactionSpawnpointId != -1) {
+                    if (confirm('Are you sure you want to delete current spawn location?')) {
+                        let spawnpoints = factionsDataobject[currentFactionId]['m_spawnpoints'];
+                        spawnpoints.remove(currentFactionSpawnpointId);
+                        initializeFactionsSpawnpointSelection(spawnpoints);
+                        $('#inputFactionSpawnpointsSelect').change();
+                    }
+                }
+            });
+
+            $('#inputFactionSpawnpointPositionNew').click(function () {
+                if (currentFactionId != -1 && currentFactionSpawnpointId != -1) {
+                    let positions = factionsDataobject[currentFactionId]['m_spawnpoints'][currentFactionSpawnpointId]['m_positions'];
+                    positions.push({
+                        m_pos: [0, 0, 0],
+                        m_radius: 1
+                    });
+
+                    initializeFactionsSpawnpointPosition(positions);
+                    $('#inputFactionSpawnpointsPositionsSelection').change();
+                }
+            });
+            $('#inputFactionSpawnpointPositionDelete').click(function () {
+                if (currentFactionId != -1 && currentFactionSpawnpointId != -1 && currentFactionSpawnpointPosition != -1) {
+                    let positions = factionsDataobject[currentFactionId]['m_spawnpoints'][currentFactionSpawnpointId]['m_positions'];
+                    positions.remove(currentFactionSpawnpointPosition);
+                    initializeFactionsSpawnpointPosition(positions);
+                    $('#inputFactionSpawnpointsPositionsSelection').change();
+                }
+            });
+
+            $('#inputFactionGearItemsNew').click(function () {
+                if (currentFactionId != -1) {
+                    let gearItems = factionsDataobject[currentFactionId]['m_gearItems'];
+                    gearItems.push({
+                        m_name: 'Items Set ' + (gearItems.length + 1),
+                        m_items: []
+                    });
+
+                    initializeFactionsGearItemsSelection(gearItems);
+                    $('#inputFactionGearItems').change();
+                }
+            });
+            $('#inputFactionGearItemsDelete').click(function () {
+                if (currentFactionId != -1 && currentFactionItemsId != -1) {
+                    if (confirm('Are you sure you want to delete current faction items set?')) {
+                        let gearItems = factionsDataobject[currentFactionId]['m_gearItems'];
+                        gearItems.remove(currentFactionItemsId);
+                        initializeFactionsGearItemsSelection(gearItems);
+                        $('#inputFactionGearItems').change();
+                    }
+                }
+            });
+
+            $('#inputFactionsSelect').change();
+        </script>
     </div>
     <div class="tab-pane" id="loadouts" role="tabpanel" aria-labelledby="loadouts-tab">
         <h3>Personal loadouts:</h3>
@@ -305,7 +1166,7 @@
                 <button class="btn btn-outline-secondary" type="button" id="inputLoadoutDelete">Delete</button>
             </div>
         </div>
-        <p><em>Personal Loadouts allow you to set a specific configuration of starting equipment and spawn points for a specific player. If you need to set starting equipment or spawn points for a group of players, please use the Groups tab.</em></p>
+        <p><em>Personal Loadouts allow you to set a specific configuration of starting equipment and spawn points for a specific player. If you need to set starting equipment or spawn points for a group of players, please use the Factions tab.</em></p>
         <br>
         <h5>Loadout parameters:</h5>
         <div class="form-group row">
