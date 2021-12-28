@@ -18,7 +18,7 @@
         <a class="nav-link" id="loadouts-tab" data-toggle="tab" href="#loadouts" role="tab" aria-controls="loadouts" aria-selected="false">Loadouts</a>
     </li>
     <li class="nav-item">
-        <a class="nav-link" id="traders-tab" data-toggle="tab" href="#traders" role="tab" aria-controls="traders" aria-selected="false">Traders</a>
+        <a class="nav-link" id="traders-tab" data-toggle="tab" href="#traders" role="tab" aria-controls="traders" aria-selected="false">Barter traders</a>
     </li>
     <li class="nav-item">
         <a class="nav-link" id="zones-tab" data-toggle="tab" href="#zones" role="tab" aria-controls="zones" aria-selected="false">Zones</a>
@@ -62,11 +62,7 @@
                 <label for="inputRoleplayMode" class="col-sm-2 col-form-label">Disable character deletion:</label>
                 <div class="col-sm-10">
                     <input class="form-check-input" type="checkbox" id="inputRoleplayMode" mapping="m_mainConfig.m_roleplay_mode">
-                    <script>
-                        if ('${m_mainConfig.m_roleplay_mode}' == '1') {
-                            $('#inputRoleplayMode').attr('checked', true);
-                        }
-                    </script>
+                    <script>$('#inputRoleplayMode').prop('checked', '${m_mainConfig.m_roleplay_mode}' == '1');</script>
                     <p><em>When this option is enabled, players will not be able to delete their character on the respawn screen.</em></p>
                 </div>
             </div>
@@ -109,11 +105,7 @@
                 <label for="inputOperateVisceraHimself" class="col-sm-2 col-form-label">Allow surgery on yourself:</label>
                 <div class="col-sm-10">
                     <input class="form-check-input" type="checkbox" id="inputOperateVisceraHimself" mapping="m_clientConfig.m_operateVisceraHimself">
-                    <script>
-                        if ('${m_clientConfig.m_operateVisceraHimself}' == '1') {
-                            $('#inputOperateVisceraHimself').attr('checked', true);
-                        }
-                    </script>
+                    <script>$('#inputOperateVisceraHimself').prop('checked', '${m_clientConfig.m_operateVisceraHimself}' == '1');</script>
                     <p><em>Determines whether the player can use the surgical kit to perform surgery on himself without the help of other players.</em></p>
                 </div>
             </div>
@@ -123,11 +115,7 @@
                 <label for="inputPdaEnableGlobalChat" class="col-sm-2 col-form-label">Enable global channel:</label>
                 <div class="col-sm-10">
                     <input class="form-check-input" type="checkbox" id="inputPdaEnableGlobalChat" mapping="m_pdaConfig.m_enableGlobalChat">
-                    <script>
-                        if ('${m_pdaConfig.m_enableGlobalChat}' == '1') {
-                            $('#inputPdaEnableGlobalChat').attr('checked', true);
-                        }
-                    </script>
+                    <script>$('#inputPdaEnableGlobalChat').prop('checked', '${m_pdaConfig.m_enableGlobalChat}' == '1');</script>
                     <p><em>This option adds to the list of conversations in the PDA a global channel for communication between players who have PDAs.</em></p>
                 </div>
             </div>
@@ -135,11 +123,7 @@
                 <label for="inputPdaEnableMapPage" class="col-sm-2 col-form-label">Enable GPS tab:</label>
                 <div class="col-sm-10">
                     <input class="form-check-input" type="checkbox" id="inputPdaEnableMapPage" mapping="m_pdaConfig.m_enableMapPage">
-                    <script>
-                        if ('${m_pdaConfig.m_enableMapPage}' == '1') {
-                            $('#inputPdaEnableMapPage').attr('checked', true);
-                        }
-                    </script>
+                    <script>$('#inputPdaEnableMapPage').prop('checked', '${m_pdaConfig.m_enableMapPage}' == '1');</script>
                     <p><em>This option enables a PDA tab with a map and the exact location of the player on it.</em></p>
                 </div>
             </div>
@@ -916,12 +900,8 @@
                     $('#inputFactionName').val(faction['m_displayName']);
                     $('#inputFactionLeaders').val(faction['m_leaders'].join('\n'));
                     $('#inputFactionMaxMembers').val(faction['m_maxMembers']);
-                    if (faction['m_allowDefaultSpawnpoints'] == 1) {
-                        $('#inputFactionAllowDefaultSpawnpoints').attr('checked', true);
-                    }
-                    if (faction['m_allowDefaultLoadout'] == 1) {
-                        $('#inputFactionAllowDefaultLoadout').attr('checked', true);
-                    }
+                    $('#inputFactionAllowDefaultSpawnpoints').prop('checked', faction['m_allowDefaultSpawnpoints'] == 1);
+                    $('#inputFactionAllowDefaultLoadout').prop('checked', faction['m_allowDefaultLoadout'] == 1);
                     $('#inputFactionGearBody').val(faction['m_gearBody'].join('\n'));
                     $('#inputFactionGearPants').val(faction['m_gearPants'].join('\n'));
                     $('#inputFactionGearShoes').val(faction['m_gearFoot'].join('\n'));
@@ -1058,7 +1038,10 @@
             $('#inputFactionNew').click(function () {
                 factionsDataobject.push({
                     m_displayName: 'Faction ' + (factionsDataobject.length + 1),
-                    m_uid: '',
+                    m_maxMembers: 100,
+                    m_allowDefaultSpawnpoints: 1,
+                    m_allowDefaultLoadout: 1,
+                    m_leaders: [],
                     m_spawnpoints: [],
                     m_gearBody: [],
                     m_gearPants: [],
@@ -1618,10 +1601,563 @@
         </script>
     </div>
     <div class="tab-pane" id="traders" role="tabpanel" aria-labelledby="traders-tab">
-        Traders
+        <h3>Barter traders:</h3>
+        <div class="input-group">
+            <div class="input-group-prepend">
+                <button class="btn btn-outline-secondary" type="button" id="inputBarterTraderNew">New</button>
+            </div>
+            <select class="custom-select" id="inputBarterTradersSelect"></select>
+            <div class="input-group-append">
+                <button class="btn btn-outline-secondary" type="button" id="inputBarterTraderDelete">Delete</button>
+            </div>
+        </div>
+        <p><em>Barter trading works according to a real economic model. There is no money as an item on the server. Trading its only an exchange of things between the player and the trader. The trader's assortment consists exclusively of those items that the players have sold to him, and the prices for them are automatically regulated by the demand for a particular item by the players. The more a certain item has accumulated at the trader, the lower the price for it. Each trader has their own items storage. This means that if there are several traders on the server, economic speculations with the resale of things are possible, which greatly expands the economic opportunities of the players.</em></p>
+        <p><em>Server administrators can trade with a trader ignoring the rules of market trading (buy and sell items without satisfying the barter requirements). Administrators also ignore trader filters and restrictions.</em></p>
+        <br>
+        <h5>Barter trader parameters:</h5>
+        <div class="form-group row">
+            <label for="inputBarterTraderName" class="col-sm-2 col-form-label">Name:</label>
+            <div class="col-sm-10">
+                <input type="text" class="form-control" id="inputBarterTraderName" required>
+                <p><em>Displayed only in the admin panel.</em></p>
+            </div>
+        </div>
+        <div class="form-group row">
+            <label for="inputBarterTraderClassname" class="col-sm-2 col-form-label">Classname:</label>
+            <div class="col-sm-10">
+                <input type="text" class="form-control" id="inputBarterTraderClassname" required>
+                <p><em>The classname of the object in the game that will act as a barter trader. The trader can be a character or an item.</em></p>
+            </div>
+        </div>
+        <div class="form-group row">
+            <label for="inputBarterTraderAttachments" class="col-sm-2 col-form-label">Attachments:</label>
+            <div class="col-sm-10">
+                <textarea class="form-control" id="inputBarterTraderAttachments"></textarea>
+                <p><em>List of items that will be placed in the attachment slots of the trader.</em></p>
+            </div>
+        </div>
+        <div class="form-group row">
+            <label for="inputBarterTraderPosition" class="col-sm-2 col-form-label">Position:</label>
+            <div class="col-sm-10">
+                <input type="text" class="form-control" onchange="validateVectorInput(this)" id="inputBarterTraderPosition" required>
+                <p><em>The position (XYZ coordinates) of the trader in the game.</em></p>
+            </div>
+        </div>
+        <div class="form-group row">
+            <label for="inputBarterTraderRotation" class="col-sm-2 col-form-label">Rotation angle:</label>
+            <div class="col-sm-10">
+                <input type="number" min="0" max="360" step="any" class="form-control" id="inputBarterTraderRotation" onchange="validateNumberInput(this)" required>
+                <p><em>The angle of rotation of the trader around the Y axis (In degrees from 0 to 360).</em></p>
+            </div>
+        </div>
+        <div class="form-group row">
+            <label for="inputBarterTraderBuyFilter" class="col-sm-2 col-form-label">Filter items to buy:</label>
+            <div class="col-sm-10">
+                <textarea class="form-control" id="inputBarterTraderBuyFilter"></textarea>
+                <p><em>A filter that allows you to set a list of items that a player can buy from a trader. It is allowed to use a base class to define a subset of items to buy. Using the "!" before classname allows you to deny certain items allowed by previous filters.</em></p>
+            </div>
+        </div>
+        <div class="form-group row">
+            <label for="inputBarterTraderSellFilter" class="col-sm-2 col-form-label">Filter items to sell:</label>
+            <div class="col-sm-10">
+                <textarea class="form-control" id="inputBarterTraderSellFilter"></textarea>
+                <p><em>A filter that allows you to set a list of items that a player can sell to a trader. It is allowed to use a base class to define a subset of items to sell. Using the "!" before classname allows you to deny certain items allowed by previous filters.</em></p>
+            </div>
+        </div>
+        <div class="form-group row">
+            <label for="inputBarterTraderStorageMaxSize" class="col-sm-2 col-form-label">Storage size:</label>
+            <div class="col-sm-10">
+                <input type="number" min="10" max="1000000" step="1" class="form-control" id="inputBarterTraderStorageMaxSize" onchange="validateNumberInput(this)" required>
+                <p><em>The maximum number of slots allocated to the trader for the internal storage for every item type. This storage is not an inventory in the usual sense, so big values is safe and this parameter will NOT provide to an increase server loading.</em></p>
+            </div>
+        </div>
+        <div class="form-group row">
+            <label for="inputBarterTraderStorageCommission" class="col-sm-2 col-form-label">Transaction commission:</label>
+            <div class="col-sm-10">
+                <input type="number" min="0" max="0.9" step="any" class="form-control" id="inputBarterTraderStorageCommission" onchange="validateNumberInput(this)" required>
+                <p><em>The commission charged by the trader for each barter transaction. A value of 0 means no commission. A value of 0.5 means that the trader will take 50% of the transaction for himself, making it less profitable for the player (The player should give out 2 times more items to close the deal).</em></p>
+            </div>
+        </div>
+        <div class="form-group row">
+            <label for="inputBarterTraderDumpingByAmountModifier" class="col-sm-2 col-form-label">Price dumping by stored items amount:</label>
+            <div class="col-sm-10">
+                <input type="number" min="0.0001" max="1" step="any" class="form-control" id="inputBarterTraderDumpingByAmountModifier" onchange="validateNumberInput(this)" required>
+                <p><em>This parameter determines how the price of the items will fall as it accumulates in the trader's storage. Lower value of this parameter, the more price will fall as the trader's storage is filled. A value of 1 disables the prices fall.</em></p>
+            </div>
+        </div>
+        <div class="form-group row">
+            <label for="inputBarterTraderDumpingByBadQuality" class="col-sm-2 col-form-label">Price dumping by bad items condition:</label>
+            <div class="col-sm-10">
+                <input type="number" min="0.01" max="1" step="any" class="form-control" id="inputBarterTraderDumpingByBadQuality" onchange="validateNumberInput(this)" required>
+                <p><em>This value determines how much the price of the product will fall if it is damaged. The trader does not buy destroyed or ruined items, rotten food and etc. A value of 1 disables the fall of prices for damaged items. With a value of 0.5, the trader will buy item at half price.</em></p>
+            </div>
+        </div>
+        <div class="form-group row">
+            <label for="inputBarterTraderSellMaxQuantityPercent" class="col-sm-2 col-form-label">Max items quantity per transaction for sale:</label>
+            <div class="col-sm-10">
+                <input type="number" min="0.0001" max="1" step="any" class="form-control" id="inputBarterTraderSellMaxQuantityPercent" onchange="validateNumberInput(this)" required>
+                <p><em>The maximum number of items that a player can sell to a trader in one operation (Value in range from 0 to 1 relative to the size of the storage). Low values of this parameter do not allow players to sell big amount of items to the trader at inflated prices calculated before the dumping caused by the filling of the storage.</em></p>
+            </div>
+        </div>
+        <div class="form-group row">
+            <label for="inputBarterTraderBuyMaxQuantityPercent" class="col-sm-2 col-form-label">Max items quantity per transaction for buy:</label>
+            <div class="col-sm-10">
+                <input type="number" min="0.0001" max="1" step="any" class="form-control" id="inputBarterTraderBuyMaxQuantityPercent" onchange="validateNumberInput(this)" required>
+                <p><em>The maximum number of items that a player can buy from a trader in one operation (Value in range from 0 to 1 relative to the size of the storage). Low values of this parameter do not allow players to buy big amount of items from the trader at discounted prices calculated before the dumping caused by the filling of the storage.</em></p>
+            </div>
+        </div>
+        <div class="alert" role="alert" style="visibility: hidden" id="alertMessageBarterTraders"></div>
+        <button type="button" class="btn btn-primary btn-lg" wid onclick="savePageSettings(getBarterTradersDataObject(), '#alertMessageBarterTraders')">Save</button>
+        <script>
+            var currentBarterTraderId = -1;
+            var barterTradersDataobject = JSON.parse('#{m_tradingConfig}')['m_traders'];
+
+            function getBarterTradersDataObject() {
+                return {
+                    m_tradingConfig: {
+                        m_traders: barterTradersDataobject
+                    }
+                };
+            }
+
+            function initializeBarterTradersSelection() {
+                $('#inputBarterTradersSelect').html('');
+                for (var i = 0; i < barterTradersDataobject.length; i++) {
+                    let barterTraderObject = barterTradersDataobject[i];
+                    $('#inputBarterTradersSelect').append('<option value="' + i + '" ' + (i == (barterTradersDataobject.length - 1) ? 'selected' : '') + '>' + barterTraderObject['m_displayName'] + '</option>');
+                }
+            }
+
+            initializeBarterTradersSelection();
+
+            $('#inputBarterTradersSelect').change(function () {
+                let inputs = '#inputBarterTraderName,#inputBarterTraderClassname,#inputBarterTraderAttachments,#inputBarterTraderPosition,#inputBarterTraderRotation,' +
+                    '#inputBarterTraderBuyFilter,#inputBarterTraderSellFilter,#inputBarterTraderStorageMaxSize,#inputBarterTraderStorageCommission,' +
+                    '#inputBarterTraderDumpingByAmountModifier,#inputBarterTraderDumpingByBadQuality,#inputBarterTraderSellMaxQuantityPercent,#inputBarterTraderBuyMaxQuantityPercent';
+
+                let barterTraderId = $(this).val() != undefined ? parseInt($(this).val()) : -1;
+                if (barterTraderId != -1) {
+                    $(inputs).prop("disabled", false);
+
+                    let barterTrader = barterTradersDataobject[barterTraderId];
+                    $('#inputBarterTraderName').val(barterTrader['m_displayName']);
+                    $('#inputBarterTraderClassname').val(barterTrader['m_classname']);
+                    $('#inputBarterTraderAttachments').val(barterTrader['m_attachments'].join('\n'));
+                    $('#inputBarterTraderPosition').val(barterTrader['m_position'][0] + ' ' + barterTrader['m_position'][1] + ' ' + barterTrader['m_position'][2]);
+                    $('#inputBarterTraderRotation').val(barterTrader['m_rotation']);
+                    $('#inputBarterTraderBuyFilter').val(barterTrader['m_buyFilter'].join('\n'));
+                    $('#inputBarterTraderSellFilter').val(barterTrader['m_sellFilter'].join('\n'));
+                    $('#inputBarterTraderStorageMaxSize').val(barterTrader['m_storageMaxSize']);
+                    $('#inputBarterTraderStorageCommission').val(barterTrader['m_storageCommission']);
+                    $('#inputBarterTraderDumpingByAmountModifier').val(barterTrader['m_dumpingByAmountModifier']);
+                    $('#inputBarterTraderDumpingByBadQuality').val(barterTrader['m_dumpingByBadQuality']);
+                    $('#inputBarterTraderSellMaxQuantityPercent').val(barterTrader['m_sellMaxQuantityPercent']);
+                    $('#inputBarterTraderBuyMaxQuantityPercent').val(barterTrader['m_buyMaxQuantityPercent']);
+                }
+                else {
+                    $(inputs).val('');
+                    $(inputs).prop("disabled", true);
+                }
+
+                currentBarterTraderId = barterTraderId;
+            });
+
+            $('#inputBarterTraderName').change(function () {
+                if (currentBarterTraderId != -1) {
+                    barterTradersDataobject[currentBarterTraderId]['m_displayName'] = $(this).val();
+                    $('#inputBarterTradersSelect').find('option[value="' + currentBarterTraderId + '"]').text($(this).val());
+                }
+            });
+            $('#inputBarterTraderClassname').change(function () { if (currentBarterTraderId != -1) barterTradersDataobject[currentBarterTraderId]['m_classname'] = $(this).val(); });
+            $('#inputBarterTraderAttachments').change(function () { if (currentBarterTraderId != -1) barterTradersDataobject[currentBarterTraderId]['m_attachments'] = $(this).val().split('\n').filter(n => n.trim()); });
+            $('#inputBarterTraderPosition').change(function () {
+                if (currentBarterTraderId != -1) {
+                    let pos = $(this).val().split(' ').map(parseFloat);
+                    barterTradersDataobject[currentBarterTraderId]['m_position'] = pos;
+                }
+            });
+            $('#inputBarterTraderRotation').change(function () { if (currentBarterTraderId != -1) barterTradersDataobject[currentBarterTraderId]['m_rotation'] = parseFloat($(this).val()); });
+            $('#inputBarterTraderBuyFilter').change(function () { if (currentBarterTraderId != -1) barterTradersDataobject[currentBarterTraderId]['m_buyFilter'] = $(this).val().split('\n').filter(n => n.trim()); });
+            $('#inputBarterTraderSellFilter').change(function () { if (currentBarterTraderId != -1) barterTradersDataobject[currentBarterTraderId]['m_sellFilter'] = $(this).val().split('\n').filter(n => n.trim()); });
+            $('#inputBarterTraderStorageMaxSize').change(function () { if (currentBarterTraderId != -1) barterTradersDataobject[currentBarterTraderId]['m_storageMaxSize'] = parseInt($(this).val()); });
+            $('#inputBarterTraderStorageCommission').change(function () { if (currentBarterTraderId != -1) barterTradersDataobject[currentBarterTraderId]['m_storageCommission'] = parseFloat($(this).val()); });
+            $('#inputBarterTraderDumpingByAmountModifier').change(function () { if (currentBarterTraderId != -1) barterTradersDataobject[currentBarterTraderId]['m_dumpingByAmountModifier'] = parseFloat($(this).val()); });
+            $('#inputBarterTraderDumpingByBadQuality').change(function () { if (currentBarterTraderId != -1) barterTradersDataobject[currentBarterTraderId]['m_dumpingByBadQuality'] = parseFloat($(this).val()); });
+            $('#inputBarterTraderSellMaxQuantityPercent').change(function () { if (currentBarterTraderId != -1) barterTradersDataobject[currentBarterTraderId]['m_sellMaxQuantityPercent'] = parseFloat($(this).val()); });
+            $('#inputBarterTraderBuyMaxQuantityPercent').change(function () { if (currentBarterTraderId != -1) barterTradersDataobject[currentBarterTraderId]['m_buyMaxQuantityPercent'] = parseFloat($(this).val()); });
+
+            $('#inputBarterTraderNew').click(function () {
+                var maxId = 0;
+                for (let trader of barterTradersDataobject) {
+                    if (trader['m_traderId'] > maxId) {
+                        maxId = trader['m_traderId'];
+                    }
+                }
+
+                barterTradersDataobject.push({
+                    m_traderId: maxId + 1,
+                    m_displayName: 'Trader ' + (barterTradersDataobject.length + 1),
+                    m_classname: 'SurvivorM_Boris',
+                    m_attachments: [],
+                    m_position: [0, 0, 0],
+                    m_rotation: 0,
+                    m_buyFilter: ["Inventory_Base", "DefaultWeapon", "DefaultMagazine"],
+                    m_sellFilter: ["Inventory_Base", "DefaultWeapon", "DefaultMagazine", "!RDG2SmokeGrenade_ColorBase", "!M18SmokeGrenade_ColorBase"],
+                    m_storageMaxSize: 1000,
+                    m_storageCommission: 0.25,
+                    m_dumpingByAmountAlgorithm: 'linear',
+                    m_dumpingByAmountModifier: 0.01,
+                    m_dumpingByBadQuality: 0.5,
+                    m_sellMaxQuantityPercent: 0.1,
+                    m_buyMaxQuantityPercent: 0.1,
+                });
+
+                initializeBarterTradersSelection();
+                $('#inputBarterTradersSelect').change();
+            });
+            $('#inputBarterTraderDelete').click(function () {
+                if (currentBarterTraderId != -1) {
+                    if (confirm('Are you sure you want to delete current trader?')) {
+                        barterTradersDataobject.remove(currentBarterTraderId);
+                        initializeBarterTradersSelection();
+                        $('#inputBarterTradersSelect').change();
+                    }
+                }
+            });
+
+            $('#inputBarterTradersSelect').change();
+        </script>
     </div>
     <div class="tab-pane" id="zones" role="tabpanel" aria-labelledby="zones-tab">
-        Zones
+        <h3>Zones:</h3>
+        <div class="input-group">
+            <div class="input-group-prepend">
+                <button class="btn btn-outline-secondary" type="button" id="inputZoneNew">New</button>
+            </div>
+            <select class="custom-select" id="inputZonesSelect"></select>
+            <div class="input-group-append">
+                <button class="btn btn-outline-secondary" type="button" id="inputZoneDelete">Delete</button>
+            </div>
+        </div>
+        <br>
+        <h5>Zone parameters:</h5>
+        <p id="inputZoneDefaultInfo"><em>Default zone applies to the whole game world and affects the player when it's not inside any other zone. You cannot delete default zone.</em></p>
+        <br>
+        <div class="form-group row">
+            <label for="inputZoneName" class="col-sm-2 col-form-label">Name:</label>
+            <div class="col-sm-10">
+                <input type="text" class="form-control" id="inputZoneName" required>
+                <p><em>Displayed only in the admin panel.</em></p>
+            </div>
+        </div>
+        <div class="form-group row">
+            <label for="inputZonePosition" class="col-sm-2 col-form-label">Position:</label>
+            <div class="col-sm-10">
+                <input type="text" class="form-control" onchange="validateVectorInput(this)" id="inputZonePosition" required>
+                <p><em>The position (XYZ coordinates) of the zone in the world.</em></p>
+            </div>
+        </div>
+        <div class="form-group row">
+            <label for="inputZoneRadius" class="col-sm-2 col-form-label">Radius:</label>
+            <div class="col-sm-10">
+                <input type="number" min="1" max="10000" step="any" class="form-control" id="inputZoneRadius" onchange="validateNumberInput(this)" required>
+                <p><em>The radius of the zone. Do not use too high values (greater 300m) for gas zones to prevent players from dropping FPS.</em></p>
+            </div>
+        </div>
+        <div class="form-group row">
+            <label for="inputZoneHeightEnable" class="col-sm-2 col-form-label">Height:</label>
+            <div class="col-sm-10">
+                <input type="checkbox" class="form-check-input" id="inputZoneHeightEnable">
+                <input type="number" min="1" max="10000" step="any" class="form-control" id="inputZoneHeight" onchange="validateNumberInput(this)">
+                <p><em>When using this parameter, the player's position in the zone is determined not by a sphere with a radius, but by a cylinder with a radius and height.</em></p>
+            </div>
+        </div>
+        <div class="form-group row">
+            <label for="inputZoneEnterMessage" class="col-sm-2 col-form-label">Zone entry message:</label>
+            <div class="col-sm-10">
+                <input type="text" class="form-control" id="inputZoneEnterMessage" required>
+                <p><em>This message will be displayed to the player is enters the zone. If there is no need to show it for player make this field empty.</em></p>
+            </div>
+        </div>
+        <div class="form-group row">
+            <label for="inputZoneLeaveMessage" class="col-sm-2 col-form-label">Zone leave message:</label>
+            <div class="col-sm-10">
+                <input type="text" class="form-control" id="inputZoneLeaveMessage" required>
+                <p><em>This message will be displayed to the player is leaving from zone. If there is no need to show it for player make this field empty.</em></p>
+            </div>
+        </div>
+        <div class="form-group row">
+            <label for="inputZoneLeaveTimer" class="col-sm-2 col-form-label">Leave timeout:</label>
+            <div class="col-sm-10">
+                <input type="number" min="0" max="300" step="1" class="form-control" id="inputZoneLeaveTimer" onchange="validateNumberInput(this)" required>
+                <p><em>The time (in seconds) during which the player will be considered inside the zone after leaving it.</em></p>
+            </div>
+        </div>
+        <div class="form-group row">
+            <label for="inputZoneGodMode" class="col-sm-2 col-form-label">God mode:</label>
+            <div class="col-sm-10">
+                <input type="checkbox" class="form-check-input" id="inputZoneGodMode">
+                <p><em>If this parameter is activated, players inside this zone do not take damage and become immortal. Suitable for safe-zones.</em></p>
+            </div>
+        </div>
+        <div class="form-group row">
+            <label for="inputZoneInverseDammage" class="col-sm-2 col-form-label">Inverse damage:</label>
+            <div class="col-sm-10">
+                <input type="checkbox" class="form-check-input" id="inputZoneInverseDammage">
+                <p><em>If this parameter is activated, players inside this zone take inverted damage and injuries when attacking other survivors. This parameter does not invert damage from zombies and animals. A headshot from a weapon is fatal to both the victim and the aggressor. All kills inside this zone reporting to log. The aggressor will take full damage from other survivors until the next server restart. Suitable for PVE zones.</em></p>
+            </div>
+        </div>
+        <div class="form-group row">
+            <label for="inputZoneBlockBuildingMode" class="col-sm-2 col-form-label">Block building:</label>
+            <div class="col-sm-10">
+                <input type="checkbox" class="form-check-input" id="inputZoneBlockBuildingMode">
+                <p><em>If this option is enabled, players inside this zone do not build any objects. Suitable for safe-zones and military-zones.</em></p>
+            </div>
+        </div>
+        <div class="form-group row">
+            <label for="inputZoneBlockInteractionWithPlayers" class="col-sm-2 col-form-label">Block interaction:</label>
+            <div class="col-sm-10">
+                <input type="checkbox" class="form-check-input" id="inputZoneBlockInteractionWithPlayers">
+                <p><em>If this option is enabled, players inside this zone do not interact with other players (like feed or injections). Suitable for safe-zones.</em></p>
+            </div>
+        </div>
+        <div class="form-group row">
+            <label for="inputZoneGas" class="col-sm-2 col-form-label">Gas zone:</label>
+            <div class="col-sm-10">
+                <input type="checkbox" class="form-check-input" id="inputZoneGas">
+                <p><em>There will be poison gas inside this zone. Do not set this value for areas that are too large, as this can provide to a FPS drops.</em></p>
+            </div>
+        </div>
+        <div class="form-group row">
+            <label for="inputZoneRadiation" class="col-sm-2 col-form-label">Radiation:</label>
+            <div class="col-sm-10">
+                <input type="number" min="0" max="100" step="any" class="form-control" id="inputZoneRadiation" onchange="validateNumberInput(this)" required>
+                <p><em>Inside this zone, players will accumulate radiation. The higher the value, the stronger the radiation. (For 0 value - radiation is disabled).</em></p>
+            </div>
+        </div>
+        <div class="form-group row">
+            <label for="inputZonePsi" class="col-sm-2 col-form-label">PSI:</label>
+            <div class="col-sm-10">
+                <input type="number" min="0" max="100" step="any" class="form-control" id="inputZonePsi" onchange="validateNumberInput(this)" required>
+                <p><em>Inside this zone, players will be affected by the PSI emitting affecting the sanity. The higher the value, the stronger the emitting. (For a value of 0 - emitting is disabled).</em></p>
+            </div>
+        </div>
+        <div class="form-group row">
+            <label for="inputZoneSpawnChance" class="col-sm-2 col-form-label">Spawn chance:</label>
+            <div class="col-sm-10">
+                <input type="number" min="0" max="1" step="any" class="form-control" id="inputZoneSpawnChance" onchange="validateNumberInput(this)" required>
+                <p><em>The chance of spawn this zone. (0 - never; 1 - always; 0.5 - 50%)</em></p>
+            </div>
+        </div>
+        <div class="alert" role="alert" style="visibility: hidden" id="alertMessageZones"></div>
+        <button type="button" class="btn btn-primary btn-lg" wid onclick="savePageSettings(getZonesDataObject(), '#alertMessageZones')">Save</button>
+        <script>
+            var currentZoneId = undefined;
+            var zonesConfig = JSON.parse('#{m_zonesConfig}');
+            var zoneDefault = zonesConfig['m_defaultZone'];
+            var zonesCustom = zonesConfig['m_customZones'];
+
+            function getZonesDataObject() {
+                return {
+                    m_zonesConfig: zonesConfig
+                };
+            }
+
+            function initializeZonesSelection(selectLast) {
+                $('#inputZonesSelect').html('<option value="default"' + (selectLast ? '' : ' selected') + '>' + zoneDefault['m_displayName'] + '</option>');
+                for (var i = 0; i < zonesCustom.length; i++) {
+                    let zoneObject = zonesCustom[i];
+                    $('#inputZonesSelect').append('<option value="' + i + '"' + ((selectLast && i == zonesCustom.length - 1) ? ' selected' : '') + '>' + zoneObject['m_displayName'] + '</option>');
+                }
+            }
+
+            initializeZonesSelection(false);
+
+            $('#inputZonesSelect').change(function () {
+                let inputs = '#inputZoneName,#inputZonePosition,#inputZoneRadius,#inputZoneHeightEnable,#inputZoneHeight,#inputZoneEnterMessage,#inputZoneLeaveMessage,#inputZoneLeaveTimer,#inputZoneGodMode,#inputZoneInverseDammage,#inputZoneBlockBuildingMode,#inputZoneBlockInteractionWithPlayers,#inputZoneGas,#inputZoneRadiation,#inputZonePsi,#inputZoneSpawnChance';
+                let nonDefaultInputs = '#inputZoneName,#inputZonePosition,#inputZoneRadius,#inputZoneHeightEnable,#inputZoneHeight,#inputZoneEnterMessage,#inputZoneLeaveMessage,#inputZoneLeaveTimer,#inputZoneGas,#inputZoneSpawnChance';
+
+                let zoneId = $(this).val();
+                if (zoneId != undefined) {
+                    $(inputs).prop("disabled", false);
+
+                    let zone = zoneDefault;
+                    if (zoneId != 'default') {
+                        zone = zonesCustom[parseInt(zoneId)];
+                        $(nonDefaultInputs).prop("disabled", false);
+                        $('#inputZoneDefaultInfo').css('visibility', 'hidden');
+                    }
+                    else {
+                        $(nonDefaultInputs).prop("disabled", true);
+                        $('#inputZoneDefaultInfo').css('visibility', 'visible');
+                    }
+
+                    $('#inputZoneName').val(zone['m_displayName']);
+                    $('#inputZonePosition').val(zone['m_position'][0] + ' ' + zone['m_position'][1] + ' ' + zone['m_position'][2]);
+                    $('#inputZoneRadius').val(zone['m_radius']);
+
+                    $('#inputZoneHeightEnable').prop('checked', zone['m_height'] > 0);
+                    $('#inputZoneHeight').val(zone['m_height'] > 0 ? zone['m_height'] : 1);
+                    $('#inputZoneHeight').prop("disabled", zone['m_height'] <= 0);
+
+                    $('#inputZoneEnterMessage').val(zone['m_enterMessage']);
+                    $('#inputZoneLeaveMessage').val(zone['m_leaveMessage']);
+                    $('#inputZoneLeaveTimer').val(zone['m_leaveTime']);
+                    $('#inputZoneGodMode').prop('checked', zone['m_godMode'] > 0);
+                    $('#inputZoneInverseDammage').prop('checked', zone['m_inverseDammage'] > 0);
+                    $('#inputZoneBlockBuildingMode').prop('checked', zone['m_blockBuildingMode'] > 0);
+                    $('#inputZoneBlockInteractionWithPlayers').prop('checked', zone['m_blockInteractionWithPlayers'] > 0);
+                    $('#inputZoneGas').prop('checked', zone['m_gas'] > 0);
+                    $('#inputZoneRadiation').val(zone['m_radiation']);
+                    $('#inputZonePsi').val(zone['m_psi']);
+                    $('#inputZoneSpawnChance').val(zone['m_spawnChance']);
+                }
+                else {
+                    $(inputs).val('');
+                    $(inputs).prop("disabled", true);
+                }
+
+                currentZoneId = zoneId;
+            });
+
+            $('#inputZoneName').change(function () {
+                if (currentZoneId != undefined && currentZoneId != 'default') {
+                    zonesCustom[parseInt(currentZoneId)]['m_displayName'] = $(this).val();
+                    $('#inputZonesSelect').find('option[value="' + currentZoneId + '"]').text($(this).val());
+                }
+            });
+
+            $('#inputZonePosition').change(function () {
+                if (currentZoneId != undefined && currentZoneId != 'default') {
+                    let pos = $(this).val().split(' ').map(parseFloat);
+                    zonesCustom[parseInt(currentZoneId)]['m_position'] = pos;
+                }
+            });
+
+            $('#inputZoneRadius').change(function () { if (currentZoneId != undefined && currentZoneId != 'default') zonesCustom[parseInt(currentZoneId)]['m_radius'] = parseFloat($(this).val()); });
+            $('#inputZoneHeightEnable').change(function () {
+                if (currentZoneId != undefined && currentZoneId != 'default') {
+                    let checked = $(this).is(':checked');
+                    zonesCustom[parseInt(currentZoneId)]['m_height'] = checked ? parseFloat($('#inputZoneHeight').val()) : -1;
+                    $('#inputZoneHeight').prop("disabled", !checked);
+                    validateNumberInput('#inputZoneHeight');
+                }
+            });
+            $('#inputZoneHeight').change(function () { if (currentZoneId != undefined && currentZoneId != 'default') zonesCustom[parseInt(currentZoneId)]['m_height'] = $('#inputZoneHeightEnable').is(':checked') ? parseFloat($(this).val()) : -1; });
+
+            $('#inputZoneEnterMessage').change(function () { if (currentZoneId != undefined && currentZoneId != 'default') zonesCustom[parseInt(currentZoneId)]['m_enterMessage'] = $(this).val(); });
+            $('#inputZoneLeaveMessage').change(function () { if (currentZoneId != undefined && currentZoneId != 'default') zonesCustom[parseInt(currentZoneId)]['m_leaveMessage'] = $(this).val(); });
+            $('#inputZoneLeaveTimer').change(function () { if (currentZoneId != undefined && currentZoneId != 'default') zonesCustom[parseInt(currentZoneId)]['m_leaveTime'] = parseInt($(this).val()); });
+
+            $('#inputZoneGodMode').change(function () {
+                if (currentZoneId != undefined) {
+                    if (currentZoneId == 'default') {
+                        zoneDefault['m_godMode'] = $(this).is(':checked') ? 1 : 0;
+                    }
+                    else {
+                        zonesCustom[parseInt(currentZoneId)]['m_godMode'] = $(this).is(':checked') ? 1 : 0;
+                    }
+                }
+            });
+            $('#inputZoneInverseDammage').change(function () {
+                if (currentZoneId != undefined) {
+                    if (currentZoneId == 'default') {
+                        zoneDefault['m_inverseDammage'] = $(this).is(':checked') ? 1 : 0;
+                    }
+                    else {
+                        zonesCustom[parseInt(currentZoneId)]['m_inverseDammage'] = $(this).is(':checked') ? 1 : 0;
+                    }
+                }
+            });
+            $('#inputZoneBlockBuildingMode').change(function () {
+                if (currentZoneId != undefined) {
+                    if (currentZoneId == 'default') {
+                        zoneDefault['m_blockBuildingMode'] = $(this).is(':checked') ? 1 : 0;
+                    }
+                    else {
+                        zonesCustom[parseInt(currentZoneId)]['m_blockBuildingMode'] = $(this).is(':checked') ? 1 : 0;
+                    }
+                }
+            });
+            $('#inputZoneBlockInteractionWithPlayers').change(function () {
+                if (currentZoneId != undefined) {
+                    if (currentZoneId == 'default') {
+                        zoneDefault['m_blockInteractionWithPlayers'] = $(this).is(':checked') ? 1 : 0;
+                    }
+                    else {
+                        zonesCustom[parseInt(currentZoneId)]['m_blockInteractionWithPlayers'] = $(this).is(':checked') ? 1 : 0;
+                    }
+                }
+            });
+
+            $('#inputZoneGas').change(function () { if (currentZoneId != undefined && currentZoneId != 'default') zonesCustom[parseInt(currentZoneId)]['m_gas'] = $(this).is(':checked') ? 1 : 0; });
+
+            $('#inputZoneRadiation').change(function () {
+                if (currentZoneId != undefined) {
+                    if (currentZoneId == 'default') {
+                        zoneDefault['m_radiation'] = parseFloat($(this).val());
+                    }
+                    else {
+                        zonesCustom[parseInt(currentZoneId)]['m_radiation'] = parseFloat($(this).val());
+                    }
+                }
+            });
+            $('#inputZonePsi').change(function () {
+                if (currentZoneId != undefined) {
+                    if (currentZoneId == 'default') {
+                        zoneDefault['m_psi'] = parseFloat($(this).val());
+                    }
+                    else {
+                        zonesCustom[parseInt(currentZoneId)]['m_psi'] = parseFloat($(this).val());
+                    }
+                }
+            });
+
+            $('#inputZoneSpawnChance').change(function () { if (currentZoneId != undefined && currentZoneId != 'default') zonesCustom[parseInt(currentZoneId)]['m_spawnChance'] = parseFloat($(this).val()); });
+
+
+            $('#inputZoneNew').click(function () {
+                var maxId = 0;
+                for (let zone of zonesCustom) {
+                    if (zone['m_id'] > maxId) {
+                        maxId = zone['m_id'];
+                    }
+                }
+
+                zonesCustom.push({
+                    m_id: maxId + 1,
+                    m_displayName: 'Zone ' + (zonesCustom.length + 1),
+                    m_position: [0, 0, 0],
+                    m_radius: 10,
+                    m_height: -1,
+                    m_enterMessage: '',
+                    m_leaveMessage: '',
+                    m_leaveTime: 0,
+                    m_godMode: 0,
+                    m_inverseDammage: 0,
+                    m_blockBuildingMode: 0,
+                    m_blockInteractionWithPlayers: 0,
+                    m_radiation: 0,
+                    m_psi: 0,
+                    m_gas: 0,
+                    m_spawnChance: 1
+                });
+
+                initializeZonesSelection(true);
+                $('#inputZonesSelect').change();
+            });
+            $('#inputZoneDelete').click(function () {
+                if (currentZoneId != undefined && currentZoneId != 'default') {
+                    if (confirm('Are you sure you want to delete current zone?')) {
+                        zonesCustom.remove(parseInt(currentZoneId));
+                        initializeZonesSelection(false);
+                        $('#inputZonesSelect').change();
+                    }
+                }
+            });
+
+            $('#inputZonesSelect').change();
+        </script>
     </div>
     <div class="tab-pane" id="variables" role="tabpanel" aria-labelledby="variables-tab">
         Variables
@@ -1673,12 +2209,14 @@
             $(alertMessage).addClass('alert-success');
             $(alertMessage).html('Changes successfully saved. Please restart DayZ server to apply them.');
             $(alertMessage).css('visibility', 'visible');
+            $(alertMessage).fadeIn(0).delay(5000).fadeOut(1000);
             console.log('Settings successfully changed.');
         }).fail(function (err) {
             $(alertMessage).removeClass('alert-success');
             $(alertMessage).addClass('alert-danger');
             $(alertMessage).html(err.status == 0 ? 'Service is unreachable. Please check is server running or internet connection.' : 'Internal server error. Failed to save changes.');
             $(alertMessage).css('visibility', 'visible');
+            $(alertMessage).fadeIn(0);
             console.error('Failed to change settings.');
         });
     };
