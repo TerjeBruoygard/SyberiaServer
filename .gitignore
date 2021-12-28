@@ -10,6 +10,10 @@
 /webpanel/obj
 /webpanel/packages
 /webpanel/.vs
+/database/bin
+/database/obj
+/database/packages
+/database/.vs
 /*/*.csproj.user
 .vs
 packages

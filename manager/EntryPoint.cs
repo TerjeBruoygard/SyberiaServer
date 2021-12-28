@@ -3,6 +3,7 @@ using NLog;
 using NLog.Config;
 using NLog.Layouts;
 using NLog.Targets;
+using SyberiaDatabase;
 using SyberiaWebPanel;
 using System;
 using System.IO;
