@@ -23,11 +23,9 @@
     <li class="nav-item">
         <a class="nav-link" id="zones-tab" data-toggle="tab" href="#zones" role="tab" aria-controls="zones" aria-selected="false">Zones</a>
     </li>
-    <!--
     <li class="nav-item">
         <a class="nav-link" id="variables-tab" data-toggle="tab" href="#variables" role="tab" aria-controls="variables" aria-selected="false">Variables</a>
     </li>
-    -->
 </ul>
 <div class="tab-content" style="margin-top: 30px; margin-left: 50px; margin-right: 50px; margin-bottom: 30px">
     <div class="tab-pane active" id="players" role="tabpanel" aria-labelledby="players-tab">
@@ -2190,11 +2188,40 @@
             $('#inputZonesSelect').change();
         </script>
     </div>
-    <!--
     <div class="tab-pane" id="variables" role="tabpanel" aria-labelledby="variables-tab">
-        Variables
+        <div id="internalVariablesContentBase">
+            <div class="container">
+                <div class="row">
+                    <div class="col text-center">
+                        <div class="alert alert-warning" role="alert">DO NOT CHANGE INTERNAL VARIABLES IF YOU DON'T KNOW HOW IT WORKS!</div>
+                        <br>
+                        <button type="button" class="btn btn-primary btn-md" onclick="loadInternalVariablesList(this)">Load internal variables list</button>
+                        <div class="alert alert-danger" role="alert" style="visibility: hidden" id="alertMessageInternalVariables"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <script>
+            function loadInternalVariablesList(button) {
+                $(button).prop("disabled", true);
+                $('#internalVariablesContentBase').load("/internalVariables", userData, function (response, status, xhr) {
+                    if (status == "success") {
+                        console.log('Internal variables list successfully loaded.');
+                    }
+                    else {
+                        $(button).prop("disabled", false);
+                        $("#alertMessageInternalVariables").css('visibility', 'visible');
+                        if (xhr.status == 0) {
+                            $("#alertMessageInternalVariables").html('Service is unreachable. Please check is server running or internet connection.');
+                        }
+                        else {
+                            $("#alertMessageInternalVariables").html('Service is temporarily unavailable.');
+                        }
+                    }
+                });
+            }
+        </script>
     </div>
-    -->
 </div>
 <script>
     function validateVectorInput(field) {
@@ -2214,6 +2241,38 @@
             parts[i] = num.toString();
         }
         $(field).val(parts[0] + ' ' + parts[1] + ' ' + parts[2]);
+    }
+
+    function validateArrayInput(field) {
+        var value = $(field).val();
+        var parts = value.split(' ');
+        var size = parseInt($(field).attr('array-size'));
+        var intCheck = $(field).attr('step') && $(field).attr('step') === '1';
+        while (parts.length < size) {
+            parts.push('0');
+        }
+        while (parts.length > size) {
+            parts.pop();
+        }
+        for (var i = 0; i < parts.length; i++) {
+            var num = parseFloat(parts[i]);
+            if (isNaN(num)) {
+                num = 0;
+            }
+            if (intCheck) {
+                num = Math.round(num);
+            }
+            parts[i] = num.toString();
+        }
+        var result = '';
+        for (var i = 0; i < size; i++) {
+            if (result.length > 0) {
+                result += ' ';
+            }
+            result += parts[i];
+        }
+
+        $(field).val(result);
     }
 
     function validateNumberInput(field) {

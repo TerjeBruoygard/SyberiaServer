@@ -1,0 +1,120 @@
+<button type="button" class="btn btn-primary btn-md" wid onclick="saveInternalVariables(this)">Export variables & Build PBO</button>
+<br>
+<div class="alert" role="alert" style="visibility: hidden" id="alertMessageInternalVariables"></div>
+<div id="internalVariablesCotainer">
+
+</div>
+<script>
+    let internalVariablesData = JSON.parse('#{CfgSyberia}');
+    let internalVariablesOverrides = JSON.parse('#{OverridedVariables}');
+    let internalVariablesTypes = JSON.parse('#{VariableTypes}');
+
+    $('#internalVariablesCotainer').html('');
+    for (const [keySection, valueSection] of Object.entries(internalVariablesData)) {
+        var htmlContent =
+            '<h3>' + keySection + '</h3>' +
+            '<table class="table">' +
+            '   <thead><tr>' +
+            '   <th scope="col">Name</th><th scope="col">Type</th><th scope="col">Override</th><th scope="col">Value</th>' +
+            '   </tr></thead>' +
+            '   <tbody>';
+
+        for (const [keyVariable, valueVariable] of Object.entries(valueSection)) {
+            let variableName = keySection + '.' + keyVariable;
+            let variableType = internalVariablesTypes[variableName];
+            let variableDisabled = internalVariablesOverrides[variableName] ? '' : ' disabled';
+            var variableInput = 'Not supported';
+            if (variableType == 'Int32') {
+                variableType = 'Integer';
+                variableInput = '<input variable-id="' + variableName + '" variable-role="inputer" type="number" step="1" class="form-control" onchange="validateNumberInput(this)" value="' + parseInt(valueVariable) + '"' + variableDisabled + '>';
+            }
+            else if (variableType == 'Single') {
+                variableType = 'Float';
+                variableInput = '<input variable-id="' + variableName + '" variable-role="inputer" type="number" step="any" class="form-control" onchange="validateNumberInput(this)" value="' + parseFloat(valueVariable) + '"' + variableDisabled + '>';
+            }
+            else if (variableType == 'Boolean') {
+                variableInput = '<input variable-id="' + variableName + '" variable-role="inputer" type="checkbox"' + (valueVariable ? 'checked' : '') + variableDisabled + '>';
+            }
+            else if (variableType == 'Int32[]') {
+                variableType = 'Integer[' + valueVariable.length + ']';
+                variableInput = '<input variable-id="' + variableName + '" variable-role="inputer" type="text" step="1" class="form-control" array-size="' + valueVariable.length + '" onchange="validateArrayInput(this)" value="' + valueVariable.join(' ') + '"' + variableDisabled + '>';
+            }
+            else if (variableType == 'Single[]') {
+                variableType = 'Float[' + valueVariable.length + ']';
+                variableInput = '<input variable-id="' + variableName + '" variable-role="inputer" type="text" step="any" class="form-control" array-size="' + valueVariable.length + '" onchange="validateArrayInput(this)" value="' + valueVariable.join(' ') + '"' + variableDisabled + '>';
+            }
+
+            htmlContent +=
+                '<tr>' +
+                '   <td>' + keyVariable + '</td>' +
+                '   <td>' + variableType + '</td>' +
+                '   <td><input variable-role="overrider" variable-id="' + variableName + '" type="checkbox"' + (internalVariablesOverrides[variableName] ? 'checked' : '') + '></td>' +
+                '   <td>' + variableInput + '</td>' +
+                '</tr>';
+        }
+        htmlContent +=
+            '   </tbody>' +
+            '</table>' +
+            '<br><br><br>';
+
+        $('#internalVariablesCotainer').append(htmlContent);
+    }
+
+    $('input[variable-role="overrider"]').change(function () {
+        let varId = $(this).attr('variable-id');
+        internalVariablesOverrides[varId] = internalVariablesOverrides[varId] ? false : true;
+        $(this).prop('checked', internalVariablesOverrides[varId]);
+        $('input[variable-role="inputer"][variable-id="' + varId + '"]').prop('disabled', !internalVariablesOverrides[varId]);
+    });
+
+    function saveInternalVariables(button) {
+        if (confirm('Are you sure you want to apply internal variables on the server?')) {
+            $(button).prop('disabled', true);
+            var dataObject = {};
+            for (const [varId, isOverrided] of Object.entries(internalVariablesOverrides)) {
+                if (isOverrided) {
+                    var varValue = $('input[variable-role="inputer"][variable-id="' + varId + '"]').val();
+                    let varType = internalVariablesTypes[varId];
+                    if (varType == 'Int32') {
+                        dataObject[varId] = parseInt(varValue);
+                    }
+                    else if (varType == 'Single') {
+                        dataObject[varId] = parseFloat(varValue);
+                    }
+                    else if (varType == 'Boolean') {
+                        dataObject[varId] = $('input[variable-role="inputer"][variable-id="' + varId + '"]').is(':checked');
+                    }
+                    else if (varType == 'Int32[]') {
+                        dataObject[varId] = varValue.split(' ').map(parseInt);
+                    }
+                    else if (varType == 'Single[]') {
+                        dataObject[varId] = varValue.split(' ').map(parseFloat);
+                    }
+                }
+            }
+
+            var requestData = {
+                auth: userData,
+                request: dataObject
+            };
+
+            $.post("/internalVariablesApply", JSON.stringify(requestData), function (data) {
+                $('#alertMessageInternalVariables').removeClass('alert-danger');
+                $('#alertMessageInternalVariables').addClass('alert-success');
+                $('#alertMessageInternalVariables').html('Internal variables applied successfully. Please restart DayZ server.');
+                $('#alertMessageInternalVariables').css('visibility', 'visible');
+                $('#alertMessageInternalVariables').fadeIn(0).delay(5000).fadeOut(1000);
+                console.log('Internal variables successfully applied.');
+                $(button).prop('disabled', false);
+            }).fail(function (err) {
+                $('#alertMessageInternalVariables').removeClass('alert-success');
+                $('#alertMessageInternalVariables').addClass('alert-danger');
+                $('#alertMessageInternalVariables').html(err.status == 0 ? 'Service is unreachable. Please check is server running or internet connection.' : 'Internal server error. Failed to apply internal variables.');
+                $('#alertMessageInternalVariables').css('visibility', 'visible');
+                $('#alertMessageInternalVariables').fadeIn(0);
+                console.error('Failed to save internal variables.');
+                $(button).prop('disabled', false);
+            });
+        }
+    }
+</script>
