@@ -262,7 +262,13 @@ namespace SyberiaWebPanel
                 public int zvirusStage1TimeSec = 600; // 10 min
                 public int zvirusStage2TimeSec = 2400; // zvirusStage1TimeSec + 40 min
                 public int zvirusDeathTimeSec = 1200;
-                public int zvirusBloodRegenPerSec = 2;
+                public float zvirusBloodLosePerSec = 0.06f;
+                public float zvirusHealthLosePerSec = 0.005f;
+                public float zvirusCuthitSpawnChance = 0.005f;
+                public float zvirusPainSpawnChance = 0.002f;
+                public float zvirusVommitSpawnChance = 0.001f;
+                public float zvirusBlindnessSpawnChance = 0.01f;
+                public float zvirusFeverblurSpawnChance = 0.01f;
                 public int zvirusOnHitIncrementTimer = 300;
                 public float zvirusZombieHitChance = 0.2f;
                 public float zvirusZombieBloodTransferChance = 0.1f;
@@ -324,6 +330,7 @@ namespace SyberiaWebPanel
                 public int[] stomatchpoisonRottenFood = new int[] { 2, 600 }; // level, seconds * amount
                 public int[] stomatchpoisonDirtyHands = new int[] { 1, 300 }; // level, seconds * amount
                 public int[] stomatchpoisonInfection = new int[] { 1, 500 }; // level, seconds * amount
+                public int[] stomatchpoisonGasoline = new int[] { 2, 900 }; // level, seconds * amount
                 public float stomatchpoisonChanceDrinkPond = 0.5f;
                 public int[] stomatchpoisonDrinkPond = new int[] { 2, 200 };
                 public float stomatchpoisonChanceDrinkWell = 0.01f;
@@ -364,7 +371,7 @@ namespace SyberiaWebPanel
 
             public class AnimalsSystemType
             {
-                public float animalsButchingKnifeDamage = 0.4f;
+                public float animalsButchingKnifeDamage = 100;
             };
 
             public class IngameSystemType
@@ -375,6 +382,7 @@ namespace SyberiaWebPanel
                 public float gasMaskFilterDegradationDefault = -0.05f;
                 public float igniteFireplaceBaseSkillcheckChance = 0.2f;
                 public float igniteFireplaceIndoorAdditionalChance = 0.3f;
+                public float damageClothingInRadiationZone = 0.0f;
             };
 
             public class SkillsExperienceSystemType

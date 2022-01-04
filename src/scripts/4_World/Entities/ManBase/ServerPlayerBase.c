@@ -626,7 +626,7 @@ modded class PlayerBase
 		
 		if (m_zoneRadTotalValue > 0)
 		{
-			float radIncrement = (1.0 - GetRadiationProtection()) * m_zoneRadTotalValue;
+			float radIncrement = (1.0 - CalculateRadiationProtection()) * m_zoneRadTotalValue;
 			if (radIncrement > 0)
 			{
 				AddRadiationDose(radIncrement);
@@ -1124,6 +1124,16 @@ modded class PlayerBase
 			if (source.ContainsAgent(eAgents.SALMONELLA) || source.ContainsAgent(eAgents.CHOLERA) || source.ContainsAgent(eAgents.FOOD_POISON))
 			{
 				SetStomatchPoison(GetSyberiaConfig().m_stomatchpoisonInfection[0], GetSyberiaConfig().m_stomatchpoisonInfection[1] * amount);
+			}
+			
+			if (source.IsLiquidContainer())
+			{
+				int liquid_type = source.GetLiquidType();
+				string liquidClassName = Liquid.GetLiquidClassname(liquid_type);
+				if (liquidClassName == "Gasoline" || liquidClassName == "Diesel")
+				{
+					SetStomatchPoison(GetSyberiaConfig().m_stomatchpoisonGasoline[0], GetSyberiaConfig().m_stomatchpoisonGasoline[1] * amount);
+				}
 			}
 			
 			if (source.IsTemperatureVisible())
@@ -1633,7 +1643,48 @@ modded class PlayerBase
 					MarkSybStatsDirty(18);
 				}
 				
-				AddHealth("GlobalHealth","Blood", GetSyberiaConfig().m_zvirusBloodRegenPerSec * deltaTime);
+				DecreaseHealth("GlobalHealth", "Blood", GetSyberiaConfig().m_zvirusBloodLosePerSec * deltaTime);
+				DecreaseHealth("GlobalHealth", "Health", GetSyberiaConfig().m_zvirusHealthLosePerSec * deltaTime);
+				
+				if (Math.RandomFloat01() < deltaTime * GetSyberiaConfig().m_zvirusCuthitSpawnChance)
+				{
+					GetBleedingManagerServer().AttemptAddBleedingSource( Math.RandomIntInclusive(0, 5) );
+				}
+				else if (Math.RandomFloat01() < deltaTime * GetSyberiaConfig().m_zvirusPainSpawnChance)
+				{
+					if (GetBleedingManagerServer().GetPainLevel() == 1 && Math.RandomFloat01() < 0.1)
+					{
+						GetBleedingManagerServer().SetPainLevel(2);
+					}
+					else
+					{
+						GetBleedingManagerServer().SetPainLevel(1);
+					}
+				}
+				else if (Math.RandomFloat01() < deltaTime * GetSyberiaConfig().m_zvirusVommitSpawnChance)
+				{
+					SymptomBase symptom1 = GetSymptomManager().QueueUpPrimarySymptom(SymptomIDs.SYMPTOM_VOMIT);				
+					if ( symptom1 ) symptom1.SetDuration(3);
+					
+					int waterDrain = GetSyberiaConfig().m_stomatchpoisonWaterDrainFromVomit[0];
+					int energyDrain = GetSyberiaConfig().m_stomatchpoisonEnergyDrainFromVomit[0];
+	
+					if (GetStatWater().Get() > waterDrain)
+						GetStatWater().Add(-1 * waterDrain);
+					
+					if (GetStatEnergy().Get() > energyDrain)
+						GetStatEnergy().Add(-1 * energyDrain);
+				}
+				else if (Math.RandomFloat01() < deltaTime * GetSyberiaConfig().m_zvirusBlindnessSpawnChance)
+				{
+					SymptomBase symptom2 = GetSymptomManager().QueueUpSecondarySymptomEx(SymptomIDs.SYMPTOM_BLINDNESS);				
+					if ( symptom2 ) symptom2.SetDuration(15);
+				}
+				else if (Math.RandomFloat01() < deltaTime * GetSyberiaConfig().m_zvirusFeverblurSpawnChance)
+				{
+					SymptomBase symptom3 = GetSymptomManager().QueueUpSecondarySymptomEx(SymptomIDs.SYMPTOM_FEVERBLUR);				
+					if ( symptom3 ) symptom3.SetDuration(30);
+				}
 			}
 			
 			if (m_zvirusTimer > GetSyberiaConfig().m_zvirusStage2TimeSec)
@@ -1645,7 +1696,7 @@ modded class PlayerBase
 				}
 				
 				float maxHealth = GetMaxHealth("GlobalHealth","Health");
-				DecreaseHealth("GlobalHealth","Health", (maxHealth / GetSyberiaConfig().m_zvirusDeathTimeSec) * deltaTime);
+				DecreaseHealth("GlobalHealth", "Health", (maxHealth / GetSyberiaConfig().m_zvirusDeathTimeSec) * deltaTime);
 			}
 		}
 		else
@@ -2149,10 +2200,11 @@ modded class PlayerBase
 	
 	// 0 - no protection
 	// 1 - full protection
-	float GetRadiationProtection()
+	float CalculateRadiationProtection()
 	{
 		float value = 0;
 		float state = 0;
+		float damageByRadiation = GetSyberiaConfig().m_damageClothingInRadiationZone;
 		EntityAI attachment;
 		ItemBase itemMask = GetItemOnSlot("Mask");
 		int attCount = GetInventory().AttachmentCount();
@@ -2163,6 +2215,11 @@ modded class PlayerBase
 			{
 				state = Math.Clamp(attachment.GetHealth01("", "") * 2, 0, 1);
 				value = value + (GetGame().ConfigGetFloat( "CfgVehicles " + attachment.GetType() + " radiationProtection" ) * state);
+				
+				if (damageByRadiation > 0)
+				{
+					attachment.DecreaseHealth("", "", damageByRadiation);
+				}
 			}
 		}
 		

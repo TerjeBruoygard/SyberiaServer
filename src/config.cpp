@@ -59,7 +59,13 @@ class CfgSyberia
         zvirusStage1TimeSec = 600; // 10 min
         zvirusStage2TimeSec = 2400; // zvirusStage1TimeSec + 40 min
         zvirusDeathTimeSec = 1200;
-        zvirusBloodRegenPerSec = 2;
+        zvirusBloodLosePerSec = 0.06;
+        zvirusHealthLosePerSec = 0.005;
+        zvirusCuthitSpawnChance = 0.005;
+        zvirusPainSpawnChance = 0.002;
+        zvirusVommitSpawnChance = 0.001;
+        zvirusBlindnessSpawnChance = 0.01;
+        zvirusFeverblurSpawnChance = 0.01;
         zvirusOnHitIncrementTimer = 300;
         zvirusZombieHitChance = 0.2;
         zvirusZombieBloodTransferChance = 0.1;
@@ -121,6 +127,7 @@ class CfgSyberia
         stomatchpoisonRottenFood[] = { 2, 600 }; // level, seconds * amount
         stomatchpoisonDirtyHands[] = { 1, 300 }; // level, seconds * amount
         stomatchpoisonInfection[] = { 1, 500 }; // level, seconds * amount
+        stomatchpoisonGasoline[] = { 2, 900 }; // level, seconds * amount
         stomatchpoisonChanceDrinkPond = 0.5;
         stomatchpoisonDrinkPond[] = { 2, 200 };
         stomatchpoisonChanceDrinkWell = 0.01;
@@ -161,7 +168,7 @@ class CfgSyberia
     
     class AnimalsSystem
     {
-        animalsButchingKnifeDamage = 0.4;
+        animalsButchingKnifeDamage = 100;
     };
 
     class IngameSystem
@@ -172,6 +179,7 @@ class CfgSyberia
         gasMaskFilterDegradationDefault = -0.05;
         igniteFireplaceBaseSkillcheckChance = 0.2;
         igniteFireplaceIndoorAdditionalChance = 0.3;
+        damageClothingInRadiationZone = 0.0;
     };
 
     class SkillsExperienceSystem

@@ -37,7 +37,13 @@ modded class SyberiaConfig
 	float m_zvirusStage1TimeSec;
 	float m_zvirusStage2TimeSec;
 	float m_zvirusDeathTimeSec;
-	float m_zvirusBloodRegenPerSec;
+	float m_zvirusBloodLosePerSec;
+    float m_zvirusHealthLosePerSec;
+	float m_zvirusCuthitSpawnChance;
+    float m_zvirusPainSpawnChance;
+	float m_zvirusVommitSpawnChance;
+    float m_zvirusBlindnessSpawnChance;
+    float m_zvirusFeverblurSpawnChance;
 	float m_zvirusZombieHitChance;
 	float m_zvirusZombieBloodTransferChance;
 	float m_zvirusAntidotBloodDmg01;
@@ -99,6 +105,7 @@ modded class SyberiaConfig
 	ref array<int> m_stomatchpoisonRottenFood = new array<int>;
 	ref array<int> m_stomatchpoisonDirtyHands = new array<int>;
 	ref array<int> m_stomatchpoisonInfection = new array<int>;
+	ref array<int> m_stomatchpoisonGasoline = new array<int>;
 	float m_stomatchpoisonChanceDrinkPond;
 	ref array<int> m_stomatchpoisonDrinkPond = new array<int>;
 	float m_stomatchpoisonChanceDrinkWell;
@@ -155,6 +162,7 @@ modded class SyberiaConfig
 	float m_gasMaskFilterDegradationDefault;
 	float m_igniteFireplaceBaseSkillcheckChance;
 	float m_igniteFireplaceIndoorAdditionalChance;
+	float m_damageClothingInRadiationZone;
 	
 	// Skills Experience System
 	float m_skillsExpImmunityPain;
@@ -218,7 +226,13 @@ modded class SyberiaConfig
 		m_zvirusStage1TimeSec = ConfigGetFloat("CfgSyberia MedicineSystem zvirusStage1TimeSec");
 		m_zvirusStage2TimeSec = ConfigGetFloat("CfgSyberia MedicineSystem zvirusStage2TimeSec");
 		m_zvirusDeathTimeSec = ConfigGetFloat("CfgSyberia MedicineSystem zvirusDeathTimeSec");
-		m_zvirusBloodRegenPerSec = ConfigGetFloat("CfgSyberia MedicineSystem zvirusBloodRegenPerSec");
+		m_zvirusBloodLosePerSec = ConfigGetFloat("CfgSyberia MedicineSystem zvirusBloodLosePerSec");
+	    m_zvirusHealthLosePerSec = ConfigGetFloat("CfgSyberia MedicineSystem zvirusHealthLosePerSec");
+		m_zvirusCuthitSpawnChance = ConfigGetFloat("CfgSyberia MedicineSystem zvirusCuthitSpawnChance");
+		m_zvirusPainSpawnChance = ConfigGetFloat("CfgSyberia MedicineSystem zvirusPainSpawnChance");	
+		m_zvirusVommitSpawnChance = ConfigGetFloat("CfgSyberia MedicineSystem zvirusVommitSpawnChance");
+    	m_zvirusBlindnessSpawnChance = ConfigGetFloat("CfgSyberia MedicineSystem zvirusBlindnessSpawnChance");
+    	m_zvirusFeverblurSpawnChance = ConfigGetFloat("CfgSyberia MedicineSystem zvirusFeverblurSpawnChance");	
 		m_zvirusZombieHitChance = ConfigGetFloat("CfgSyberia MedicineSystem zvirusZombieHitChance");
 		m_zvirusZombieBloodTransferChance = ConfigGetFloat("CfgSyberia MedicineSystem zvirusZombieBloodTransferChance");
 		m_zvirusAntidotBloodDmg01 = ConfigGetFloat("CfgSyberia MedicineSystem zvirusAntidotBloodDmg01");
@@ -280,6 +294,7 @@ modded class SyberiaConfig
 		ConfigGetIntArray("CfgSyberia MedicineSystem stomatchpoisonRottenFood", m_stomatchpoisonRottenFood, 2);
 		ConfigGetIntArray("CfgSyberia MedicineSystem stomatchpoisonDirtyHands", m_stomatchpoisonDirtyHands, 2);
 		ConfigGetIntArray("CfgSyberia MedicineSystem stomatchpoisonInfection", m_stomatchpoisonInfection, 2);
+		ConfigGetIntArray("CfgSyberia MedicineSystem stomatchpoisonGasoline", m_stomatchpoisonGasoline, 2);
 		m_stomatchpoisonChanceDrinkPond = ConfigGetFloat("CfgSyberia MedicineSystem stomatchpoisonChanceDrinkPond");
 		ConfigGetIntArray("CfgSyberia MedicineSystem stomatchpoisonDrinkPond", m_stomatchpoisonDrinkPond, 2);
 		m_stomatchpoisonChanceDrinkWell = ConfigGetFloat("CfgSyberia MedicineSystem stomatchpoisonChanceDrinkWell");
@@ -336,6 +351,7 @@ modded class SyberiaConfig
 		m_gasMaskFilterDegradationDefault = ConfigGetFloat("CfgSyberia IngameSystem gasMaskFilterDegradationDefault");
 		m_igniteFireplaceBaseSkillcheckChance = ConfigGetFloat("CfgSyberia IngameSystem igniteFireplaceBaseSkillcheckChance");
 		m_igniteFireplaceIndoorAdditionalChance = ConfigGetFloat("CfgSyberia IngameSystem igniteFireplaceIndoorAdditionalChance");
+		m_damageClothingInRadiationZone = ConfigGetFloat("CfgSyberia IngameSystem damageClothingInRadiationZone");
 		
 		// Skills Experience System
 		m_skillsExpImmunityPain = ConfigGetFloat("CfgSyberia SkillsExperienceSystem skillsExpImmunityPain");

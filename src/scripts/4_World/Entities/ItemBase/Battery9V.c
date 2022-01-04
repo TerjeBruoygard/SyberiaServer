@@ -1,6 +1,6 @@
 modded class Battery9V
 {
-	override void SetWet(float value, bool allow_client = false)
+	/*override void SetWet(float value, bool allow_client = false)
 	{
 		super.SetWet(value, allow_client);
 		
@@ -16,5 +16,5 @@ modded class Battery9V
 				SetHealth("", "", 0);
 			}
 		}
-	}
+	}*/
 };

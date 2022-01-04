@@ -202,6 +202,11 @@ modded class BleedingSourcesManagerServer
 		m_Player.MarkSybStatsDirty(1014);
 	}
 	
+	int GetPainLevel()
+	{
+		return m_Player.GetSybStats().m_painLevel;
+	}
+	
 	void SetPainLevel(int value)
 	{
 		if (m_Player.GetPerkBoolValue(SyberiaPerkType.SYBPERK_IMMUNITY_PAIN_STRONG))
