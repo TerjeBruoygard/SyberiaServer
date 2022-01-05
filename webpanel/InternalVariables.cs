@@ -262,8 +262,8 @@ namespace SyberiaWebPanel
                 public int zvirusStage1TimeSec = 600; // 10 min
                 public int zvirusStage2TimeSec = 2400; // zvirusStage1TimeSec + 40 min
                 public int zvirusDeathTimeSec = 1200;
-                public float zvirusBloodLosePerSec = 0.06f;
-                public float zvirusHealthLosePerSec = 0.005f;
+                public float zvirusBloodLosePerSec = 0.05f;
+                public float zvirusHealthLosePerSec = 0.01f;
                 public float zvirusCuthitSpawnChance = 0.005f;
                 public float zvirusPainSpawnChance = 0.002f;
                 public float zvirusVommitSpawnChance = 0.001f;

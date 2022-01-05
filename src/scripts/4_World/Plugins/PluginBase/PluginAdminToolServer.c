@@ -629,7 +629,19 @@ modded class PluginAdminTool
 			player.GetSybStats().m_painkillerEffect = (int)value;
 			if (player.GetSybStats().m_painkillerEffect > 0) player.m_painkillerTime = 300;
 		}
-        else if (statName == "VirusZ") player.GetSybStats().m_zombieVirus = (int)value;
+        else if (statName == "VirusZ") 
+		{
+			player.GetSybStats().m_zombieVirus = (int)value;
+			if (player.GetSybStats().m_zombieVirus <= 1) {
+				player.m_zvirusTimer = 0;
+			}
+			else if (player.GetSybStats().m_zombieVirus == 2) {
+				player.m_zvirusTimer = GetSyberiaConfig().m_zvirusStage1TimeSec;
+			}
+			else {
+				player.m_zvirusTimer = GetSyberiaConfig().m_zvirusStage2TimeSec;
+			}
+		}
         else if (statName == "Influenza") player.GetSybStats().m_influenzaLevel = (int)value;
         else if (statName == "Antibiotics") player.GetSybStats().m_antibioticsLevel = (int)value;
         else if (statName == "StomatchPoison") 

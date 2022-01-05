@@ -59,8 +59,8 @@ class CfgSyberia
         zvirusStage1TimeSec = 600; // 10 min
         zvirusStage2TimeSec = 2400; // zvirusStage1TimeSec + 40 min
         zvirusDeathTimeSec = 1200;
-        zvirusBloodLosePerSec = 0.06;
-        zvirusHealthLosePerSec = 0.005;
+        zvirusBloodLosePerSec = 0.05;
+        zvirusHealthLosePerSec = 0.01;
         zvirusCuthitSpawnChance = 0.005;
         zvirusPainSpawnChance = 0.002;
         zvirusVommitSpawnChance = 0.001;
