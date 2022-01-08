@@ -230,6 +230,11 @@ class CfgSyberia
         skillsExpSurvivalIgniteFireFailed = 50;
     };
     
+    class WorldSystem
+    {
+
+    };
+    
     class Characters
     {
         class SurvivorM_Mirek

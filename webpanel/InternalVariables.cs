@@ -236,6 +236,7 @@ namespace SyberiaWebPanel
             public AnimalsSystemType AnimalsSystem { set; get; } = new AnimalsSystemType();
             public IngameSystemType IngameSystem { set; get; } = new IngameSystemType();
             public SkillsExperienceSystemType SkillsExperienceSystem { set; get; } = new SkillsExperienceSystemType();
+            public WorldSystemType WorldSystem { set; get; } = new WorldSystemType();
 
             public class SleepingSystemType
             {
@@ -431,6 +432,30 @@ namespace SyberiaWebPanel
 
                 public int skillsExpSurvivalIgniteFireSuccess = 500;
                 public int skillsExpSurvivalIgniteFireFailed = 50;
+            };
+
+            public class WorldSystemType
+            {
+                public bool winterWorld = false;
+                public float airDayTemperatureMin=10;
+                public float airDayTemperatureMax = 15;
+                public float airNightTemperatureMin = 8;
+                public float airNightTemperatureMax = 12;
+                public float clothingHeatIsolationGlobal = 0.8f;
+
+                public float temperatureHighConsumeItemsMod = 0.02f;
+                public float temperatureLowConsumeItemsMod = -0.01f;
+                public float temperatureDrinkPondPenalty = -0.005f;
+                public float temperatureDrinkWellPenalty = -0.01f;
+                public float temperatureFillWaterBottleTotal = 15;
+                public float temperatureFillWaterBottleMod = 0.1f;
+                public float temperatureIceDrain = 0;
+                public float temperatureSnowDrain = 0;
+                public float temperatureHeightReduction = 0.002f;
+
+                public float clothingDrenchedHeatDrain = -5;
+                public float clothingWetHeatDrain = -2;
+                public float additionalTemperatureResistForSurvivalSkill = 15;
             };
         };
     }
