@@ -85,10 +85,11 @@
                         dataObject[varId] = $('input[variable-role="inputer"][variable-id="' + varId + '"]').is(':checked');
                     }
                     else if (varType == 'Int32[]') {
-                        dataObject[varId] = varValue.split(' ').map(parseInt);
+                        console.log('Int32[]: ', varValue);
+                        dataObject[varId] = varValue.split(' ').map(val => parseInt(val));
                     }
                     else if (varType == 'Single[]') {
-                        dataObject[varId] = varValue.split(' ').map(parseFloat);
+                        dataObject[varId] = varValue.split(' ').map(val => parseFloat(val));
                     }
                 }
             }

@@ -2262,7 +2262,7 @@
             if (intCheck) {
                 num = Math.round(num);
             }
-            parts[i] = num.toString();
+            parts[i] = num.toString() ?? '0';
         }
         var result = '';
         for (var i = 0; i < size; i++) {
