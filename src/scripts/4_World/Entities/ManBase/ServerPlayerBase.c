@@ -1708,7 +1708,7 @@ modded class PlayerBase
 	
 	protected void OnTickAdvMedicine_ZVirus(float deltaTime)
 	{
-		if (m_sybstats.m_zombieVirus)
+		if (m_sybstats.m_zombieVirus > 0)
 		{
 			m_zvirusTimer = m_zvirusTimer + (deltaTime * GetPerkFloatValue(SyberiaPerkType.SYBPERK_IMMUNITY_ZVIRUS_TIME, 1, 1));
 			
@@ -1755,7 +1755,7 @@ modded class PlayerBase
 					if (GetStatEnergy().Get() > energyDrain)
 						GetStatEnergy().Add(-1 * energyDrain);
 				}
-				else if (Math.RandomFloat01() < deltaTime * GetSyberiaConfig().m_zvirusBlindnessSpawnChance)
+				/*else if (Math.RandomFloat01() < deltaTime * GetSyberiaConfig().m_zvirusBlindnessSpawnChance)
 				{
 					SymptomBase symptom2 = GetSymptomManager().QueueUpSecondarySymptomEx(SymptomIDs.SYMPTOM_BLINDNESS);				
 					if ( symptom2 ) symptom2.SetDuration(15);
@@ -1764,7 +1764,7 @@ modded class PlayerBase
 				{
 					SymptomBase symptom3 = GetSymptomManager().QueueUpSecondarySymptomEx(SymptomIDs.SYMPTOM_FEVERBLUR);				
 					if ( symptom3 ) symptom3.SetDuration(15);
-				}
+				}*/
 			}
 			
 			if (m_zvirusTimer > GetSyberiaConfig().m_zvirusStage2TimeSec)

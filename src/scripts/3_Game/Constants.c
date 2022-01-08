@@ -158,7 +158,7 @@ modded class SyberiaConfig
 	float m_zombieAttackDistanceChase;
 	float m_zombieAttackDistanceFight;
 	
-	// Others
+	// InGame System
 	int m_bookPagesCountToCut;
 	float m_gasMaskFilterDegradationInToxicZone;
 	float m_gasMaskFilterDegradationInRadZone;
@@ -168,6 +168,8 @@ modded class SyberiaConfig
 	float m_damageClothingInRadiationZone;
 	float m_defaultStaminaDepletionMultiplier;
     float m_defaultStaminaRecoveryMultiplier;
+	float m_dirtyFruitsSpawnChance;
+    float m_dirtyMushroomsSpawnChance;
 	
 	// Skills Experience System
 	float m_skillsExpImmunityPain;
@@ -362,6 +364,8 @@ modded class SyberiaConfig
 		m_damageClothingInRadiationZone = ConfigGetFloat("CfgSyberia IngameSystem damageClothingInRadiationZone");
 		m_defaultStaminaDepletionMultiplier = ConfigGetFloat("CfgSyberia IngameSystem defaultStaminaDepletionMultiplier");
 	    m_defaultStaminaRecoveryMultiplier = ConfigGetFloat("CfgSyberia IngameSystem defaultStaminaRecoveryMultiplier");
+		m_dirtyFruitsSpawnChance = ConfigGetFloat("CfgSyberia IngameSystem dirtyFruitsSpawnChance");
+		m_dirtyMushroomsSpawnChance = ConfigGetFloat("CfgSyberia IngameSystem dirtyMushroomsSpawnChance");
 		
 		// Skills Experience System
 		m_skillsExpImmunityPain = ConfigGetFloat("CfgSyberia SkillsExperienceSystem skillsExpImmunityPain");

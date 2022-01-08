@@ -264,9 +264,9 @@ namespace SyberiaWebPanel
                 public int zvirusDeathTimeSec = 1200;
                 public float zvirusBloodLosePerSec = 0.05f;
                 public float zvirusHealthLosePerSec = 0.01f;
-                public float zvirusCuthitSpawnChance = 0.005f;
-                public float zvirusPainSpawnChance = 0.002f;
-                public float zvirusVommitSpawnChance = 0.001f;
+                public float zvirusCuthitSpawnChance = 0.003f;
+                public float zvirusPainSpawnChance = 0.001f;
+                public float zvirusVommitSpawnChance = 0.0002f;
                 public float zvirusBlindnessSpawnChance = 0.01f;
                 public float zvirusFeverblurSpawnChance = 0.01f;
                 public int zvirusOnHitIncrementTimer = 300;
@@ -388,6 +388,8 @@ namespace SyberiaWebPanel
                 public float damageClothingInRadiationZone = 0.0f;
                 public float defaultStaminaDepletionMultiplier = 1.0f;
                 public float defaultStaminaRecoveryMultiplier = 1.0f;
+                public float dirtyFruitsSpawnChance = 0.25f;
+                public float dirtyMushroomsSpawnChance = 0.6f;
             };
 
             public class SkillsExperienceSystemType
