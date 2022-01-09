@@ -22,29 +22,47 @@ class PluginSyberiaCharacters extends PluginBase
 		delete queries;
 	}
 	
-	ref CharProfile Get(ref PlayerIdentity identity, bool cacheOnly = false)
+	ref CharProfile Get(ref PlayerIdentity identity, out int errorCode, bool cacheOnly = false)
 	{
 		string uid = identity.GetId();
-		ref CharProfile result = null;		
+		ref CharProfile result = null;	
 		if (m_cachedProfiles.Find(uid, result))
 		{
+			errorCode = 1;
 			return result;
 		}
 		
 		if (cacheOnly) 
 		{
+			errorCode = -1;
 			return null;
 		}
 		
+		errorCode = 2;	
 		DatabaseResponse response = null;
 		if (GetDatabase().QuerySync(SYBERIA_DB_NAME, CharProfile.SelectQuery(uid), response))
 		{
-			if (response && response.GetRowsCount() == 1) 
+			if (response) 
 			{
-				result = new CharProfile();
-				result.LoadFromDatabase(response);
-				m_cachedProfiles.Insert(uid, result);
+				if (response.GetRowsCount() == 1)
+				{
+					result = new CharProfile();
+					result.LoadFromDatabase(response);
+					m_cachedProfiles.Insert(uid, result);
+				}
+				else
+				{
+					errorCode = -3;	
+				}
 			}
+			else
+			{
+				errorCode = -2;	
+			}
+		}
+		else
+		{
+			errorCode = -2;	
 		}
 
 		return result;

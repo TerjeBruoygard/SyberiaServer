@@ -28,7 +28,8 @@ modded class PluginLogicPDA
         
         if (!m_serverConfig.m_enableGlobalChat) return;
         
-		ref CharProfile profile = GetSyberiaCharacters().Get(sender, true);
+		int errorCode = 0;
+		ref CharProfile profile = GetSyberiaCharacters().Get(sender, errorCode, true);
 		if (!profile) return;
 		
         GetSyberiaRPC().SendToAll( SyberiaRPC.SYBRPC_PDA_SEND_GLOBAL_MESSAGE, new Param2< string, string >( profile.m_name, serverData.param1 ) );
@@ -40,8 +41,9 @@ modded class PluginLogicPDA
         if ( !ctx.Read( serverData ) ) return;
         
         if (!sender) return;
-        
-		ref CharProfile profile = GetSyberiaCharacters().Get(sender, true);
+
+		int errorCode = 0;        
+		ref CharProfile profile = GetSyberiaCharacters().Get(sender, errorCode, true);
 		if (!profile) return;
 		
         ref PluginSyberiaOptions_GroupFaction group = GetSyberiaOptions().FindGroupByMember(profile.m_id);
@@ -62,7 +64,8 @@ modded class PluginLogicPDA
         Param2< int, string > serverData;			
         if ( !ctx.Read( serverData ) ) return;
 
-		ref CharProfile senderProfile = GetSyberiaCharacters().Get(sender, true);
+		int errorCode = 0;
+		ref CharProfile senderProfile = GetSyberiaCharacters().Get(sender, errorCode, true);
 		if (!senderProfile) return;
 		
         int senderId = senderProfile.m_id;
@@ -147,8 +150,8 @@ modded class PluginLogicPDA
 		}
 		
 		string groupChatName = "";
-		
-		ref CharProfile profile = GetSyberiaCharacters().Get(sender, true);
+		int errorCode = 0;
+		ref CharProfile profile = GetSyberiaCharacters().Get(sender, errorCode, true);
 		if (!profile) return;
 		
 		ref PluginSyberiaOptions_GroupFaction memberGroup = GetSyberiaOptions().FindGroupByMember(profile.m_id);
@@ -178,7 +181,8 @@ modded class PluginLogicPDA
         string requestName = serverData.param1;
 		requestName.ToLower();
         
-		ref CharProfile profile = GetSyberiaCharacters().Get(sender, true);
+		int errorCode = 0;
+		ref CharProfile profile = GetSyberiaCharacters().Get(sender, errorCode, true);
 		if (!profile) return;
 		
         array<Man> players = new array<Man>();
@@ -211,6 +215,7 @@ modded class PluginLogicPDA
         Param2< int, string > serverData;
         if ( !ctx.Read( serverData ) ) return;
         
+		int errorCode = 0;
         int action = serverData.param1;
         string fid = serverData.param2;
         ref PluginSyberiaOptions_GroupFaction group = GetSyberiaOptions().FindGroupByLeader(sender);        
@@ -228,7 +233,8 @@ modded class PluginLogicPDA
 			
             foreach (ref PlayerIdentity identity : identities)
             {
-				ref CharProfile profile = GetSyberiaCharacters().Get(identity, true);
+				errorCode = 0;
+				ref CharProfile profile = GetSyberiaCharacters().Get(identity, errorCode, true);
 				if (!profile) continue;
 				
 				string pname = profile.m_name + "";
@@ -243,7 +249,8 @@ modded class PluginLogicPDA
             
             if (newMemberIdentity == null) return;
             
-			ref CharProfile newMemberProfile = GetSyberiaCharacters().Get(newMemberIdentity, true);
+			errorCode = 0;
+			ref CharProfile newMemberProfile = GetSyberiaCharacters().Get(newMemberIdentity, errorCode, true);
 			if (!newMemberProfile) return;
 			
             ref PluginSyberiaOptions_GroupFaction groupForNewMember = GetSyberiaOptions().FindGroupByMember(newMemberProfile.m_id);

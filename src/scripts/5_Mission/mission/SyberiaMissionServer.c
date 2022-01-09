@@ -27,10 +27,22 @@ modded class MissionServer
 	{
 		if (!player.IsGhostBody())
 		{
-			player.m_charProfile = GetSyberiaCharacters().Get(identity);
+			int errorCode = 0;
+			player.m_charProfile = GetSyberiaCharacters().Get(identity, errorCode);
 			if (!player.m_charProfile)
 			{
-				ForceRespawnPlayer(identity, player);
+				if (errorCode == -2) 
+				{
+					// Database is unreachable
+					// Kick the player without killing
+					ForceRespawnPlayer(identity, null);
+					SybLogSrv("DATABASE IS UNREACHABLE!!! PLEASE CONTACT WITH HOSTING SUPPORT!!!");
+				}
+				else
+				{
+					// Kill the player. Not found in database
+					ForceRespawnPlayer(identity, player);
+				}
 			}
 			else
 			{
@@ -50,6 +62,7 @@ modded class MissionServer
 	
 	override PlayerBase OnClientNewEvent(PlayerIdentity identity, vector pos, ParamsReadContext ctx)
 	{
+		int errorCode = 0;
 		string classname;
 		bool ghostMode = false;
 		vector startPos = "0 0 0";
@@ -58,7 +71,7 @@ modded class MissionServer
 		ref array<string> startEquipItems = null;
 		ref array<string> startSpecialItems = null;
 		ref array<ref array<string>> allowedEquip = null;
-		ref CharProfile profile = GetSyberiaCharacters().Get(identity);
+		ref CharProfile profile = GetSyberiaCharacters().Get(identity, errorCode);
 		if (profile)
 		{
 			if (profile.m_needToForceRespawn)
@@ -354,7 +367,8 @@ modded class MissionServer
 	void OnCreateNewCharRequest(ref ParamsReadContext ctx, ref PlayerIdentity sender)
 	{
 		SybLogSrv("SYBRPC_CREATENEWCHAR_REQUEST Received from " + sender);
-		ref CharProfile profile = GetSyberiaCharacters().Get(sender);
+		int errorCode = 0;
+		ref CharProfile profile = GetSyberiaCharacters().Get(sender, errorCode);
 		if (!profile)
 		{
 			Param1<ref RpcCreateNewCharContainer> clientData;
@@ -439,7 +453,8 @@ modded class MissionServer
 	void OnStartGameRequest(ref ParamsReadContext ctx, ref PlayerIdentity sender)
 	{
 		SybLogSrv("SYBRPC_STARTGAME_REQUEST Received from " + sender);
-		ref CharProfile profile = GetSyberiaCharacters().Get(sender);
+		int errorCode = 0;
+		ref CharProfile profile = GetSyberiaCharacters().Get(sender, errorCode);
 		if (profile && profile.m_needToConfigureGear)
 		{
 			Param1<ref array<int>> clientData;
@@ -476,7 +491,8 @@ modded class MissionServer
 	void OnRespawnRequest(ref ParamsReadContext ctx, ref PlayerIdentity sender)
 	{
 		SybLogSrv("SYBRPC_RESPAWN_REQUEST Received from " + sender);
-		ref CharProfile profile = GetSyberiaCharacters().Get(sender);
+		int errorCode = 0;
+		ref CharProfile profile = GetSyberiaCharacters().Get(sender, errorCode);
 		if (profile)
 		{
 			int soulsPrice = GetSyberiaOptions().m_main.m_respawnSoulsPrice;
@@ -517,7 +533,8 @@ modded class MissionServer
 		}
 		
 		SybLogSrv("SYBRPC_DELETECHAR_REQUEST Received from " + sender);
-		ref CharProfile profile = GetSyberiaCharacters().Get(sender);
+		int errorCode = 0;
+		ref CharProfile profile = GetSyberiaCharacters().Get(sender, errorCode);
 		if (profile)
 		{
 			GetSyberiaCharacters().Delete(sender);
@@ -533,7 +550,8 @@ modded class MissionServer
 	
 	void OnSkillActivate(ref ParamsReadContext ctx, ref PlayerIdentity sender)
 	{
-		ref CharProfile profile = GetSyberiaCharacters().Get(sender);
+		int errorCode = 0;
+		ref CharProfile profile = GetSyberiaCharacters().Get(sender, errorCode);
 		if (profile && profile.m_skills)
 		{
 			Param2<int, int> clientData;
