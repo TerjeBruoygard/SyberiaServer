@@ -148,7 +148,7 @@ namespace SyberiaUpdaterServer
                         if (bodyObj != null)
                         {
                             Program.AddServiceStartToStatistic(clientAddress, bodyObj);
-                            logger.Info($"[/access/check] Server start check successfull from {clientAddress}:{bodyObj["dbPort"].Value<int>()}");
+                            logger.Info($"[/access/check] Server start check successfull from {clientAddress}:{bodyObj["dbPort"].Value<int>()} as user '{(bodyObj.ContainsKey("user") ? bodyObj["user"].Value<string>() : string.Empty)}'");
                             return "Allow";
                         }
                     }
@@ -186,7 +186,7 @@ namespace SyberiaUpdaterServer
                                 foreach (var line in stat.Value)
                                 {
                                     var parts = line.Split('|');
-                                    var htmlLine = $"<td>{parts[1]}</td><td>{{PERIOD}}</td><td>{parts[2]}</td><td>{parts[3]}</td><td>{parts[4]}</td><td>{parts[5]}</td>";
+                                    var htmlLine = $"<td>{parts[1].HtmlEscape()}</td><td>{{PERIOD}}</td><td>{(parts.Length > 6 ? parts[6].HtmlEscape() : string.Empty)}</td><td>{parts[2].HtmlEscape()}</td><td>{parts[3].HtmlEscape()}</td><td>{parts[4].HtmlEscape()}</td><td>{parts[5].HtmlEscape()}</td>";
                                     if (uniqueLines.ContainsKey(htmlLine))
                                     {
                                         if (stat.Key < uniqueLines[htmlLine].Item1)
@@ -213,10 +213,10 @@ namespace SyberiaUpdaterServer
                             result.AppendLine("<link rel=\"stylesheet\" href=\"https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css\" integrity=\"sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm\" crossorigin=\"anonymous\">");
                             result.AppendLine("</head>");
                             result.AppendLine("<body>");
-                            result.AppendLine($"<h1>Syberia instances list: {from}-{to}</h1>");
+                            result.AppendLine($"<h1>Syberia instances list: {from.HtmlEscape()}-{to.HtmlEscape()}</h1>");
                             result.AppendLine("<br>");
                             result.AppendLine("<table class=\"table\">");
-                            result.AppendLine("<thead><tr><th scope=\"col\">IP</th><th scope=\"col\">Period</th><th scope=\"col\">DB Port</th><th scope=\"col\">Web Panel Port</th><th scope=\"col\">DayZ Server Path</th><th scope=\"col\">Service Path</th></tr></thead>");
+                            result.AppendLine("<thead><tr><th scope=\"col\">IP</th><th scope=\"col\">Period</th><th scope=\"col\">User</th><th scope=\"col\">DB Port</th><th scope=\"col\">Web Panel Port</th><th scope=\"col\">DayZ Server Path</th><th scope=\"col\">Service Path</th></tr></thead>");
                             result.AppendLine("<tbody>");
                             foreach (var line in uniqueLines)
                             {

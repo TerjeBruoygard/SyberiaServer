@@ -20,5 +20,9 @@ namespace SyberiaUpdaterServer
             return request.UserHostAddress;
         }
 
+        public static string HtmlEscape(this string str)
+        {
+            return str.Replace("&", "&amp;").Replace("<", "&lt;").Replace(">", "&gt;").Replace("\"", "&quot;").Replace("'", "&apos;");
+        }
     }
 }
