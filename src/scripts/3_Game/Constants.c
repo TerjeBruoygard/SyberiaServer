@@ -1,5 +1,6 @@
 const string SyberiaServer_ModPreffix = "[SYBERIA SERVER] ";
 const bool SyberiaServer_DebugMode = true;
+const string Syberia_ServerVersion = "OPEN BETA 0.49i";
 
 void SybLogSrv(string message)
 {
