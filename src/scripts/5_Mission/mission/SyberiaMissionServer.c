@@ -586,5 +586,11 @@ modded class MissionServer
 		{
 			traderPlugin.InitializeTraders();
 		}
+		
+		PluginBuildingSystem buildingPlugin = PluginBuildingSystem.Cast(GetPlugin(PluginBuildingSystem));
+		if (buildingPlugin)
+		{
+			buildingPlugin.LoadLivespaces();
+		}
 	}
 };
