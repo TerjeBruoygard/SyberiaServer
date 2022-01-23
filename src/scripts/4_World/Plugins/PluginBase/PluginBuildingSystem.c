@@ -1,6 +1,7 @@
 class PluginBuildingSystem extends PluginBase
 {
 	ref array<BuildingLivespace> m_livespaces = new array<BuildingLivespace>;
+	ref map<House, ref array<BuildingLivespace>> m_housesCache = new map<House, ref array<BuildingLivespace>>;
 	float m_checkDirtyTimer = 0;
 	
 	override void OnInit()
@@ -66,7 +67,45 @@ class PluginBuildingSystem extends PluginBase
 		if (livespace != null && m_livespaces.Find(livespace) == -1)
 		{
 			m_livespaces.Insert(livespace);
+			
+			ref array<BuildingLivespace> cachedLivespaces;
+			if (m_housesCache.Contains(livespace.GetHouse()))
+			{
+				cachedLivespaces = m_housesCache.Get(livespace.GetHouse());
+			}
+			else
+			{
+				cachedLivespaces = new array<BuildingLivespace>;
+			}
+			
+			cachedLivespaces.Insert(livespace);
+			m_housesCache.Set(livespace.GetHouse(), cachedLivespaces);
 		}
+	}
+	
+	BuildingLivespace FindByHousePoint(House house, vector pos)
+	{
+		ref array<BuildingLivespace> livespaces = null;
+		if (m_housesCache.Contains(house))
+		{
+			livespaces = m_housesCache.Get(house);
+		}
+		
+		if (livespaces == null)
+		{
+			return null;
+		}
+		
+		vector localPos = house.WorldToModel(pos);
+		foreach (BuildingLivespace livespace : livespaces)
+		{
+			if (livespace.IsReady() && GameHelpers.IntersectBBox(livespace.GetData().m_bboxStart, livespace.GetData().m_bboxEnd, localPos))
+			{
+				return livespace;
+			}
+		}
+		
+		return null;
 	}
 	
 	private void ParseData(string data, ref map<string, string> values)
@@ -78,7 +117,7 @@ class PluginBuildingSystem extends PluginBase
 		{
 			string pair = pairs.Get(i);
 			tuple.Clear();
-			pair.Split("=", tuple);
+			pair.Split(":", tuple);
 			if (tuple.Count() == 2)
 			{
 				string header = tuple.Get(0);
@@ -97,11 +136,13 @@ class PluginBuildingSystem extends PluginBase
 		values.Insert("lid", livespace.GetLivespaceId().ToString());
 		values.Insert("ddat", livespace.SerializeDoors());
 		values.Insert("wdat", livespace.SerializeBarricades());
+		values.Insert("ownrs", livespace.SerializeOwners());
+		values.Insert("mmbrs", livespace.SerializeMembers());
 		
 		string dataStr = "";
 		foreach (string key, string value : values)
 		{
-			dataStr = dataStr + key + "=" + value + ";";
+			dataStr = dataStr + key + ":" + value + ";";
 		}
 		
 		TStringArray queries = new TStringArray;
@@ -142,6 +183,40 @@ class PluginBuildingSystem extends PluginBase
 		// DO NOTHING
 	}
 	
+	protected void OnDeleteLivespaceRecord(DatabaseResponse response, ref Param args)
+	{
+		// DO NOTHING
+	}
+	
+	void DeleteLivespaceRecord(BuildingLivespace livespace)
+	{
+		if (!livespace)
+		{
+			return;
+		}
+		
+		if (livespace.GetHouse() && m_housesCache.Contains(livespace.GetHouse()))
+		{
+			ref array<BuildingLivespace> cachedLivespaces = m_housesCache.Get(livespace.GetHouse());
+			cachedLivespaces.RemoveItem(livespace);
+			m_housesCache.Set(livespace.GetHouse(), cachedLivespaces);
+		}
+		
+		int id = m_livespaces.Find(livespace);
+		if (id != -1)
+		{
+			m_livespaces.Remove(id);
+		}
+		
+		int recordId = livespace.GetRecordId();
+		if (recordId != -1)
+		{
+			TStringArray queries = new TStringArray;
+			queries.Insert("DELETE FROM building_data WHERE id = " + recordId + ";");		
+			GetDatabase().TransactionAsync(SYBERIA_DB_NAME, queries, this, "OnDeleteLivespaceRecord", null);
+		}
+	}
+	
 	override void OnUpdate(float delta_time)
 	{
 		super.OnUpdate(delta_time);
@@ -163,6 +238,7 @@ class PluginBuildingSystem extends PluginBase
 	override void OnDestroy()
 	{		
 		delete m_livespaces;
+		delete m_housesCache;
 	}
 	
 	static void InitQueries(ref array<string> queries)

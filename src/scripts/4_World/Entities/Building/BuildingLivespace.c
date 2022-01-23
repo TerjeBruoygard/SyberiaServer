@@ -1,6 +1,8 @@
 modded class BuildingLivespace
 {
 	private int m_recordId;
+	private ref array<string> m_owners;
+	private ref array<string> m_members;
 	private House m_house;
 	private bool m_dbDirty;
 
@@ -32,10 +34,11 @@ modded class BuildingLivespace
 		m_recordId = id;
 		m_house = house;
 		m_dbDirty = false;
-		m_livespaceId = livespaceId;
-		m_livespacePath = "CfgBuildingInfo " + house.GetType() + " Livespace" + livespaceId;
-		m_data = new LivespaceData(m_livespacePath);
+		m_synchData.m_livespaceId = livespaceId;
+		m_synchData.m_livespacePath = "CfgBuildingInfo " + house.GetType() + " Livespace" + livespaceId;
+		m_data = new LivespaceData(m_synchData.m_livespacePath);
 		
+		LoadOwnersAndMembers(data);	
 		LoadDoorsData(data);
 		LoadBarricadesData(data);		
 		
@@ -63,9 +66,58 @@ modded class BuildingLivespace
 		return false;
 	}
 	
+	private void LoadOwnersAndMembers(ref map<string, string> data)
+	{
+		m_owners = new array<string>;
+		if (data.Contains("ownrs"))
+		{
+			string ownersStr = data.Get("ownrs");
+			ownersStr.Split(",", m_owners);
+		}
+		
+		m_members = new array<string>;
+		if (data.Contains("mmbrs"))
+		{
+			string membersStr = data.Get("mmbrs");
+			membersStr.Split(",", m_members);
+		}
+	}
+	
+	string SerializeOwners()
+	{
+		string result = "";
+		for (int i = 0; i < m_owners.Count(); i++)
+		{
+			if (i > 0)
+			{
+				result = result + ",";
+			}
+			
+			result = result + m_owners.Get(i);
+		}
+		
+		return result;
+	}
+	
+	string SerializeMembers()
+	{
+		string result = "";
+		for (int i = 0; i < m_members.Count(); i++)
+		{
+			if (i > 0)
+			{
+				result = result + ",";
+			}
+			
+			result = result + m_members.Get(i);
+		}
+		
+		return result;
+	}
+	
 	private void LoadBarricadesData(ref map<string, string> data)
 	{
-		m_barricadeLevels.Clear();
+		m_synchData.m_barricadeLevels.Clear();
 		array<string> parts = new array<string>;
 		string barricadesData = "";
 		if (data.Contains("wdat"))
@@ -81,21 +133,21 @@ modded class BuildingLivespace
 				level = parts.Get(i).ToInt();
 			}
 			
-			m_barricadeLevels.Insert(level);
+			m_synchData.m_barricadeLevels.Insert(level);
 		}
 	}
 	
 	string SerializeBarricades()
 	{
 		string result = "";
-		for (int i = 0; i < m_barricadeLevels.Count(); i++)
+		for (int i = 0; i < m_synchData.m_barricadeLevels.Count(); i++)
 		{
 			if (i > 0)
 			{
 				result = result + ",";
 			}
 			
-			result = result + m_barricadeLevels.Get(i).ToString();
+			result = result + m_synchData.m_barricadeLevels.Get(i).ToString();
 		}
 		
 		return result;
@@ -108,15 +160,15 @@ modded class BuildingLivespace
 	
 	int GetBarricadeLevel(int id)
 	{
-		return m_barricadeLevels[id];
+		return m_synchData.m_barricadeLevels[id];
 	}
 	
 	void SetBarricadeLevel(int id, int level)
 	{
-		int lastLevel = m_barricadeLevels[id];
+		int lastLevel = m_synchData.m_barricadeLevels[id];
 		if (lastLevel != level)
 		{
-			m_barricadeLevels[id] = level;
+			m_synchData.m_barricadeLevels[id] = level;
 			m_dbDirty = true;
 			SychDirtyLevels();
 		}
@@ -134,7 +186,7 @@ modded class BuildingLivespace
 	
 	private void LoadDoorsData(ref map<string, string> data)
 	{
-		m_doorLevels.Clear();
+		m_synchData.m_doorLevels.Clear();
 		array<string> parts = new array<string>;
 		string doorsData = "";
 		if (data.Contains("ddat"))
@@ -150,21 +202,21 @@ modded class BuildingLivespace
 				level = parts.Get(i).ToInt();
 			}
 			
-			m_doorLevels.Insert(level);
+			m_synchData.m_doorLevels.Insert(level);
 		}
 	}
 	
 	string SerializeDoors()
 	{
 		string result = "";
-		for (int i = 0; i < m_doorLevels.Count(); i++)
+		for (int i = 0; i < m_synchData.m_doorLevels.Count(); i++)
 		{
 			if (i > 0)
 			{
 				result = result + ",";
 			}
 			
-			result = result + m_doorLevels.Get(i).ToString();
+			result = result + m_synchData.m_doorLevels.Get(i).ToString();
 		}
 		
 		return result;
@@ -178,7 +230,11 @@ modded class BuildingLivespace
 			foreach (int linkedDoorId : doorData.m_linkedDoorIds)
 			{
 				GetHouse().CloseDoor(linkedDoorId);
+				GetHouse().LockDoor(linkedDoorId);
 			}
+			
+			this.CloseDoor(doorData.m_selfDoorId);
+			this.LockDoor(doorData.m_selfDoorId);
 		}
 		
 		super.SetupDoors();
@@ -186,15 +242,15 @@ modded class BuildingLivespace
 
 	int GetDoorLevel(int id)
 	{
-		return m_doorLevels[id];
+		return m_synchData.m_doorLevels[id];
 	}
 	
 	void SetDoorLevel(int id, int level)
 	{
-		int lastLevel = m_doorLevels[id];
+		int lastLevel = m_synchData.m_doorLevels[id];
 		if (lastLevel != level)
 		{
-			m_doorLevels[id] = level;
+			m_synchData.m_doorLevels[id] = level;
 			m_dbDirty = true;
 			SychDirtyLevels();
 		}
@@ -210,48 +266,87 @@ modded class BuildingLivespace
 		}
 	}
 	
-	ref LivespaceDoorData FindDoorByDoorIndex(int doorIndex)
+	int FindLivespaceDoorIdBySelfDoorIndex(int doorIndex)
 	{
 		if (doorIndex != -1)
 		{
-			foreach (ref LivespaceDoorData doorData : m_data.m_doors)
+			for (int i = 0; i < m_data.m_doors.Count(); i++)
 			{
+				ref LivespaceDoorData doorData = m_data.m_doors.Get(i);
 				if (doorData.m_selfDoorId == doorIndex)
 				{
-					return doorData; 
+					return i; 
 				}	
 			}
 		}
 		
-		return null;
+		return -1;
 	}
 	
-	void OpenDoorLinked(int doorIndex)
+	int FindLivespaceDoorIdByLinkedDoorIndex(int doorIndex)
 	{
-		ref LivespaceDoorData doorData = FindDoorByDoorIndex(doorIndex);
-		if (doorData != null)
+		if (doorIndex != -1)
 		{
-			foreach (int linkedDoorId : doorData.m_linkedDoorIds)
+			for (int i = 0; i < m_data.m_doors.Count(); i++)
 			{
-				GetHouse().OpenDoor(linkedDoorId);
+				ref LivespaceDoorData doorData = m_data.m_doors.Get(i);
+				if (doorData.m_linkedDoorIds.Find(doorIndex) != -1)
+				{
+					return i; 
+				}	
 			}
-			
-			//OpenDoor( doorData.m_selfDoorId );			
 		}
+		
+		return -1;
 	}
 	
-	void CloseDoorLinked(int doorIndex)
+	bool OpenLivespaceDoor(int livespaceDoorId)
 	{
-		ref LivespaceDoorData doorData = FindDoorByDoorIndex(doorIndex);
-		if (doorData != null)
+		if (livespaceDoorId == -1)
 		{
-			foreach (int linkedDoorId : doorData.m_linkedDoorIds)
-			{
-				GetHouse().CloseDoor(linkedDoorId);
-			}
-			
-			//CloseDoor( doorData.m_selfDoorId );
+			return false;
 		}
+		
+		ref LivespaceDoorData doorData = m_data.m_doors.Get(livespaceDoorId);
+		if (doorData == null)
+		{
+			return false;
+		}
+		
+		this.UnlockDoor(doorData.m_selfDoorId);
+		this.OpenDoor(doorData.m_selfDoorId);	
+		
+		foreach (int linkedDoorId : doorData.m_linkedDoorIds)
+		{
+			GetHouse().UnlockDoor(linkedDoorId);
+			GetHouse().OpenDoor(linkedDoorId);
+		}	
+		
+		return true;
+	}
+	
+	bool CloseLivespaceDoor(int livespaceDoorId)
+	{
+		if (livespaceDoorId == -1)
+		{
+			return false;
+		}
+		
+		ref LivespaceDoorData doorData = m_data.m_doors.Get(livespaceDoorId);
+		if (doorData == null)
+		{		
+			return false;
+		}
+				
+		foreach (int linkedDoorId : doorData.m_linkedDoorIds)
+		{
+			GetHouse().CloseDoor(linkedDoorId);
+			GetHouse().LockDoor(linkedDoorId);
+		}
+		
+		this.CloseDoor(doorData.m_selfDoorId);	
+		this.LockDoor(doorData.m_selfDoorId);		
+		return true;
 	}
 	
 	private void SychDirtyLevels(PlayerIdentity sender = NULL)
@@ -260,9 +355,10 @@ modded class BuildingLivespace
 			
 		int houseNetId1, houseNetId2;
 		m_house.GetNetworkID(houseNetId1, houseNetId2);
+		m_synchData.m_houseNetId1 = houseNetId1;
+		m_synchData.m_houseNetId2 = houseNetId2;
 		
-		Param6<string, int, int, int, ref array<int>, ref array<int>> params = 
-			new Param6<string, int, int, int, ref array<int>, ref array<int>>(m_livespacePath, m_livespaceId, houseNetId1, houseNetId2, m_doorLevels, m_barricadeLevels);
+		Param1<ref LivespaceSynchData> params = new Param1<ref LivespaceSynchData>(m_synchData);
 		RPCSingleParam(SyberiaERPC.SYBERPC_SYNCH_LIVESPACE_SERVER, params, true, sender);
 	}
 	
@@ -294,5 +390,21 @@ modded class BuildingLivespace
 	override void EEDelete(EntityAI parent)
 	{
 		super.EEDelete(parent);
+		
+		if (m_owners)
+		{
+			delete m_owners;
+		}
+		
+		if (m_members)
+		{
+			delete m_members;
+		}
+		
+		PluginBuildingSystem buildingPlugin = PluginBuildingSystem.Cast(GetPlugin(PluginBuildingSystem));
+		if (buildingPlugin)
+		{
+			buildingPlugin.DeleteLivespaceRecord(this);
+		}
 	}
 };
