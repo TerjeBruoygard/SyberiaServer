@@ -28,7 +28,7 @@ modded class ActionOpenDoors
 				
 				if (livespace != null && livespaceDoorIndex != -1)
 				{
-					if (livespace.OpenLivespaceDoor(livespaceDoorIndex))
+					if (livespace.OpenLivespaceDoor(action_data.m_Player, livespaceDoorIndex))
 					{
 						return;
 					}

@@ -1,6 +1,6 @@
-modded class ActionCloseDoors
+modded class ActionUnlockDoors
 {
-	override void OnStartServer( ActionData action_data )
+    override void OnFinishProgressServer( ActionData action_data )
 	{
 		House building;
 		if ( Class.CastTo(building, action_data.m_Target.GetObject()) )
@@ -28,14 +28,11 @@ modded class ActionCloseDoors
 				
 				if (livespace != null && livespaceDoorIndex != -1)
 				{
-					if (livespace.CloseLivespaceDoor(action_data.m_Player, livespaceDoorIndex))
-					{
-						return;
-					}
+					return;
 				}
 			}
 		}
 		
-		super.OnStartServer(action_data);
+		super.OnFinishProgressServer(action_data);
 	}
 };
