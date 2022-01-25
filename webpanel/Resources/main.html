@@ -2642,8 +2642,14 @@
                 if (currentCraftingId != -1) {
                     let selectionId = $(this).val() != undefined ? parseInt($(this).val()) : 0;
 
-                    craftingsDataobject[currentCraftingId]['m_IngredientDestroy'][currentCraftingIngredientId] = 0;
-                    craftingsDataobject[currentCraftingId]['m_IngredientAddQuantity'][currentCraftingIngredientId] = 0;
+                    if (selectionId == 3) {
+                        craftingsDataobject[currentCraftingId]['m_IngredientDestroy'][currentCraftingIngredientId] = 1;
+                        craftingsDataobject[currentCraftingId]['m_IngredientAddQuantity'][currentCraftingIngredientId] = 0;
+                    }
+                    else {
+                        craftingsDataobject[currentCraftingId]['m_IngredientDestroy'][currentCraftingIngredientId] = 0;
+                        craftingsDataobject[currentCraftingId]['m_IngredientAddQuantity'][currentCraftingIngredientId] = 0;
+                    }
 
                     if (selectionId == 0 || selectionId == 3) {
                         $('#inputCraftingQuantityActionValue').val('');
