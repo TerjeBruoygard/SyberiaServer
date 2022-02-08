@@ -22,7 +22,8 @@ modded class ActionHomebookClaimOwnership
 				}
 				
 				action_data.m_MainItem.Delete();
-				buildingPlugin.CreateLivespace(house, livespaceId, action_data.m_Player);
+				buildingPlugin.CreateLivespace(house, livespaceId, action_data.m_Player);		
+				GetSyberiaRPC().SendToClient(SyberiaRPC.SYBRPC_SCREEN_MESSAGE, action_data.m_Player.GetIdentity(), new Param1<string>("#syb_claim_home_message"));	
 			}
 		}
 	}
