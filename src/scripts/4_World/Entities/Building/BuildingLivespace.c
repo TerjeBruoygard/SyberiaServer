@@ -164,11 +164,6 @@ modded class BuildingLivespace
 		super.SetupBarricades();
 	}
 	
-	int GetBarricadeLevel(int id)
-	{
-		return m_synchData.m_barricadeLevels[id];
-	}
-	
 	void SetBarricadeLevel(int id, int level)
 	{
 		int lastLevel = m_synchData.m_barricadeLevels[id];
@@ -244,11 +239,6 @@ modded class BuildingLivespace
 		}
 		
 		super.SetupDoors();
-	}
-
-	int GetDoorLevel(int id)
-	{
-		return m_synchData.m_doorLevels[id];
 	}
 	
 	void SetDoorLevel(int id, int level)

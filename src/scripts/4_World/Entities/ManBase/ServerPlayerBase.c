@@ -2318,7 +2318,7 @@ modded class PlayerBase
 	override void SetVisibilityCoef(float pVisibility)
 	{
 		float visibilitySkillMod = 1.0 - Math.Clamp(GetPerkFloatValue(SyberiaPerkType.SYBPERK_STEALTH_ZOMBIE_AGRO_DEC, 0, 0), 0, 1);
-		m_VisibilityCoef = Math.Clamp(pVisibility * (visibilitySkillMod * 2.0), 0, 1.5);
+		m_VisibilityCoef = Math.Clamp(pVisibility * (visibilitySkillMod * 2.0), 0, 1.5) * GetSyberiaConfig().m_zombieDetectPlayerVisibilityMultiplier;
 	}
 	
 	void AddExperienceOnIgniteFireplace(int state)

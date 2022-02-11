@@ -138,6 +138,8 @@ modded class SyberiaConfig
 	float m_zombieFindHouseDistance;
 	float m_zombieBloodHandsChanceOnLooting;
 	bool m_zombieAttackPlayersInUnconscious;
+	float m_zombieDetectPlayerVisibilityMultiplier;
+	float m_zombieDetectPlayerNoiseMultiplier;
 	
 	// Animals
 	float m_animalsButchingKnifeDamage;
@@ -341,6 +343,8 @@ modded class SyberiaConfig
 		m_zombieFindHouseDistance = ConfigGetFloat("CfgSyberia ZombieSystem zombieFindHouseDistance");
 		m_zombieBloodHandsChanceOnLooting = ConfigGetFloat("CfgSyberia ZombieSystem zombieBloodHandsChanceOnLooting");
 		m_zombieAttackPlayersInUnconscious = ConfigGetInt("CfgSyberia ZombieSystem zombieAttackPlayersInUnconscious") == 1;
+		m_zombieDetectPlayerVisibilityMultiplier = ConfigGetFloat("CfgSyberia ZombieSystem zombieDetectPlayerVisibilityMultiplier");
+		m_zombieDetectPlayerNoiseMultiplier = ConfigGetFloat("CfgSyberia ZombieSystem zombieDetectPlayerNoiseMultiplier");
 		
 		// Animals
 		m_animalsButchingKnifeDamage = ConfigGetFloat("CfgSyberia AnimalsSystem animalsButchingKnifeDamage");
