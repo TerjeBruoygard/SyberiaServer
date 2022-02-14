@@ -452,8 +452,22 @@ modded class PlayerBase
 			currentZones.Insert(pluginZones.m_config.m_defaultZone);
 		}
 		
-		bool zonesDirty = false;
+		int nullCheckIndex = 0;
 		ref ZoneImplementation zoneImpl;
+		while (nullCheckIndex < m_zones.Count())
+		{
+			zoneImpl = m_zones[nullCheckIndex];
+			if (zoneImpl == null || zoneImpl.m_zone == null)
+			{
+				m_zones.Remove(nullCheckIndex);
+			}
+			else
+			{
+				nullCheckIndex = nullCheckIndex + 1;
+			}
+		}
+		
+		bool zonesDirty = false;	
 		for (int i = 0; i < m_zones.Count(); i++)
 		{
 			zoneImpl = m_zones[i];
