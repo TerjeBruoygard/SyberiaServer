@@ -19,7 +19,7 @@ modded class PluginLogicPDA
 		}
 	}
 	
-	override void SendGlobalMessage( ref ParamsReadContext ctx, ref PlayerIdentity sender )
+	override void SendGlobalMessage( ParamsReadContext ctx, PlayerIdentity sender )
 	{
         Param1< string > serverData;
         if ( !ctx.Read( serverData ) ) return;
@@ -35,7 +35,7 @@ modded class PluginLogicPDA
         GetSyberiaRPC().SendToAll( SyberiaRPC.SYBRPC_PDA_SEND_GLOBAL_MESSAGE, new Param2< string, string >( profile.m_name, serverData.param1 ) );
 	}
 	
-	override void SendGroupMessage( ref ParamsReadContext ctx, ref PlayerIdentity sender )
+	override void SendGroupMessage( ParamsReadContext ctx, PlayerIdentity sender )
 	{
         Param1< string > serverData;			
         if ( !ctx.Read( serverData ) ) return;
@@ -59,7 +59,7 @@ modded class PluginLogicPDA
         }
 	}
 	
-	override void SendMessage( ref ParamsReadContext ctx, ref PlayerIdentity sender )
+	override void SendMessage( ParamsReadContext ctx, PlayerIdentity sender )
     { 
         Param2< int, string > serverData;			
         if ( !ctx.Read( serverData ) ) return;
@@ -80,7 +80,7 @@ modded class PluginLogicPDA
 				ref CharProfile receiverProfile = player.m_charProfile;
 				if (receiverProfile)
 				{				
-	                ref PlayerIdentity identity = player.GetIdentity();
+	                PlayerIdentity identity = player.GetIdentity();
 	                int identityId = receiverProfile.m_id;
 	                if (serverData.param1 == identityId)
 	                {
@@ -103,7 +103,7 @@ modded class PluginLogicPDA
         }
 	}
 	
-	override void CheckContacts( ref ParamsReadContext ctx, ref PlayerIdentity sender )
+	override void CheckContacts( ParamsReadContext ctx, PlayerIdentity sender )
     { 
         Param1< array<int> > serverData;			
         if ( !ctx.Read( serverData ) ) return;
@@ -135,7 +135,7 @@ modded class PluginLogicPDA
         CheckContactsResponse(sender, result);
 	}
 	
-	void CheckContactsResponse(ref PlayerIdentity sender, ref array<int> contacts)
+	void CheckContactsResponse(PlayerIdentity sender, ref array<int> contacts)
 	{
 		ref PluginSyberiaOptions_GroupFaction leadedGroup = GetSyberiaOptions().FindGroupByLeader(sender);
 		ref array<ref SyberiaPdaGroupMember> groupMembers = null;
@@ -163,18 +163,18 @@ modded class PluginLogicPDA
 		GetSyberiaRPC().SendToClient( SyberiaRPC.SYBRPC_PDA_CHECK_CONTACT, sender, new Param5< ref array<int>, bool, ref array<ref SyberiaPdaGroupMember>, string, string >( contacts, useGroupManagenemt, groupMembers, infoText, groupChatName ) );
 	}
 	
-	override void InitPdaProfile( ref ParamsReadContext ctx, ref PlayerIdentity sender )
+	override void InitPdaProfile( ParamsReadContext ctx, PlayerIdentity sender )
     {   
         
 	}
 	
-	void SendPdaUserState(ref PlayerIdentity identity, ref CharProfile profile)
+	void SendPdaUserState(PlayerIdentity identity, ref CharProfile profile)
 	{
 		string instanceName = m_serverConfig.m_serverInstanceName + "_" + profile.m_id; 
 		GetSyberiaRPC().SendToClient( SyberiaRPC.SYBRPC_PDA_USER_STATE, identity, new Param4<string, string, bool, bool>( profile.m_name, instanceName, m_serverConfig.m_enableGlobalChat, m_serverConfig.m_enableMapPage ) );
 	}
 	
-	override void AddContact( ref ParamsReadContext ctx, ref PlayerIdentity sender )
+	override void AddContact( ParamsReadContext ctx, PlayerIdentity sender )
     {        
         Param1< string > serverData;
         if ( !ctx.Read( serverData ) ) return;
@@ -208,7 +208,7 @@ modded class PluginLogicPDA
         }
     }
 	
-	override void GroupCommand( ref ParamsReadContext ctx, ref PlayerIdentity sender )
+	override void GroupCommand( ParamsReadContext ctx, PlayerIdentity sender )
 	{
         if (sender == null) return;
         
@@ -227,11 +227,11 @@ modded class PluginLogicPDA
             
             array<PlayerIdentity> identities = new array<PlayerIdentity>;
             GetGame().GetPlayerIndentities(identities);
-            ref PlayerIdentity newMemberIdentity = null;
+            PlayerIdentity newMemberIdentity = null;
             
 			fid.ToLower();
 			
-            foreach (ref PlayerIdentity identity : identities)
+            foreach (PlayerIdentity identity : identities)
             {
 				errorCode = 0;
 				ref CharProfile profile = GetSyberiaCharacters().Get(identity, errorCode, true);

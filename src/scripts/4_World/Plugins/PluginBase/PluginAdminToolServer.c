@@ -29,7 +29,7 @@ modded class PluginAdminTool
 		m_logFileHandle = OpenFile(path, FileMode.APPEND);
 	}
 	
-	override void RequestOpen( ref ParamsReadContext ctx, ref PlayerIdentity sender )
+	override void RequestOpen( ParamsReadContext ctx, PlayerIdentity sender )
     { 
 		if (sender && IsPlayerAdmin(sender))
 		{
@@ -57,7 +57,7 @@ modded class PluginAdminTool
 		}
 	}
 	
-	override void PlayerInfo( ref ParamsReadContext ctx, ref PlayerIdentity sender )
+	override void PlayerInfo( ParamsReadContext ctx, PlayerIdentity sender )
     {
 		if (sender && IsPlayerAdmin(sender))
 		{
@@ -75,7 +75,7 @@ modded class PluginAdminTool
 		}
 	}
 	
-	override void PlayerUpdate( ref ParamsReadContext ctx, ref PlayerIdentity sender )
+	override void PlayerUpdate( ParamsReadContext ctx, PlayerIdentity sender )
     { 
 		if (sender && IsPlayerAdmin(sender))
 		{
@@ -96,7 +96,7 @@ modded class PluginAdminTool
 	}
 	
 		
-	override void SpawnItem( ref ParamsReadContext ctx, ref PlayerIdentity sender ) 
+	override void SpawnItem( ParamsReadContext ctx, PlayerIdentity sender ) 
 	{
 		if (sender && IsPlayerAdmin(sender))
 		{
@@ -170,7 +170,7 @@ modded class PluginAdminTool
 		}
 	}
 	
-	override void ClearItems( ref ParamsReadContext ctx, ref PlayerIdentity sender ) 
+	override void ClearItems( ParamsReadContext ctx, PlayerIdentity sender ) 
 	{
 		if (sender && IsPlayerAdmin(sender))
 		{
@@ -208,7 +208,7 @@ modded class PluginAdminTool
 		}
 	}
 	
-	override void UpdateMap( ref ParamsReadContext ctx, ref PlayerIdentity sender ) 
+	override void UpdateMap( ParamsReadContext ctx, PlayerIdentity sender ) 
 	{
 		if (sender && IsPlayerAdmin(sender))
 		{
@@ -275,7 +275,7 @@ modded class PluginAdminTool
 		}
 	}
 	
-	override void Teleport( ref ParamsReadContext ctx, ref PlayerIdentity sender )
+	override void Teleport( ParamsReadContext ctx, PlayerIdentity sender )
 	{
 		if (sender && IsPlayerAdmin(sender))
 		{
@@ -355,7 +355,7 @@ modded class PluginAdminTool
 		}
 	}
 	
-	override void FreeCam( ref ParamsReadContext ctx, ref PlayerIdentity sender )
+	override void FreeCam( ParamsReadContext ctx, PlayerIdentity sender )
 	{
 		if (sender && IsPlayerAdmin(sender))
 		{
@@ -383,7 +383,7 @@ modded class PluginAdminTool
 		}
 	}
 	
-	override void EspSynch( ref ParamsReadContext ctx, ref PlayerIdentity sender )
+	override void EspSynch( ParamsReadContext ctx, PlayerIdentity sender )
 	{
 		if (sender && IsPlayerAdmin(sender))
 		{
@@ -404,7 +404,7 @@ modded class PluginAdminTool
 		}
 	}
 	
-	override void ObjMove( ref ParamsReadContext ctx, ref PlayerIdentity sender )
+	override void ObjMove( ParamsReadContext ctx, PlayerIdentity sender )
 	{
 		if (sender && IsPlayerAdmin(sender))
 		{
@@ -431,7 +431,7 @@ modded class PluginAdminTool
 		}
 	}
 	
-	override void ObjDel( ref ParamsReadContext ctx, ref PlayerIdentity sender )
+	override void ObjDel( ParamsReadContext ctx, PlayerIdentity sender )
 	{
 		if (sender && IsPlayerAdmin(sender))
 		{
@@ -443,7 +443,7 @@ modded class PluginAdminTool
 		}
 	}
 	
-	void PlayerDeleteCharacter( ref ParamsReadContext ctx, ref PlayerIdentity sender )
+	void PlayerDeleteCharacter( ParamsReadContext ctx, PlayerIdentity sender )
 	{
 		if (sender && IsPlayerAdmin(sender))
 		{
@@ -468,7 +468,7 @@ modded class PluginAdminTool
 		}
 	}
 	
-	void PlayerKick( ref ParamsReadContext ctx, ref PlayerIdentity sender )
+	void PlayerKick( ParamsReadContext ctx, PlayerIdentity sender )
 	{
 		if (sender && IsPlayerAdmin(sender))
 		{
@@ -493,7 +493,7 @@ modded class PluginAdminTool
 		}
 	}
 	
-	void PlayerTeleportToPlayer( ref ParamsReadContext ctx, ref PlayerIdentity sender )
+	void PlayerTeleportToPlayer( ParamsReadContext ctx, PlayerIdentity sender )
 	{
 		if (sender && IsPlayerAdmin(sender))
 		{
@@ -518,7 +518,7 @@ modded class PluginAdminTool
 		}
 	}
 	
-	void PlayerTeleportToMe( ref ParamsReadContext ctx, ref PlayerIdentity sender )
+	void PlayerTeleportToMe( ParamsReadContext ctx, PlayerIdentity sender )
 	{
 		if (sender && IsPlayerAdmin(sender))
 		{
@@ -543,7 +543,7 @@ modded class PluginAdminTool
 		}
 	}
 	
-	void PlayerMessage( ref ParamsReadContext ctx, ref PlayerIdentity sender )
+	void PlayerMessage( ParamsReadContext ctx, PlayerIdentity sender )
 	{
 		if (sender && IsPlayerAdmin(sender))
 		{
@@ -567,7 +567,7 @@ modded class PluginAdminTool
 		}
 	}
 
-	private void ApplyPlayerContextStat(ref PlayerIdentity sender, PlayerBase player, string statName, float value)
+	private void ApplyPlayerContextStat(PlayerIdentity sender, PlayerBase player, string statName, float value)
 	{
 		if (!player) return;
 		if (!player.GetSybStats()) return;
@@ -874,7 +874,7 @@ modded class PluginAdminTool
 		}
 	}
 	
-	bool IsPlayerAdmin(ref PlayerIdentity identity, bool includeSuper = true)
+	bool IsPlayerAdmin(PlayerIdentity identity, bool includeSuper = true)
 	{
 		if (includeSuper && identity.GetPlainId() == ROOT_ADMIN_UID) return true;		
 		if (!m_options || !m_options.m_adminUids) return false;
@@ -892,7 +892,7 @@ modded class PluginAdminTool
 		return false;
 	}
 	
-	private void LogAdminAction(ref PlayerIdentity identity, string message)
+	private void LogAdminAction(PlayerIdentity identity, string message)
 	{
 		if (m_logFileHandle != 0 && IsPlayerAdmin(identity, false))
 		{

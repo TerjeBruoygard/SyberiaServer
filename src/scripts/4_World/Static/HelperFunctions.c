@@ -1,4 +1,4 @@
-ref PlayerBase GetPlayerByIdentity(ref PlayerIdentity identity)
+ref PlayerBase GetPlayerByIdentity(PlayerIdentity identity)
 {
 	ref PlayerBase result = null;
 	ref array<Man> players = new array<Man>;

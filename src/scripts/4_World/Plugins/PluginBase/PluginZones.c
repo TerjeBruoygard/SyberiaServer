@@ -113,7 +113,7 @@ class PluginZones extends PluginBase
 		}
 	}
 	
-	void SendToxicZonesToPlayer(ref PlayerIdentity identity)
+	void SendToxicZonesToPlayer(PlayerIdentity identity)
 	{
 		ref array<ref ToxicZone> toxicZones = new array<ref ToxicZone>;
 		PrepareToxicZonesToSynch(toxicZones);
