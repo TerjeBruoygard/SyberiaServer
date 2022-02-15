@@ -83,7 +83,7 @@ modded class MissionServer
 				profile.m_respawnCounter = profile.m_respawnCounter + 1;
 				
 				if (profile.m_startGear)
-				{					
+				{			
 					ref PluginSyberiaOptions_GroupFaction faction = GetSyberiaOptions().FindGroupByMember(profile.m_id);
 					allowedEquip = GetSyberiaOptions().GetCharacterAllowedEquipment(identity, profile, faction);					
 					if (allowedEquip.Count() == profile.m_startGear.Count())
@@ -274,7 +274,7 @@ modded class MissionServer
 	override void OnEvent(EventType eventTypeId, Param params) 
 	{
 		super.OnEvent(eventTypeId, params);
-		
+
 		if (eventTypeId == ClientReadyEventTypeID)
 		{
 			ClientReadyEventParams readyParams;
@@ -338,25 +338,18 @@ modded class MissionServer
 		
 		return super.InsertCorpse(player);
 	}
-	
-	override void ControlPersonalLight(PlayerBase player) 
-	{
-		// DO NOTHING
-	}
-	
 		
 	override void EquipCharacter(MenuDefaultCharacterData char_data) 
 	{
 		// DO NOTHING
 	}
 	
-	private void ForceRespawnPlayer(PlayerIdentity identity, ref PlayerBase player)
+	private void ForceRespawnPlayer(PlayerIdentity identity, PlayerBase player)
 	{
 		if (player)
 		{
 			player.SetAllowDamage(true);
-			player.SetHealth("", "", 0);
-			player.SetSynchDirty();
+			player.SetHealth(0.0);
 		}
 		else if (identity)
 		{
@@ -420,15 +413,12 @@ modded class MissionServer
 				}
 				
 				profile.m_skills = clientData.param1.m_skills;				
-				GetSyberiaCharacters().Create(sender, profile, this, "OnCreateNewCharRequest_CreateChar");
-				delete profile;	
+				GetSyberiaCharacters().Create(sender, profile, this, "OnCreateNewCharRequest_CreateChar");	
 			}
 			else
 			{
 				OnCreateNewCharRequest_CreateChar(sender, false);
 			}		
-
-			delete clientData.param1;
 		}
 		else
 		{
@@ -473,9 +463,6 @@ modded class MissionServer
 			if (profile.m_startGear) delete profile.m_startGear;
 			profile.m_startGear = new ref array<int>;
 			profile.m_startGear.Copy(selectedIndexes);
-						
-			delete selectedIndexes;
-			delete clientData;
 			
 			profile.m_needToConfigureGear = false;
 			profile.m_needToForceRespawn = true;
