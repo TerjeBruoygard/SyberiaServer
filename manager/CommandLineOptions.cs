@@ -11,9 +11,6 @@ namespace SyberiaServerManager
         [Option('s', "serverdir", Required = true, HelpText = "Path to DayZ server directory.")]
         public string ServerDir { get; set; }
 
-        [Option('u', "userid", Required = false, HelpText = "Hosting user account ID.")]
-        public string UserId { get; set; }
-
         [Option("no-logs", Required = false, Default = false, HelpText = "Disable logging to file and output.")]
         public bool NoLogs { get; set; }
 
