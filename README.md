@@ -9,8 +9,9 @@ How to build server PBO:
 How to build Database app for server:
 1. Open "SyberiaAdditionalSoftware.sln" in Visual Studio 2019
 2. Change solution configuration to "Release"
-3. Build the "SyberiaServerManager" project.
-4. Copy all files from "SyberiaServer/manager/bin/Release" folder to your folder (any empty folder).
+3. Right click on solution in files explorer and press "Restore Nuget Packages"
+4. Build the "SyberiaServerManager" project. (Right click on SyberiaServerManager project in files explorer and press "Rebuild")
+5. Copy all files from "SyberiaServer/manager/bin/Release" folder to your folder (any empty folder).
 
 How to start the server:
 1. Copy "SyberiaServer.pbo" to Addons folder in root of dayz server.
