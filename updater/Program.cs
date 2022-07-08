@@ -20,6 +20,8 @@ namespace SyberiaUpdaterServer
 
         private static string masterKey = null;
 
+        private static string statisticKey = null;
+
         private static string[] masterAddress = null;
 
         private static List<string> whitelist = null;
@@ -33,6 +35,11 @@ namespace SyberiaUpdaterServer
         public static bool ValidateWhitelistAddress(string ipAddress)
         {
             return whitelist.Contains(ipAddress);
+        }
+
+        public static bool ValidateStatisticKey(string value)
+        {
+            return statisticKey.Equals(value, StringComparison.InvariantCulture);
         }
 
         public static bool ValidateAccessKey(string value, string ipAddress)
@@ -74,6 +81,32 @@ namespace SyberiaUpdaterServer
             return Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "whitelist.txt");
         }
 
+        public static string[] GetServiceStatistic(string date)
+        {
+            date = date.Replace(".", "_");
+            var statisticFile = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "statistic", $"stat_{date}.txt");
+            if (File.Exists(statisticFile))
+            {
+                return File.ReadAllLines(statisticFile);
+            }
+
+            return null;
+        }
+
+        public static void AddServiceStartToStatistic(string ip, JToken data)
+        {
+            var statisticDir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "statistic");
+            if (!Directory.Exists(statisticDir))
+            {
+                Directory.CreateDirectory(statisticDir);
+            }
+
+            var datetime = DateTime.Now;
+            var statisticFile = Path.Combine(statisticDir, $"stat_{datetime.Year}_{datetime.Month}_{datetime.Day}.txt");
+            var statisticData = $"{datetime.Hour}:{datetime.Minute}:{datetime.Second}|{ip}|{data["dbPort"].Value<int>()}|{data["webPort"].Value<int>()}|{data["dayzDir"].Value<string>()}|{data["serviceDir"].Value<string>()}";
+            File.AppendAllLines(statisticFile, new string[] { statisticData });
+        }
+
         private static void ConfigureLogger()
         {
             var config = new LoggingConfiguration();
@@ -105,10 +138,12 @@ namespace SyberiaUpdaterServer
             var result = Newtonsoft.Json.JsonConvert.DeserializeObject<Dictionary<string, object>>(File.ReadAllText(path));
             accessKey = result["accessKey"] as string;
             masterKey = result["masterKey"] as string;
+            statisticKey = result["statisticKey"] as string;
             masterAddress = (result["masterAddress"] as JArray).Select(x => x.Value<string>()).ToArray();
             baseUris = (result["baseUris"] as JArray).Select(x => new Uri(x.Value<string>())).ToArray();
             if (accessKey == null || 
-                masterKey == null || 
+                masterKey == null ||
+                statisticKey == null ||
                 masterAddress == null || masterAddress.Length == 0 ||
                 baseUris == null || baseUris.Length == 0)
             {

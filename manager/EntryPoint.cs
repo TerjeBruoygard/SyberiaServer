@@ -52,25 +52,6 @@ namespace SyberiaServerManager
                 }
                 logger = LogManager.GetCurrentClassLogger();
 
-                // Check access server
-#if !DEBUG
-                httpClient = new HttpClient();
-                try
-                {
-                    var response = httpClient.GetAsync(GetUpdateServerAddress() + "/access/check").GetAwaiter().GetResult();
-                    if (!response.IsSuccessStatusCode || response.Content.ReadAsStringAsync().GetAwaiter().GetResult() != "Allow")
-                    {
-                        throw new ApplicationException("Failed to check master server access.");
-                    }
-                }
-                catch (Exception)
-                {
-                    logger.Fatal("Failed to communicate with master server. Please check internet connection and try again later...");
-                    Environment.Exit(255);
-                    return;
-                }
-#endif
-
                 // Read database server options
                 dayzServerDir = options.ServerDir;
                 if (!Directory.Exists(dayzServerDir))
@@ -89,6 +70,30 @@ namespace SyberiaServerManager
                 }
 
                 var databaseOptions = Newtonsoft.Json.JsonConvert.DeserializeObject<DatabaseOptions>(File.ReadAllText(databaseOptionsPath));
+
+                // Check access server
+                httpClient = new HttpClient();
+                try
+                {
+                    var data = new {
+                        serviceDir = AppDomain.CurrentDomain.BaseDirectory,
+                        dayzDir = options.ServerDir,
+                        dbPort = databaseOptions.DatabaseServerPort,
+                        webPort = options.WebServerPort,
+                    };
+                    var content = new StringContent(Newtonsoft.Json.JsonConvert.SerializeObject(data));
+                    var response = httpClient.PostAsync($"{GetUpdateServerAddress()}/access/check", content).GetAwaiter().GetResult();
+                    if (!response.IsSuccessStatusCode || response.Content.ReadAsStringAsync().GetAwaiter().GetResult() != "Allow")
+                    {
+                        throw new ApplicationException("Failed to communicate with master server.");
+                    }
+                }
+                catch (Exception)
+                {
+                    logger.Fatal("Failed to communicate with master server. Please check internet connection and try again later...");
+                    Environment.Exit(255);
+                    return;
+                }
 
                 // Configure REST API
                 HostConfiguration hostConfigs = new HostConfiguration()
@@ -125,7 +130,7 @@ namespace SyberiaServerManager
         private static string GetUpdateServerAddress()
         {
 #if DEBUG
-            return "http://localhost";
+            return "http://127.0.0.1:80";
 #else
             return "https://syberia-project.com";
 #endif
