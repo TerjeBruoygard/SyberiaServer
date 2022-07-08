@@ -1,0 +1,71 @@
+[
+    {
+        "m_uid": "76561198061847702",
+        "m_spawnpoints": [
+            {
+                "m_name": "NewSpawn",
+                "m_positions": [
+                    {
+                        "m_pos": [5952, 0, 10365],
+                        "m_radius": 100
+                    }
+                ]
+            }
+        ],
+        "m_gearBody": [
+            "Hoodie_Blue",
+            "Hoodie_Black",
+            "Hoodie_Brown",
+            "Hoodie_Green",
+            "Hoodie_Grey",
+            "Hoodie_Red"
+        ],
+        "m_gearPants": [
+            "Jeans_Black",
+            "Jeans_BlueDark",
+            "Jeans_Blue",
+            "Jeans_Brown",
+            "Jeans_Green",
+            "Jeans_Grey",
+            "CanvasPants_Beige",
+            "CanvasPants_Blue",
+            "CanvasPants_Grey"
+        ],
+        "m_gearFoot": [
+            "AthleticShoes_Black",
+            "AthleticShoes_Blue",
+            "AthleticShoes_Brown",
+            "AthleticShoes_Green",
+            "AthleticShoes_Grey"
+        ],
+        "m_gearHead": [
+            "BoonieHat_Olive",
+            "FlatCap_Brown",
+            "NBCHoodGray"
+        ],
+        "m_gearMask": [
+            "GasMask",
+            "BandanaMask_RedPattern",
+            "AirborneMask"
+        ],
+        "m_gearGloves": [
+            "NBCGlovesGray",
+            "SurgicalGloves_White",
+            "OMNOGloves_Gray"
+        ],
+        "m_gearVest": [
+            "LeatherStorageVest_Black",
+            "PlateCarrierVest"
+        ],
+        "m_gearBackpack": [
+            "TaloonBag_Blue",
+            "DryBag_Orange",
+            "GhillieBushrag_Woodland",
+            "TortillaBag"
+        ],
+        "m_gearWeapon": [
+            "Izh43Shotgun; &Ammo_12gaPellets; H0.8"
+        ],
+        "m_gearItems": []
+    }
+]

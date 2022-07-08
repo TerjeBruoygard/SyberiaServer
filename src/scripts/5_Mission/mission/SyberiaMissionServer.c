@@ -75,7 +75,7 @@ modded class MissionServer
 					{
 						int itemIndex = -1;
 						int spawnPointId = profile.m_startGear.Get(SyberiaScreenEquipPages.SYBSEP_SPAWN_PAGE);
-						startPos = GetSyberiaOptions().GetCharacterSpawnpoint(profile, faction, spawnPointId).CalculateSpawnpoint();
+						startPos = GetSyberiaOptions().GetCharacterSpawnpoint(identity, profile, faction, spawnPointId).CalculateSpawnpoint();
 						
 						startEquipClothes = new array<string>;						
 						for (int i = SyberiaScreenEquipPages.SYBSEP_BODY_PAGE; i <= SyberiaScreenEquipPages.SYBSEP_BACKPACK_PAGE; i++)
@@ -95,7 +95,7 @@ modded class MissionServer
 						}
 
 						itemIndex = profile.m_startGear.Get(SyberiaScreenEquipPages.SYBSEP_ITEMS_PAGE);				
-						startEquipItems = GetSyberiaOptions().GetCharacterLoadoutItems(profile, faction, itemIndex);
+						startEquipItems = GetSyberiaOptions().GetCharacterLoadoutItems(identity, profile, faction, itemIndex);
 						
 						itemIndex = profile.m_startGear.Get(SyberiaScreenEquipPages.SYBSEP_SPECIAL_PAGE);
 						if (itemIndex >= 0 && itemIndex < allowedEquip.Get(SyberiaScreenEquipPages.SYBSEP_SPECIAL_PAGE).Count())
