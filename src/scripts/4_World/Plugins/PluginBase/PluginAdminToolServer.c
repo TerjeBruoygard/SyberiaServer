@@ -218,7 +218,15 @@ modded class PluginAdminTool
 				if (player && player.m_charProfile)
 				{
 					context.m_playerPositions.Insert(player.GetPosition());
-					context.m_playerNames.Insert(player.m_charProfile.m_name);
+					
+					string name = player.m_charProfile.m_name;
+					ref PluginSyberiaOptions_GroupFaction group = GetSyberiaOptions().FindGroupByMember(player.m_charProfile.m_id);
+		        	if (group)
+					{
+						name = name + " [" + group.m_displayName + "]";
+					}
+					
+					context.m_playerNames.Insert(name);
 				}
 			}
 		}
@@ -265,19 +273,12 @@ modded class PluginAdminTool
 	
 	private void TeleportFnc(ref PlayerBase player, vector pos, int mode)
 	{
+		int contactComponent;
+		vector contactPos, contactDir, nextPos;
 		vector teleportPos = pos;
 		if (mode == 0)
 		{	
-			teleportPos[1] = GetGame().SurfaceY(teleportPos[0], teleportPos[2]);
-			
-			int contactComponent;
-			vector contactPos, contactDir;
-			vector begPos = teleportPos;
-			begPos[1] = begPos[1] + 1000;
-			if (DayZPhysics.RaycastRV(begPos, teleportPos, contactPos, contactDir, contactComponent))
-			{
-				teleportPos = contactPos;
-			}
+			// DO NOTHING
 		}
 		else if (mode == 1)
 		{
@@ -286,6 +287,36 @@ modded class PluginAdminTool
 			
 			teleportPos[1] = GetGame().SurfaceY(teleportPos[0], teleportPos[2]) - 50;
 			player.GetStatHeatBuffer().Set(player.GetStatHeatBuffer().GetMax());
+			
+			ItemBase attachment;
+			int attCount = player.GetInventory().AttachmentCount();
+			for ( int attIdx = 0; attIdx < attCount; attIdx++ )
+			{
+				attachment = ItemBase.Cast( player.GetInventory().GetAttachmentFromIndex( attIdx ) );
+				if (attachment && attachment.GetWet() > attachment.GetWetMin())
+				{
+					attachment.SetWet(attachment.GetWetMin());
+				}
+			}
+		}
+		else if (mode == 2)
+		{	
+			nextPos = teleportPos;
+			nextPos[1] = nextPos[1] - 1000;
+			if (DayZPhysics.RaycastRV(teleportPos, nextPos, contactPos, contactDir, contactComponent))
+			{
+				teleportPos = contactPos;
+			}
+		}
+		else if (mode == 3)
+		{	
+			teleportPos[1] = GetGame().SurfaceY(teleportPos[0], teleportPos[2]);			
+			nextPos = teleportPos;
+			nextPos[1] = nextPos[1] + 1000;
+			if (DayZPhysics.RaycastRV(nextPos, teleportPos, contactPos, contactDir, contactComponent))
+			{
+				teleportPos = contactPos;
+			}
 		}
 					
 		Transport veh = GameHelpers.GetPlayerVehicle(player);
@@ -309,7 +340,7 @@ modded class PluginAdminTool
 			PlayerBase player = GetPlayerByGUID(sender.GetId());
 			if (player)
 			{
-				Param1< bool > serverData;
+				Param2< bool, vector > serverData;
 	        	if ( !ctx.Read( serverData ) ) return;
 				player.m_freeCamMode = serverData.param1;
 				
@@ -319,7 +350,7 @@ modded class PluginAdminTool
 				}
 				else
 				{
-					TeleportFnc(player, player.GetPosition(), 0);
+					TeleportFnc(player, serverData.param2, 2);
 				}
 				
 				GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(SetPlayerAllowDamage, 1500, false, player, !serverData.param1);
@@ -382,6 +413,75 @@ modded class PluginAdminTool
 			if ( !ctx.Read( serverData ) ) return;
 			if ( !serverData.param1 ) return;			
 			GetGame().ObjectDelete( serverData.param1 );
+		}
+	}
+	
+	void PlayerDeleteCharacter( ref ParamsReadContext ctx, ref PlayerIdentity sender )
+	{
+		if (sender && IsPlayerAdmin(sender))
+		{
+			Param1< string > serverData;
+        	if ( !ctx.Read( serverData ) ) return;
+			
+			PlayerBase player = GetPlayerByGUID(serverData.param1);
+			if (player)
+			{
+				ref CharProfile profile = GetSyberiaCharacters().Get(player.GetIdentity());
+				if (profile)
+				{
+					GetSyberiaCharacters().Delete(player.GetIdentity());
+					player.SetAllowDamage(true);
+					player.SetHealth("", "", 0);
+					player.SetSynchDirty();
+				}
+			}
+		}
+	}
+	
+	void PlayerKick( ref ParamsReadContext ctx, ref PlayerIdentity sender )
+	{
+		if (sender && IsPlayerAdmin(sender))
+		{
+			Param1< string > serverData;
+        	if ( !ctx.Read( serverData ) ) return;
+			
+			PlayerBase player = GetPlayerByGUID(serverData.param1);
+			if (player)
+			{
+				GetGame().DisconnectPlayer(player.GetIdentity());
+			}
+		}
+	}
+	
+	void PlayerTeleportToPlayer( ref ParamsReadContext ctx, ref PlayerIdentity sender )
+	{
+		if (sender && IsPlayerAdmin(sender))
+		{
+			Param1< string > serverData;
+        	if ( !ctx.Read( serverData ) ) return;
+			
+			PlayerBase me = GetPlayerByIdentity(sender);
+			PlayerBase other = GetPlayerByGUID(serverData.param1);
+			if (me && other)
+			{
+				TeleportFnc(me, other.GetPosition(), 0);
+			}
+		}
+	}
+	
+	void PlayerTeleportToMe( ref ParamsReadContext ctx, ref PlayerIdentity sender )
+	{
+		if (sender && IsPlayerAdmin(sender))
+		{
+			Param1< string > serverData;
+        	if ( !ctx.Read( serverData ) ) return;
+			
+			PlayerBase me = GetPlayerByIdentity(sender);
+			PlayerBase other = GetPlayerByGUID(serverData.param1);
+			if (me && other)
+			{
+				TeleportFnc(other, me.GetPosition(), 0);
+			}
 		}
 	}
 
@@ -501,6 +601,11 @@ modded class PluginAdminTool
 		if (profile)
 		{
 			playerContext.m_name = profile.m_name;
+			ref PluginSyberiaOptions_GroupFaction group = GetSyberiaOptions().FindGroupByMember(profile.m_id);
+        	if (group)
+			{
+				playerContext.m_group = group.m_displayName;
+			}
 		}
 	}
 	
