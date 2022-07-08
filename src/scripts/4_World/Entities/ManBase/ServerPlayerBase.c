@@ -1645,10 +1645,11 @@ modded class PlayerBase
 				
 				DecreaseHealth("GlobalHealth", "Blood", GetSyberiaConfig().m_zvirusBloodLosePerSec * deltaTime);
 				DecreaseHealth("GlobalHealth", "Health", GetSyberiaConfig().m_zvirusHealthLosePerSec * deltaTime);
-				
+
 				if (Math.RandomFloat01() < deltaTime * GetSyberiaConfig().m_zvirusCuthitSpawnChance)
 				{
 					GetBleedingManagerServer().AttemptAddBleedingSource( Math.RandomIntInclusive(0, 5) );
+					RequestSoundEvent(EPlayerSoundEventID.INJURED_LIGHT);
 				}
 				else if (Math.RandomFloat01() < deltaTime * GetSyberiaConfig().m_zvirusPainSpawnChance)
 				{
@@ -1660,6 +1661,8 @@ modded class PlayerBase
 					{
 						GetBleedingManagerServer().SetPainLevel(1);
 					}
+					
+					RequestSoundEvent(EPlayerSoundEventID.INJURED_LIGHT);
 				}
 				else if (Math.RandomFloat01() < deltaTime * GetSyberiaConfig().m_zvirusVommitSpawnChance)
 				{
@@ -1683,7 +1686,7 @@ modded class PlayerBase
 				else if (Math.RandomFloat01() < deltaTime * GetSyberiaConfig().m_zvirusFeverblurSpawnChance)
 				{
 					SymptomBase symptom3 = GetSymptomManager().QueueUpSecondarySymptomEx(SymptomIDs.SYMPTOM_FEVERBLUR);				
-					if ( symptom3 ) symptom3.SetDuration(30);
+					if ( symptom3 ) symptom3.SetDuration(15);
 				}
 			}
 			
