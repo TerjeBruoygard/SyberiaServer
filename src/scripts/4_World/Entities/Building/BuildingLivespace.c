@@ -66,6 +66,12 @@ modded class BuildingLivespace
 		return false;
 	}
 	
+	void GetLivespaceHomebookData(ref LivespaceHomebookData data)
+	{
+		data.m_owners = m_owners;
+		data.m_members = m_members;
+	}
+	
 	private void LoadOwnersAndMembers(ref map<string, string> data)
 	{
 		m_owners = new array<string>;

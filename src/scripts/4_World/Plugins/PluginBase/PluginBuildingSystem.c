@@ -102,6 +102,15 @@ class PluginBuildingSystem extends PluginBase
 		}
 	}
 	
+	void SendHomebookMenuOpen(PlayerBase player, BuildingLivespace livespace)
+	{
+		auto homebookData = new LivespaceHomebookData();
+		livespace.GetLivespaceHomebookData(homebookData);
+				
+		auto params = new Param2<BuildingLivespace, ref LivespaceHomebookData>(livespace, homebookData);
+		GetSyberiaRPC().SendToClient(SyberiaRPC.SYBRPC_HOMEBOOK_OPEN, player.GetIdentity(), params);	
+	}
+	
 	BuildingLivespace FindByHousePoint(House house, vector pos)
 	{
 		ref array<BuildingLivespace> livespaces = null;
