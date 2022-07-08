@@ -30,6 +30,7 @@ modded class PlayerBase
 	float m_influenzaTimer;
 	float m_stomatchpoisonTimer;
 	float m_radioprotectionTimer;
+	float m_antidepresantTimer;
 	
 	// Mind state
 	float m_mindDegradationForce;
@@ -82,6 +83,7 @@ modded class PlayerBase
 		m_influenzaTimer = 0;
 		m_stomatchpoisonTimer = 0;
 		m_radioprotectionTimer = 0;
+		m_antidepresantTimer = 0;
 		
 		// Mind state
 		m_mindDegradationForce = 0;
@@ -151,6 +153,8 @@ modded class PlayerBase
 		ctx.Write( m_radiationDose );
 		ctx.Write( m_radioprotectionLevel );
 		ctx.Write( m_radioprotectionTimer );
+		ctx.Write( m_antidepresantLevel );
+		ctx.Write( m_antidepresantTimer );
 	}
 	
 	override bool OnStoreLoad( ParamsReadContext ctx, int version )
@@ -227,6 +231,8 @@ modded class PlayerBase
 			if(!ctx.Read( m_radiationDose )) return false;
 			if(!ctx.Read( m_radioprotectionLevel )) return false;
 			if(!ctx.Read( m_radioprotectionTimer )) return false;
+			if(!ctx.Read( m_antidepresantLevel )) return false;
+			if(!ctx.Read( m_antidepresantTimer )) return false;
 		}
 		else
 		{
@@ -260,6 +266,7 @@ modded class PlayerBase
 				OnTickAdvMedicine_HematopoiesisEffect(m_advMedUpdateTimer);
 				OnTickAdvMedicine_Adrenalin(m_advMedUpdateTimer);
 				OnTickAdvMedicine_Radprotector(m_advMedUpdateTimer);
+				OnTickAdvMedicine_Antidepresant(m_advMedUpdateTimer);
 				m_advMedUpdateTimer = 0;
 			}
 			
@@ -823,14 +830,20 @@ modded class PlayerBase
 		{
 			m_mindDegradationForce = 0;
 			m_mindDegradationTime = 0;
-			m_mindStateValue = m_mindStateValue + GetSyberiaConfig().m_mindstateHealPerSec;
+			m_mindStateValue = m_mindStateValue + (GetSyberiaConfig().m_mindstateHealPerSec * GetPerkFloatValue(SyberiaPerkType.SYBPERK_IMMUNITY_MENTAL_TIME, 1, 1));
+		}
+		
+		if (m_antidepresantLevel > 0 && m_antidepresantLevel <= 3)
+		{
+			m_mindStateValue = m_mindStateValue + GetSyberiaConfig().m_antidepresantMindInc[m_antidepresantLevel - 1];
 		}
 		
 		if (m_zone != null)
 		{
 			if (m_zone.m_psi > 0)
 			{
-				m_mindStateValue = m_mindStateValue - m_zone.m_psi;
+				float perkMod = 1 - GetPerkFloatValue(SyberiaPerkType.SYBPERK_IMMUNITY_MENTAL_TIME, 0, 0);
+				m_mindStateValue = m_mindStateValue - (m_zone.m_psi * perkMod);
 			}
 		}
 				
@@ -1161,6 +1174,18 @@ modded class PlayerBase
 			{
 				m_radioprotectionLevel = medRadprotectLevel;
 				m_radioprotectionTimer = m_radioprotectionTimer + (medRadprotectTimeSec * amount);
+			}
+		}
+		
+		int medAntidepLevel = GetGame().ConfigGetInt( "CfgVehicles " + classname + " medAntidepresantLevel" );
+		if (medAntidepLevel > 0)
+		{
+			overdosedIncrement = ProcessOverdosedPostinc(m_antidepresantTimer, overdosedIncrement);
+			float medAntidepTimeSec = GetGame().ConfigGetFloat( "CfgVehicles " + classname + " medAntidepresantTimer" );
+			if (medAntidepLevel >= m_antidepresantLevel && medAntidepTimeSec > 0)
+			{
+				m_antidepresantLevel = medAntidepLevel;
+				m_antidepresantTimer = m_antidepresantTimer + (medAntidepTimeSec * amount);
 			}
 		}
 		
@@ -1674,7 +1699,24 @@ modded class PlayerBase
 			GetStaminaHandler().SetDepletionMultiplier( staminaDepMod );
 		}
 	}
-	
+
+	protected void OnTickAdvMedicine_Antidepresant(float deltaTime)
+	{
+		if (m_antidepresantLevel > 0)
+		{
+			m_antidepresantTimer = m_antidepresantTimer - deltaTime;
+			if (m_antidepresantTimer < 0)
+			{
+				m_antidepresantLevel = 0;
+				SetSynchDirty();
+			}
+		}
+		else
+		{
+			m_antidepresantTimer = 0;
+		}
+	}
+		
 	protected void OnTickAdvMedicine_Radprotector(float deltaTime)
 	{
 		if (m_radioprotectionLevel > 0)

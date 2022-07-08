@@ -109,6 +109,21 @@ modded class ZombieBase extends DayZInfected
 		super.EEHitBy(damageResult, damageType, source, component, dmgZone, ammo, modelPos, speedCoef);
 	}
 	
+	override void EEKilled(Object killer)
+	{
+		super.EEKilled(killer);
+		
+		EntityAI entityKiller = EntityAI.Cast(killer);
+		if (entityKiller)
+		{
+			PlayerBase killerPlayer = PlayerBase.Cast(entityKiller.GetHierarchyRootPlayer());
+			if (killerPlayer)
+			{
+				killerPlayer.AddMindDegradation( GetSyberiaConfig().m_zombieKillDecreaseMind[0], GetSyberiaConfig().m_zombieKillDecreaseMind[1] );
+			}
+		}
+	}
+	
 	bool FightLogic(int pCurrentCommandID, DayZInfectedInputController pInputController, float pDt)
 	{
 		if ( pCurrentCommandID == DayZInfectedConstants.COMMANDID_ATTACK && m_ActualAttackType )
