@@ -193,7 +193,7 @@ modded class BleedingSourcesManagerServer
 			else if (Math.RandomFloat01() < HEMATOMA_ZOMBIE_HIT_CHANCE)
 			{
 				AddHematomaHit();
-				if (zone == "Head" && Math.RandomFloat01() < 0.1)
+				if (zone == "Head" && Math.RandomFloat01() < 0.3)
 				{
 					SetConcussionHit(true);
 				}
@@ -218,7 +218,7 @@ modded class BleedingSourcesManagerServer
 			}
 			else if (bleed_threshold >= Math.RandomFloat01())
 			{
-				if (ammo.Contains("_Heavy") || Math.RandomFloat01() >= 0.3)
+				if (ammo.Contains("_Heavy") || Math.RandomFloat01() >= 0.7)
 				{
 					AddKnifeHit();
 					if (zone == "Torso" && Math.RandomFloat01() < VISCERA_KNIFEHIT_TORSO_CHANCE)

@@ -1,6 +1,6 @@
 modded class ActionSurgeryBase
 {
-    override void ApplySurgery( ItemBase item, PlayerBase player, bool self)
+    override void ApplySurgery( ItemBase item, PlayerBase operator, PlayerBase player, bool self)
     {
         if ( (GetSyberiaOptions().m_client.m_operateVisceraHimself || !self) && player.m_visceraHit)
         {
@@ -15,7 +15,7 @@ modded class ActionSurgeryBase
             player.m_BleedingManagerServer.RemoveKnifeHit(false);
         }
         
-        if (Math.RandomFloat01() < SEPSIS_DITRY_HANDS_SYRGERY_CHANCE && player.HasBloodyHands() && !player.HasMedicalWellGloves())
+        if (Math.RandomFloat01() < SEPSIS_DITRY_HANDS_SYRGERY_CHANCE && operator.HasBloodyHands() && !operator.HasMedicalWellGloves())
 		{
 			player.m_BleedingManagerServer.SetBloodInfection(true);
 		}

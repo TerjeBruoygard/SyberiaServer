@@ -28,6 +28,7 @@ modded class PlayerBase
 	float m_antibioticsTimer;
 	float m_antibioticsStrange;
 	float m_influenzaTimer;
+	float m_stomatchpoisonTimer;
 	
 	// Mind state
 	float m_mindDegradationForce;
@@ -63,6 +64,7 @@ modded class PlayerBase
 		m_antibioticsTimer = 0;
 		m_antibioticsStrange = 0;
 		m_influenzaTimer = 0;
+		m_stomatchpoisonTimer = 0;
 		
 		// Mind state
 		m_mindDegradationForce = 0;
@@ -122,6 +124,7 @@ modded class PlayerBase
 		ctx.Write( m_antibioticsLevel );
 		ctx.Write( m_antibioticsTimer );
 		ctx.Write( m_antibioticsStrange );
+		ctx.Write( m_stomatchpoisonTimer );
 		
 		// Mind state
 		ctx.Write( m_mindStateValue );
@@ -184,6 +187,7 @@ modded class PlayerBase
 			if(!ctx.Read( m_antibioticsLevel )) return false;
 			if(!ctx.Read( m_antibioticsTimer )) return false;
 			if(!ctx.Read( m_antibioticsStrange )) return false;
+			if(!ctx.Read( m_stomatchpoisonTimer )) return false;
 			
 			// Mind state
 			if(!ctx.Read( m_mindStateValue )) return false;
@@ -262,9 +266,6 @@ modded class PlayerBase
 				{
 					sleepingLevel = SyberiaSleepingLevel.SYBSL_PERFECT;
 					sleepingDiff = sleepingDiff + SLEEPING_INC_PER_SLEEPING_LVL2_SEC;
-					
-					float maxHealth = GetMaxHealth("GlobalHealth","Health");
-					AddHealth("GlobalHealth", "Health", maxHealth * SLEEPING_HEAL_PER_SEC_01);
 				}
 				else
 				{
@@ -287,6 +288,18 @@ modded class PlayerBase
 					m_sleepingSoundTimer = 0;
 					if (IsMale()) SyberiaSoundEmitter.Spawn("SleepingMale_SoundEmitter", GetPosition());
 					else SyberiaSoundEmitter.Spawn("SleepingFemale_SoundEmitter", GetPosition());
+				}
+				
+				float maxHealth = GetMaxHealth("GlobalHealth","Health");
+				AddHealth("GlobalHealth", "Health", maxHealth * SLEEPING_HEAL_PER_SEC_01);			
+				if (m_influenzaLevel == 1)
+				{
+					if (SLEEPING_HEAL_INFLUENZA_CHANCE < Math.RandomFloat01())
+					{
+						m_influenzaLevel = 0;
+						m_influenzaTimer = 0;
+						SetSynchDirty();
+					}
 				}
 			}
 			else
@@ -321,14 +334,14 @@ modded class PlayerBase
 	private void OnTickSickCheck()
 	{
 		float currHeatComf = GetStatHeatComfort().Get();
-		if (currHeatComf < -0.5)
+		if (currHeatComf < -0.4)
 		{
 			if (Math.RandomFloat01() < INFLUENZA_APPLY_ON_COLD_CRIT_CHANCE)
 			{
 				AddInfluenza();
 			}
 		}
-		else if (currHeatComf < -0.35)
+		else if (currHeatComf < -0.8)
 		{
 			if (Math.RandomFloat01() < INFLUENZA_APPLY_ON_COLD_WARN_CHANCE)
 			{
@@ -337,77 +350,74 @@ modded class PlayerBase
 		}
 	}
 	
+	void SetStomatchPoison(int level, float time)
+	{
+		m_stomatchpoisonTimer += time;
+		if (level > m_stomatchpoisonLevel)
+		{
+			m_stomatchpoisonLevel = Math.Clamp(level, 0, 3);
+			SetSynchDirty();
+		}
+	}
+	
 	private void OnTickStomatchpoison()
 	{
-		int poisonLevel = m_stomatchpoisonLevel;
 		int symptomDuration = 0;
-		int lvl1Poison = GetSingleAgentCount(eAgents.FOOD_POISON);		
-		int lvl2Poison = GetSingleAgentCount(eAgents.CHOLERA) + GetSingleAgentCount(eAgents.SALMONELLA);
-		int lvl3Poison = GetSingleAgentCount(eAgents.CHEMICAL_POISON);
-		
-		if (lvl1Poison > 0)
+		if (m_stomatchpoisonLevel == 1)
 		{
-			poisonLevel = 1;
-			RemoveAgent(eAgents.FOOD_POISON);
 			if (m_stomatchhealLevel < 1 && Math.RandomFloat01() < STOMATCHPOISON_VOMIT_CHANCE[0])
 			{
 				symptomDuration = Math.RandomIntInclusive( 5, 10 );
 			}
 		}
-		if (lvl2Poison > 0)
+		if (m_stomatchpoisonLevel == 2)
 		{
-			poisonLevel = 2;
-			RemoveAgent(eAgents.CHOLERA);
-			RemoveAgent(eAgents.SALMONELLA);
 			if (m_stomatchhealLevel < 2 && Math.RandomFloat01() < STOMATCHPOISON_VOMIT_CHANCE[1])
 			{
 				symptomDuration = Math.RandomIntInclusive( 2, 8 );
 			}
 		}
-		if (lvl3Poison > 0)
+		if (m_stomatchpoisonLevel == 3)
 		{
-			poisonLevel = 3;
-			RemoveAgent(eAgents.CHEMICAL_POISON);
 			if (m_stomatchhealLevel < 3 && Math.RandomFloat01() < STOMATCHPOISON_VOMIT_CHANCE[2])
 			{
 				symptomDuration = Math.RandomIntInclusive( 1, 4 );
 			}
 		}
-		
-		if (poisonLevel > m_stomatchpoisonLevel)
+				
+		if (m_stomatchpoisonLevel > 0 && m_stomatchpoisonLevel <= 3)
 		{
-			if (poisonLevel == 1 && m_stomatchhealLevel < 1 && Math.RandomFloat01() < STOMATCHPOISON_VOMIT_CHANCE[0])
+			if (symptomDuration > 0)
 			{
-				symptomDuration = Math.RandomIntInclusive( 1, 4 );
-			}
-			else if (poisonLevel == 2 && m_stomatchhealLevel < 2 && Math.RandomFloat01() < STOMATCHPOISON_VOMIT_CHANCE[1])
-			{
-				symptomDuration = Math.RandomIntInclusive( 2, 8 );
-			}
-			else if (poisonLevel == 3 && m_stomatchhealLevel < 3 && Math.RandomFloat01() < STOMATCHPOISON_VOMIT_CHANCE[2])
-			{
-				symptomDuration = Math.RandomIntInclusive( 5, 10 );
+				SymptomBase symptom = GetSymptomManager().QueueUpPrimarySymptom(SymptomIDs.SYMPTOM_VOMIT);				
+				if( symptom )
+				{
+					symptom.SetDuration(symptomDuration);
+					
+					int waterDrain = STOMATCHPOISON_WATER_DRAIN_FROM_VOMIT[m_stomatchpoisonLevel - 1];
+					int energyDrain = STOMATCHPOISON_ENERGY_DRAIN_FROM_VOMIT[m_stomatchpoisonLevel - 1];
+	
+					if (GetStatWater().Get() > waterDrain)
+						GetStatWater().Add(-1 * waterDrain);
+					
+					if (GetStatEnergy().Get() > energyDrain)
+						GetStatEnergy().Add(-1 * energyDrain);
+				}
 			}
 			
-			m_stomatchpoisonLevel = poisonLevel;
-			SetSynchDirty();
-		}
-		
-		if (symptomDuration > 0)
-		{
-			SymptomBase symptom = GetSymptomManager().QueueUpPrimarySymptom(SymptomIDs.SYMPTOM_VOMIT);				
-			if( symptom )
+			m_stomatchpoisonTimer = m_stomatchpoisonTimer - 1.0;
+			if (m_stomatchpoisonTimer < 0)
 			{
-				symptom.SetDuration(symptomDuration);
-				
-				int waterDrain = STOMATCHPOISON_WATER_DRAIN_FROM_VOMIT[poisonLevel - 1];
-				int energyDrain = STOMATCHPOISON_ENERGY_DRAIN_FROM_VOMIT[poisonLevel - 1];
-
-				if (GetStatWater().Get() > waterDrain)
-					GetStatWater().Add(-1 * waterDrain);
-				
-				if (GetStatEnergy().Get() > energyDrain)
-					GetStatEnergy().Add(-1 * energyDrain);
+				m_stomatchpoisonLevel = m_stomatchpoisonLevel - 1;
+				if (m_stomatchpoisonLevel > 0 && m_stomatchpoisonLevel <= 3)
+				{
+					m_stomatchpoisonTimer = STOMATCHPOISON_DEFAULT_TIMES[m_stomatchpoisonLevel - 1];
+				}
+				else
+				{
+					m_stomatchpoisonTimer = 0;
+				}
+				SetSynchDirty();
 			}
 		}
 	}
@@ -490,11 +500,49 @@ modded class PlayerBase
 	override bool Consume(ItemBase source, float amount, EConsumeType consume_type )
 	{
 		bool hasBrainAgents = false;
-		if (source && source.ContainsAgent(eAgents.BRAIN))
+		if (source)
 		{
-			AddMindDegradation(1, amount);
-			source.RemoveAgent(eAgents.BRAIN);
-			hasBrainAgents = true;
+			if (source.ContainsAgent(eAgents.BRAIN))
+			{
+				AddMindDegradation(1, amount);
+				source.RemoveAgent(eAgents.BRAIN);
+				hasBrainAgents = true;
+			}
+			else if (source.IsInherited(HumanSteakMeat))
+			{
+				AddMindDegradation(1, amount);
+			}
+			
+			Edible_Base edibleBaseSource = Edible_Base.Cast(source);
+			if (edibleBaseSource)
+			{
+				if (source.IsMeat())
+				{
+					if (edibleBaseSource.IsFoodRaw()) SetStomatchPoison(STOMATCHPOISON_RAW_MEAT[0], STOMATCHPOISON_RAW_MEAT[1] * amount);
+					if (edibleBaseSource.IsFoodBurned()) SetStomatchPoison(STOMATCHPOISON_BURNED_MEAT[0], STOMATCHPOISON_BURNED_MEAT[1] * amount);
+					if (edibleBaseSource.IsFoodRotten()) SetStomatchPoison(STOMATCHPOISON_ROTTEN_MEAT[0], STOMATCHPOISON_ROTTEN_MEAT[1] * amount);
+				}
+				else
+				{
+					if (edibleBaseSource.IsFoodRotten()) SetStomatchPoison(STOMATCHPOISON_ROTTEN_FOOD[0], STOMATCHPOISON_ROTTEN_FOOD[1] * amount);					
+					if (edibleBaseSource.IsFoodBurned()) SetStomatchPoison(STOMATCHPOISON_BURNED_FOOD[0], STOMATCHPOISON_BURNED_FOOD[1] * amount);
+				}
+			}
+		}
+		
+		if (HasBloodyHands() && !HasMedicalWellGloves())
+		{
+			SetStomatchPoison(STOMATCHPOISON_DIRTY_HANDS[0], STOMATCHPOISON_DIRTY_HANDS[1] * amount);
+		}
+		
+		if (consume_type == EConsumeType.ENVIRO_POND && STOMATCHPOISON_CHANCE_DRINK_POND < Math.RandomFloat01())
+		{
+			SetStomatchPoison(STOMATCHPOISON_DRINK_POND[0], STOMATCHPOISON_DRINK_POND[1] * amount);
+		}
+		
+		if (consume_type == EConsumeType.ENVIRO_WELL && STOMATCHPOISON_CHANCE_DRINK_WELL < Math.RandomFloat01())
+		{
+			SetStomatchPoison(STOMATCHPOISON_DRINK_WELL[0], STOMATCHPOISON_DRINK_WELL[1] * amount);
 		}
 		
 		bool result = super.Consume(source, amount, consume_type);
@@ -927,15 +975,9 @@ modded class PlayerBase
 		if (m_stomatchhealLevel == 0)
 			return;
 
-		int level = Math.Clamp(m_stomatchhealLevel - 1, 0, 2);
-		float healChance = STOMATCHHEAL_AGENTS_KILLCHANCE[level] * deltaTime * ((m_stomatchhealLevel - m_stomatchpoisonLevel) + 1);
-		if (healChance > 0 && healChance <= Math.RandomFloat01())
+		if (m_stomatchpoisonLevel > 0)
 		{
-			if (m_stomatchpoisonLevel > 0)
-			{
-				m_stomatchpoisonLevel = m_stomatchpoisonLevel - 1;
-				SetSynchDirty();
-			}
+			m_stomatchpoisonTimer = m_stomatchpoisonTimer - (deltaTime * m_stomatchhealLevel * STOMATCHHEAL_MODIFIER);
 		}
 		
 		m_stomatchhealTimer = Math.Clamp(m_stomatchhealTimer - deltaTime, 0, 999999);
