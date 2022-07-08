@@ -113,6 +113,10 @@ modded class SyberiaConfig
 	float m_temperatureDrinkWellPenalty;
 	float m_temperatureFillWaterBottleTotal;
 	float m_temperatureFillWaterBottleMod;
+	float m_temperatureIceDrain;
+    float m_temperatureSnowDrain;
+	bool m_isWinterMap;
+	float m_clothingHeatIsolationGlobal;
 	
 	// Others
 	int m_bookPagesCountToCut;
@@ -224,6 +228,10 @@ modded class SyberiaConfig
 		m_temperatureDrinkWellPenalty = ConfigGetFloat("CfgWorlds " + worldName + " temperatureDrinkWellPenalty");
 		m_temperatureFillWaterBottleTotal = ConfigGetFloat("CfgWorlds " + worldName + " temperatureFillWaterBottleTotal");
 		m_temperatureFillWaterBottleMod = ConfigGetFloat("CfgWorlds " + worldName + " temperatureFillWaterBottleMod");
+		m_temperatureIceDrain = ConfigGetFloat("CfgWorlds " + worldName + " temperatureIceDrain");
+    	m_temperatureSnowDrain = ConfigGetFloat("CfgWorlds " + worldName + " temperatureSnowDrain");
+		m_isWinterMap = ConfigGetInt("CfgWorlds " + worldName + " winterWorld") == 1;
+		m_clothingHeatIsolationGlobal = ConfigGetFloat("CfgWorlds " + worldName + " clothingHeatIsolationGlobal");
 		
 		// Others
 		m_bookPagesCountToCut = ConfigGetInt("CfgSyberia IngameSystem bookPagesCountToCut");
