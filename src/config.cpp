@@ -167,6 +167,8 @@ class CfgSyberia
         zombieFindHouseDistance = 20.0;
         zombieBloodHandsChanceOnLooting = 0.25;
         zombieAttackPlayersInUnconscious = 1;
+        zombieDetectPlayerVisibilityMultiplier = 1;
+        zombieDetectPlayerNoiseMultiplier = 1;
     };
     
     class AnimalsSystem

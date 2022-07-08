@@ -371,6 +371,8 @@ namespace SyberiaWebPanel
                 public float zombieFindHouseDistance = 20.0f;
                 public float zombieBloodHandsChanceOnLooting = 0.25f;
                 public bool zombieAttackPlayersInUnconscious = true;
+                public float zombieDetectPlayerVisibilityMultiplier = 1.0f;
+                public float zombieDetectPlayerNoiseMultiplier = 1.0f;
             };
 
             public class AnimalsSystemType
