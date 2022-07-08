@@ -87,12 +87,13 @@ class SyberiaMissionServer : MissionServer
 				
 				if (profile.m_startGear)
 				{					
-					allowedEquip = GetSyberiaOptions().GetCharacterAllowedEquipment(identity, profile);					
+					ref PluginSyberiaOptions_GroupFaction faction = GetSyberiaOptions().FindGroupByMember(profile.m_id);
+					allowedEquip = GetSyberiaOptions().GetCharacterAllowedEquipment(identity, profile, faction);					
 					if (allowedEquip.Count() == profile.m_startGear.Count())
 					{
 						int itemIndex = -1;
 						int spawnPointId = profile.m_startGear.Get(SyberiaScreenEquipPages.SYBSEP_SPAWN_PAGE);
-						startPos = GetSyberiaOptions().GetCharacterSpawnpoint(profile, spawnPointId).CalculateSpawnpoint();
+						startPos = GetSyberiaOptions().GetCharacterSpawnpoint(profile, faction, spawnPointId).CalculateSpawnpoint();
 						
 						startEquipClothes = new array<string>;						
 						for (int i = SyberiaScreenEquipPages.SYBSEP_BODY_PAGE; i <= SyberiaScreenEquipPages.SYBSEP_HEAD_PAGE; i++)
@@ -110,13 +111,9 @@ class SyberiaMissionServer : MissionServer
 						{
 							startEquipGuns.Insert(allowedEquip.Get(SyberiaScreenEquipPages.SYBSEP_WEAPON_PAGE).Get(itemIndex));
 						}
-						
-						startEquipItems = new array<string>;
-						itemIndex = profile.m_startGear.Get(SyberiaScreenEquipPages.SYBSEP_ITEMS_PAGE);
-						if (itemIndex >= 0 && itemIndex < allowedEquip.Get(SyberiaScreenEquipPages.SYBSEP_ITEMS_PAGE).Count())
-						{
-							startEquipItems.Insert(allowedEquip.Get(SyberiaScreenEquipPages.SYBSEP_ITEMS_PAGE).Get(itemIndex));
-						}
+
+						itemIndex = profile.m_startGear.Get(SyberiaScreenEquipPages.SYBSEP_ITEMS_PAGE);						
+						startEquipItems = GetSyberiaOptions().GetCharacterLoadoutItems(profile, faction, itemIndex);
 					}
 					
 					foreach (ref array<string> equip1 : allowedEquip) delete equip1;
@@ -135,7 +132,7 @@ class SyberiaMissionServer : MissionServer
 				
 				if (profile.m_needToConfigureGear)
 				{
-					allowedEquip = GetSyberiaOptions().GetCharacterAllowedEquipment(identity, profile);
+					allowedEquip = GetSyberiaOptions().GetCharacterAllowedEquipment(identity, profile, GetSyberiaOptions().FindGroupByMember(profile.m_id));
 					auto equipParams = new Param1<ref array<ref array<string>>>(allowedEquip);
 					GetSyberiaRPC().SendToClient(SyberiaRPC.SYBRPC_EQUIP_SCREEN_OPEN, identity, equipParams);
 					SybLogSrv("Send SYBRPC_EQUIP_SCREEN_OPEN RPC.");
@@ -179,21 +176,30 @@ class SyberiaMissionServer : MissionServer
 				player.GetInputController().SetDisabled(true);
 				player.SetAllowDamage(false);
 			}
-			else if (startEquipClothes && startEquipGuns && startEquipItems)
+			else
 			{
-				foreach (string itemNameClothes : startEquipClothes)
+				if (startEquipClothes)
 				{
-					EquipItemIntoPlayer(player, itemNameClothes, false, -1);
+					foreach (string itemNameClothes : startEquipClothes)
+					{
+						EquipItemIntoPlayer(player, itemNameClothes, false, -1);
+					}
 				}
 				
-				foreach (string itemNameGun : startEquipGuns)
+				if (startEquipGuns)
 				{
-					EquipItemIntoPlayer(player, itemNameGun, true, 0);
+					foreach (string itemNameGun : startEquipGuns)
+					{
+						EquipItemIntoPlayer(player, itemNameGun, true, 0);
+					}
 				}
 				
-				foreach (string itemNameGear : startEquipItems)
+				if (startEquipItems)
 				{
-					EquipItemIntoPlayer(player, itemNameGear, false, -1);
+					foreach (string itemNameGear : startEquipItems)
+					{
+						EquipItemIntoPlayer(player, itemNameGear, false, -1);
+					}
 				}
 			}
 		}

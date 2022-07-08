@@ -68,9 +68,8 @@ modded class PluginSyberiaOptions extends PluginBase
 		return 8;
 	}
 	
-	ref SpawnpointInfo GetCharacterSpawnpoint(ref CharProfile profile, int spawnpointId)
+	ref SpawnpointInfo GetCharacterSpawnpoint(ref CharProfile profile, ref PluginSyberiaOptions_GroupFaction faction, int spawnpointId)
 	{
-		ref PluginSyberiaOptions_GroupFaction faction = FindGroupByMember(profile.m_id);			
 		ref array<ref SpawnpointInfo> spawnPoints = new array<ref SpawnpointInfo>;
 		if (faction && faction.m_spawnpoints)
 		{
@@ -97,9 +96,34 @@ modded class PluginSyberiaOptions extends PluginBase
 		return result;
 	}
 	
-	ref array<ref array<string>> GetCharacterAllowedEquipment(ref PlayerIdentity identity, ref CharProfile profile)
+	ref array<string> GetCharacterLoadoutItems(ref CharProfile profile, ref PluginSyberiaOptions_GroupFaction faction, int loadoutId)
+	{			
+		array<ref PluginSyberiaOptions_ItemsLoadout> loadouts = new array<ref PluginSyberiaOptions_ItemsLoadout>;
+		if (faction && faction.m_gearItems)
+		{
+			foreach (ref PluginSyberiaOptions_ItemsLoadout sp1 : faction.m_gearItems)
+			{
+				loadouts.Insert(sp1);
+			}
+		}
+		if (!faction || faction.m_allowDefaultSpawnpoints)
+		{
+			foreach (ref PluginSyberiaOptions_ItemsLoadout sp2 : m_groupDefault.m_gearItems)
+			{
+				loadouts.Insert(sp2);
+			}		
+		}
+		
+		if (loadoutId < 0 || loadoutId >= loadouts.Count())
+		{
+			return null;
+		}
+		
+		return loadouts.Get(loadoutId).m_items;		
+	}
+	
+	ref array<ref array<string>> GetCharacterAllowedEquipment(ref PlayerIdentity identity, ref CharProfile profile, ref PluginSyberiaOptions_GroupFaction faction)
 	{
-		ref PluginSyberiaOptions_GroupFaction faction = FindGroupByMember(profile.m_id);		
 		ref array<ref array<string>> result = new array<ref array<string>>;
 		
 		// SPAWNPOINTS
@@ -152,8 +176,20 @@ modded class PluginSyberiaOptions extends PluginBase
 		
 		// GEAR ITEMS
 		ref array<string> itemsGear = new array<string>;
-		if (faction && faction.m_gearItems) itemsGear.InsertAll(faction.m_gearItems);
-		if (!faction || faction.m_allowDefaultLoadout) itemsGear.InsertAll(m_groupDefault.m_gearItems);
+		if (faction && faction.m_gearItems)
+		{
+			foreach (ref PluginSyberiaOptions_ItemsLoadout il1 : faction.m_gearItems)
+			{
+				itemsGear.Insert(il1.m_name);
+			}
+		}
+		if (!faction || faction.m_allowDefaultLoadout)
+		{
+			foreach (ref PluginSyberiaOptions_ItemsLoadout il2 : m_groupDefault.m_gearItems)
+			{
+				itemsGear.Insert(il2.m_name);
+			}		
+		}
 		result.Insert(itemsGear);
 		
 		// GEAR SPECIAL
@@ -225,7 +261,7 @@ class PluginSyberiaOptions_GroupDefault
 	ref array<string> m_gearFoot;
 	ref array<string> m_gearHead;
 	ref array<string> m_gearWeapon;
-	ref array<string> m_gearItems;
+	ref array<ref PluginSyberiaOptions_ItemsLoadout> m_gearItems;
 	
 	void ~PluginSyberiaOptions_GroupDefault()
 	{
@@ -236,8 +272,21 @@ class PluginSyberiaOptions_GroupDefault
 		delete m_gearFoot;
 		delete m_gearHead;
 		delete m_gearWeapon;
+		
+		foreach (ref PluginSyberiaOptions_ItemsLoadout il : m_gearItems) delete il;
 		delete m_gearItems;
 	}
+};
+
+class PluginSyberiaOptions_ItemsLoadout
+{
+	string m_name;
+	ref array<string> m_items;
+	
+	void ~PluginSyberiaOptions_ItemsLoadout()
+	{
+		delete m_items;
+	}	
 };
 
 class PluginSyberiaOptions_GroupFaction : PluginSyberiaOptions_GroupDefault
