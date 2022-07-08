@@ -51,6 +51,7 @@ modded class Environment
 		EntityAI attachment;
 		ItemBase item;
 		
+		pHeat = 0;
 		pHeatComfort = -1;
 		attCount = m_Player.GetInventory().AttachmentCount();
 		
@@ -151,6 +152,7 @@ modded class Environment
 
 		pHeatComfort = ( pHeatComfort / pBodyPartIds.Count() ) * pCoef;
 		pHeat = ( pHeat / pBodyPartIds.Count() ) * pCoef;
+		pHeat += m_Player.GetPerkFloatValue(SyberiaPerkType.SYBPERK_SURVIVAL_FROST_RESIST, 0, 0) * GetSyberiaConfig().m_additionalTemperatureResistForSurvivalSkill;
 	}
 	
 	protected void ProcessItemHeat(ItemBase item, int depth, float envTemperature)

@@ -889,17 +889,18 @@ modded class PlayerBase
 	
 	private void OnTickSickCheck()
 	{
+		float perkMod = (1.0 - GetPerkFloatValue(SyberiaPerkType.SYBPERK_SURVIVAL_FROST_RESIST, 0, 0));
 		float currHeatComf = GetStatHeatComfort().Get();
 		if (currHeatComf < -0.5)
 		{
-			if (Math.RandomFloat01() < GetSyberiaConfig().m_influenzaApplyOnColdCritChance)
+			if (Math.RandomFloat01() < GetSyberiaConfig().m_influenzaApplyOnColdCritChance * perkMod)
 			{
 				AddInfluenza();
 			}
 		}
 		else if (currHeatComf < -0.9)
 		{
-			if (Math.RandomFloat01() < GetSyberiaConfig().m_influenzaApplyOnColdWarnChance)
+			if (Math.RandomFloat01() < GetSyberiaConfig().m_influenzaApplyOnColdWarnChance * perkMod)
 			{
 				AddInfluenza();
 			}

@@ -107,8 +107,8 @@ class CfgSyberia
         influenzaTemperatureLevels[] = { -1.0, 37.0, 40.0 };
         influenzaSympthomChance[] = { 0.02, 0.04, 0.08 };
         influenzaDeathTime[] = {0, 0, 900};
-        influenzaApplyOnColdWarnChance = 0.0005;
-        influenzaApplyOnColdCritChance = 0.002;
+        influenzaApplyOnColdWarnChance = 0.001;
+        influenzaApplyOnColdCritChance = 0.005;
         antibioticsGlobalEffectivityModifier = 0.006;
         stomatchpoisonVomitChance[] = { 0.01, 0.02, 0.04 };
         stomatchpoisonWaterDrainFromVomit[] = { 200, 350, 500 };
@@ -170,6 +170,7 @@ class CfgSyberia
         gasMaskFilterDegradationInToxicZone = -0.33;
         gasMaskFilterDegradationInRadZone = -0.2;
         gasMaskFilterDegradationDefault = -0.05;
+        igniteFireplaceBaseSkillcheckChance = 0.2;
     };
 
     class SkillsExperienceSystem
@@ -208,5 +209,8 @@ class CfgSyberia
         skillsExpHuntingButchCommon = 250;
         skillsExpHuntingButchWolf = 500;
         skillsExpHuntingButchBear = 3000;
+        
+        skillsExpSurvivalIgniteFireSuccess = 300;
+        skillsExpSurvivalIgniteFireFailed = 30;
     };
 };
