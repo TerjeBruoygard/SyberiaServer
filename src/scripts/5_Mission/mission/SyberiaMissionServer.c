@@ -92,10 +92,7 @@ class SyberiaMissionServer : MissionServer
 					{
 						int itemIndex = -1;
 						int spawnPointId = profile.m_startGear.Get(SyberiaScreenEquipPages.SYBSEP_SPAWN_PAGE);
-						if (spawnPointId >= 0 && spawnPointId < GetSyberiaOptions().m_groupDefault.m_spawnpoints.Count())
-						{
-							startPos = GetSyberiaOptions().m_groupDefault.m_spawnpoints.Get(spawnPointId).CalculateSpawnpoint();
-						}
+						startPos = GetSyberiaOptions().GetCharacterSpawnpoint(profile, spawnPointId).CalculateSpawnpoint();
 						
 						startEquipClothes = new array<string>;						
 						for (int i = SyberiaScreenEquipPages.SYBSEP_BODY_PAGE; i <= SyberiaScreenEquipPages.SYBSEP_HEAD_PAGE; i++)
