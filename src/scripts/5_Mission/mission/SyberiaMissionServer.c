@@ -20,6 +20,7 @@ modded class MissionServer
 		GetSyberiaRPC().RegisterHandler(SyberiaRPC.SYBRPC_RESPAWN_REQUEST, this, "OnRespawnRequest");
 		GetSyberiaRPC().RegisterHandler(SyberiaRPC.SYBRPC_DELETECHAR_REQUEST, this, "OnDeleteCharRequest");
 		GetSyberiaRPC().RegisterHandler(SyberiaRPC.SYBRPC_SKILLS_ACTIVATE, this, "OnSkillActivate");
+		GetSyberiaRPC().RegisterHandler(SyberiaRPC.SYBRPC_SELF_KICK, this, "OnSelfKick");
 		SybLogSrv("Syberia server mission initialized");
 	}
 	
@@ -563,6 +564,15 @@ modded class MissionServer
 			{
 				profile.m_skills.SetPerk(perkId, perkLvl);
 			}
+		}
+	}
+	
+	void OnSelfKick(ref ParamsReadContext ctx, ref PlayerIdentity sender)
+	{
+		if (sender)
+		{
+			GetGame().RemoveFromReconnectCache(sender.GetId());
+			GetGame().DisconnectPlayer(sender, sender.GetId());
 		}
 	}
 	

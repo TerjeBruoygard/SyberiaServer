@@ -92,7 +92,7 @@ modded class PluginSyberiaOptions extends PluginBase
 	
 	void SendClientOptions(PlayerIdentity identity, ref CharProfile profile)
 	{
-		GetSyberiaRPC().SendToClient(SyberiaRPC.SYBRPC_CLIENT_OPTIONS, identity, new Param2<ref PluginSyberiaOptions_Client, int>(m_client, profile.m_id));
+		GetSyberiaRPC().SendToClient(SyberiaRPC.SYBRPC_CLIENT_OPTIONS, identity, new Param3<ref PluginSyberiaOptions_Client, int, string>(m_client, profile.m_id, Syberia_Version));
 	}
 	
 	int GetCharacterAllowedEquipmentSize()
@@ -172,7 +172,7 @@ modded class PluginSyberiaOptions extends PluginBase
 		}
 		if (customLoadout != null)
 		{
-			foreach (ref PluginSyberiaOptions_ItemsLoadout sp3 : m_groupDefault.m_gearItems)
+			foreach (ref PluginSyberiaOptions_ItemsLoadout sp3 : customLoadout.m_gearItems)
 			{
 				loadouts.Insert(sp3);
 			}		
