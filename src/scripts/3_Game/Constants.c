@@ -111,6 +111,7 @@ modded class SyberiaConfig
 	ref array<float> m_radiationLevels = new array<float>;
 	ref array<float> m_radiationHealthDamage = new array<float>;
 	float m_radiationSleepingDec;
+	float m_shockDecrementOnLowHealthAndBlood;
 	
 	// Zombies
 	bool m_zombieOpenDoorEnable;
@@ -275,6 +276,7 @@ modded class SyberiaConfig
 		ConfigGetFloatArray("CfgSyberia MedicineSystem radiationLevels", m_radiationLevels, 3);	
 		ConfigGetFloatArray("CfgSyberia MedicineSystem radiationHealthDamage", m_radiationHealthDamage, 3);
 		m_radiationSleepingDec = ConfigGetFloat("CfgSyberia MedicineSystem radiationSleepingDec");
+		m_shockDecrementOnLowHealthAndBlood = ConfigGetFloat("CfgSyberia MedicineSystem shockDecrementOnLowHealthAndBlood");
 		
 		// Zombies
 		m_zombieOpenDoorEnable = ConfigGetInt("CfgSyberia ZombieSystem zombieOpenDoorEnable") == 1;

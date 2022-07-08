@@ -268,6 +268,7 @@ modded class PlayerBase
 			while (m_sleepingDecTimer > 1.0)
 			{
 				m_sleepingDecTimer = m_sleepingDecTimer - 1.0;
+				OnTickLowHealth();
 				OnTickSleeping();
 				OnTickMindState();
 				OnTickSickCheck();
@@ -289,6 +290,16 @@ modded class PlayerBase
 					SetPosition(teleportPos);
 				}
 			}
+		}
+	}
+	
+	private void OnTickLowHealth()
+	{
+		bool criticalBlood = GetHealth("GlobalHealth", "Blood") < PlayerConstants.SL_BLOOD_CRITICAL;
+		bool criticalHealth = GetHealth("GlobalHealth", "Health") < PlayerConstants.SL_HEALTH_CRITICAL;
+		if (criticalBlood || criticalHealth)
+		{
+			DecreaseHealth("", "Shock", GetSyberiaConfig().m_shockDecrementOnLowHealthAndBlood);
 		}
 	}
 	
@@ -427,7 +438,8 @@ modded class PlayerBase
 				AddRadiationDose(radIncrement);
 			}
 		}
-		else if (GetRadiationDose() > 0)
+
+		if (GetRadiationDose() > 0)
 		{
 			if (m_radioprotectionLevel >= 0 && m_radioprotectionLevel <= 3) {
 				AddRadiationDose(GetSyberiaConfig().m_radiationDoseDecrementPerSec[m_radioprotectionLevel]);
@@ -868,7 +880,7 @@ modded class PlayerBase
 				}
 			}
 			
-			if (source.ContainsAgent(eAgents.SALMONELLA) || source.ContainsAgent(eAgents.CHOLERA))
+			if (source.ContainsAgent(eAgents.SALMONELLA) || source.ContainsAgent(eAgents.CHOLERA) || source.ContainsAgent(eAgents.FOOD_POISON))
 			{
 				SetStomatchPoison(GetSyberiaConfig().m_stomatchpoisonInfection[0], GetSyberiaConfig().m_stomatchpoisonInfection[1] * amount);
 			}
