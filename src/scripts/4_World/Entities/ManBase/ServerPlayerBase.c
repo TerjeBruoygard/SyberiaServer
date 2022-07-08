@@ -41,6 +41,7 @@ modded class PlayerBase
 	int m_skillsSaveInterval = 0;
 	bool m_skillsSaveDirty = false;
 	float m_sprintingTime = 0;
+	float m_jogingTime = 0;
 	
 	override void Init()
 	{
@@ -271,6 +272,15 @@ modded class PlayerBase
 			{
 				m_sprintingTime = 0;
 				AddExperience(SyberiaSkillType.SYBSKILL_ATHLETICS, GetSyberiaConfig().m_skillsExpAthleticsSprintIncrement);
+			}
+		}
+		else if (m_MovementState.m_iMovement == DayZPlayerConstants.MOVEMENTIDX_RUN)
+		{
+			m_jogingTime = m_jogingTime + 1;
+			if (m_jogingTime > GetSyberiaConfig().m_skillsExpAthleticsJogTime)
+			{
+				m_jogingTime = 0;
+				AddExperience(SyberiaSkillType.SYBSKILL_ATHLETICS, GetSyberiaConfig().m_skillsExpAthleticsJogIncrement);
 			}
 		}
 	}
