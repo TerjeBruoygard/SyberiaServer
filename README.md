@@ -17,7 +17,7 @@ How to start the server:
 1. Copy "SyberiaServer.pbo" to Addons folder in root of dayz server.
 2. Copy the "DatabaseOptions.json" file to "DAYZ_SERVER_FOLDER/profiles" folder. (change port number for database server if needed. Every server instance should have unique database port)
 3. Change login and password from webpanel in "credentials.cfg" inside Database folder.
-4. Start the "SyberiaServerManager.exe --serverdir "PATH TO DAYZ SERVER ROOT DIR" --port 4307" from cmd (from database folder).
+4. Start the "SyberiaServerManager.exe --serverdir "PATH TO DAYZ SERVER ROOT DIR" --port 4307" from cmd as administrator (from database folder).
 5. Starts the DayZ Server with SyberiaScripts mod. (See SyberiaScripts repository for get client-side mod sources)
 
 With love - Terje Bruoygard
