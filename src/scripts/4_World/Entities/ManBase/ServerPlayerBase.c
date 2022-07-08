@@ -1887,7 +1887,7 @@ modded class PlayerBase
 		ItemBase itemMask = GetItemOnSlot("Mask");
 		if (!itemMask) return null;
 		
-		return itemMask.GetInventory().FindAttachmentByName("GasMaskFilter");
+		return ItemBase.Cast( itemMask.GetInventory().FindAttachmentByName("GasMaskFilter") );
 	}
 	
 	void OnRadiationDoseChanged()
