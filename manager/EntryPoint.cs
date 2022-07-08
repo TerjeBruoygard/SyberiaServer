@@ -20,6 +20,8 @@ namespace SyberiaServerManager
 
         private static string dayzServerDir = null;
 
+        private static HttpClient httpClient = null;
+
         private static WebPanel webPanel = null;
 
         private static void Main(string[] args)
