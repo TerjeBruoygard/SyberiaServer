@@ -182,8 +182,10 @@ modded class BleedingSourcesManagerServer
 		
 		if (source.IsZombie())
 		{
+			float zvirusInfectionChance = ZVIRUS_ZOMBIE_HIT_CHANCE;
 			if (Math.RandomFloat01() < BLEEDING_ZOMBIE_HIT_CHANCE)
 			{
+				zvirusInfectionChance = zvirusInfectionChance * 1.5;
 				AttemptAddBleedingSource(component);
 				if (Math.RandomFloat01() < SEPSIS_ZOMBIE_HIT_CHANCE)
 				{
@@ -197,9 +199,14 @@ modded class BleedingSourcesManagerServer
 				{
 					SetConcussionHit(true);
 				}
+				
+				if (m_Player.GetItemOnSlot("Mask"))
+				{
+					zvirusInfectionChance = zvirusInfectionChance * 0.75;
+				}
 			}
 			
-			if (Math.RandomFloat01() < ZVIRUS_ZOMBIE_HIT_CHANCE)
+			if (Math.RandomFloat01() < zvirusInfectionChance)
 			{
 				SetZVirus(true);
 			}
@@ -237,7 +244,7 @@ modded class BleedingSourcesManagerServer
 			{
 				if (bleed_threshold >= Math.RandomFloat01())
 				{
-					if (ammo.Contains("_Heavy") || Math.RandomFloat01() >= 0.6)
+					if (source.IsAnimal() || ammo.Contains("_Heavy") || Math.RandomFloat01() >= 0.4)
 					{
 						AddKnifeHit();
 						if (zone == "Torso" && Math.RandomFloat01() < VISCERA_KNIFEHIT_TORSO_CHANCE)
