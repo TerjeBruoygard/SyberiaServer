@@ -33,6 +33,7 @@ modded class MissionServer
 			}
 			else
 			{
+				player.m_charProfile.m_skills.m_dirty = true;
 				GetSyberiaOptions().SendClientOptions(identity, player.m_charProfile);
 				PluginLogicPDA.Cast(GetPlugin(PluginLogicPDA)).SendPdaUserState(identity, player.m_charProfile);
 			}
@@ -372,9 +373,7 @@ modded class MissionServer
 					return;
 				}
 				
-				profile.m_skills = clientData.param1.m_skills;
-				profile.m_skills.m_dirty = true;
-				
+				profile.m_skills = clientData.param1.m_skills;				
 				GetSyberiaCharacters().Create(sender, profile, this, "OnCreateNewCharRequest_CreateChar");
 				delete profile;	
 			}

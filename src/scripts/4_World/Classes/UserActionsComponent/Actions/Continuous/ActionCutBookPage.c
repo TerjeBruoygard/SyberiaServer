@@ -5,13 +5,14 @@ modded class ActionCutBookPage
 		float decreaseHealth = action_data.m_MainItem.GetMaxHealth() / BOOK_PAGES_COUNT_TO_CUT;
 		action_data.m_MainItem.AddHealth("", "", decreaseHealth * -1);
 		
-		ItemBase paper;
+		Paper paper;
 		vector playerPos = action_data.m_Player.GetPosition();
 		array<Object> nearbyObjects = new array<Object>;
 		GetGame().GetObjectsAtPosition3D(playerPos, 1, nearbyObjects, null);
 		foreach (ref Object nearbyObject : nearbyObjects)
 		{
-			if (Paper.CastTo(paper, nearbyObject))
+			paper = Paper.Cast(nearbyObject);
+			if (paper)
 			{
 				if (paper.GetQuantity() < paper.GetQuantityMax())
 				{
