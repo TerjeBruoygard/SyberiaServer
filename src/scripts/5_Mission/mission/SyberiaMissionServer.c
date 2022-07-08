@@ -93,7 +93,7 @@ modded class MissionServer
 							startEquipGuns.Insert(allowedEquip.Get(SyberiaScreenEquipPages.SYBSEP_WEAPON_PAGE).Get(itemIndex));
 						}
 
-						itemIndex = profile.m_startGear.Get(SyberiaScreenEquipPages.SYBSEP_ITEMS_PAGE);						
+						itemIndex = profile.m_startGear.Get(SyberiaScreenEquipPages.SYBSEP_ITEMS_PAGE);				
 						startEquipItems = GetSyberiaOptions().GetCharacterLoadoutItems(profile, faction, itemIndex);
 					}
 					
@@ -187,7 +187,6 @@ modded class MissionServer
 		
 		if (startEquipClothes) delete startEquipClothes;
 		if (startEquipGuns) delete startEquipGuns;
-		if (startEquipItems) delete startEquipItems;
 		
 		OnPlayerStarted(identity, player);
 		
