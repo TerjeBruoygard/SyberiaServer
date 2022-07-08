@@ -8,6 +8,8 @@ modded class PlayerBase
 	bool m_hemologicShock;
 	float m_sepsisTime;
 	float m_zvirusTimer;
+	float m_bullethitRegenTimer;
+	float m_knifehitRegenTimer;
 	
 	override void Init()
 	{
@@ -20,6 +22,8 @@ modded class PlayerBase
 		m_hemologicShock = false;
 		m_sepsisTime = 0;
 		m_zvirusTimer = 0;
+		m_bullethitRegenTimer = 0;
+		m_knifehitRegenTimer = 0;
 	}
 	
 	override void OnStoreSave( ParamsWriteContext ctx )
@@ -48,7 +52,13 @@ modded class PlayerBase
 		ctx.Write( m_sepsis );
 		ctx.Write( m_sepsisTime );
 		ctx.Write( m_zombieVirus );
-		ctx.Write( m_zvirusTimer );
+		ctx.Write( m_zvirusTimer );		
+		ctx.Write( m_bulletBandage1 );
+		ctx.Write( m_bulletBandage2 );
+		ctx.Write( m_knifeBandage1 );
+		ctx.Write( m_knifeBandage2 );
+		ctx.Write( m_bullethitRegenTimer );
+		ctx.Write( m_knifehitRegenTimer );
 	}
 	
 	override bool OnStoreLoad( ParamsReadContext ctx, int version )
@@ -119,6 +129,24 @@ modded class PlayerBase
 			return false;
 		
 		if(!ctx.Read( m_zvirusTimer ))
+			return false;
+		
+		if(!ctx.Read( m_bulletBandage1 ))
+			return false;
+		
+		if(!ctx.Read( m_bulletBandage2 ))
+			return false;
+		
+		if(!ctx.Read( m_knifeBandage1 ))
+			return false;
+		
+		if(!ctx.Read( m_knifeBandage2 ))
+			return false;
+		
+		if(!ctx.Read( m_bullethitRegenTimer ))
+			return false;
+		
+		if(!ctx.Read( m_knifehitRegenTimer ))
 			return false;
 		
 		return true;
@@ -199,14 +227,65 @@ modded class PlayerBase
 		if (medHemologicShock > 0)
 		{
 			m_hemologicShock = true;
+			SetSynchDirty();
+		}
+		
+		int medRemoveSepsis = GetGame().ConfigGetInt( "CfgVehicles " + classname + " medRemoveSepsis" );
+		if (medRemoveSepsis > 0)
+		{
+			m_BleedingManagerServer.SetBloodInfection(false);
+		}
+		
+		int medRemoveZVirus = GetGame().ConfigGetInt( "CfgVehicles " + classname + " medRemoveZVirus" );
+		if (medRemoveZVirus > 0)
+		{			
+			if (medRemoveZVirus <= 1)
+			{
+				DecreaseHealth("", "Blood", ZVIRUS_ANTIDOT_BLOOD_DMG);
+			}
+			
+			if (medRemoveZVirus <= 2)
+			{
+				m_UnconsciousEndTime = -60;
+				SetHealth("","Shock",0);
+			}
+			
+			m_BleedingManagerServer.SetZVirus(false);
+		}
+		
+		int medBloodStop = GetGame().ConfigGetInt( "CfgVehicles " + classname + " medBloodStop" );
+		if (medBloodStop > 0)
+		{
+			m_BleedingManagerServer.ApplyBandage(medBloodStop);
 		}
 	}
 	
 	protected void OnTickAdvMedicine_Bloodlose(float deltaTime)
 	{		
+		while (m_bulletBandage1 + m_bulletBandage2 > m_bulletHits)
+		{
+			if (m_bulletBandage1 > 0) m_bulletBandage1 = m_bulletBandage1 - 1;
+			else if (m_bulletBandage2 > 0) m_bulletBandage2 = m_bulletBandage2 - 1;
+			SetSynchDirty();
+		}
+		
+		while (m_knifeBandage1 + m_knifeBandage2 > m_knifeHits)
+		{
+			if (m_knifeBandage1 > 0) m_knifeBandage1 = m_knifeBandage1 - 1;
+			else if (m_knifeBandage2 > 0) m_knifeBandage2 = m_knifeBandage2 - 1;
+			SetSynchDirty();
+		}
+		
+		int bh_opened = m_bulletHits - (m_bulletBandage1 + m_bulletBandage2);
+		int kh_opened = m_knifeHits - (m_knifeBandage1 + m_knifeBandage2);
+		
 		float bloodlose = 0;
-		bloodlose = bloodlose + (m_bulletHits * BLEEDING_BULLETHIT_OPEN_PER_SECOND);
-		bloodlose = bloodlose + (m_knifeHits * BLEEDING_KNIFEHIT_OPEN_PER_SECOND);
+		bloodlose = bloodlose + (bh_opened * BLEEDING_BULLETHIT_OPEN_PER_SECOND);
+		bloodlose = bloodlose + (m_bulletBandage1 * BLEEDING_BULLETHIT_CUPD1_PER_SECOND);
+		bloodlose = bloodlose + (m_bulletBandage2 * BLEEDING_BULLETHIT_CUPD2_PER_SECOND);
+		bloodlose = bloodlose + (kh_opened * BLEEDING_KNIFEHIT_OPEN_PER_SECOND);
+		bloodlose = bloodlose + (m_knifeBandage1 * BLEEDING_KNIFEHIT_CUPD1_PER_SECOND);
+		bloodlose = bloodlose + (m_knifeBandage2 * BLEEDING_KNIFEHIT_CUPD2_PER_SECOND);
 		bloodlose = bloodlose + (m_visceraHit * BLEEDING_VISCERA_BLOODLOSE_PER_SECOND);
 		bloodlose = bloodlose + (m_hematomaHits * BLEEDING_HEMATOMA_BLOODLOSE_PER_SECOND);
 		if (bloodlose > 0.01)
@@ -215,8 +294,8 @@ modded class PlayerBase
 		}
 		
 		float healthlose = 0;
-		healthlose = healthlose + (m_bulletHits * BLEEDING_BULLETHIT_HEALTHLOSE_PER_SECOND);
-		healthlose = healthlose + (m_knifeHits * BLEEDING_KNIFEHIT_HEALTHLOSE_PER_SECOND);
+		healthlose = healthlose + (bh_opened * BLEEDING_BULLETHIT_HEALTHLOSE_PER_SECOND);
+		healthlose = healthlose + (kh_opened * BLEEDING_KNIFEHIT_HEALTHLOSE_PER_SECOND);
 		healthlose = healthlose + (m_visceraHit * BLEEDING_VISCERA_HEALTHLOSE_PER_SECOND);
 		healthlose = healthlose + (m_hematomaHits * BLEEDING_HEMATOMA_HEALTHLOSE_PER_SECOND);
 		if (healthlose > 0.01)
@@ -256,6 +335,34 @@ modded class PlayerBase
 		else
 		{
 			m_cuthitRegenTimer = 0;
+		}
+		
+		if (BLEEDING_BULLETHIT_REMOVE_BANDAGED_TIME_SEC > 0 && m_bulletHits > 0 && (m_bulletBandage1 + m_bulletBandage2) > 0)
+		{
+			m_bullethitRegenTimer = m_bullethitRegenTimer + deltaTime;
+			if (m_bullethitRegenTimer > BLEEDING_BULLETHIT_REMOVE_BANDAGED_TIME_SEC)
+			{
+				m_bullethitRegenTimer = 0;
+				m_BleedingManagerServer.RemoveBulletHit(true);
+			}
+		}
+		else
+		{
+			m_bullethitRegenTimer = 0;
+		}
+		
+		if (BLEEDING_KNIFEHIT_REMOVE_BANDAGED_TIME_SEC > 0 && m_knifeHits > 0 && (m_knifeBandage1 + m_knifeBandage2) > 0)
+		{
+			m_knifehitRegenTimer = m_knifehitRegenTimer + deltaTime;
+			if (m_knifehitRegenTimer > BLEEDING_KNIFEHIT_REMOVE_BANDAGED_TIME_SEC)
+			{
+				m_knifehitRegenTimer = 0;
+				m_BleedingManagerServer.RemoveKnifeHit(true);
+			}
+		}
+		else
+		{
+			m_knifehitRegenTimer = 0;
 		}
 	}
 	
