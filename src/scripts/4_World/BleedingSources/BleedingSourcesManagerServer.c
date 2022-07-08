@@ -182,8 +182,28 @@ modded class BleedingSourcesManagerServer
 		
 		if (source.IsZombie())
 		{
+			bool blockZedDamage = false;
+			if (zone == "Torso")
+			{
+				ItemBase itemCheckZedVest = m_Player.GetItemOnSlot("Vest");
+				if (itemCheckZedVest && !itemCheckZedVest.IsRuined())
+				{
+					float plateArmorZed = GetGame().ConfigGetFloat( "CfgVehicles " + itemCheckZedVest.GetType() + " DamageSystem GlobalArmor Melee Blood damage" );
+					if (plateArmorZed < 0.1)
+					{
+						blockZedDamage = true;
+					}
+				}
+			}
+			
 			float zvirusInfectionChance = ZVIRUS_ZOMBIE_HIT_CHANCE;
-			if (Math.RandomFloat01() < BLEEDING_ZOMBIE_HIT_CHANCE)
+			float zedHematomaChance = HEMATOMA_ZOMBIE_HIT_CHANCE;
+			if (blockZedDamage)
+			{
+				zedHematomaChance = zedHematomaChance * 0.5;
+			}
+			
+			if (!blockZedDamage && Math.RandomFloat01() < BLEEDING_ZOMBIE_HIT_CHANCE)
 			{
 				zvirusInfectionChance = zvirusInfectionChance * 1.5;
 				AttemptAddBleedingSource(component);
@@ -192,7 +212,7 @@ modded class BleedingSourcesManagerServer
 					SetBloodInfection(true);
 				}
 			}
-			else if (Math.RandomFloat01() < HEMATOMA_ZOMBIE_HIT_CHANCE)
+			else if (Math.RandomFloat01() < zedHematomaChance)
 			{
 				AddHematomaHit();
 				if (zone == "Head" && Math.RandomFloat01() < 0.3)
@@ -200,9 +220,9 @@ modded class BleedingSourcesManagerServer
 					SetConcussionHit(true);
 				}
 				
-				if (m_Player.GetItemOnSlot("Mask"))
+				if (m_Player.IsFaceBlocked(false))
 				{
-					zvirusInfectionChance = zvirusInfectionChance * 0.75;
+					zvirusInfectionChance = zvirusInfectionChance * 0.5;
 				}
 			}
 			
