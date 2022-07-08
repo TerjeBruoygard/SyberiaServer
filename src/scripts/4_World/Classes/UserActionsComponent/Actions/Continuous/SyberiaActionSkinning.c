@@ -19,8 +19,10 @@ modded class ActionSkinning
 		
 		if (action_data.m_MainItem)
 		{
-			float skill = (action_data.m_Player.GetSkillValue(SyberiaSkillType.SYBSKILL_HUNTING) / 5.0) + 1.5;
-			action_data.m_MainItem.DecreaseHealth("", "", (1 / skill) * action_data.m_MainItem.GetMaxHealth("", ""));
+			float skill = 1 - action_data.m_Player.GetPerkFloatValue(SyberiaPerkType.SYBPERK_HUNTING_TOOLS, 0, 0);
+			float dmgFactor = GetSyberiaConfig().m_animalsButchingKnifeDamage;
+			float itemMaxHealth = action_data.m_MainItem.GetMaxHealth("", "");
+			action_data.m_MainItem.DecreaseHealth("", "", skill * dmgFactor * itemMaxHealth );
 		}
 	}
 };

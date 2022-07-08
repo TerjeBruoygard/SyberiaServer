@@ -14,6 +14,11 @@ modded class ItemBase
 		}
 	}
 	
+	bool CanHaveTemperature_SybInternalAccess()
+	{
+		return CanHaveTemperature();
+	}
+	
 	override void ProcessItemTemperature( float delta, bool hasParent, bool hasRootAsPlayer, ItemBase refParentIB )
 	{
 		if (!CanHaveTemperature())
@@ -41,7 +46,7 @@ modded class ItemBase
 				// cooling of an item inside other
 				if ( !IsFireplace() )
 				{
-					if (refParentIB.CanHaveTemperature())
+					if (refParentIB.CanHaveTemperature_SybInternalAccess())
 					{
 						float parentTemperature = refParentIB.GetTemperature();
 						if (itemTemperature > parentTemperature) AddTemperature( delta * GameConstants.TEMPERATURE_RATE_COOLING_INSIDE );

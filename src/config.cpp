@@ -149,7 +149,7 @@ class CfgSyberia
     
     class AnimalsSystem
     {
-        animalsAgroDistance = 400;
+        animalsButchingKnifeDamage = 0.4;
     };
 
     class IngameSystem
