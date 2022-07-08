@@ -140,6 +140,8 @@ modded class SyberiaConfig
 	float m_damageGlovesOnHandsOnAttack;
 	float m_damageHandsOnAttackChance;
 	float m_bodyGuardModifier;
+	float m_zombieAttackDistanceChase;
+	float m_zombieAttackDistanceFight;
 	
 	// Others
 	int m_bookPagesCountToCut;
@@ -309,6 +311,8 @@ modded class SyberiaConfig
 		m_damageGlovesOnHandsOnAttack = ConfigGetFloat("CfgSyberia AttackSystem damageGlovesOnHandsOnAttack");
 		m_damageHandsOnAttackChance = ConfigGetFloat("CfgSyberia AttackSystem damageHandsOnAttackChance");
 		m_bodyGuardModifier = ConfigGetFloat("CfgSyberia AttackSystem bodyGuardModifier");
+		m_zombieAttackDistanceChase = ConfigGetFloat("CfgSyberia AttackSystem zombieAttackDistanceChase");
+		m_zombieAttackDistanceFight = ConfigGetFloat("CfgSyberia AttackSystem zombieAttackDistanceFight");
 		
 		// Others
 		m_bookPagesCountToCut = ConfigGetInt("CfgSyberia IngameSystem bookPagesCountToCut");

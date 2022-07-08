@@ -145,6 +145,8 @@ class CfgSyberia
         damageGlovesOnHandsOnAttack = 2.0;
         damageHandsOnAttackChance = 0.20;
         bodyGuardModifier = 1;
+        zombieAttackDistanceChase = 2.2;
+        zombieAttackDistanceFight = 1.8;
     };
 
     class ZombieSystem
