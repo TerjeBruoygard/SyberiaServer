@@ -1823,14 +1823,16 @@ modded class PlayerBase
 	float GetRadiationProtection()
 	{
 		float value = 0;
+		float state = 0;
 		EntityAI attachment;
 		int attCount = GetInventory().AttachmentCount();
 		for ( int attIdx = 0; attIdx < attCount; attIdx++ )
 		{
 			attachment = GetInventory().GetAttachmentFromIndex( attIdx );
-			if ( attachment.IsClothing() )
+			if ( attachment && attachment.IsClothing() )
 			{
-				value = value + GetGame().ConfigGetFloat( "CfgVehicles " + attachment.GetType() + " radiationProtection" );
+				state = Math.Clamp(attachment.GetHealth01("", "") * 2, 0, 1);
+				value = value + (GetGame().ConfigGetFloat( "CfgVehicles " + attachment.GetType() + " radiationProtection" ) * state);
 			}
 		}
 		
