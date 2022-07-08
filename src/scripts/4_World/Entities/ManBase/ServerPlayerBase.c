@@ -1956,4 +1956,9 @@ modded class PlayerBase
 		
 		return Math.Clamp(value, 0, 1);
 	}
+	
+	override bool CanBeTargetedByAI(EntityAI ai)
+	{
+		return !IsDamageDestroyed();
+	}
 };
