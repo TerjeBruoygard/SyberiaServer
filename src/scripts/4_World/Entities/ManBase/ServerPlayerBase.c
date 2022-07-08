@@ -4,6 +4,8 @@ modded class PlayerBase
 	float m_painkillerTime;
 	float m_hematomaRegenTimer;
 	float m_cuthitRegenTimer;
+	float m_stomatchhealTimer;
+	bool m_hemologicShock;
 	
 	override void Init()
 	{
@@ -12,6 +14,8 @@ modded class PlayerBase
 		m_hematomaRegenTimer = 0;
 		m_cuthitRegenTimer = 0;
 		m_painkillerTime = 0;
+		m_stomatchhealTimer = 0;
+		m_hemologicShock = false;
 	}
 	
 	override void OnStoreSave( ParamsWriteContext ctx )
@@ -34,6 +38,9 @@ modded class PlayerBase
 		ctx.Write( m_cuthitRegenTimer );
 		ctx.Write( m_painkillerEffect );
 		ctx.Write( m_painkillerTime );
+		ctx.Write( m_stomatchhealEffect );
+		ctx.Write( m_stomatchhealTimer );
+		ctx.Write( m_hemologicShock );
 	}
 	
 	override bool OnStoreLoad( ParamsReadContext ctx, int version )
@@ -85,6 +92,15 @@ modded class PlayerBase
 		if(!ctx.Read( m_painkillerTime ))
 			return false;
 		
+		if(!ctx.Read( m_stomatchhealEffect ))
+			return false;
+		
+		if(!ctx.Read( m_stomatchhealTimer ))
+			return false;
+		
+		if(!ctx.Read( m_hemologicShock ))
+			return false;
+		
 		return true;
 	}
 	
@@ -94,6 +110,9 @@ modded class PlayerBase
 		OnTickAdvMedicine_Bloodlose(deltaTime);
 		OnTickAdvMedicine_Regen(deltaTime);
 		OnTickAdvMedicine_Pain(deltaTime);
+		OnTickAdvMedicine_Stomatchheal(deltaTime);
+		OnTickAdvMedicine_Antibiotics(deltaTime);
+		OnTickAdvMedicine_HemorlogicShock(deltaTime);
 	}
 	
 	override bool Consume(ItemBase source, float amount, EConsumeType consume_type )
@@ -122,7 +141,42 @@ modded class PlayerBase
 				float medPainkillerTimeSec = GetGame().ConfigGetFloat( "CfgVehicles " + classname + " medPainkillerTimeSec" );
 				m_painkillerEffect = medPainkillerLevel;
 				m_painkillerTime = m_painkillerTime + (medPainkillerTimeSec * amount);
+				SetSynchDirty();
 			}
+		}
+		
+		int medStomatchhealLevel = GetGame().ConfigGetInt( "CfgVehicles " + classname + " medStomatchhealLevel" );
+		if (medStomatchhealLevel > 0)
+		{
+			if (!m_stomatchhealEffect)
+			{
+				m_stomatchhealEffect = true;
+				m_stomatchhealTimer = GetGame().ConfigGetFloat( "CfgVehicles " + classname + " medStomatchhealTimeSec" );
+				SetSynchDirty();
+			}
+		}
+		
+		int medAntibioticLevel = GetGame().ConfigGetInt( "CfgVehicles " + classname + " medAntibioticLevel" );
+		if (medAntibioticLevel > 0)
+		{
+			if( GetModifiersManager().IsModifierActive(eModifiers.MDF_ANTIBIOTICS))
+			{
+				GetModifiersManager().DeactivateModifier( eModifiers.MDF_ANTIBIOTICS );
+			}
+			GetModifiersManager().ActivateModifier( eModifiers.MDF_ANTIBIOTICS );
+			AntibioticsMdfr antibioticsMdfr = AntibioticsMdfr.Cast(GetModifiersManager().GetModifier(eModifiers.MDF_ANTIBIOTICS));
+			float medAntibioticsTimeSec = GetGame().ConfigGetFloat( "CfgVehicles " + classname + " medAntibioticsTimeSec" );
+			float medAntibioticsStrength = GetGame().ConfigGetFloat( "CfgVehicles " + classname + " medAntibioticsStrength" );
+			if (antibioticsMdfr && medAntibioticsTimeSec > 0 && medAntibioticsStrength > 0)
+			{
+				antibioticsMdfr.SetAntibioticsConfig(medAntibioticsTimeSec, medAntibioticsStrength);
+			}
+		}
+		
+		int medHemologicShock = GetGame().ConfigGetInt( "CfgVehicles " + classname + " medHemologicShock" );
+		if (medHemologicShock > 0)
+		{
+			m_hemologicShock = true;
 		}
 	}
 	
@@ -196,6 +250,47 @@ modded class PlayerBase
 		if (m_painkillerEffect != 0 && m_painkillerTime < 0.1)
 		{
 			m_painkillerEffect = 0;
+			SetSynchDirty();
+		}
+	}
+	
+	protected void OnTickAdvMedicine_Stomatchheal(float deltaTime)
+	{
+		if (!m_stomatchhealEffect)
+			return;
+		
+		m_stomatchhealTimer = Math.Clamp(m_stomatchhealTimer - deltaTime, 0, 999999);
+		if (m_stomatchhealTimer < 0.1)
+		{
+			m_stomatchhealEffect = false;
+			m_stomatchhealTimer = 0;
+			if( GetModifiersManager().IsModifierActive(eModifiers.MDF_POISONING))
+			{
+				GetModifiersManager().DeactivateModifier(eModifiers.MDF_POISONING);
+			}
+			SetSynchDirty();
+		}		
+	}
+	
+	protected void OnTickAdvMedicine_Antibiotics(float deltaTime)
+	{
+		bool lastAntibioticsEffect = m_antibioticsEffect;
+		m_antibioticsEffect = GetModifiersManager().IsModifierActive(eModifiers.MDF_ANTIBIOTICS);
+		if (m_antibioticsEffect != lastAntibioticsEffect)
+		{
+			SetSynchDirty();
+		}
+	}
+	
+	protected void OnTickAdvMedicine_HemorlogicShock(float deltaTime)
+	{
+		if (m_hemologicShock)
+		{
+			m_UnconsciousEndTime = -60;
+			SetHealth("","Shock",0);
+			
+			float maxHealth = GetMaxHealth("GlobalHealth","Health");
+			DecreaseHealth("GlobalHealth","Health", (maxHealth / HEMOLOGIC_SHOCK_DIETIME_SEC) * deltaTime);
 			SetSynchDirty();
 		}
 	}
