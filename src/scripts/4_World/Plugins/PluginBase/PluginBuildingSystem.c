@@ -62,6 +62,25 @@ class PluginBuildingSystem extends PluginBase
 		}
 	}
 	
+	void CreateLivespace(House house, int livespaceId, PlayerBase player)
+	{
+		if (house == null || livespaceId == -1 || player == null)
+		{
+			return;
+		}
+		
+		PlayerIdentity identity = player.GetIdentity();
+		if (identity == null)
+		{
+			return;
+		}
+		
+		ref map<string, string> values = new map<string, string>;
+		values.Insert("ownrs", identity.GetId());
+		
+		BuildingLivespace.SpawnLivespace(-1, house, livespaceId, values);
+	}
+	
 	void InsertLivespace(BuildingLivespace livespace)
 	{
 		if (livespace != null && m_livespaces.Find(livespace) == -1)

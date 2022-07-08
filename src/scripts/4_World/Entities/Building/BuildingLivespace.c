@@ -300,8 +300,8 @@ modded class BuildingLivespace
 		return -1;
 	}
 	
-	bool OpenLivespaceDoor(int livespaceDoorId)
-	{
+	bool OpenLivespaceDoor(PlayerBase player, int livespaceDoorId)
+	{		
 		if (livespaceDoorId == -1)
 		{
 			return false;
@@ -311,6 +311,17 @@ modded class BuildingLivespace
 		if (doorData == null)
 		{
 			return false;
+		}
+		
+		if (!player || !player.GetIdentity())
+		{
+			return true;
+		}
+		
+		PlayerIdentity identity = player.GetIdentity();
+		if (!IsOwner(identity) && !IsMember(identity))
+		{
+			return true;
 		}
 		
 		this.UnlockDoor(doorData.m_selfDoorId);
@@ -325,7 +336,7 @@ modded class BuildingLivespace
 		return true;
 	}
 	
-	bool CloseLivespaceDoor(int livespaceDoorId)
+	bool CloseLivespaceDoor(PlayerBase player, int livespaceDoorId)
 	{
 		if (livespaceDoorId == -1)
 		{
@@ -375,6 +386,22 @@ modded class BuildingLivespace
 	void SetRecordId(int id)
 	{
 		m_recordId = id;
+	}
+	
+	bool IsOwner(PlayerIdentity identity)
+	{
+		if (!identity) return false;
+		
+		string uid = identity.GetId();
+		return m_owners.Find(uid) != -1;
+	}
+	
+	bool IsMember(PlayerIdentity identity)
+	{
+		if (!identity) return false;
+		
+		string uid = identity.GetId();
+		return m_members.Find(uid) != -1;
 	}
 	
 	override void OnRPC(PlayerIdentity sender, int rpc_type, ParamsReadContext ctx)
