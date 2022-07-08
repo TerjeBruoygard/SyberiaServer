@@ -14,6 +14,8 @@ modded class PlayerBase
 	float m_concussionRegenTimer;
 	float m_bloodHemostaticTimer;
 	float m_hematopoiesisTimer;
+	float m_salveEffectTimer;
+	float m_adrenalinEffectTimer;
 	
 	override void Init()
 	{
@@ -32,6 +34,8 @@ modded class PlayerBase
 		m_concussionRegenTimer = 0;
 		m_bloodHemostaticTimer = 0;
 		m_hematopoiesisTimer = 0;
+		m_salveEffectTimer = 0;
+		m_adrenalinEffectTimer = 0;
 	}
 	
 	override void OnStoreSave( ParamsWriteContext ctx )
@@ -72,6 +76,10 @@ modded class PlayerBase
 		ctx.Write( m_bloodHemostaticTimer );		
 		ctx.Write( m_hematopoiesisEffect );		
 		ctx.Write( m_hematopoiesisTimer );
+		ctx.Write( m_salveEffect );
+		ctx.Write( m_salveEffectTimer );		
+		ctx.Write( m_adrenalinEffect );
+		ctx.Write( m_adrenalinEffectTimer );
 	}
 	
 	override bool OnStoreLoad( ParamsReadContext ctx, int version )
@@ -80,102 +88,44 @@ modded class PlayerBase
 			return false;
 		
 		// Sleeping
-		if(!ctx.Read( m_sleepingValue ))
-			return false;
-		
-		if(!ctx.Read( m_sleepingBoostTimer ))
-			return false;
-		
-		if(!ctx.Read( m_sleepingBoostValue ))
-			return false;
+		if(!ctx.Read( m_sleepingValue )) return false;		
+		if(!ctx.Read( m_sleepingBoostTimer )) return false;		
+		if(!ctx.Read( m_sleepingBoostValue )) return false;
 		
 		// Adv medicine
-		if(!ctx.Read( m_bulletHits ))
-			return false;
-		
-		if(!ctx.Read( m_knifeHits ))
-			return false;
-		
-		if(!ctx.Read( m_hematomaHits ))
-			return false;
-		
-		if(!ctx.Read( m_visceraHit ))
-			return false;
-		
-		if(!ctx.Read( m_concussionHit ))
-			return false;
-		
-		if(!ctx.Read( m_painLevel ))
-			return false;
-		
-		if(!ctx.Read( m_painTimer ))
-			return false;
-		
-		if(!ctx.Read( m_hematomaRegenTimer ))
-			return false;
-		
-		if(!ctx.Read( m_cuthitRegenTimer ))
-			return false;
-		
-		if(!ctx.Read( m_painkillerEffect ))
-			return false;
-		
-		if(!ctx.Read( m_painkillerTime ))
-			return false;
-		
-		if(!ctx.Read( m_stomatchhealEffect ))
-			return false;
-		
-		if(!ctx.Read( m_stomatchhealTimer ))
-			return false;
-		
-		if(!ctx.Read( m_hemologicShock ))
-			return false;
-		
-		if(!ctx.Read( m_sepsis ))
-			return false;
-		
-		if(!ctx.Read( m_sepsisTime ))
-			return false;
-		
-		if(!ctx.Read( m_zombieVirus ))
-			return false;
-		
-		if(!ctx.Read( m_zvirusTimer ))
-			return false;
-		
-		if(!ctx.Read( m_bulletBandage1 ))
-			return false;
-		
-		if(!ctx.Read( m_bulletBandage2 ))
-			return false;
-		
-		if(!ctx.Read( m_knifeBandage1 ))
-			return false;
-		
-		if(!ctx.Read( m_knifeBandage2 ))
-			return false;
-		
-		if(!ctx.Read( m_bullethitRegenTimer ))
-			return false;
-		
-		if(!ctx.Read( m_knifehitRegenTimer ))
-			return false;
-		
-		if(!ctx.Read( m_concussionRegenTimer ))
-			return false;
-		
-		if(!ctx.Read( m_bloodHemostaticEffect ))
-			return false;
-		
-		if(!ctx.Read( m_bloodHemostaticTimer ))
-			return false;
-		
-		if(!ctx.Read( m_hematopoiesisEffect ))
-			return false;
-		
-		if(!ctx.Read( m_hematopoiesisTimer ))
-			return false;
+		if(!ctx.Read( m_bulletHits )) return false;		
+		if(!ctx.Read( m_knifeHits )) return false;		
+		if(!ctx.Read( m_hematomaHits )) return false;		
+		if(!ctx.Read( m_visceraHit )) return false;		
+		if(!ctx.Read( m_concussionHit )) return false;		
+		if(!ctx.Read( m_painLevel )) return false;		
+		if(!ctx.Read( m_painTimer )) return false;		
+		if(!ctx.Read( m_hematomaRegenTimer )) return false;		
+		if(!ctx.Read( m_cuthitRegenTimer )) return false;		
+		if(!ctx.Read( m_painkillerEffect )) return false;		
+		if(!ctx.Read( m_painkillerTime )) return false;		
+		if(!ctx.Read( m_stomatchhealEffect )) return false;		
+		if(!ctx.Read( m_stomatchhealTimer )) return false;		
+		if(!ctx.Read( m_hemologicShock )) return false;		
+		if(!ctx.Read( m_sepsis )) return false;		
+		if(!ctx.Read( m_sepsisTime )) return false;		
+		if(!ctx.Read( m_zombieVirus )) return false;	
+		if(!ctx.Read( m_zvirusTimer )) return false;		
+		if(!ctx.Read( m_bulletBandage1 )) return false;		
+		if(!ctx.Read( m_bulletBandage2 )) return false;		
+		if(!ctx.Read( m_knifeBandage1 )) return false;		
+		if(!ctx.Read( m_knifeBandage2 )) return false;		
+		if(!ctx.Read( m_bullethitRegenTimer )) return false;		
+		if(!ctx.Read( m_knifehitRegenTimer )) return false;		
+		if(!ctx.Read( m_concussionRegenTimer )) return false;		
+		if(!ctx.Read( m_bloodHemostaticEffect )) return false;		
+		if(!ctx.Read( m_bloodHemostaticTimer )) return false;		
+		if(!ctx.Read( m_hematopoiesisEffect )) return false;		
+		if(!ctx.Read( m_hematopoiesisTimer )) return false;		
+		if(!ctx.Read( m_salveEffect )) return false;		
+		if(!ctx.Read( m_salveEffectTimer )) return false;		
+		if(!ctx.Read( m_adrenalinEffect )) return false;
+		if(!ctx.Read( m_adrenalinEffectTimer )) return false;
 		
 		return true;
 	}
@@ -188,6 +138,7 @@ modded class PlayerBase
 		if (m_advMedUpdateTimer > 0.2)
 		{
 			OnTickAdvMedicine_Bloodlose(m_advMedUpdateTimer);
+			OnTickAdvMedicine_Salve(m_advMedUpdateTimer);
 			OnTickAdvMedicine_Regen(m_advMedUpdateTimer);
 			OnTickAdvMedicine_Pain(m_advMedUpdateTimer);
 			OnTickAdvMedicine_Sepsis(m_advMedUpdateTimer);
@@ -197,6 +148,7 @@ modded class PlayerBase
 			OnTickAdvMedicine_HemorlogicShock(m_advMedUpdateTimer);
 			OnTickAdvMedicine_HemostatickEffect(m_advMedUpdateTimer);
 			OnTickAdvMedicine_HematopoiesisEffect(m_advMedUpdateTimer);
+			OnTickAdvMedicine_Adrenalin(m_advMedUpdateTimer);
 			m_advMedUpdateTimer = 0;
 		}
 	}
@@ -227,7 +179,8 @@ modded class PlayerBase
 	// medConcussionHeal
 	// medBloodHemostatic, medBloodHemostaticTimeSec
 	// medBloodHematopoiesis, medBloodHematopoiesisTimeSec
-	// medHematomaHeal
+	// medHematomaHeal, medHematomaHealTimeSec
+	// medAdrenalinLevel, medAdrenalinTimeSec
 	void ApplyAdvMedicineItem(string classname, float amount)
 	{
 		int medPainkillerLevel = GetGame().ConfigGetInt( "CfgVehicles " + classname + " medPainkillerLevel" );
@@ -248,7 +201,8 @@ modded class PlayerBase
 			if (!m_stomatchhealEffect)
 			{
 				m_stomatchhealEffect = true;
-				m_stomatchhealTimer = GetGame().ConfigGetFloat( "CfgVehicles " + classname + " medStomatchhealTimeSec" );
+				float medStomatchhealTimeSec = GetGame().ConfigGetFloat( "CfgVehicles " + classname + " medStomatchhealTimeSec" );
+				m_stomatchhealTimer = m_stomatchhealTimer + (medStomatchhealTimeSec * amount);
 				SetSynchDirty();
 			}
 		}
@@ -289,7 +243,9 @@ modded class PlayerBase
 			if (medRemoveZVirus <= 1)
 			{
 				float maxBlood = GetMaxHealth("GlobalHealth","Blood");
+				float maxHealth = GetMaxHealth("GlobalHealth","Health");
 				DecreaseHealth("", "Blood", maxBlood * ZVIRUS_ANTIDOT_BLOOD_DMG_01);
+				DecreaseHealth("", "Health", maxHealth * ZVIRUS_ANTIDOT_HEALTH_DMG_01);
 			}
 			
 			if (medRemoveZVirus <= 2)
@@ -317,7 +273,8 @@ modded class PlayerBase
 		if (medBloodHemostatic > 0)
 		{
 			m_bloodHemostaticEffect = true;
-			m_bloodHemostaticTimer = GetGame().ConfigGetFloat( "CfgVehicles " + classname + " medBloodHemostaticTimeSec" );
+			float medBloodHemostaticTimeSec = GetGame().ConfigGetFloat( "CfgVehicles " + classname + " medBloodHemostaticTimeSec" );
+			m_bloodHemostaticTimer = m_bloodHemostaticTimer + (medBloodHemostaticTimeSec * amount);
 			SetSynchDirty();
 		}
 		
@@ -325,14 +282,30 @@ modded class PlayerBase
 		if (medBloodHematopoiesis > 0)
 		{
 			m_hematopoiesisEffect = true;
-			m_hematopoiesisTimer = GetGame().ConfigGetFloat( "CfgVehicles " + classname + " medBloodHematopoiesisTimeSec" );
+			float medBloodHematopoiesisTimeSec = GetGame().ConfigGetFloat( "CfgVehicles " + classname + " medBloodHematopoiesisTimeSec" );
+			m_hematopoiesisTimer = m_hematopoiesisTimer + (medBloodHematopoiesisTimeSec * amount);
 			SetSynchDirty();
 		}
 		
 		int medHematomaHeal = GetGame().ConfigGetInt( "CfgVehicles " + classname + " medHematomaHeal" );
 		if (medHematomaHeal > 0)
 		{
-			m_BleedingManagerServer.RemoveHematomaHit();
+			m_salveEffect = true;
+			float medHematomaHealTimeSec = GetGame().ConfigGetFloat( "CfgVehicles " + classname + " medHematomaHealTimeSec" );
+			m_salveEffectTimer = m_salveEffectTimer + (medHematomaHealTimeSec * amount);
+			SetSynchDirty();
+		}
+		
+		int medAdrenalinLevel = GetGame().ConfigGetInt( "CfgVehicles " + classname + " medAdrenalinLevel" );
+		if (medAdrenalinLevel > 0)
+		{
+			if (m_adrenalinEffect <= medAdrenalinLevel)
+			{
+				m_adrenalinEffect = medAdrenalinLevel;
+				float medAdrenalinTimeSec = GetGame().ConfigGetFloat( "CfgVehicles " + classname + " medAdrenalinTimeSec" );
+				m_adrenalinEffectTimer = m_adrenalinEffectTimer + (medAdrenalinTimeSec * amount);
+				SetSynchDirty();
+			}
 		}
 	}
 	
@@ -384,11 +357,34 @@ modded class PlayerBase
 		}
 	}
 	
+	protected void OnTickAdvMedicine_Salve(float deltaTime)
+	{
+		if (m_salveEffect)
+		{
+			m_salveEffectTimer = m_salveEffectTimer - deltaTime;
+			if (m_salveEffectTimer < 0)
+			{
+				m_salveEffect = false;
+				SetSynchDirty();
+			}
+		}
+		else
+		{
+			m_salveEffectTimer = 0;
+		}
+	}
+	
 	protected void OnTickAdvMedicine_Regen(float deltaTime)
 	{
 		if (m_hematomaHits > 0)
 		{
-			m_hematomaRegenTimer = m_hematomaRegenTimer + deltaTime;
+			float hematomaRegenOffset = deltaTime; 
+			if (m_salveEffect)
+			{
+				hematomaRegenOffset = hematomaRegenOffset * HEMATOMA_REGEN_TIME_BOOST_ON_SALVE;
+			}
+			
+			m_hematomaRegenTimer = m_hematomaRegenTimer + hematomaRegenOffset;
 			if (m_hematomaRegenTimer > HEMATOMA_REGEN_TIMER_SEC)
 			{
 				m_hematomaRegenTimer = 0;
@@ -624,6 +620,32 @@ modded class PlayerBase
 			{
 				AddHealth("", "Blood", HEMATOPOIESIS_EFFECT_BLOOD_PER_SEC * deltaTime);
 			}
+		}
+	}
+	
+	protected void OnTickAdvMedicine_Adrenalin(float deltaTime)
+	{
+		if (m_adrenalinEffect > 0)
+		{
+			m_adrenalinEffectTimer = m_adrenalinEffectTimer - deltaTime;
+			if (m_adrenalinEffectTimer < 0)
+			{
+				m_adrenalinEffect = 0;
+				SetSynchDirty();
+			}
+			else
+			{
+				float shockEffectValue = 0;
+				float maxShock = GetMaxHealth("GlobalHealth","Shock");
+				if (m_adrenalinEffect == 1) shockEffectValue = ADRENALIN_EFFECT_SHOCK_01_LVL1_PER_SEC; 
+				else if (m_adrenalinEffect == 2) shockEffectValue = ADRENALIN_EFFECT_SHOCK_01_LVL2_PER_SEC;
+				else if (m_adrenalinEffect == 3) shockEffectValue = ADRENALIN_EFFECT_SHOCK_01_LVL3_PER_SEC;
+				AddHealth("", "Shock", shockEffectValue * maxShock * deltaTime);
+			}
+		}
+		else
+		{
+			m_adrenalinEffectTimer = 0;
 		}
 	}
 };
