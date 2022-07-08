@@ -1,5 +1,6 @@
 modded class PlayerBase
 {	
+	ref CharProfile m_charProfile;
 	float m_advMedUpdateTimer;
 	float m_painTimer;
 	float m_painkillerTime;
