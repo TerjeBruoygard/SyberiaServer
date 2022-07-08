@@ -4,6 +4,7 @@ modded class PluginTrader
 	ref map<int, TraderPoint> m_traderPoints = new map<int, TraderPoint>;
 	ref map<int, ref PluginTrader_TraderServer> m_traderCache = new map<int, ref PluginTrader_TraderServer>;
 	ref map<int, ref PluginTrader_Data> m_traderData = new map<int, ref PluginTrader_Data>;
+	float m_updateTimer = 0;
 	
 	override void OnInit()
 	{
@@ -83,8 +84,9 @@ modded class PluginTrader
 		}
 		
 		TraderPoint traderPoint = TraderPoint.Cast( GetGame().CreateObject("TraderPoint", trader.m_position) );
-		traderPoint.SetPosition(trader.m_position);
 		traderPoint.SetAllowDamage(false);
+		traderPoint.SetPosition(trader.m_position);
+		traderPoint.SetOrientation(Vector(trader.m_rotation, 0, 0));		
 		traderPoint.InitTraderPoint(trader.m_traderId, traderObj);
 				
 		m_traderPoints.Insert(trader.m_traderId, traderPoint);		
@@ -319,6 +321,21 @@ modded class PluginTrader
 		GetSyberiaRPC().SendToClient(SyberiaRPC.SYBRPC_ACTION_TRADER, sender, new Param1<ref PluginTrader_Data>(traderData));
 	}
 	
+	override void OnUpdate(float delta_time)
+	{
+		super.OnUpdate(delta_time);
+		
+		m_updateTimer = m_updateTimer + delta_time;
+		if (m_updateTimer > 1.0)
+		{
+			m_updateTimer = 0;
+			foreach (int traderId, TraderPoint point : m_traderPoints)
+			{
+				point.OnTick();
+			}
+		}
+	}
+	
 	override void OnDestroy()
 	{		
 		if (m_config)
@@ -366,7 +383,6 @@ class PluginTrader_TraderServer : PluginTrader_Trader
 {
     string m_classname;
 	ref array<string> m_attachments;
-    vector m_position;
     float m_rotation;
 };
 

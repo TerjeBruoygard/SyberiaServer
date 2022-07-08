@@ -17,7 +17,7 @@ modded class TraderPoint
 	
 	bool HasActiveUser()
 	{
-		return m_traderActiveUser && m_traderActiveUser.IsAlive();
+		return m_traderActiveUser != null;
 	}
 	
     override void OnRPC(PlayerIdentity sender, int rpc_type, ParamsReadContext ctx)
@@ -39,6 +39,30 @@ modded class TraderPoint
 	{
 		if (!m_ready) return null;
 		return m_traderObject;
+	}
+	
+	void OnTick()
+	{
+		if (!m_ready)
+			return;
+		
+		if (m_traderActiveUser)
+		{
+			if (!m_traderActiveUser.IsAlive())
+			{
+				m_traderActiveUser = null;
+			}
+			else if (vector.Distance( m_traderActiveUser.GetPosition(), this.GetPosition() ) > 10)
+			{
+				m_traderActiveUser = null;
+			}
+		}
+		
+		if (m_traderObject)
+		{
+			m_traderObject.SetPosition( this.GetPosition() );
+			m_traderObject.SetOrientation( this.GetOrientation() );
+		}
 	}
 	
 	override void EEDelete(EntityAI parent)
