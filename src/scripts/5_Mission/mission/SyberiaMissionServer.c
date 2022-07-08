@@ -280,6 +280,7 @@ modded class MissionServer
 		{
 			if (player.IsGhostBody())
 			{
+				GetGame().SendLogoutTime(player, 0);
 				InvokeOnDisconnect(player);
 			
 				player.SetAllowDamage(true);
@@ -293,7 +294,8 @@ modded class MissionServer
 				player.Delete();
 				SybLogSrv("Delete ghost player");
 				
-				GetGame().DisconnectPlayer(identity);
+                GetGame().RemoveFromReconnectCache(identity.GetId());
+				GetGame().DisconnectPlayer(identity, identity.GetId());
 				// Send list of players at all clients
 				GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(SyncEvents.SendPlayerList, 1000);
 				return;
@@ -341,9 +343,10 @@ modded class MissionServer
 			player.SetHealth("", "", 0);
 			player.SetSynchDirty();
 		}
-		else
+		else if (identity)
 		{
-			GetGame().DisconnectPlayer(identity);
+            GetGame().RemoveFromReconnectCache(identity.GetId());
+			GetGame().DisconnectPlayer(identity, identity.GetId());
 			SybLogSrv("ForceRespawnPlayer PlayerBase not found.");
 		}
 	}
@@ -373,7 +376,8 @@ modded class MissionServer
 					}
 					else
 					{
-						GetGame().DisconnectPlayer(sender);
+                        GetGame().RemoveFromReconnectCache(sender.GetId());
+						GetGame().DisconnectPlayer(sender, sender.GetId());
 						return;
 					}
 				}
@@ -385,7 +389,8 @@ modded class MissionServer
 					}
 					else
 					{
-						GetGame().DisconnectPlayer(sender);
+						GetGame().RemoveFromReconnectCache(sender.GetId());
+						GetGame().DisconnectPlayer(sender, sender.GetId());
 						return;
 					}
 				}
@@ -393,7 +398,8 @@ modded class MissionServer
 				int charScore = GetSyberiaOptions().m_main.m_newchar_points;
 				if (charScore < clientData.param1.m_skills.GetTotalScore()) 
 				{
-					GetGame().DisconnectPlayer(sender);
+					GetGame().RemoveFromReconnectCache(sender.GetId());
+					GetGame().DisconnectPlayer(sender, sender.GetId());
 					return;
 				}
 				
@@ -411,7 +417,8 @@ modded class MissionServer
 		else
 		{
 			SybLogSrv("SYBRPC_CREATENEWCHAR_REQUEST Player kicked because already has profile: " + sender);
-			GetGame().DisconnectPlayer(sender);
+			GetGame().RemoveFromReconnectCache(sender.GetId());
+			GetGame().DisconnectPlayer(sender, sender.GetId());
 		}
 	}
 	
@@ -441,7 +448,8 @@ modded class MissionServer
 			ref array<int> selectedIndexes = clientData.param1;
 			if (selectedIndexes.Count() != GetSyberiaOptions().GetCharacterAllowedEquipmentSize())
 			{
-				GetGame().DisconnectPlayer(sender);
+				GetGame().RemoveFromReconnectCache(sender.GetId());
+				GetGame().DisconnectPlayer(sender, sender.GetId());
 				return;
 			}
 			
@@ -460,7 +468,8 @@ modded class MissionServer
 		else
 		{
 			SybLogSrv("SYBRPC_STARTGAME_REQUEST Player kicked because profile not found or invalid: " + sender);
-			GetGame().DisconnectPlayer(sender);
+			GetGame().RemoveFromReconnectCache(sender.GetId());
+			GetGame().DisconnectPlayer(sender, sender.GetId());
 		}
 	}
 	
@@ -474,7 +483,8 @@ modded class MissionServer
 			if ((profile.m_souls - soulsPrice) < 0)
 			{
 				SybLogSrv("SYBRPC_STARTGAME_REQUEST Player kicked because no souls left to respawn: " + sender);
-				GetGame().DisconnectPlayer(sender);
+                GetGame().RemoveFromReconnectCache(sender.GetId());
+                GetGame().DisconnectPlayer(sender, sender.GetId());
 				return;
 			}
 			
@@ -486,7 +496,8 @@ modded class MissionServer
 		else
 		{
 			SybLogSrv("SYBRPC_STARTGAME_REQUEST Player kicked because profile not found: " + sender);
-			GetGame().DisconnectPlayer(sender);
+			GetGame().RemoveFromReconnectCache(sender.GetId());
+			GetGame().DisconnectPlayer(sender, sender.GetId());
 		}
 	}
 	
@@ -507,7 +518,8 @@ modded class MissionServer
 		else
 		{
 			SybLogSrv("SYBRPC_STARTGAME_REQUEST Player kicked because profile not found: " + sender);
-			GetGame().DisconnectPlayer(sender);
+			GetGame().RemoveFromReconnectCache(sender.GetId());
+			GetGame().DisconnectPlayer(sender, sender.GetId());
 		}
 	}
 	
