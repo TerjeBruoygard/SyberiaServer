@@ -171,14 +171,6 @@ modded class Edible_Base
 		butcher.AddExperience(SyberiaSkillType.SYBSKILL_HUNTING, GetSyberiaConfig().m_skillsExpHuntingButchSmall);
 		SetHealth01("", "", 0);
 		SetSynchDirty();
-				
-		if (tool)
-		{
-			float skill = 1 - butcher.GetPerkFloatValue(SyberiaPerkType.SYBPERK_HUNTING_TOOLS, 0, 0);
-			float dmgFactor = GetSyberiaConfig().m_animalsButchingKnifeDamage;
-			float itemMaxHealth = tool.GetMaxHealth("", "");
-			tool.DecreaseHealth("", "", skill * dmgFactor * itemMaxHealth );
-		}
 		
 		ItemBase gloves = butcher.GetItemOnSlot("Gloves");
         if (gloves)

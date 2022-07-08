@@ -108,7 +108,7 @@ modded class PluginAdminTool
 			if (player)
 			{				
 				string preffix = GameHelpers.FindItemPreffix(context.m_classname);
-				float health = context.m_health * 0.01;
+				float health = Math.Clamp(context.m_health * 0.01, 0, 1);
 				float quantity = context.m_quantity * 0.01;
 				int spawnType = context.m_spawnType;
 				vector cursorPos = context.m_cursorPos;
