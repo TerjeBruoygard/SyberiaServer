@@ -92,7 +92,7 @@ modded class PluginSyberiaOptions extends PluginBase
 	
 	void SendClientOptions(PlayerIdentity identity, ref CharProfile profile)
 	{
-		GetSyberiaRPC().SendToClient(SyberiaRPC.SYBRPC_CLIENT_OPTIONS, identity, new Param3<ref PluginSyberiaOptions_Client, int, string>(m_client, profile.m_id, Syberia_Version));
+		GetSyberiaRPC().SendToClient(SyberiaRPC.SYBRPC_CLIENT_OPTIONS, identity, new Param3<ref PluginSyberiaOptions_Client, int, string>(m_client, profile.m_id, Syberia_ServerVersion));
 	}
 	
 	int GetCharacterAllowedEquipmentSize()
