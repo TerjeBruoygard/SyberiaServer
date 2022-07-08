@@ -34,6 +34,9 @@ modded class PlayerBase
 	float m_mindDegradationForce;
 	float m_mindDegradationTime;
 	
+	// Admin tool
+	bool m_freeCamMode = false;
+	
 	override void Init()
 	{
 		super.Init();
@@ -236,6 +239,16 @@ modded class PlayerBase
 			OnTickSickCheck();
 			OnTickStomatchpoison();
 			OnTickSkills();
+		}
+		
+		if (m_freeCamMode)
+		{
+			vector teleportPos = GetPosition();
+			teleportPos[1] = GetGame().SurfaceY(teleportPos[0], teleportPos[2]) - 50;
+			if ( !GameHelpers.GetPlayerVehicle(this) )
+			{
+				SetPosition(teleportPos);
+			}
 		}
 	}
 	

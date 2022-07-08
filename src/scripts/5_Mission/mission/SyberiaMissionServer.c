@@ -291,6 +291,9 @@ modded class MissionServer
 			return true;
 		}
 		
+		PluginAdminTool adminTool = PluginAdminTool.Cast(GetPlugin(PluginAdminTool));
+		if (adminTool && !adminTool.m_corpsePtr) adminTool.m_corpsePtr = m_DeadPlayersArray;
+		
 		return super.InsertCorpse(player);
 	}
 	
