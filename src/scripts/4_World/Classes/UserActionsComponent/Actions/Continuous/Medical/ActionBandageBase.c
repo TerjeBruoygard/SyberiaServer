@@ -21,5 +21,7 @@ modded class ActionBandageBase: ActionContinuousBase
 		{
 			item.Delete();
 		}
+        
+        operator.AddExperience(SyberiaSkillType.SYBSKILL_MEDICINE, GetSyberiaConfig().m_skillsExpMedicineBandage);
 	}
 };

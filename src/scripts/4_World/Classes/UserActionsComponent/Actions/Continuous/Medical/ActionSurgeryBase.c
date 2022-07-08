@@ -103,5 +103,7 @@ modded class ActionSurgeryBase
 		{
 			GetSyberiaRPC().SendToClient(SyberiaRPC.SYBRPC_SCREEN_MESSAGE, operator.GetIdentity(), new Param1<string>(result));	
 		}
+		
+		operator.AddExperience(SyberiaSkillType.SYBSKILL_MEDICINE, GetSyberiaConfig().m_skillsExpMedicineSurgery);
     }
 };
