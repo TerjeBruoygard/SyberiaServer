@@ -165,8 +165,6 @@ modded class PluginAdminTool
 					LogAdminAction(sender, "Spawn entity " + context.m_classname + ":" + context.m_quantity);			
 				}
 			}
-			
-			delete context;
 		}
 	}
 	

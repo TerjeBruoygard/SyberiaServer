@@ -15,7 +15,6 @@ class PluginSyberiaCharacters extends PluginBase
 		foreach (string uid, ref CharProfile profile : m_cachedProfiles)
 		{
 			queries.Insert(profile.UpdateQuery());
-			delete profile;
 		}
 		
 		GetDatabase().TransactionSync(SYBERIA_DB_NAME, queries, response);
@@ -73,7 +72,6 @@ class PluginSyberiaCharacters extends PluginBase
 		string uid = identity.GetId();
 		if (m_cachedProfiles.Contains(uid))
 		{
-			delete m_cachedProfiles.Get(uid);
 			m_cachedProfiles.Remove(uid);
 		}
 
@@ -101,8 +99,7 @@ class PluginSyberiaCharacters extends PluginBase
 		if (m_cachedProfiles.Find(uid, result))
 		{
 			m_cachedProfiles.Remove(uid);
-			GetDatabase().QueryAsync(SYBERIA_DB_NAME, result.DeleteQuery(), this, "OnDeleteCharacter");						
-			delete result;
+			GetDatabase().QueryAsync(SYBERIA_DB_NAME, result.DeleteQuery(), this, "OnDeleteCharacter");
 		}
 	}
 	
@@ -124,8 +121,6 @@ class PluginSyberiaCharacters extends PluginBase
 		GetGame().GameScript.CallFunctionParams(
 				metadata.param2, metadata.param3, null, 
 				new Param2<PlayerIdentity, bool>(sender, result));
-		
-		delete args;
 	}
 	
 	protected void OnDeleteCharacter(DatabaseResponse response, ref Param args) {}

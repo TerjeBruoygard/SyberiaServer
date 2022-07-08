@@ -203,9 +203,7 @@ class PluginBuildingSystem extends PluginBase
 			{
 				livespace.SetRecordId(newId);
 			}
-		}	
-		
-		delete args;
+		}
 	}
 	
 	protected void OnUpdateLivespaceRecord(DatabaseResponse response, ref Param args)
