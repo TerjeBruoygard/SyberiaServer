@@ -121,4 +121,9 @@ const int STOMATCHPOISON_DRINK_WELL[2] = { 1, 60 };
 
 const int STOMATCHPOISON_DEFAULT_TIMES[3] = { 30 * 60, 15 * 60, 10 * 60 }; // lvl1, lvl2, lvl3
 
+// Temperature
+const float TEMPERATURE_HIGH_CONSUME_ITEMS_MOD = 0.05;
+const float TEMPERATURE_LOW_CONSUME_ITEMS_MOD = -0.3;
+
+// Others
 const int BOOK_PAGES_COUNT_TO_CUT = 10;

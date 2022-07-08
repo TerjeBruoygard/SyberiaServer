@@ -582,6 +582,21 @@ modded class PlayerBase
 			{
 				SetStomatchPoison(STOMATCHPOISON_INFECTION[0], STOMATCHPOISON_INFECTION[1] * amount);
 			}
+			
+			if (source.IsTemperatureVisible())
+			{
+				float temperature = source.GetTemperature();
+				if (temperature > 40)
+				{
+					temperature = (Math.Clamp(temperature, 40.0, 80.0) - 40.0) / 40.0;
+					GetStatHeatBuffer().Add(temperature * amount * TEMPERATURE_HIGH_CONSUME_ITEMS_MOD);
+				}
+				else if (temperature < 20)
+				{
+					temperature = (20.0 - Math.Clamp(temperature, -20.0, 20.0)) / 40.0;
+					GetStatHeatBuffer().Add(temperature * amount * TEMPERATURE_LOW_CONSUME_ITEMS_MOD);
+				}
+			}
 		}
 		
 		if (HasBloodyHands() && !HasMedicalWellGloves())
@@ -598,7 +613,7 @@ modded class PlayerBase
 		{
 			SetStomatchPoison(STOMATCHPOISON_DRINK_WELL[0], STOMATCHPOISON_DRINK_WELL[1] * amount);
 		}
-		
+	
 		bool result = super.Consume(source, amount, consume_type);
 				
 		if (result)
