@@ -22,7 +22,7 @@ modded class BleedingSourcesManagerServer
 			
 			m_Player.GetSybStats().m_zombieVirus = 0;
 		}
-		m_Player.MarkSybStatsDirty();
+		m_Player.MarkSybStatsDirty(1000);
 	}
 		
 	void SetBloodInfection(bool value)
@@ -43,7 +43,7 @@ modded class BleedingSourcesManagerServer
 			
 			m_Player.GetSybStats().m_sepsis = 0;
 		}
-		m_Player.MarkSybStatsDirty();
+		m_Player.MarkSybStatsDirty(1001);
 	}
 	
     private void ApplyBandageDammageHands()
@@ -67,14 +67,14 @@ modded class BleedingSourcesManagerServer
 			{
 				ApplyBandageDammageHands();
 				m_Player.GetSybStats().m_bulletBandage1 = m_Player.GetSybStats().m_bulletBandage1 + 1;
-				m_Player.MarkSybStatsDirty();
+				m_Player.MarkSybStatsDirty(1002);
 				return;
 			}
 			if (level == 3)
 			{
 				ApplyBandageDammageHands();
 				m_Player.GetSybStats().m_bulletBandage2 = m_Player.GetSybStats().m_bulletBandage2 + 1;
-				m_Player.MarkSybStatsDirty();
+				m_Player.MarkSybStatsDirty(1003);
 				return;
 			}
 		}
@@ -85,14 +85,14 @@ modded class BleedingSourcesManagerServer
 			{
 				ApplyBandageDammageHands();
 				m_Player.GetSybStats().m_knifeBandage1 = m_Player.GetSybStats().m_knifeBandage1 + 1;
-				m_Player.MarkSybStatsDirty();
+				m_Player.MarkSybStatsDirty(1004);
 				return;
 			}
 			if (level == 3)
 			{
 				ApplyBandageDammageHands();
 				m_Player.GetSybStats().m_knifeBandage2 = m_Player.GetSybStats().m_knifeBandage2 + 1;
-				m_Player.MarkSybStatsDirty();
+				m_Player.MarkSybStatsDirty(1005);
 				return;
 			}
 		}
@@ -108,7 +108,7 @@ modded class BleedingSourcesManagerServer
 	{
 		m_Player.GetSybStats().m_bulletHits = m_Player.GetSybStats().m_bulletHits + 1;
 		SetPainLevel(2);
-		m_Player.MarkSybStatsDirty();
+		m_Player.MarkSybStatsDirty(1006);
 	}
 	
 	void RemoveBulletHit(bool removeBandage)
@@ -121,7 +121,7 @@ modded class BleedingSourcesManagerServer
 				if (m_Player.GetSybStats().m_bulletBandage1 > 0) m_Player.GetSybStats().m_bulletBandage1 = m_Player.GetSybStats().m_bulletBandage1 - 1;
 				else if (m_Player.GetSybStats().m_bulletBandage2 > 0) m_Player.GetSybStats().m_bulletBandage2 = m_Player.GetSybStats().m_bulletBandage2 - 1;
 			}
-			m_Player.MarkSybStatsDirty();
+			m_Player.MarkSybStatsDirty(1007);
 		}
 	}
 	
@@ -129,7 +129,7 @@ modded class BleedingSourcesManagerServer
 	{
 		m_Player.GetSybStats().m_knifeHits = m_Player.GetSybStats().m_knifeHits + 1;
 		SetPainLevel(2);
-		m_Player.MarkSybStatsDirty();
+		m_Player.MarkSybStatsDirty(1008);
 	}
 	
 	void RemoveKnifeHit(bool removeBandage)
@@ -142,7 +142,7 @@ modded class BleedingSourcesManagerServer
 				if (m_Player.GetSybStats().m_knifeBandage1 > 0) m_Player.GetSybStats().m_knifeBandage1 = m_Player.GetSybStats().m_knifeBandage1 - 1;
 				else if (m_Player.GetSybStats().m_knifeBandage2 > 0) m_Player.GetSybStats().m_knifeBandage2 = m_Player.GetSybStats().m_knifeBandage2 - 1;
 			}
-			m_Player.MarkSybStatsDirty();
+			m_Player.MarkSybStatsDirty(1009);
 		}
 	}
 	
@@ -158,7 +158,7 @@ modded class BleedingSourcesManagerServer
 			SetPainLevel(1);
 		}
 		
-		m_Player.MarkSybStatsDirty();
+		m_Player.MarkSybStatsDirty(1010);
 	}
 	
 	void RemoveHematomaHit()
@@ -166,7 +166,7 @@ modded class BleedingSourcesManagerServer
 		if (m_Player.GetSybStats().m_hematomaHits > 0)
 		{
 			m_Player.GetSybStats().m_hematomaHits = m_Player.GetSybStats().m_hematomaHits - 1;
-			m_Player.MarkSybStatsDirty();
+			m_Player.MarkSybStatsDirty(1011);
 		}
 	}
 	
@@ -174,7 +174,7 @@ modded class BleedingSourcesManagerServer
 	{
 		m_Player.GetSybStats().m_visceraHit = m_Player.GetSybStats().m_visceraHit + 1;
 		SetPainLevel(3);
-		m_Player.MarkSybStatsDirty();
+		m_Player.MarkSybStatsDirty(1012);
 	}
 	
 	void RemoveVisceraHit()
@@ -182,7 +182,7 @@ modded class BleedingSourcesManagerServer
 		if (m_Player.GetSybStats().m_visceraHit > 0)
 		{
 			m_Player.GetSybStats().m_visceraHit = m_Player.GetSybStats().m_visceraHit - 1;
-			m_Player.MarkSybStatsDirty();
+			m_Player.MarkSybStatsDirty(1013);
 		}
 	}
 	
@@ -199,7 +199,7 @@ modded class BleedingSourcesManagerServer
 			SetPainLevel(1);
 		}
 		m_Player.SetSynchDirty();
-		m_Player.MarkSybStatsDirty();
+		m_Player.MarkSybStatsDirty(1014);
 	}
 	
 	void SetPainLevel(int value)
@@ -216,7 +216,7 @@ modded class BleedingSourcesManagerServer
 		if (m_Player.GetSybStats().m_painLevel < value)
 		{
 			m_Player.GetSybStats().m_painLevel = value;
-			m_Player.MarkSybStatsDirty();
+			m_Player.MarkSybStatsDirty(1015);
 		}
 	}
 	

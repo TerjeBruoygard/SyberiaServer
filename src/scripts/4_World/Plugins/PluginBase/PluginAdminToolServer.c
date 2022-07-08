@@ -672,7 +672,7 @@ modded class PluginAdminTool
 		else if (statName == "Tailoring") profile.m_skills.SetSkillValue(SyberiaSkillType.SYBSKILL_SEAMSTRESS, value);
 				
 		player.SetSynchDirty();
-		player.MarkSybStatsDirty();
+		player.MarkSybStatsDirty(2000);
 	}
 	
 	private void FillPlayerContextBase(PlayerBase player, ref PluginAdminTool_PlayerContextBase playerContext)
