@@ -104,8 +104,8 @@ class CfgSyberia
         influenzaTemperatureLevels[] = { -1.0, 37.0, 40.0 };
         influenzaSympthomChance[] = { 0.02, 0.04, 0.08 };
         influenzaDeathTime[] = {0, 0, 900};
-        influenzaApplyOnColdWarnChance = 0.0003;
-        influenzaApplyOnColdCritChance = 0.001;
+        influenzaApplyOnColdWarnChance = 0.0005;
+        influenzaApplyOnColdCritChance = 0.002;
         antibioticsGlobalEffectivityModifier = 0.006;
         stomatchpoisonVomitChance[] = { 0.008333, 0.016666, 0.033333 };
         stomatchpoisonWaterDrainFromVomit[] = { 100, 300, 500 };

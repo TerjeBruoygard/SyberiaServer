@@ -1,7 +1,5 @@
 modded class ZombieBase extends DayZInfected
 {
-	const float	SHOCK_TO_STUN_MULTIPLIER = 10;
-	
 	float m_doorsCheckTimer;
 	
 	override void Init()
