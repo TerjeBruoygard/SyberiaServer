@@ -349,76 +349,84 @@ class SyberiaMissionServer : MissionServer
 			Param1<ref RpcCreateNewCharContainer> clientData;
        		if ( !ctx.Read( clientData ) ) return;	
 			
-			profile = new CharProfile();
-			profile.m_uid = sender.GetId();
-			profile.m_name = clientData.param1.m_name;
-			profile.m_souls = GetSyberiaOptions().m_main.m_startSoulsCount;
-			
-			if (profile.m_name.LengthUtf8() < 3)
+			string newFullName = clientData.param1.m_name;
+			if (CharacterMetadata.ValidateCharacterNameFull(newFullName))
 			{
-				profile.m_name = sender.GetName();
-			}
-			if (profile.m_name.LengthUtf8() > 32)
-			{
-				profile.m_name = profile.m_name.SubstringUtf8(0, 32);
-			}
-						
-			if (clientData.param1.m_isMale)
-			{
-				if (clientData.param1.m_faceId >= 0 && clientData.param1.m_faceId < m_maleCharactersPool.Count())
+				profile = new CharProfile();
+				profile.m_uid = sender.GetId();
+				profile.m_name = newFullName;
+				profile.m_souls = GetSyberiaOptions().m_main.m_startSoulsCount;
+				
+				if (profile.m_name.LengthUtf8() < 3)
 				{
-					profile.m_classname = m_maleCharactersPool.Get(clientData.param1.m_faceId).m_classname;
+					profile.m_name = sender.GetName();
+				}
+				if (profile.m_name.LengthUtf8() > 32)
+				{
+					profile.m_name = profile.m_name.SubstringUtf8(0, 32);
+				}
+							
+				if (clientData.param1.m_isMale)
+				{
+					if (clientData.param1.m_faceId >= 0 && clientData.param1.m_faceId < m_maleCharactersPool.Count())
+					{
+						profile.m_classname = m_maleCharactersPool.Get(clientData.param1.m_faceId).m_classname;
+					}
+					else
+					{
+						GetGame().DisconnectPlayer(sender);
+						return;
+					}
 				}
 				else
 				{
-					GetGame().DisconnectPlayer(sender);
-					return;
+					if (clientData.param1.m_faceId >= 0 && clientData.param1.m_faceId < m_femaleCharactersPool.Count())
+					{
+						profile.m_classname = m_femaleCharactersPool.Get(clientData.param1.m_faceId).m_classname;
+					}
+					else
+					{
+						GetGame().DisconnectPlayer(sender);
+						return;
+					}
 				}
-			}
-			else
-			{
-				if (clientData.param1.m_faceId >= 0 && clientData.param1.m_faceId < m_femaleCharactersPool.Count())
+	
+				if (profile.m_name.LengthUtf8() > 32) {
+					profile.m_name = profile.m_name.Substring(0, 32);
+				}
+				else if (profile.m_name.LengthUtf8() < 4)
 				{
-					profile.m_classname = m_femaleCharactersPool.Get(clientData.param1.m_faceId).m_classname;
+					profile.m_name = sender.GetName();
 				}
-				else
+				
+				int charScore = GetSyberiaOptions().m_main.m_newchar_points;
+				foreach (int perkId : clientData.param1.m_perks)
 				{
-					GetGame().DisconnectPlayer(sender);
-					return;
+					if (perkId < 0 || perkId >= m_allPerksDesc.Count())
+					{
+						GetGame().DisconnectPlayer(sender);
+						return;
+					}
+					
+					ref PerkDescription perkDesc = m_allPerksDesc.Get(perkId);
+					charScore = charScore - perkDesc.m_cost;
 				}
-			}
-
-			if (profile.m_name.LengthUtf8() > 32) {
-				profile.m_name = profile.m_name.Substring(0, 32);
-			}
-			else if (profile.m_name.LengthUtf8() < 4)
-			{
-				profile.m_name = sender.GetName();
-			}
-			
-			int charScore = GetSyberiaOptions().m_main.m_newchar_points;
-			foreach (int perkId : clientData.param1.m_perks)
-			{
-				if (perkId < 0 || perkId >= m_allPerksDesc.Count())
+				if (charScore < 0) 
 				{
 					GetGame().DisconnectPlayer(sender);
 					return;
 				}
 				
-				ref PerkDescription perkDesc = m_allPerksDesc.Get(perkId);
-				charScore = charScore - perkDesc.m_cost;
+				profile.m_skills = CreateDefaultSkillsContainer();
+				profile.m_skills.m_perks.Copy(clientData.param1.m_perks);
+				
+				GetSyberiaCharacters().Create(sender, profile, this, "OnCreateNewCharRequest_CreateChar");
+				delete profile;	
 			}
-			if (charScore < 0) 
+			else
 			{
-				GetGame().DisconnectPlayer(sender);
-				return;
-			}
-			
-			profile.m_skills = CreateDefaultSkillsContainer();
-			profile.m_skills.m_perks.Copy(clientData.param1.m_perks);
-			
-			GetSyberiaCharacters().Create(sender, profile);			
-			ForceRespawnPlayer(sender, GetPlayerByIdentity(sender));
+				OnCreateNewCharRequest_CreateChar(sender, false);
+			}		
 
 			delete clientData.param1;
 		}
@@ -426,6 +434,20 @@ class SyberiaMissionServer : MissionServer
 		{
 			SybLogSrv("SYBRPC_CREATENEWCHAR_REQUEST Player kicked because already has profile: " + sender);
 			GetGame().DisconnectPlayer(sender);
+		}
+	}
+	
+	void OnCreateNewCharRequest_CreateChar(ref PlayerIdentity sender, bool success)
+	{
+		if (success)
+		{
+			SybLogSrv("Success to create new character");
+			ForceRespawnPlayer(sender, GetPlayerByIdentity(sender));
+		}
+		else
+		{
+			SybLogSrv("Failed to create new character");
+			GetSyberiaRPC().SendToClient(SyberiaRPC.SYBRPC_CREATENEWCHAR_ERROR, sender, new Param1<int>(0));			
 		}
 	}
 	
