@@ -1,4 +1,5 @@
 ﻿using Nancy.Hosting.Self;
+using Newtonsoft.Json.Linq;
 using NLog;
 using NLog.Config;
 using NLog.Layouts;
@@ -15,15 +16,62 @@ namespace SyberiaUpdaterServer
 {
     class Program
     {
-        private static String accessKey = null;
+        private static string accessKey = null;
+
+        private static string masterKey = null;
+
+        private static string[] masterAddress = null;
+
+        private static List<string> whitelist = null;
+
+        private static Uri[] baseUris = null;
 
         private static NancyHost host = null;
 
         private static Logger logger = null;
 
-        public static bool ValidateAccessKey(String value)
+        public static bool ValidateWhitelistAddress(string ipAddress)
         {
-            return accessKey.Equals(value, StringComparison.InvariantCulture);
+            return whitelist.Contains(ipAddress);
+        }
+
+        public static bool ValidateAccessKey(string value, string ipAddress)
+        {
+            return accessKey.Equals(value, StringComparison.InvariantCulture) && whitelist.Contains(ipAddress);
+        }
+
+        public static bool ValidateMasterKey(string value, string ipAddress)
+        {
+            return masterKey.Equals(value, StringComparison.InvariantCulture) && masterAddress.Contains(ipAddress);
+        }
+
+        public static bool AddToWhitelist(string ipAddress)
+        {
+            if (!whitelist.Contains(ipAddress))
+            {
+                whitelist.Add(ipAddress);
+                File.WriteAllLines(GetWhitelistPath(), whitelist);
+                return true;
+            }
+
+            return false;
+        }
+
+        public static bool RemoveFromWhitelist(string ipAddress)
+        {
+            if (whitelist.Contains(ipAddress))
+            {
+                whitelist.Remove(ipAddress);
+                File.WriteAllLines(GetWhitelistPath(), whitelist);
+                return true;
+            }
+
+            return false;
+        }
+
+        private static string GetWhitelistPath()
+        {
+            return Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "whitelist.txt");
         }
 
         private static void ConfigureLogger()
@@ -45,7 +93,7 @@ namespace SyberiaUpdaterServer
             logger = LogManager.GetCurrentClassLogger();
         }
 
-        private static void ConfigureAccessKey()
+        private static void ReadConfiguration()
         {
             string path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "credentials.json");
             if (!File.Exists(path))
@@ -54,27 +102,44 @@ namespace SyberiaUpdaterServer
                 throw new ApplicationException("Credentials file does not exists.");
             }
 
-            var result = Newtonsoft.Json.JsonConvert.DeserializeObject<Dictionary<string, string>>(File.ReadAllText(path));
-            accessKey = result["accessKey"];
+            var result = Newtonsoft.Json.JsonConvert.DeserializeObject<Dictionary<string, object>>(File.ReadAllText(path));
+            accessKey = result["accessKey"] as string;
+            masterKey = result["masterKey"] as string;
+            masterAddress = (result["masterAddress"] as JArray).Select(x => x.Value<string>()).ToArray();
+            baseUris = (result["baseUris"] as JArray).Select(x => new Uri(x.Value<string>())).ToArray();
+            if (accessKey == null || 
+                masterKey == null || 
+                masterAddress == null || masterAddress.Length == 0 ||
+                baseUris == null || baseUris.Length == 0)
+            {
+                throw new ApplicationException("Invalid credentials format.");
+            }
+
+            path = GetWhitelistPath();
+            if (!File.Exists(path))
+            {
+                File.WriteAllText(path, string.Empty);
+            }
+
+            whitelist = File.ReadAllLines(path).Where(x => string.IsNullOrWhiteSpace(x)).ToList();
         }
 
         private static void ConfigureRestApi()
         {
             HostConfiguration hostConfigs = new HostConfiguration()
             {
-                UrlReservations = new UrlReservations() { CreateAutomatically = true }
+                UrlReservations = new UrlReservations() { CreateAutomatically = true },
             };
 
-            int port = 8055;
-            host = new NancyHost(hostConfigs, new Uri($"http://localhost:{port}"));
+            host = new NancyHost(hostConfigs, baseUris);
             host.Start();
-            logger.Info($"Database server listening on port: {port}");
+            logger.Info($"Syberia master server started");
         }
 
         static void Main(string[] args)
         {
             ConfigureLogger();
-            ConfigureAccessKey();
+            ReadConfiguration();
             ConfigureRestApi();
 
             // Configure app exit
