@@ -31,6 +31,7 @@ modded class PlayerBase
 	float m_stomatchpoisonTimer;
 	float m_radioprotectionTimer;
 	float m_antidepresantTimer;
+	float m_lastStomatchpoisonHeal;
 	
 	// Mind state
 	float m_mindDegradationForce;
@@ -84,6 +85,7 @@ modded class PlayerBase
 		m_stomatchpoisonTimer = 0;
 		m_radioprotectionTimer = 0;
 		m_antidepresantTimer = 0;
+		m_lastStomatchpoisonHeal = 0;
 		
 		// Mind state
 		m_mindDegradationForce = 0;
@@ -752,6 +754,10 @@ modded class PlayerBase
 		{
 			float max = GetSyberiaConfig().m_stomatchpoisonDefaultTimes[m_stomatchpoisonLevel - 1];
 			m_stomatchpoisonTimer = Math.Clamp(m_stomatchpoisonTimer + time, 0, max);
+			if (m_stomatchpoisonTimer < 60)
+			{
+				m_stomatchpoisonTimer = 60; 
+			}
 		}
 	}
 	
@@ -780,6 +786,7 @@ modded class PlayerBase
 			}
 		}
 				
+		m_lastStomatchpoisonHeal = m_lastStomatchpoisonHeal + 1;
 		if (m_stomatchpoisonLevel > 0 && m_stomatchpoisonLevel <= 3)
 		{
 			if (symptomDuration > 0)
@@ -810,8 +817,13 @@ modded class PlayerBase
 				}
 				else
 				{
+					if (m_lastStomatchpoisonHeal > 600)
+					{
+						AddExperience(SyberiaSkillType.SYBSKILL_IMMUNITY, GetSyberiaConfig().m_skillsExpImmunityStomatch);
+					}
+					
 					m_stomatchpoisonTimer = 0;
-					AddExperience(SyberiaSkillType.SYBSKILL_IMMUNITY, GetSyberiaConfig().m_skillsExpImmunityStomatch);
+					m_lastStomatchpoisonHeal = 0;
 				}
 				SetSynchDirty();
 			}
