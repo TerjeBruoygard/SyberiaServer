@@ -217,7 +217,7 @@ modded class PlayerBase
 		if (IsAlive())
 		{
 			m_advMedUpdateTimer = m_advMedUpdateTimer + deltaTime;
-			if (m_advMedUpdateTimer > 0.2)
+			if (m_advMedUpdateTimer > 0.3)
 			{
 				OnTickAdvMedicine_Bloodlose(m_advMedUpdateTimer);
 				OnTickAdvMedicine_Salve(m_advMedUpdateTimer);
@@ -311,12 +311,12 @@ modded class PlayerBase
 			else if (m_HasHeatBuffer)
 			{
 				sleepingLevel = SyberiaSleepingLevel.SYBSL_PERFECT;
-				sleepingDiff = sleepingDiff + GetSyberiaConfig().m_sleepingIncPerSleepingLvl2Sec;
+				sleepingDiff = sleepingDiff + (int)(GetSyberiaConfig().m_sleepingIncPerSleepingLvl2Sec * GetPerkFloatValue(SyberiaPerkType.SYBPERK_IMMUNITY_SLEEPING_TIME, 1, 1));
 			}
 			else
 			{
 				sleepingLevel = SyberiaSleepingLevel.SYBSL_COMFORT;
-				sleepingDiff = sleepingDiff + GetSyberiaConfig().m_sleepingIncPerSleepingLvl1Sec;
+				sleepingDiff = sleepingDiff + (int)(GetSyberiaConfig().m_sleepingIncPerSleepingLvl1Sec * GetPerkFloatValue(SyberiaPerkType.SYBPERK_IMMUNITY_SLEEPING_TIME, 1, 1));
 			}
 		}
 		
@@ -403,7 +403,8 @@ modded class PlayerBase
 		
 		if (m_stomatchpoisonLevel > 0)
 		{
-			m_stomatchpoisonTimer = Math.Clamp(m_stomatchpoisonTimer + time, 0, GetSyberiaConfig().m_stomatchpoisonDefaultTimes[m_stomatchpoisonLevel - 1]);
+			float max = GetSyberiaConfig().m_stomatchpoisonDefaultTimes[m_stomatchpoisonLevel - 1];
+			m_stomatchpoisonTimer = Math.Clamp(m_stomatchpoisonTimer + time, 0, max);
 		}
 	}
 	
@@ -452,7 +453,7 @@ modded class PlayerBase
 				}
 			}
 			
-			m_stomatchpoisonTimer = m_stomatchpoisonTimer - 1.0;
+			m_stomatchpoisonTimer = m_stomatchpoisonTimer - GetPerkFloatValue(SyberiaPerkType.SYBPERK_IMMUNITY_STOMATCHPOISON_TIME, 1, 1);
 			if (m_stomatchpoisonTimer < 0)
 			{
 				m_stomatchpoisonLevel = m_stomatchpoisonLevel - 1;
@@ -463,6 +464,7 @@ modded class PlayerBase
 				else
 				{
 					m_stomatchpoisonTimer = 0;
+					AddExperience(SyberiaSkillType.SYBSKILL_IMMUNITY, GetSyberiaConfig().m_skillsExpImmunityStomatch);
 				}
 				SetSynchDirty();
 			}
@@ -474,7 +476,7 @@ modded class PlayerBase
 		m_mindStateLast = m_mindStateValue;
 		if (m_mindDegradationTime > 0)
 		{
-			m_mindDegradationTime = m_mindDegradationTime - 1;
+			m_mindDegradationTime = m_mindDegradationTime - GetPerkFloatValue(SyberiaPerkType.SYBPERK_IMMUNITY_MENTAL_TIME, 1, 1);
 			m_mindStateValue = m_mindStateValue - m_mindDegradationForce;
 		}
 		else 
@@ -863,7 +865,7 @@ modded class PlayerBase
 	{
 		if (m_hematomaHits > 0)
 		{
-			float hematomaRegenOffset = deltaTime; 
+			float hematomaRegenOffset = deltaTime * GetPerkFloatValue(SyberiaPerkType.SYBPERK_IMMUNITY_HEMATOMA_TIME, 1, 1); 
 			if (m_salveEffect)
 			{
 				hematomaRegenOffset = hematomaRegenOffset * GetSyberiaConfig().m_hematomaRegenTimeBoostOnSalve;
@@ -874,6 +876,8 @@ modded class PlayerBase
 			{
 				m_hematomaRegenTimer = 0;
 				m_hematomaHits = m_hematomaHits - 1;
+				
+				AddExperience(SyberiaSkillType.SYBSKILL_IMMUNITY, GetSyberiaConfig().m_skillsExpImmunityHematoma);
 			}
 		}
 		else
@@ -883,7 +887,7 @@ modded class PlayerBase
 		
 		if (GetBleedingBits() != 0)
 		{
-			m_cuthitRegenTimer = m_cuthitRegenTimer + deltaTime;
+			m_cuthitRegenTimer = m_cuthitRegenTimer + (deltaTime * GetPerkFloatValue(SyberiaPerkType.SYBPERK_IMMUNITY_CUTHIT_TIME, 1, 1));
 			if (m_cuthitRegenTimer > GetSyberiaConfig().m_cuthitRegenTimerSec)
 			{
 				m_cuthitRegenTimer = 0;
@@ -946,6 +950,8 @@ modded class PlayerBase
 		m_painTimer = Math.Clamp(m_painTimer - deltaTime, 0, GetSyberiaConfig().m_painMaxDurationSec);
 		if (m_painLevel > 0 && m_painTimer < 0.1)
 		{
+			AddExperience(SyberiaSkillType.SYBSKILL_IMMUNITY, GetSyberiaConfig().m_skillsExpImmunityPain * m_painLevel);
+			
 			m_painLevel = m_painLevel - 1;
 			if (m_painLevel == 2) m_painTimer = GetSyberiaConfig().m_painLvl2TimeSec;
 			else if (m_painLevel == 1) m_painTimer = GetSyberiaConfig().m_painLvl1TimeSec;
@@ -1086,12 +1092,14 @@ modded class PlayerBase
 						m_influenzaLevel = m_influenzaLevel - 1;
 						if (m_influenzaLevel > 0 && m_influenzaLevel < 3)
 						{
-							m_influenzaTimer = GetSyberiaConfig().m_influenzaIncubatePeriodsSec[m_influenzaLevel];;
+							m_influenzaTimer = GetSyberiaConfig().m_influenzaIncubatePeriodsSec[m_influenzaLevel];
 						}
 						else
 						{
 							m_influenzaTimer = 0;
+							AddExperience(SyberiaSkillType.SYBSKILL_IMMUNITY, GetSyberiaConfig().m_skillsExpImmunityInfluenza);
 						}
+						
 						SetSynchDirty();
 					}
 				}
@@ -1112,7 +1120,7 @@ modded class PlayerBase
 	{
 		if (m_influenzaTimer > 0)
 		{
-			m_influenzaTimer = m_influenzaTimer - deltaTime;
+			m_influenzaTimer = m_influenzaTimer - (deltaTime * GetPerkFloatValue(SyberiaPerkType.SYBPERK_IMMUNITY_INFLUENZA_TIME, 1, 1));
 			if (m_influenzaTimer <= 0)
 			{
 				if (m_influenzaLevel > 0 && m_antibioticsLevel >= m_influenzaLevel)
@@ -1185,11 +1193,16 @@ modded class PlayerBase
         if (m_overdosedValue > 0)
         {
 			int lastOverdoseInt = (int)m_overdosedValue;
-            m_overdosedValue = m_overdosedValue - (GetSyberiaConfig().m_overdoseDecrementPerSec * deltaTime);
+            m_overdosedValue = m_overdosedValue - (GetSyberiaConfig().m_overdoseDecrementPerSec * GetPerkFloatValue(SyberiaPerkType.SYBPERK_IMMUNITY_OVERDOSE_STRONG, 1, 1) * deltaTime);
 			int newOverdoseInt = (int)m_overdosedValue;
 			if (lastOverdoseInt != newOverdoseInt)
 			{
 				SetSynchDirty();
+			}
+			
+			if (lastOverdoseInt > 0 && newOverdoseInt == 0)
+			{
+				AddExperience(SyberiaSkillType.SYBSKILL_IMMUNITY, GetSyberiaConfig().m_skillsExpImmunityOverdose);
 			}
         }
 	}
@@ -1284,5 +1297,40 @@ modded class PlayerBase
 		}
 		
 		return false;
+	}
+	
+	void AddExperience(int id, float value)
+	{
+		if (IsAlive() && m_charProfile && m_charProfile.m_skills)
+		{
+			m_charProfile.m_skills.AddExpirience(id, value);
+		}
+	}
+	
+	int GetPerkIntValue(int perkId, int defaultValue = 0)
+	{
+		if (IsAlive() && m_charProfile && m_charProfile.m_skills)
+		{
+			int result = m_charProfile.m_skills.GetPerkValue(perkId);
+			if (result != -1)
+			{
+				return result;
+			}
+		}
+		
+		return defaultValue;
+	}
+	
+	float GetPerkFloatValue(int perkId, float defaultValue, float additionValue)
+	{
+		int value = GetPerkIntValue(perkId, -1);
+		if (value == -1) return defaultValue;		
+		return additionValue + ((float)value * 0.01);
+	}
+	
+	bool GetPerkBoolValue(int perkId)
+	{
+		int value = GetPerkIntValue(perkId, -1);
+		return value == 1;
 	}
 };

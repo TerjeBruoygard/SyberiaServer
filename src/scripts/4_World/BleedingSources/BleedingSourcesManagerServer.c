@@ -11,6 +11,11 @@ modded class BleedingSourcesManagerServer
 		}
 		else
 		{
+			if (m_Player.m_zombieVirus > 0)
+			{
+				m_Player.AddExperience(SyberiaSkillType.SYBSKILL_IMMUNITY, GetSyberiaConfig().m_skillsExpImmunityZVirus);
+			}
+			
 			m_Player.m_zombieVirus = 0;
 		}
 		m_Player.SetSynchDirty();
@@ -27,6 +32,11 @@ modded class BleedingSourcesManagerServer
 		}
 		else
 		{
+			if (m_Player.m_sepsis > 0)
+			{
+				m_Player.AddExperience(SyberiaSkillType.SYBSKILL_IMMUNITY, GetSyberiaConfig().m_skillsExpImmunitySepsis);
+			}
+			
 			m_Player.m_sepsis = 0;
 		}
 		m_Player.SetSynchDirty();
