@@ -1,5 +1,10 @@
 modded class BleedingSourcesManagerServer
 {
+	void SetBloodInfection(bool value)
+	{
+		// TODO: Implement blood infection
+	}
+	
 	void AddBulletHit()
 	{
 		m_Player.m_bulletHits = m_Player.m_bulletHits + 1;

@@ -5,3 +5,5 @@ void SybLogSrv(string message)
 {
 	if (SyberiaServer_DebugMode) Print(SyberiaServer_ModPreffix + message);
 }
+
+const float DIRTY_SYRINGE_BLOOD_INFECTION_CHANCE = 0.2;

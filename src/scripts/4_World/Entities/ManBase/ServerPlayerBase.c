@@ -112,6 +112,20 @@ modded class PlayerBase
 		return result;
 	}
 	
+	void ApplyAdvMedicineItem(string classname, float amount)
+	{
+		int medPainkillerLevel = GetGame().ConfigGetInt( "CfgVehicles " + classname + " medPainkillerLevel" );
+		if (medPainkillerLevel > 0)
+		{
+			if (m_painkillerEffect <= medPainkillerLevel)
+			{
+				float medPainkillerTimeSec = GetGame().ConfigGetFloat( "CfgVehicles " + classname + " medPainkillerTimeSec" );
+				m_painkillerEffect = medPainkillerLevel;
+				m_painkillerTime = m_painkillerTime + (medPainkillerTimeSec * amount);
+			}
+		}
+	}
+	
 	protected void OnTickAdvMedicine_Bloodlose(float deltaTime)
 	{		
 		float bloodlose = 0;
