@@ -121,7 +121,7 @@ namespace SyberiaUpdaterServer
                 File.WriteAllText(path, string.Empty);
             }
 
-            whitelist = File.ReadAllLines(path).Where(x => string.IsNullOrWhiteSpace(x)).ToList();
+            whitelist = File.ReadAllLines(path).Where(x => !string.IsNullOrWhiteSpace(x)).ToList();
         }
 
         private static void ConfigureRestApi()

@@ -16,6 +16,11 @@ namespace SyberiaUpdaterServer
 
         public RestApi()
         {
+            Get("/echo", x =>
+            {
+                return "Success";
+            });
+
             Get("/whitelist/add", x => {
                 var clientAddress = this.Request.UserHostAddress;
                 var accessKey = this.Request.Query["accessKey"];
@@ -26,6 +31,10 @@ namespace SyberiaUpdaterServer
                     {
                         logger.Info($"[/whitelist/add] Add ip address {addressToAdd} to whitelist requested from {clientAddress}");
                         return "Success";
+                    }
+                    else
+                    {
+                        return "IP address already in whitelist";
                     }
                 }
 
@@ -42,6 +51,10 @@ namespace SyberiaUpdaterServer
                     {
                         logger.Info($"[/whitelist/remove] Remove ip address {addressToAdd} from whitelist requested from {clientAddress}");
                         return "Success";
+                    }
+                    else
+                    {
+                        return "IP address not found in whitelist";
                     }
                 }
 
