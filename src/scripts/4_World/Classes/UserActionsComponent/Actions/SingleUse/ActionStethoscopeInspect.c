@@ -5,7 +5,7 @@ modded class ActionStethoscopeInspect
 		PlayerBase ntarget = PlayerBase.Cast( action_data.m_Target.GetObject() );
 		if (!ntarget) return;
 		if (ntarget.IsGhostBody()) return;
-		//if (!ntarget.m_charProfile) return;
+		if (!ntarget.m_charProfile) return;
 		
 		ref ActionStethoscopeInspect_Data data = new ActionStethoscopeInspect_Data;
 		data.m_health = ntarget.GetHealth("GlobalHealth", "Health");
