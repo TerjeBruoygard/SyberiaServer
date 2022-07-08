@@ -33,6 +33,12 @@ modded class Environment
 		return !IsWinter() && super.IsRaining();
 	}
 	
+	override protected float GetTemperatureHeightCorrection()
+	{
+		float temperature_reduction = Math.Max(0, (m_PlayerHeightPos * GetSyberiaConfig().m_temperatureHeightReduction));
+		return temperature_reduction;
+	}
+	
 	bool IsWinter()
 	{
 		return GetSyberiaConfig().m_isWinterMap;
