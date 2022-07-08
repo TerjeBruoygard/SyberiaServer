@@ -879,7 +879,7 @@ modded class PluginAdminTool
 		if (m_logFileHandle != 0 && IsPlayerAdmin(identity, false))
 		{
 			string guid = identity.GetId();
-			string fullName = identity.GetFullName();
+			string fullName = identity.GetName();
 			ref CharProfile profile = GetSyberiaCharacters().Get(identity);
 			if (profile)
 			{

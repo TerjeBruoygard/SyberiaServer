@@ -150,6 +150,10 @@ modded class ZombieBase extends DayZInfected
 				m_ActualAttackType.m_IsHeavy = 0;
 				m_ActualAttackType.m_Distance = GetSyberiaConfig().m_zombieAttackDistanceFight;
 			}
+			else
+			{
+				return true;
+			}
 		}
 		
 		return super.FightLogic(pCurrentCommandID, pInputController, pDt);
