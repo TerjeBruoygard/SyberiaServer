@@ -312,7 +312,6 @@ modded class PlayerBase
 				OnTickAdvMedicine_Overdose(m_advMedUpdateTimer);
 				OnTickAdvMedicine_HemostatickEffect(m_advMedUpdateTimer);
 				OnTickAdvMedicine_HematopoiesisEffect(m_advMedUpdateTimer);
-				OnTickAdvMedicine_Adrenalin(m_advMedUpdateTimer);
 				OnTickAdvMedicine_Radprotector(m_advMedUpdateTimer);
 				OnTickAdvMedicine_Antidepresant(m_advMedUpdateTimer);
 				OnTickUpdateLastHealthstate();
@@ -335,6 +334,7 @@ modded class PlayerBase
 				OnTickZones();
 				OnTickZoneEffect();
 				OnTickDisinfectedHands();
+				OnTickStamina();
 			}
 				
 			m_sybstatTimer = m_sybstatTimer + deltaTime;
@@ -556,7 +556,66 @@ modded class PlayerBase
 		currentZones.Clear();
 		delete currentZones;
 	}
-	
+
+	private void OnTickStamina()
+	{
+		float staminaDepMod = GetSyberiaConfig().m_defaultStaminaDepletionMultiplier;
+		float staminaRecMod = GetSyberiaConfig().m_defaultStaminaRecoveryMultiplier;
+		if (m_sybstats.m_adrenalinEffect > 0)
+		{
+			m_adrenalinEffectTimer = m_adrenalinEffectTimer - 1;
+			if (m_adrenalinEffectTimer < 0)
+			{
+				m_sybstats.m_adrenalinEffect = 0;
+				MarkSybStatsDirty(27);
+			}
+			else
+			{
+				if (m_sybstats.m_adrenalinEffect >= 1 && m_sybstats.m_adrenalinEffect <= 3)
+				{		
+					float maxShock = GetMaxHealth("GlobalHealth","Shock");			
+					float shockEffectValue = GetSyberiaConfig().m_adrenalinEffectShockUpPerSec[m_sybstats.m_adrenalinEffect - 1]; 
+					AddHealth("", "Shock", shockEffectValue * maxShock);
+					
+					staminaDepMod = staminaDepMod * GetSyberiaConfig().m_adrenalinEffectStaminaDepletionMod[m_sybstats.m_adrenalinEffect - 1];
+					staminaRecMod = staminaRecMod * GetSyberiaConfig().m_adrenalinEffectStaminaRecoveryMod[m_sybstats.m_adrenalinEffect - 1];
+				}
+			}
+		}
+		else
+		{
+			m_adrenalinEffectTimer = 0;
+		}
+
+		int attCount = GetInventory().AttachmentCount();
+		for ( int attIdx = 0; attIdx < attCount; attIdx++ )
+		{
+			EntityAI attachment = GetInventory().GetAttachmentFromIndex( attIdx );
+			if ( attachment )
+			{
+				if (attachment.ConfigIsExisting("staminaDepletionMultiplier"))
+				{
+					staminaDepMod = staminaDepMod * attachment.ConfigGetFloat("staminaDepletionMultiplier");
+				}
+				
+				if (attachment.ConfigIsExisting("staminaRecoveryMultiplier"))
+				{
+					staminaRecMod = staminaRecMod * attachment.ConfigGetFloat("staminaRecoveryMultiplier");
+				}
+			}
+		}
+					
+		if (GetStaminaHandler().GetDepletionMultiplier() != staminaDepMod)
+		{
+			GetStaminaHandler().SetDepletionMultiplier( staminaDepMod );
+		}
+		
+		if (GetStaminaHandler().GetRecoveryMultiplier() != staminaRecMod)
+		{
+			GetStaminaHandler().SetRecoveryMultiplier( staminaRecMod );
+		}
+	}
+		
 	private void OnTickZoneEffect()
 	{
 		int waterDrain;
@@ -1094,6 +1153,8 @@ modded class PlayerBase
 		bool hasBrainAgents = false;
 		if (source)
 		{
+			ApplyAdvMedicineItem(source.GetType(), amount);
+			
 			if (source.ContainsAgent(eAgents.BRAIN))
 			{
 				AddMindDegradation(1, amount);
@@ -1376,6 +1437,22 @@ modded class PlayerBase
 			{
 				m_sybstats.m_antidepresantLevel = medAntidepLevel;
 				m_antidepresantTimer = m_antidepresantTimer + (medAntidepTimeSec * amount);
+			}
+		}
+		
+		float medRadiationIncrement = GetGame().ConfigGetFloat( "CfgVehicles " + classname + " medRadiationIncrement" );
+		if (medRadiationIncrement != 0)
+		{
+			m_radiationDose = Math.Max(0, m_radiationDose + medRadiationIncrement);
+		}
+		
+		float medMindDegradationForce = GetGame().ConfigGetFloat( "CfgVehicles " + classname + " medMindDegradationForce" );
+		if (medMindDegradationForce > 0)
+		{
+			float medMindDegradationTime = GetGame().ConfigGetFloat( "CfgVehicles " + classname + " medMindDegradationTime" );
+			if (medMindDegradationTime > 0)
+			{
+				AddMindDegradation(medMindDegradationForce, medMindDegradationTime);
 			}
 		}
 		
@@ -1902,40 +1979,6 @@ modded class PlayerBase
 			}
 		}
 	}
-	
-	protected void OnTickAdvMedicine_Adrenalin(float deltaTime)
-	{
-		float staminaDepMod = 1;
-		if (m_sybstats.m_adrenalinEffect > 0)
-		{
-			m_adrenalinEffectTimer = m_adrenalinEffectTimer - deltaTime;
-			if (m_adrenalinEffectTimer < 0)
-			{
-				m_sybstats.m_adrenalinEffect = 0;
-				MarkSybStatsDirty(27);
-			}
-			else
-			{
-				if (m_sybstats.m_adrenalinEffect >= 1 && m_sybstats.m_adrenalinEffect <= 3)
-				{		
-					float maxShock = GetMaxHealth("GlobalHealth","Shock");			
-					float shockEffectValue = GetSyberiaConfig().m_adrenalinEffectShockUpPerSec[m_sybstats.m_adrenalinEffect - 1]; 
-					AddHealth("", "Shock", shockEffectValue * maxShock * deltaTime);
-					
-					staminaDepMod = GetSyberiaConfig().m_adrenalinEffectStaminaDepletionMod[m_sybstats.m_adrenalinEffect - 1];
-				}
-			}
-		}
-		else
-		{
-			m_adrenalinEffectTimer = 0;
-		}
-			
-		if (GetStaminaHandler().GetDepletionMultiplier() != staminaDepMod)
-		{
-			GetStaminaHandler().SetDepletionMultiplier( staminaDepMod );
-		}
-	}
 
 	protected void OnTickAdvMedicine_Antidepresant(float deltaTime)
 	{
@@ -2237,7 +2280,19 @@ modded class PlayerBase
 	
 	override bool CanBeTargetedByAI(EntityAI ai)
 	{
-		return !IsDamageDestroyed();
+		if (!IsDamageDestroyed())
+		{
+			if (GetSyberiaConfig().m_zombieAttackPlayersInUnconscious)
+			{
+				return true;
+			}
+			else
+			{
+				return !IsUnconscious();
+			}
+		}
+		
+		return false;
 	}
 	
 	override void SetVisibilityCoef(float pVisibility)

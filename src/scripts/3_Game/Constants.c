@@ -83,6 +83,7 @@ modded class SyberiaConfig
 	float m_hematopoiesisEffectBloodPerSec;
 	ref array<float> m_adrenalinEffectShockUpPerSec = new array<float>;
 	ref array<float> m_adrenalinEffectStaminaDepletionMod = new array<float>;
+	ref array<float> m_adrenalinEffectStaminaRecoveryMod = new array<float>;
 	float m_overdoseDecrementPerSec;
 	float m_overdoseUnconChangePerSec;
 	float m_mindstateHealPerSec;
@@ -124,12 +125,14 @@ modded class SyberiaConfig
 	ref array<float> m_zombieHitDecreaseMind = new array<float>;
 	ref array<float> m_zombieKillDecreaseMind = new array<float>;
 	ref array<float> m_antidepresantMindInc = new array<float>;
+	bool m_disableLaughterSymptom;
 	
 	// Zombies
 	bool m_zombieOpenDoorEnable;
 	float m_zombieOpenDoorDistance;
 	float m_zombieFindHouseDistance;
 	float m_zombieBloodHandsChanceOnLooting;
+	bool m_zombieAttackPlayersInUnconscious;
 	
 	// Animals
 	float m_animalsButchingKnifeDamage;
@@ -163,6 +166,8 @@ modded class SyberiaConfig
 	float m_igniteFireplaceBaseSkillcheckChance;
 	float m_igniteFireplaceIndoorAdditionalChance;
 	float m_damageClothingInRadiationZone;
+	float m_defaultStaminaDepletionMultiplier;
+    float m_defaultStaminaRecoveryMultiplier;
 	
 	// Skills Experience System
 	float m_skillsExpImmunityPain;
@@ -271,7 +276,8 @@ modded class SyberiaConfig
 		m_hematopoiesisEffectBloodPerSec = ConfigGetFloat("CfgSyberia MedicineSystem hematopoiesisEffectBloodPerSec");	
 		m_hematomaPainChance = ConfigGetFloat("CfgSyberia MedicineSystem hematomaPainChance");	
 		ConfigGetFloatArray("CfgSyberia MedicineSystem adrenalinEffectShockUpPerSec", m_adrenalinEffectShockUpPerSec, 3);
-		ConfigGetFloatArray("CfgSyberia MedicineSystem adrenalinEffectStaminaDepletionMod", m_adrenalinEffectStaminaDepletionMod, 3);		
+		ConfigGetFloatArray("CfgSyberia MedicineSystem adrenalinEffectStaminaDepletionMod", m_adrenalinEffectStaminaDepletionMod, 3);
+		ConfigGetFloatArray("CfgSyberia MedicineSystem adrenalinEffectStaminaRecoveryMod", m_adrenalinEffectStaminaRecoveryMod, 3);		
 		m_overdoseDecrementPerSec = ConfigGetFloat("CfgSyberia MedicineSystem overdoseDecrementPerSec");
 		m_overdoseUnconChangePerSec = ConfigGetFloat("CfgSyberia MedicineSystem overdoseUnconChangePerSec");
 		m_mindstateHealPerSec = ConfigGetFloat("CfgSyberia MedicineSystem mindstateHealPerSec");
@@ -313,12 +319,14 @@ modded class SyberiaConfig
 		ConfigGetFloatArray("CfgSyberia MedicineSystem zombieHitDecreaseMind", m_zombieHitDecreaseMind, 2);	
 		ConfigGetFloatArray("CfgSyberia MedicineSystem zombieKillDecreaseMind", m_zombieKillDecreaseMind, 2);	
 		ConfigGetFloatArray("CfgSyberia MedicineSystem antidepresantMindInc", m_antidepresantMindInc, 3);
+		m_disableLaughterSymptom = ConfigGetInt("CfgSyberia MedicineSystem disableLaughterSymptom") == 1;
 		
 		// Zombies
 		m_zombieOpenDoorEnable = ConfigGetInt("CfgSyberia ZombieSystem zombieOpenDoorEnable") == 1;
 		m_zombieOpenDoorDistance = ConfigGetFloat("CfgSyberia ZombieSystem zombieOpenDoorDistance");
 		m_zombieFindHouseDistance = ConfigGetFloat("CfgSyberia ZombieSystem zombieFindHouseDistance");
 		m_zombieBloodHandsChanceOnLooting = ConfigGetFloat("CfgSyberia ZombieSystem zombieBloodHandsChanceOnLooting");
+		m_zombieAttackPlayersInUnconscious = ConfigGetInt("CfgSyberia ZombieSystem zombieAttackPlayersInUnconscious") == 1;
 		
 		// Animals
 		m_animalsButchingKnifeDamage = ConfigGetFloat("CfgSyberia AnimalsSystem animalsButchingKnifeDamage");
@@ -352,6 +360,8 @@ modded class SyberiaConfig
 		m_igniteFireplaceBaseSkillcheckChance = ConfigGetFloat("CfgSyberia IngameSystem igniteFireplaceBaseSkillcheckChance");
 		m_igniteFireplaceIndoorAdditionalChance = ConfigGetFloat("CfgSyberia IngameSystem igniteFireplaceIndoorAdditionalChance");
 		m_damageClothingInRadiationZone = ConfigGetFloat("CfgSyberia IngameSystem damageClothingInRadiationZone");
+		m_defaultStaminaDepletionMultiplier = ConfigGetFloat("CfgSyberia IngameSystem defaultStaminaDepletionMultiplier");
+	    m_defaultStaminaRecoveryMultiplier = ConfigGetFloat("CfgSyberia IngameSystem defaultStaminaRecoveryMultiplier");
 		
 		// Skills Experience System
 		m_skillsExpImmunityPain = ConfigGetFloat("CfgSyberia SkillsExperienceSystem skillsExpImmunityPain");

@@ -308,6 +308,7 @@ namespace SyberiaWebPanel
                 public int hematopoiesisEffectBloodPerSec = 2;
                 public float[] adrenalinEffectShockUpPerSec = new float[] { 0.01666f, 0.03333f, 0.2f };
                 public float[] adrenalinEffectStaminaDepletionMod = new float[] { 0.5f, 0.25f, 0.1f };
+                public float[] adrenalinEffectStaminaRecoveryMod = new float[] { 1.5f, 2.0f, 2.5f };
                 public float overdoseDecrementPerSec = 0.001f;
                 public float overdoseUnconChangePerSec = 0.025f;
                 public float mindstateHealPerSec = 0.005f;
@@ -349,6 +350,7 @@ namespace SyberiaWebPanel
                 public float[] zombieHitDecreaseMind = new float[] { 0.4f, 5 }; // amount, time
                 public float[] zombieKillDecreaseMind = new float[] { 0.2f, 10 }; // amount, time
                 public float[] antidepresantMindInc = new float[] { 0.1f, 0.25f, 0.5f };
+                public bool disableLaughterSymptom = false;
             };
 
             public class AttackSystemType
@@ -367,6 +369,7 @@ namespace SyberiaWebPanel
                 public float zombieOpenDoorDistance = 1.8f;
                 public float zombieFindHouseDistance = 20.0f;
                 public float zombieBloodHandsChanceOnLooting = 0.25f;
+                public bool zombieAttackPlayersInUnconscious = true;
             };
 
             public class AnimalsSystemType
@@ -383,6 +386,8 @@ namespace SyberiaWebPanel
                 public float igniteFireplaceBaseSkillcheckChance = 0.2f;
                 public float igniteFireplaceIndoorAdditionalChance = 0.3f;
                 public float damageClothingInRadiationZone = 0.0f;
+                public float defaultStaminaDepletionMultiplier = 1.0f;
+                public float defaultStaminaRecoveryMultiplier = 1.0f;
             };
 
             public class SkillsExperienceSystemType

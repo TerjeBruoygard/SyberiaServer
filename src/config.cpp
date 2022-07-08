@@ -105,6 +105,7 @@ class CfgSyberia
         hematopoiesisEffectBloodPerSec = 2;
         adrenalinEffectShockUpPerSec[] = { 0.01666, 0.03333, 0.2 };
         adrenalinEffectStaminaDepletionMod[] = { 0.5, 0.25, 0.1 };
+        adrenalinEffectStaminaRecoveryMod[] = { 1.5, 2.0, 2.5 };
         overdoseDecrementPerSec = 0.001;
         overdoseUnconChangePerSec = 0.025;
         mindstateHealPerSec = 0.005;
@@ -146,6 +147,7 @@ class CfgSyberia
         zombieHitDecreaseMind[] = { 0.4, 5 }; // amount, time
         zombieKillDecreaseMind[] = { 0.2, 10 }; // amount, time
         antidepresantMindInc[] = { 0.1, 0.25, 0.5 };
+        disableLaughterSymptom = 0;
     };
 
     class AttackSystem
@@ -164,6 +166,7 @@ class CfgSyberia
         zombieOpenDoorDistance = 1.8;
         zombieFindHouseDistance = 20.0;
         zombieBloodHandsChanceOnLooting = 0.25;
+        zombieAttackPlayersInUnconscious = 1;
     };
     
     class AnimalsSystem
@@ -180,6 +183,8 @@ class CfgSyberia
         igniteFireplaceBaseSkillcheckChance = 0.2;
         igniteFireplaceIndoorAdditionalChance = 0.3;
         damageClothingInRadiationZone = 0.0;
+        defaultStaminaDepletionMultiplier = 1.0;
+        defaultStaminaRecoveryMultiplier = 1.0;
     };
 
     class SkillsExperienceSystem
