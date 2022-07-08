@@ -87,7 +87,7 @@ modded class DayZPlayerMeleeFightLogic_LightHeavy
 						target.AddHealth( "","Health", -target.GetMaxHealth("","") );
 						
 						// Add strength skill
-						PlayerBase player = PlayerBase.Cast(DZPlayer);
+						PlayerBase player = PlayerBase.Cast(m_DZPlayer);
 						if (player && Math.RandomFloat01() < GetSyberiaConfig().m_skillsExpStrengthSilentAttackChance)
 						{
 							player.AddExperience(SyberiaSkillType.SYBSKILL_STRENGTH, GetSyberiaConfig().m_skillsExpStrengthSilentAttackValue);
