@@ -185,6 +185,10 @@ modded class BleedingSourcesManagerServer
 			if (Math.RandomFloat01() < BLEEDING_ZOMBIE_HIT_CHANCE)
 			{
 				AttemptAddBleedingSource(component);
+				if (Math.RandomFloat01() < SEPSIS_ZOMBIE_HIT_CHANCE)
+				{
+					SetBloodInfection(true);
+				}
 			}
 			else if (Math.RandomFloat01() < HEMATOMA_ZOMBIE_HIT_CHANCE)
 			{
@@ -225,6 +229,11 @@ modded class BleedingSourcesManagerServer
 				else
 				{
 					AttemptAddBleedingSource(component);
+				}
+				
+				if (Math.RandomFloat01() < SEPSIS_KNIFE_HIT_CHANCE)
+				{
+					SetBloodInfection(true);
 				}
 			}
 			else
@@ -276,6 +285,14 @@ modded class BleedingSourcesManagerServer
 			else
 			{
 				AttemptAddBleedingSource(component);
+			}
+			
+			if (!isBulletStopped)
+			{
+				if (Math.RandomFloat01() < SEPSIS_BULLET_HIT_CHANCE)
+				{
+					SetBloodInfection(true);
+				}
 			}
 		}
 		else if (ammoType == "FragGrenade")
