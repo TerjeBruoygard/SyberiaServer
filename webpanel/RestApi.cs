@@ -47,9 +47,25 @@ namespace SyberiaWebPanel
                 }
 
                 WebPanel.GetInstance().ClearSpamFilter(request.UserHostAddress);
-                logger.Info($"[/login] Successfully logged in from {request.UserHostAddress}.");
+
+                var startTime = DateTime.Now;
+                var gameConfig = WebPanel.GetInstance().GetGameConfig();
                 var htmlPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Resources", "main.html");
-                return new GenericFileResponse(htmlPath, this.Context).NoCache();
+                var htmlData = new StringBuilder(File.ReadAllText(htmlPath));
+                htmlData.Replace("${m_startSoulsCount}", gameConfig.m_mainConfig.m_startSoulsCount);
+                htmlData.Replace("${m_respawnSoulsPrice}", gameConfig.m_mainConfig.m_respawnSoulsPrice);
+                htmlData.Replace("${m_newchar_points}", gameConfig.m_mainConfig.m_newchar_points);
+                htmlData.Replace("${m_roleplay_mode}", gameConfig.m_mainConfig.m_roleplay_mode == 1);
+                for (int i = 0; i < gameConfig.m_mainConfig.m_skillModifiers.Length; i++)
+                {
+                    var skill = gameConfig.m_mainConfig.m_skillModifiers[i];
+                    htmlData.Replace($"${{m_skillModifiers[{skill.m_id}].m_mod}}", skill.m_mod);
+                    htmlData.Replace($"${{m_skillModifiers[{skill.m_id}].m_decreaseOnDeath}}", skill.m_decreaseOnDeath);
+                }
+
+                var timeDiff = DateTime.Now - startTime;
+                logger.Info($"[/login] Successfully logged in from {request.UserHostAddress}. UI rendered in {(int)timeDiff.TotalMilliseconds} ms.");
+                return new TextResponse(htmlData.ToString(), "text/html", Encoding.UTF8).NoCache();
             });
         }
     }

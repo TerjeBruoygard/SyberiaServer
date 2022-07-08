@@ -136,7 +136,7 @@ namespace SyberiaUpdaterServer
                         result.AppendLine("<link rel=\"stylesheet\" href=\"https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css\" integrity=\"sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm\" crossorigin=\"anonymous\">");
                         result.AppendLine("</head>");
                         result.AppendLine("<body>");
-                        result.AppendLine($"<h1>Running servers at {date}</h1>");
+                        result.AppendLine($"<h1>Syberia instances list: {date}</h1>");
                         result.AppendLine("<br>");
                         result.AppendLine("<table class=\"table\">");
                         result.AppendLine("<thead><tr><th scope=\"col\">IP</th><th scope=\"col\">DB Port</th><th scope=\"col\">Web Panel Port</th><th scope=\"col\">DayZ Server Path</th><th scope=\"col\">Service Path</th></tr></thead>");

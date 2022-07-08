@@ -1,2 +1,194 @@
-<br>
-<h2><center>Syberia Project Tools Now in Development</center></h2>
+<ul class="nav nav-tabs" id="myTab" role="tablist">
+    <li class="nav-item">
+        <a class="nav-link active" id="players-tab" data-toggle="tab" href="#players" role="tab" aria-controls="players" aria-selected="true">Players</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" id="settings-tab" data-toggle="tab" href="#settings" role="tab" aria-controls="settings" aria-selected="false">Settings</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" id="admins-tab" data-toggle="tab" href="#admins" role="tab" aria-controls="admins" aria-selected="false">Admins</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" id="groups-tab" data-toggle="tab" href="#groups" role="tab" aria-controls="groups" aria-selected="false">Groups</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" id="loadouts-tab" data-toggle="tab" href="#loadouts" role="tab" aria-controls="loadouts" aria-selected="false">Loadouts</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" id="traders-tab" data-toggle="tab" href="#traders" role="tab" aria-controls="traders" aria-selected="false">Traders</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" id="zones-tab" data-toggle="tab" href="#zones" role="tab" aria-controls="zones" aria-selected="false">Zones</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" id="variables-tab" data-toggle="tab" href="#variables" role="tab" aria-controls="variables" aria-selected="false">Variables</a>
+    </li>
+</ul>
+<div class="tab-content" style="margin-top: 30px; margin-left: 50px; margin-right: 50px; margin-bottom: 30px">
+    <div class="tab-pane active" id="players" role="tabpanel" aria-labelledby="players-tab">
+        Players
+    </div>
+    <div class="tab-pane" id="settings" role="tabpanel" aria-labelledby="settings-tab">
+        <form id="settingsForm">
+            <h3>Main settings:</h3>
+            <div class="form-group row">
+                <label for="inputStartSoulsCount" class="col-sm-2 col-form-label">Starting souls count:</label>
+                <div class="col-sm-10">
+                    <input type="number" min="0" max="10000" step="1" pattern="^[\d]+$" class="form-control"
+                           id="inputStartSoulsCount" value="${m_startSoulsCount}" required>
+                    <p><em>The number of souls that the player receives when creating a character.</em></p>
+                </div>
+            </div>
+            <div class="form-group row">
+                <label for="inputRespawnSoulsPrice" class="col-sm-2 col-form-label">Respawn souls price:</label>
+                <div class="col-sm-10">
+                    <input type="number" min="0" max="10000" step="1" pattern="^[\d]+$" class="form-control"
+                           id="inputRespawnSoulsPrice" value="${m_respawnSoulsPrice}" required>
+                    <p><em>The number of souls that the player loses when the character dies and are needed for respawn.</em></p>
+                </div>
+            </div>
+            <div class="form-group row">
+                <label for="inputNewChatPoints" class="col-sm-2 col-form-label">Starting skill points:</label>
+                <div class="col-sm-10">
+                    <input type="number" min="0" max="1000" step="1" pattern="^[\d]+$" class="form-control"
+                           id="inputNewChatPoints" value="${m_newchar_points}" required>
+                    <p><em>The number of skill points that the player will get when creating a new character.</em></p>
+                </div>
+            </div>
+            <div class="form-group row">
+                <label for="inputRoleplayMode" class="col-sm-2 col-form-label">Disable character deletion:</label>
+                <div class="col-sm-10">
+                    <input class="form-check-input" type="checkbox" id="inputRoleplayMode" ${m_newchar_points}>
+                    <p><em>When this option is enabled, players will not be able to delete their character on the respawn screen.</em></p>
+                </div>
+            </div>
+            <br>
+            <h3>Skill settings:</h3>
+            <p><em>The experience multiplier defines how quickly the player gains experience in the game for each skill. The default value is 1. If you want the player to get 2 times more experience, set this value to 2. And vice versa, if you want to slow down the process of gaining experience, set the value less than one (0.5 for example)</em></p>
+            <p><em>The decrease in the skill level at death determines how much experience the player will lose for each skill when the character dies. A value of 1 indicates that the player will lose 1 skill level upon death. With a value of 0.5, the player will only lose half of the level. If you want to disable the loss of experience by players on death, specify 0 as the value.</em></p>
+            <div class="form-group row">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th scope="col">#</th>
+                            <th scope="col">Experience multiplier</th>
+                            <th scope="col">Decrease level on death</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <th scope="row">Immunity</th>
+                            <td><input type="number" min="0" max="1000" step="any" class="form-control" value="${m_skillModifiers[0].m_mod}" required></td>
+                            <td><input type="number" min="0" max="1000" step="any" class="form-control" value="${m_skillModifiers[0].m_decreaseOnDeath}" required></td>
+                        </tr>
+                        <tr>
+                            <th scope="row">Athletics</th>
+                            <td><input type="number" min="0" max="1000" step="any" class="form-control" value="${m_skillModifiers[1].m_mod}" required></td>
+                            <td><input type="number" min="0" max="1000" step="any" class="form-control" value="${m_skillModifiers[1].m_decreaseOnDeath}" required></td>
+                        </tr>
+                        <tr>
+                            <th scope="row">Strength</th>
+                            <td><input type="number" min="0" max="1000" step="any" class="form-control" value="${m_skillModifiers[2].m_mod}" required></td>
+                            <td><input type="number" min="0" max="1000" step="any" class="form-control" value="${m_skillModifiers[2].m_decreaseOnDeath}" required></td>
+                        </tr>
+                        <tr>
+                            <th scope="row">Medicine</th>
+                            <td><input type="number" min="0" max="1000" step="any" class="form-control" value="${m_skillModifiers[3].m_mod}" required></td>
+                            <td><input type="number" min="0" max="1000" step="any" class="form-control" value="${m_skillModifiers[3].m_decreaseOnDeath}" required></td>
+                        </tr>
+                        <tr>
+                            <th scope="row">Stealth</th>
+                            <td><input type="number" min="0" max="1000" step="any" class="form-control" value="${m_skillModifiers[4].m_mod}" required></td>
+                            <td><input type="number" min="0" max="1000" step="any" class="form-control" value="${m_skillModifiers[4].m_decreaseOnDeath}" required></td>
+                        </tr>
+                        <tr>
+                            <th scope="row">Survival</th>
+                            <td><input type="number" min="0" max="1000" step="any" class="form-control" value="${m_skillModifiers[5].m_mod}" required></td>
+                            <td><input type="number" min="0" max="1000" step="any" class="form-control" value="${m_skillModifiers[5].m_decreaseOnDeath}" required></td>
+                        </tr>
+                        <tr>
+                            <th scope="row">Farming <i>(Not Implemented)</i></th>
+                            <td><input type="number" min="0" max="1000" step="any" class="form-control" value="${m_skillModifiers[6].m_mod}" required></td>
+                            <td><input type="number" min="0" max="1000" step="any" class="form-control" value="${m_skillModifiers[6].m_decreaseOnDeath}" required></td>
+                        </tr>
+                        <tr>
+                            <th scope="row">Hunting</th>
+                            <td><input type="number" min="0" max="1000" step="any" class="form-control" value="${m_skillModifiers[7].m_mod}" required></td>
+                            <td><input type="number" min="0" max="1000" step="any" class="form-control" value="${m_skillModifiers[7].m_decreaseOnDeath}" required></td>
+                        </tr>
+                        <tr>
+                            <th scope="row">Fishing <i>(Not Implemented)</i></th>
+                            <td><input type="number" min="0" max="1000" step="any" class="form-control" value="${m_skillModifiers[8].m_mod}" required></td>
+                            <td><input type="number" min="0" max="1000" step="any" class="form-control" value="${m_skillModifiers[8].m_decreaseOnDeath}" required></td>
+                        </tr>
+                        <tr>
+                            <th scope="row">Mechanics <i>(Not Implemented)</i></th>
+                            <td><input type="number" min="0" max="1000" step="any" class="form-control" value="${m_skillModifiers[9].m_mod}" required></td>
+                            <td><input type="number" min="0" max="1000" step="any" class="form-control" value="${m_skillModifiers[9].m_decreaseOnDeath}" required></td>
+                        </tr>
+                        <tr>
+                            <th scope="row">Electronics <i>(Not Implemented)</i></th>
+                            <td><input type="number" min="0" max="1000" step="any" class="form-control" value="${m_skillModifiers[10].m_mod}" required></td>
+                            <td><input type="number" min="0" max="1000" step="any" class="form-control" value="${m_skillModifiers[10].m_decreaseOnDeath}" required></td>
+                        </tr>
+                        <tr>
+                            <th scope="row">Carpentry <i>(Not Implemented)</i></th>
+                            <td><input type="number" min="0" max="1000" step="any" class="form-control" value="${m_skillModifiers[11].m_mod}" required></td>
+                            <td><input type="number" min="0" max="1000" step="any" class="form-control" value="${m_skillModifiers[11].m_decreaseOnDeath}" required></td>
+                        </tr>
+                        <tr>
+                            <th scope="row">Metalworking <i>(Not Implemented)</i></th>
+                            <td><input type="number" min="0" max="1000" step="any" class="form-control" value="${m_skillModifiers[12].m_mod}" required></td>
+                            <td><input type="number" min="0" max="1000" step="any" class="form-control" value="${m_skillModifiers[12].m_decreaseOnDeath}" required></td>
+                        </tr>
+                        <tr>
+                            <th scope="row">Building <i>(Not Implemented)</i></th>
+                            <td><input type="number" min="0" max="1000" step="any" class="form-control" value="${m_skillModifiers[13].m_mod}" required></td>
+                            <td><input type="number" min="0" max="1000" step="any" class="form-control" value="${m_skillModifiers[13].m_decreaseOnDeath}" required></td>
+                        </tr>
+                        <tr>
+                            <th scope="row">Firearms <i>(Not Implemented)</i></th>
+                            <td><input type="number" min="0" max="1000" step="any" class="form-control" value="${m_skillModifiers[14].m_mod}" required></td>
+                            <td><input type="number" min="0" max="1000" step="any" class="form-control" value="${m_skillModifiers[14].m_decreaseOnDeath}" required></td>
+                        </tr>
+                        <tr>
+                            <th scope="row">Lockpicking <i>(Not Implemented)</i></th>
+                            <td><input type="number" min="0" max="1000" step="any" class="form-control" value="${m_skillModifiers[15].m_mod}" required></td>
+                            <td><input type="number" min="0" max="1000" step="any" class="form-control" value="${m_skillModifiers[15].m_decreaseOnDeath}" required></td>
+                        </tr>
+                        <tr>
+                            <th scope="row">Herbalism <i>(Not Implemented)</i></th>
+                            <td><input type="number" min="0" max="1000" step="any" class="form-control" value="${m_skillModifiers[16].m_mod}" required></td>
+                            <td><input type="number" min="0" max="1000" step="any" class="form-control" value="${m_skillModifiers[16].m_decreaseOnDeath}" required></td>
+                        </tr>
+                        <tr>
+                            <th scope="row">Seamstess <i>(Not Implemented)</i></th>
+                            <td><input type="number" min="0" max="1000" step="any" class="form-control" value="${m_skillModifiers[17].m_mod}" required></td>
+                            <td><input type="number" min="0" max="1000" step="any" class="form-control" value="${m_skillModifiers[17].m_decreaseOnDeath}" required></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <br>
+            <button type="submit" class="btn btn-primary">Save</button>
+        </form>
+    </div>
+    <div class="tab-pane" id="admins" role="tabpanel" aria-labelledby="admins-tab">
+        Admins
+    </div>
+    <div class="tab-pane" id="groups" role="tabpanel" aria-labelledby="groups-tab">
+        Groups
+    </div>
+    <div class="tab-pane" id="loadouts" role="tabpanel" aria-labelledby="loadouts-tab">
+        Loadouts
+    </div>
+    <div class="tab-pane" id="traders" role="tabpanel" aria-labelledby="traders-tab">
+        Traders
+    </div>
+    <div class="tab-pane" id="zones" role="tabpanel" aria-labelledby="zones-tab">
+        Zones
+    </div>
+    <div class="tab-pane" id="variables" role="tabpanel" aria-labelledby="variables-tab">
+        Variables
+    </div>
+</div>
