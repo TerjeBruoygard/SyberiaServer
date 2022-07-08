@@ -215,6 +215,17 @@ namespace SyberiaUpdaterServer
 
         static void Main(string[] args)
         {
+            var thread = new Thread(new ThreadStart(Logic));
+            thread.Start();
+
+            while (thread.IsAlive)
+            {
+                Thread.Sleep(100);
+            }
+        }
+
+        static void Logic()
+        {
             ConfigureLogger();
             ReadConfiguration();
             ConfigureRestApi();
