@@ -186,6 +186,8 @@ class CfgSyberia
         skillsExpStrengthLightAttackChance = 0.3;
         skillsExpStrengthHeavyAttackValue = 50;
         skillsExpStrengthHeavyAttackChance = 0.5;
+        skillsExpStrengthSilentAttackValue = 50;
+        skillsExpStrengthSilentAttackChance = 0.5;
         skillsExpStrengthMineWoodOrStone = 5;
         
         skillsExpMedicineBandage = 50;
