@@ -153,29 +153,29 @@ class CfgSyberia
 
     class SkillsExperienceSystem
     {
-        skillsExpImmunityPain = 5;
-        skillsExpImmunityHematoma = 5;
-        skillsExpImmunityInfluenza = 50;
-        skillsExpImmunityStomatch = 80;
-        skillsExpImmunityZVirus = 250;
-        skillsExpImmunitySepsis = 200;
-        skillsExpImmunityOverdose = 10;
+        skillsExpImmunityPain = 30;
+        skillsExpImmunityHematoma = 10;
+        skillsExpImmunityInfluenza = 200;
+        skillsExpImmunityStomatch = 200;
+        skillsExpImmunityZVirus = 800;
+        skillsExpImmunitySepsis = 800;
+        skillsExpImmunityOverdose = 30;
         
         skillsExpAthleticsSprintTime = 60;
-        skillsExpAthleticsSprintIncrement = 20;
+        skillsExpAthleticsSprintIncrement = 80;
         skillsExpAthleticsJogTime = 60;
-        skillsExpAthleticsJogIncrement = 3;
+        skillsExpAthleticsJogIncrement = 15;
         
-        skillsExpStrengthLightAttackValue = 20;
-        skillsExpStrengthLightAttackChance = 0.1;
-        skillsExpStrengthHeavyAttackValue = 40;
-        skillsExpStrengthHeavyAttackChance = 0.2;
-        skillsExpStrengthMineWoodOrStone = 3;
+        skillsExpStrengthLightAttackValue = 30;
+        skillsExpStrengthLightAttackChance = 0.3;
+        skillsExpStrengthHeavyAttackValue = 50;
+        skillsExpStrengthHeavyAttackChance = 0.5;
+        skillsExpStrengthMineWoodOrStone = 5;
         
-        skillsExpMedicineBandage = 5;
-        skillsExpMedicineTablets = 5;
-        skillsExpMedicineAmpoule = 10;
-        skillsExpMedicineInjector = 20;
-        skillsExpMedicineSurgery = 400;
+        skillsExpMedicineBandage = 50;
+        skillsExpMedicineTablets = 20;
+        skillsExpMedicineAmpoule = 100;
+        skillsExpMedicineInjector = 100;
+        skillsExpMedicineSurgery = 1000;
     };
 };
