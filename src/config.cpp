@@ -191,8 +191,6 @@ class CfgSyberia
         skillsExpStrengthLightAttackChance = 0.3;
         skillsExpStrengthHeavyAttackValue = 50;
         skillsExpStrengthHeavyAttackChance = 0.5;
-        skillsExpStrengthSilentAttackValue = 50;
-        skillsExpStrengthSilentAttackChance = 0.5;
         skillsExpStrengthMineWoodOrStone = 5;
         
         skillsExpMedicineBandage = 50;
@@ -200,6 +198,11 @@ class CfgSyberia
         skillsExpMedicineAmpoule = 100;
         skillsExpMedicineInjector = 100;
         skillsExpMedicineSurgery = 1000;
+        
+        skillsExpStealthSilentAttackValue = 100;
+        skillsExpStealthSilentAttackChance = 0.5;
+        skillsExpStealthCrouchTime = 60;
+        skillsExpStealthCrouchIncrement = 60;
         
         skillsExpHuntingButchSmall = 100;
         skillsExpHuntingButchCommon = 250;

@@ -62,12 +62,35 @@ modded class DayZPlayerMeleeFightLogic_LightHeavy
 		{
 			// Add strength skill
 			PlayerBase player = PlayerBase.Cast(m_DZPlayer);
-			if (player && Math.RandomFloat01() < GetSyberiaConfig().m_skillsExpStrengthSilentAttackChance)
+			if (player && Math.RandomFloat01() < GetSyberiaConfig().m_skillsExpStealthSilentAttackChance)
 			{
-				player.AddExperience(SyberiaSkillType.SYBSKILL_STRENGTH, GetSyberiaConfig().m_skillsExpStrengthSilentAttackValue);
+				player.AddExperience(SyberiaSkillType.SYBSKILL_STEALTH, GetSyberiaConfig().m_skillsExpStealthSilentAttackValue);
 			}
 		}
 		
 		return result;
+	}
+	
+	override int GetFinisherType(InventoryItem weapon, EntityAI target)
+	{
+		PlayerBase player = PlayerBase.Cast(m_DZPlayer);
+		if (player)
+		{
+			if (player.GetPerkBoolValue(SyberiaPerkType.SYBPERK_STEALTH_TWOHANDED_CRIT) && weapon.IsTwoHandedBehaviour())
+			{
+				m_HitType = EMeleeHitType.WPN_STAB;
+				int result = super.GetFinisherType(weapon, target);
+				if (result != -1)
+				{
+					return EMeleeHitType.WPN_STAB_FINISHER;
+				}
+			}
+			else if (player.GetPerkBoolValue(SyberiaPerkType.SYBPERK_STEALTH_KNIFE_CRIT))
+			{
+				return super.GetFinisherType(weapon, target);
+			}
+		}
+		
+		return -1;
 	}
 }
