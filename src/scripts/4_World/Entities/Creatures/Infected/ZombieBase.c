@@ -112,9 +112,7 @@ modded class ZombieBase extends DayZInfected
 	override void EEKilled(Object killer)
 	{
 		super.EEKilled(killer);
-		
-		GetInventory().LockInventory(HIDE_INV_FROM_SCRIPT);
-		
+				
 		EntityAI entityKiller = EntityAI.Cast(killer);
 		if (entityKiller)
 		{
