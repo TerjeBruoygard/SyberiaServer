@@ -97,7 +97,8 @@ namespace SyberiaServerManager
                 // Configure REST API
                 HostConfiguration hostConfigs = new HostConfiguration()
                 {
-                    UrlReservations = new UrlReservations() { CreateAutomatically = true }
+                    //UrlReservations = new UrlReservations() { CreateAutomatically = true },
+                    RewriteLocalhost = false,
                 };
                 host = new NancyHost(hostConfigs, new Uri("http://localhost:" + databaseOptions.DatabaseServerPort));
                 host.Start();

@@ -28,7 +28,8 @@ namespace SyberiaWebPanel
         {
             HostConfiguration hostConfigs = new HostConfiguration()
             {
-                UrlReservations = new UrlReservations() { CreateAutomatically = true }
+                //UrlReservations = new UrlReservations() { CreateAutomatically = true },
+                RewriteLocalhost = false,
             };
             host = new NancyHost(hostConfigs, new Uri("http://localhost:" + port));
             host.Start();
