@@ -83,7 +83,7 @@ modded class PluginSyberiaOptions extends PluginBase
 	
 	int GetCharacterAllowedEquipmentSize()
 	{
-		return 8;
+		return SyberiaScreenEquipPages.SYBSEP_TOTAL_COUNT;
 	}
 	
 	ref SpawnpointInfo GetCharacterSpawnpoint(ref CharProfile profile, ref PluginSyberiaOptions_GroupFaction faction, int spawnpointId)
@@ -185,6 +185,30 @@ modded class PluginSyberiaOptions extends PluginBase
 		if (faction && faction.m_gearHead) headGear.InsertAll(faction.m_gearHead);
 		if (!faction || faction.m_allowDefaultLoadout) headGear.InsertAll(m_groupDefault.m_gearHead);
 		result.Insert(headGear);
+		
+		// GEAR MASK
+		ref array<string> maskGear = new array<string>;
+		if (faction && faction.m_gearMask) maskGear.InsertAll(faction.m_gearMask);
+		if (!faction || faction.m_allowDefaultLoadout) maskGear.InsertAll(m_groupDefault.m_gearMask);
+		result.Insert(maskGear); 
+		
+		// GEAR GLOVES
+		ref array<string> glovesGear = new array<string>;
+		if (faction && faction.m_gearGloves) glovesGear.InsertAll(faction.m_gearGloves);
+		if (!faction || faction.m_allowDefaultLoadout) glovesGear.InsertAll(m_groupDefault.m_gearGloves);
+		result.Insert(glovesGear); 
+		
+		// GEAR VEST
+		ref array<string> vestGear = new array<string>;
+		if (faction && faction.m_gearVest) vestGear.InsertAll(faction.m_gearVest);
+		if (!faction || faction.m_allowDefaultLoadout) vestGear.InsertAll(m_groupDefault.m_gearVest);
+		result.Insert(vestGear); 
+		
+		// GEAR BACKPACKS
+		ref array<string> backpackGear = new array<string>;
+		if (faction && faction.m_gearBackpack) backpackGear.InsertAll(faction.m_gearBackpack);
+		if (!faction || faction.m_allowDefaultLoadout) backpackGear.InsertAll(m_groupDefault.m_gearBackpack);
+		result.Insert(backpackGear); 
 		
 		// GEAR WEAPON
 		ref array<string> weapGear = new array<string>;
@@ -288,6 +312,10 @@ class PluginSyberiaOptions_GroupDefault
 	ref array<string> m_gearPants;
 	ref array<string> m_gearFoot;
 	ref array<string> m_gearHead;
+	ref array<string> m_gearMask;
+    ref array<string> m_gearGloves;
+    ref array<string> m_gearVest;
+    ref array<string> m_gearBackpack;
 	ref array<string> m_gearWeapon;
 	ref array<ref PluginSyberiaOptions_ItemsLoadout> m_gearItems;
 	
@@ -299,6 +327,10 @@ class PluginSyberiaOptions_GroupDefault
 		delete m_gearPants;
 		delete m_gearFoot;
 		delete m_gearHead;
+		delete m_gearMask;
+    	delete m_gearGloves;
+    	delete m_gearVest;
+    	delete m_gearBackpack;
 		delete m_gearWeapon;
 		
 		foreach (ref PluginSyberiaOptions_ItemsLoadout il : m_gearItems) delete il;
