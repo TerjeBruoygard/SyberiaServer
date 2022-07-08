@@ -2,11 +2,11 @@ modded class PluginTrader
 {
 	ref PluginTrader_Config m_config;
 	ref map<int, TraderPoint> m_traderPoints = new map<int, TraderPoint>;
+	ref map<int, ref PluginTrader_TraiderServer> m_traderCache = new map<int, ref PluginTrader_TraiderServer>;
+	ref map<int, ref PluginTrader_StorageServer> m_storageCache = new map<int, ref PluginTrader_StorageServer>;
 	
 	override void OnInit()
 	{
-		super.OnInit();
-		
 		MakeDirectory("$profile:Syberia");
 
 		string path = "$profile:Syberia\\TradingConfig.json";
@@ -25,7 +25,12 @@ modded class PluginTrader
 	{
 		if (m_config && m_config.m_traders && m_config.m_storages)
 		{
-			foreach (ref PluginTrader_Traider traider : m_config.m_traders)
+			foreach (ref PluginTrader_StorageServer storage : m_config.m_storages)
+			{
+				m_storageCache.Insert(storage.m_storageId, storage);
+			}
+			
+			foreach (ref PluginTrader_TraiderServer traider : m_config.m_traders)
 			{
 				SpawnTrader(traider);
 			}
@@ -36,7 +41,7 @@ modded class PluginTrader
 		}
 	}
 
-	private void SpawnTrader(ref PluginTrader_Traider traider)
+	private void SpawnTrader(ref PluginTrader_TraiderServer traider)
 	{
 		if (traider.m_traderId < 0 || traider.m_storageId < 0)
 		{
@@ -50,12 +55,10 @@ modded class PluginTrader
 			Error("FAILED TO INITIALIZE TRADER WITH ID " + traider.m_traderId);
 			return;
 		}
-
-		vector yawPitchRoll = traderObj.GetLocalYawPitchRoll();
-		yawPitchRoll[0] = traider.m_rotation;		
+	
 		traderObj.SetAllowDamage(false);
 		traderObj.SetPosition(traider.m_position);
-		traderObj.SetYawPitchRoll(yawPitchRoll);
+		traderObj.SetOrientation(Vector(traider.m_rotation, 0, 0));
 				
 		EntityAI traderEntity;
 		if (EntityAI.CastTo(traderEntity, traderObj) && traider.m_attachments)
@@ -71,14 +74,35 @@ modded class PluginTrader
 		traderPoint.SetAllowDamage(false);
 		traderPoint.InitTraderPoint(traider.m_traderId, traderObj);
 				
-		m_traderPoints.Insert(traider.m_traderId, traderPoint);
+		m_traderPoints.Insert(traider.m_traderId, traderPoint);		
+		m_traderCache.Insert(traider.m_traderId, traider);
 		SybLogSrv("Traider " + traider.m_traderId + " successfully initialized with " + traider.m_storageId + " storage.");
+	}
+	
+	void SendTraderMenuOpen(PlayerBase player, int traderId)
+	{
+		if (!player)
+			return;
+		
+		ref PluginTrader_TraiderServer traider;
+		if (!m_traderCache.Find(traderId, traider))
+			return;
+		
+		ref PluginTrader_StorageServer storage;
+		if (!m_storageCache.Find(traider.m_storageId, storage))
+			return;
+		
+		Param3<int, ref PluginTrader_Traider, ref PluginTrader_Storage> params = 
+			new Param3<int, ref PluginTrader_Traider, ref PluginTrader_Storage>(
+			traderId, 
+			PluginTrader_Traider.Cast(traider), 
+			PluginTrader_Storage.Cast(storage));
+		
+		GetSyberiaRPC().SendToClient(SyberiaRPC.SYBRPC_OPEN_TRADE_MENU, player.GetIdentity(), params);
 	}
 	
 	override void OnDestroy()
 	{
-		super.OnDestroy();
-		
 		if (m_config)
 		{
 			delete m_config;
@@ -92,19 +116,22 @@ modded class PluginTrader
 			}
 			delete m_traderPoints;
 		}
+		
+		delete m_traderCache;
+		delete m_storageCache;
 	}
 };
 
 class PluginTrader_Config
 {
-	ref array<ref PluginTrader_Storage> m_storages;
-	ref array<ref PluginTrader_Traider> m_traders;
+	ref array<ref PluginTrader_StorageServer> m_storages;
+	ref array<ref PluginTrader_TraiderServer> m_traders;
 	
 	void ~PluginTrader_Config()
 	{
 		if (m_storages)
 		{
-			foreach (ref PluginTrader_Storage storage : m_storages)
+			foreach (ref PluginTrader_StorageServer storage : m_storages)
 			{
 				delete storage;
 			}
@@ -113,7 +140,7 @@ class PluginTrader_Config
 		
 		if (m_traders)
 		{
-			foreach (ref PluginTrader_Traider traider : m_traders)
+			foreach (ref PluginTrader_TraiderServer traider : m_traders)
 			{
 				delete traider;
 			}
@@ -122,26 +149,17 @@ class PluginTrader_Config
 	}
 };
 
-class PluginTrader_Storage
+class PluginTrader_StorageServer : PluginTrader_Storage
 {
 	int m_storageId;
     string m_storageName;
-    int m_storageMaxSize;
-    float m_storageCommission;
-    string m_dumpingByAmountAlgorithm;
-    float m_dumpingByAmountModifier;
-	string m_dumpingByQualityAlgorithm;
-    float m_dumpingByQualityModifier;
 };
 
-class PluginTrader_Traider
+class PluginTrader_TraiderServer : PluginTrader_Traider
 {
-	int m_traderId;
     int m_storageId;
     string m_classname;
 	ref array<string> m_attachments;
     vector m_position;
     float m_rotation;
-    ref array<string> m_purchaseFilter;
-    ref array<string> m_saleFilter;
 };
