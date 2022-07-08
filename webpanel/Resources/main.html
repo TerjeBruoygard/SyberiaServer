@@ -191,11 +191,23 @@
                 </table>
             </div>
             <div class="alert" role="alert" style="visibility: hidden" id="alertMessageSettings"></div>
-            <button type="button" class="btn btn-primary btn-lg" wid onclick="savePageSettings('#settingsForm', '#alertMessageSettings')">  Save  </button>
+            <button type="button" class="btn btn-primary btn-lg" wid onclick="savePageSettings('#settingsForm', '#alertMessageSettings')">Save</button>
         </div>
     </div>
     <div class="tab-pane" id="admins" role="tabpanel" aria-labelledby="admins-tab">
-        Admins
+        <div id="adminsForm">
+            <h3>Admin tool settings:</h3>
+            <p><em>You can open the admin tool in the game with the keyboard shortcut 'Alt' + '~'. Teleport to cursor 'Alt' + 'T'.</em></p>
+            <div class="form-group row">
+                <label for="inputAdminsList" class="col-sm-2 col-form-label">Admin UIDs:</label>
+                <div class="col-sm-10">
+                    <textarea class="form-control" id="inputAdminsList" mapping="m_adminToolOptions.m_adminUids">${m_adminToolOptions.m_adminUids}</textarea>
+                    <p><em>Specify UID's or SteamID64's to add new admins. Every UID should be on a new line.</em></p>
+                </div>
+            </div>
+            <div class="alert" role="alert" style="visibility: hidden" id="alertMessageAdmins"></div>
+            <button type="button" class="btn btn-primary btn-lg" wid onclick="savePageSettings('#adminsForm', '#alertMessageAdmins')">Save</button>
+        </div>
     </div>
     <div class="tab-pane" id="groups" role="tabpanel" aria-labelledby="groups-tab">
         Groups

@@ -1,9 +1,11 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text;
 
 namespace SyberiaWebPanel
 {
@@ -125,52 +127,169 @@ namespace SyberiaWebPanel
                 {
                     prop.SetValue(obj, jprop.Value.Value<string>());
                 }
-                else if (prop.PropertyType == typeof(List<string>))
-                {
-                    prop.SetValue(obj, jprop.Value.Values<string>().ToList());
-                }
-                else if (prop.PropertyType == typeof(List<int>))
-                {
-                    prop.SetValue(obj, jprop.Value.Values<int>().ToList());
-                }
-                else if (prop.PropertyType == typeof(List<float>))
-                {
-                    prop.SetValue(obj, jprop.Value.Values<float>().ToList());
-                }
-                else if (prop.PropertyType.IsGenericType && prop.PropertyType.GetGenericTypeDefinition() == typeof(List<>))
+                else if (prop.PropertyType.IsGenericType && prop.PropertyType == typeof(Dictionary<string, GroupFaction>))
                 {
                     var newValue = Newtonsoft.Json.JsonConvert.DeserializeAnonymousType(jprop.Value.ToString(Formatting.None), prop.PropertyType);
                     prop.SetValue(obj, newValue);
                 }
-                else if (prop.PropertyType.IsArray && prop.PropertyType.GetElementType() == typeof(string))
+                else if (prop.PropertyType.IsGenericType && prop.PropertyType.GetGenericTypeDefinition() == typeof(List<>))
                 {
-                    prop.SetValue(obj, jprop.Value.Values<string>().ToArray());
-                }
-                else if (prop.PropertyType.IsArray && prop.PropertyType.GetElementType() == typeof(int))
-                {
-                    prop.SetValue(obj, jprop.Value.Values<int>().ToArray());
-                }
-                else if (prop.PropertyType.IsArray && prop.PropertyType.GetElementType() == typeof(float))
-                {
-                    prop.SetValue(obj, jprop.Value.Values<float>().ToArray());
-                }
-                else if (prop.PropertyType.IsArray && prop.PropertyType.GetElementType().IsClass)
-                {
-                    var array = (Array)prop.GetValue(obj);
-                    var jrray = jprop.Value as JArray;
-                    if (jrray != null && array.Length != jrray.Count)
+                    if (prop.PropertyType == typeof(List<string>))
                     {
-                        throw new ApplicationException("Missmatch array length.");
+                        prop.SetValue(obj, jprop.Value.Values<string>().ToList());
                     }
-
-                    for (int i = 0; i < array.Length; i++)
+                    else if (prop.PropertyType == typeof(List<int>))
                     {
-                        MergeObject(array.GetValue(i), jrray[i]);
+                        prop.SetValue(obj, jprop.Value.Values<int>().ToList());
+                    }
+                    else if (prop.PropertyType == typeof(List<float>))
+                    {
+                        prop.SetValue(obj, jprop.Value.Values<float>().ToList());
+                    }
+                    else
+                    {
+                        var newValue = Newtonsoft.Json.JsonConvert.DeserializeAnonymousType(jprop.Value.ToString(Formatting.None), prop.PropertyType);
+                        prop.SetValue(obj, newValue);
+                    }
+                }
+                else if (prop.PropertyType.IsArray)
+                {
+                    if (prop.PropertyType.GetElementType() == typeof(int))
+                    {
+                        prop.SetValue(obj, jprop.Value.Values<int>().ToArray());
+                    }
+                    else if (prop.PropertyType.GetElementType() == typeof(float))
+                    {
+                        prop.SetValue(obj, jprop.Value.Values<float>().ToArray());
+                    }
+                    else if (prop.PropertyType.GetElementType() == typeof(string))
+                    {
+                        prop.SetValue(obj, jprop.Value.Values<string>().ToArray());
+                    }
+                    else if (prop.PropertyType.GetElementType().IsClass)
+                    {
+                        var array = (Array)prop.GetValue(obj);
+                        var jrray = jprop.Value as JArray;
+                        if (jrray != null && array.Length != jrray.Count)
+                        {
+                            throw new ApplicationException("Missmatch array length.");
+                        }
+
+                        for (int i = 0; i < array.Length; i++)
+                        {
+                            MergeObject(array.GetValue(i), jrray[i]);
+                        }
                     }
                 }
                 else if (prop.PropertyType.IsClass && prop.PropertyType.Assembly == GetType().Assembly)
                 {
                     MergeObject(prop.GetValue(obj), jprop.Value);
+                }
+                else
+                {
+                    throw new ApplicationException("Undefined type to remap.");
+                }
+            }
+        }
+
+        public void ReplaceValues(StringBuilder sb)
+        {
+            ReplaceValues(sb, this, string.Empty);
+        }
+
+        private void ReplaceValues(StringBuilder sb, object obj, string path)
+        {
+            foreach (var prop in obj.GetType().GetProperties())
+            {
+                var pattern = "${";
+                if (path.Length > 0)
+                {
+                    pattern += path + ".";
+                }
+                pattern += prop.Name + "}";
+
+                if (prop.PropertyType == typeof(int))
+                {
+                    sb.Replace(pattern, (int)prop.GetValue(obj));
+                }
+                else if (prop.PropertyType == typeof(float))
+                {
+                    sb.Replace(pattern, (float)prop.GetValue(obj));
+                }
+                else if (prop.PropertyType == typeof(string))
+                {
+                    sb.Replace(pattern, (string)prop.GetValue(obj));
+                }
+                else if (prop.PropertyType.IsGenericType && prop.PropertyType == typeof(Dictionary<string, GroupFaction>))
+                {
+                    foreach (var elem in (Dictionary<string, GroupFaction>)prop.GetValue(obj))
+                    {
+                        var newPath = path;
+                        if (newPath.Length > 0) newPath += ".";
+                        newPath += prop.Name + "[\"" + elem.Key + "\"]";
+                        ReplaceValues(sb, elem.Value, newPath);
+                    }
+                }
+                else if (prop.PropertyType.IsGenericType && prop.PropertyType.GetGenericTypeDefinition() == typeof(List<>))
+                {
+                    if (prop.PropertyType == typeof(List<string>))
+                    {
+                        sb.Replace(pattern, (List<string>)prop.GetValue(obj));
+                    }
+                    else if (prop.PropertyType == typeof(List<float>))
+                    {
+                        sb.Replace(pattern, (List<float>)prop.GetValue(obj));
+                    }
+                    else if (prop.PropertyType == typeof(List<int>))
+                    {
+                        sb.Replace(pattern, (List<int>)prop.GetValue(obj));
+                    }
+                    else
+                    {
+                        int index = 0;
+                        foreach (var elem in (IEnumerable)prop.GetValue(obj))
+                        {
+                            var newPath = path;
+                            if (newPath.Length > 0) newPath += ".";
+                            newPath += prop.Name + "[" + index + "]";
+                            ReplaceValues(sb, elem, newPath);
+                            index++;
+                        }
+                    }
+                }
+                else if (prop.PropertyType.IsArray)
+                {
+                    if (prop.PropertyType.GetElementType() == typeof(string))
+                    {
+                        sb.Replace(pattern, (string[])prop.GetValue(obj));
+                    }
+                    else if (prop.PropertyType.GetElementType() == typeof(float))
+                    {
+                        sb.Replace(pattern, (float[])prop.GetValue(obj));
+                    }
+                    else if (prop.PropertyType.GetElementType() == typeof(int))
+                    {
+                        sb.Replace(pattern, (int[])prop.GetValue(obj));
+                    }
+                    else
+                    {
+                        int index = 0;
+                        foreach (var elem in (IEnumerable)prop.GetValue(obj))
+                        {
+                            var newPath = path;
+                            if (newPath.Length > 0) newPath += ".";
+                            newPath += prop.Name + "[" + index + "]";
+                            ReplaceValues(sb, elem, newPath);
+                            index++;
+                        }
+                    }
+                }
+                else if (prop.PropertyType.IsClass && prop.PropertyType.Assembly == GetType().Assembly)
+                {
+                    var newPath = path;
+                    if (newPath.Length > 0) newPath += ".";
+                    newPath += prop.Name;
+                    ReplaceValues(sb, prop.GetValue(obj), newPath);
                 }
                 else
                 {
@@ -509,8 +628,8 @@ namespace SyberiaWebPanel
             public string m_name { set; get; }
             public string m_displayName { set; get; }
             public int m_maxMembers { set; get; }
-            public bool m_allowDefaultSpawnpoints { set; get; }
-            public bool m_allowDefaultLoadout { set; get; }
+            public int m_allowDefaultSpawnpoints { set; get; }
+            public int m_allowDefaultLoadout { set; get; }
             public List<string> m_leaders { set; get; }
 
             public new GroupFaction InitializeDefault()
@@ -519,8 +638,8 @@ namespace SyberiaWebPanel
                 m_name = string.Empty;
                 m_displayName = string.Empty;
                 m_maxMembers = 100;
-                m_allowDefaultLoadout = true;
-                m_allowDefaultSpawnpoints = true;
+                m_allowDefaultLoadout = 1;
+                m_allowDefaultSpawnpoints = 1;
                 m_leaders = new List<string>();
                 return this;
             }

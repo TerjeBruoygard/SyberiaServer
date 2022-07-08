@@ -36,5 +36,15 @@ namespace SyberiaWebPanel
         {
             builder.Replace(from, string.Join("\r\n", to));
         }
+
+        public static void Replace(this StringBuilder builder, string from, IEnumerable<float> to)
+        {
+            builder.Replace(from, string.Join("; ", to.ToString().Replace(',', '.')));
+        }
+
+        public static void Replace(this StringBuilder builder, string from, IEnumerable<int> to)
+        {
+            builder.Replace(from, string.Join("; ", to.ToString()));
+        }
     }
 }
