@@ -132,7 +132,7 @@ class SyberiaMissionServer : MissionServer
 			delete newcharParams;
 			SybLogSrv("Send SYBRPC_NEWCHAR_SCREEN_OPEN RPC.");
 		}
-		
+	
 		PlayerBase player = CreateCharacter(identity, startPos, ctx, classname);
 		if (player)
 		{
