@@ -48,6 +48,9 @@ class SyberiaMissionServer : MissionServer
 	{
 		string classname;
 		bool ghostMode = false;
+		vector startPos = "0 0 0";
+		ref array<string> startEquip = null;
+		ref array<ref array<string>> allowedEquip = null;
 		ref CharProfile profile = GetSyberiaCharacters().Get(identity);
 		if (profile)
 		{
@@ -55,6 +58,36 @@ class SyberiaMissionServer : MissionServer
 			{
 				classname = profile.m_classname;
 				profile.m_needToForceRespawn = false;
+				
+				if (profile.m_startGear)
+				{					
+					allowedEquip = GetCharacterAllowedEquipment(identity);					
+					if (allowedEquip.Count() == profile.m_startGear.Count())
+					{
+						int spawnPointId = profile.m_startGear.Get(0);
+						if (spawnPointId >= 0 && spawnPointId < GetSyberiaOptions().m_spawnpoints.Count())
+						{
+							startPos = GetSyberiaOptions().m_spawnpoints.Get(spawnPointId).m_pos;
+						}
+						
+						startEquip = new array<string>;
+						for (int i = 1; i < profile.m_startGear.Count(); i++)
+						{
+							int itemIndex = profile.m_startGear.Get(i);
+							if (itemIndex >= 0 && itemIndex < allowedEquip.Get(i).Count())
+							{
+								startEquip.Insert(allowedEquip.Get(i).Get(itemIndex));
+							}
+						}
+					}
+					
+					foreach (ref array<string> equip1 : allowedEquip) delete equip1;
+					delete allowedEquip;
+					
+					delete profile.m_startGear;
+					profile.m_startGear = null;
+				}
+				
 				GetSyberiaCharacters().Save(identity);				
 			}
 			else
@@ -64,15 +97,22 @@ class SyberiaMissionServer : MissionServer
 				
 				if (profile.m_needToConfigureGear)
 				{
-					auto equipParams = new Param1<int>(0);
+					allowedEquip = GetCharacterAllowedEquipment(identity);
+					auto equipParams = new Param1<ref array<ref array<string>>>(allowedEquip);
 					GetSyberiaRPC().SendToClient(SyberiaRPC.SYBRPC_EQUIP_SCREEN_OPEN, identity, equipParams);
 					SybLogSrv("Send SYBRPC_EQUIP_SCREEN_OPEN RPC.");
+					
+					foreach (ref array<string> equip2 : allowedEquip) delete equip2;
+					delete allowedEquip;
+					delete equipParams;
+					
 				}
 				else
 				{
 					auto respParams = new Param3<string, int, int>(profile.m_name, profile.m_souls, GetSyberiaOptions().m_respawnSoulsPrice);
 					GetSyberiaRPC().SendToClient(SyberiaRPC.SYBRPC_RESPAWN_SCREEN_OPEN, identity, respParams);
 					SybLogSrv("Send SYBRPC_RESPAWN_SCREEN_OPEN RPC.");
+					delete respParams;
 				}
 			}
 		}
@@ -93,15 +133,25 @@ class SyberiaMissionServer : MissionServer
 			SybLogSrv("Send SYBRPC_NEWCHAR_SCREEN_OPEN RPC.");
 		}
 		
-		PlayerBase player = CreateCharacter(identity, "0 0 0", ctx, classname);
+		PlayerBase player = CreateCharacter(identity, startPos, ctx, classname);
 		if (player)
 		{
 			if (ghostMode)
 			{
 				player.SetPosition("-100000 -100 -100000");
 				player.GetInputController().SetDisabled(true);
+				player.SetAllowDamage(false);
+			}
+			else if (startEquip)
+			{
+				foreach (string itemName : startEquip)
+				{
+					player.CreateInInventory(itemName);
+				}
 			}
 		}
+		
+		if (startEquip) delete startEquip;
 		
 		return player;
 	}
@@ -168,6 +218,12 @@ class SyberiaMissionServer : MissionServer
 		// DO NOTHING
 	}
 	
+		
+	override void EquipCharacter() 
+	{
+		// DO NOTHING
+	}
+	
 	private ref PlayerBase GetPlayerByIdentity(ref PlayerIdentity identity)
 	{
 		ref PlayerBase result = null;
@@ -200,6 +256,60 @@ class SyberiaMissionServer : MissionServer
 			GetGame().DisconnectPlayer(identity);
 			SybLogSrv("ForceRespawnPlayer PlayerBase not found.");
 		}
+	}
+	
+	private int GetCharacterAllowedEquipmentSize()
+	{
+		return 8;
+	}
+	
+	private ref array<ref array<string>> GetCharacterAllowedEquipment(ref PlayerIdentity identity)
+	{
+		ref array<ref array<string>> result = new array<ref array<string>>;
+		
+		// SPAWNPOINTS
+		ref array<string> spawnPoints = new array<string>;
+		foreach (ref SpawnpointInfo sp : GetSyberiaOptions().m_spawnpoints)
+		{
+			spawnPoints.Insert(sp.m_name);
+		}		
+		result.Insert(spawnPoints);
+		
+		// GEAR BODY
+		ref array<string> bodyGear = new array<string>;
+		bodyGear.Copy(GetSyberiaOptions().m_defaultGearBody);
+		result.Insert(bodyGear);
+		
+		// GEAR PANTS
+		ref array<string> pantsGear = new array<string>;
+		pantsGear.Copy(GetSyberiaOptions().m_defaultGearPants);
+		result.Insert(pantsGear);
+		
+		// GEAR FOOT
+		ref array<string> footGear = new array<string>;
+		footGear.Copy(GetSyberiaOptions().m_defaultGearFoot);
+		result.Insert(footGear);
+		
+		// GEAR HEAD
+		ref array<string> headGear = new array<string>;
+		headGear.Copy(GetSyberiaOptions().m_defaultGearHead);
+		result.Insert(headGear);
+		
+		// GEAR WEAPON
+		ref array<string> weapGear = new array<string>;
+		weapGear.Copy(GetSyberiaOptions().m_defaultGearWeapon);
+		result.Insert(weapGear);
+		
+		// GEAR ITEMS
+		ref array<string> itemsGear = new array<string>;
+		itemsGear.Copy(GetSyberiaOptions().m_defaultGearItems);
+		result.Insert(itemsGear);
+		
+		// GEAR SPECIAL
+		ref array<string> specGear = new array<string>;
+		result.Insert(specGear);
+		
+		return result;
 	}
 	
 	void OnCreateNewCharRequest(ref ParamsReadContext ctx, ref PlayerIdentity sender)
@@ -284,6 +394,23 @@ class SyberiaMissionServer : MissionServer
 		ref CharProfile profile = GetSyberiaCharacters().Get(sender);
 		if (profile && profile.m_needToConfigureGear)
 		{
+			Param1<ref array<int>> clientData;
+       		if ( !ctx.Read( clientData ) ) return;	
+			
+			ref array<int> selectedIndexes = clientData.param1;
+			if (selectedIndexes.Count() != GetCharacterAllowedEquipmentSize())
+			{
+				GetGame().DisconnectPlayer(sender);
+				return;
+			}
+			
+			if (profile.m_startGear) delete profile.m_startGear;
+			profile.m_startGear = new ref array<int>;
+			profile.m_startGear.Copy(selectedIndexes);
+						
+			delete selectedIndexes;
+			delete clientData;
+			
 			profile.m_needToConfigureGear = false;
 			profile.m_needToForceRespawn = true;
 			GetSyberiaCharacters().Save(sender);			
