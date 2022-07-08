@@ -19,7 +19,7 @@ namespace SyberiaUpdaterServer
         {
             Get("/echo", x =>
             {
-                var clientAddress = this.Request.UserHostAddress;
+                var clientAddress = this.Request.GetSenderIp();
                 logger.Info($"[/echo] Requested from {clientAddress}");
                 return "Success";
             });
@@ -27,7 +27,7 @@ namespace SyberiaUpdaterServer
             Get("/whitelist/add", x => {
                 try
                 {
-                    var clientAddress = this.Request.UserHostAddress;
+                    var clientAddress = this.Request.GetSenderIp();
                     var accessKey = this.Request.Query["accessKey"];
                     var addressToAdd = this.Request.Query["address"];
                     if (Program.ValidateMasterKey(accessKey, clientAddress))
@@ -58,7 +58,7 @@ namespace SyberiaUpdaterServer
             Get("/whitelist/remove", x => {
                 try
                 {
-                    var clientAddress = this.Request.UserHostAddress;
+                    var clientAddress = this.Request.GetSenderIp();
                     var accessKey = this.Request.Query["accessKey"];
                     var addressToAdd = this.Request.Query["address"];
                     if (Program.ValidateMasterKey(accessKey, clientAddress))
@@ -89,7 +89,7 @@ namespace SyberiaUpdaterServer
             Get("/update/database", x => {
                 try
                 {
-                    var clientAddress = this.Request.UserHostAddress;
+                    var clientAddress = this.Request.GetSenderIp();
                     var accessKey = this.Request.Query["accessKey"];
                     if (Program.ValidateAccessKey(accessKey, clientAddress))
                     {
@@ -114,7 +114,7 @@ namespace SyberiaUpdaterServer
             Get("/update/pbo", x => {
                 try
                 {
-                    var clientAddress = this.Request.UserHostAddress;
+                    var clientAddress = this.Request.GetSenderIp();
                     var accessKey = this.Request.Query["accessKey"];
                     if (Program.ValidateAccessKey(accessKey, clientAddress))
                     {
@@ -140,7 +140,7 @@ namespace SyberiaUpdaterServer
             {
                 try
                 {
-                    var clientAddress = this.Request.UserHostAddress;
+                    var clientAddress = this.Request.GetSenderIp();
                     if (Program.ValidateWhitelistAddress(clientAddress))
                     {
                         var bodyData = new StreamReader(this.Request.Body).ReadToEnd();
@@ -170,7 +170,7 @@ namespace SyberiaUpdaterServer
             {
                 try
                 {
-                    var clientAddress = this.Request.UserHostAddress;
+                    var clientAddress = this.Request.GetSenderIp();
                     var currentDate = DateTime.Now;
                     var accessKey = this.Request.Query["accessKey"];
                     var from = this.Request.Query["from"]?.Value as string;
