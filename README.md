@@ -21,3 +21,6 @@ How to start the server:
 5. Starts the DayZ Server with SyberiaScripts mod. (See SyberiaScripts repository for get client-side mod sources)
 
 With love - Terje Bruoygard
+
+If you want to support me:
+BTC: bc1q395yw8as5v9mn4yzls5y78av0q342e2cwdrhdh 
