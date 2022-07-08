@@ -438,7 +438,7 @@ modded class PluginAdminTool
 			Param1<Object> serverData;
 			if ( !ctx.Read( serverData ) ) return;
 			if ( !serverData.param1 ) return;		
-			LogAdminAction(sender, "Delete object " + serverData.param1);	
+			LogAdminAction(sender, "Delete object " + serverData.param1 + " at " + serverData.param1.GetPosition());	
 			GetGame().ObjectDelete( serverData.param1 );
 		}
 	}
@@ -507,11 +507,11 @@ modded class PluginAdminTool
 				
 				if (other.m_charProfile)
 				{
-					LogAdminAction(sender, "Teleport to player '" + other.m_charProfile.m_name + "'.");
+					LogAdminAction(sender, "Teleport to player '" + other.m_charProfile.m_name + "'" + " (" + other.GetIdentity().GetId() + ").");
 				}
 				else
 				{
-					LogAdminAction(sender, "Teleport to player with UID = " + other.GetIdentity().GetId());	
+					LogAdminAction(sender, "Teleport to player with UID (" + other.GetIdentity().GetId() + ").");	
 				}	
 			}
 		}
@@ -532,11 +532,11 @@ modded class PluginAdminTool
 				
 				if (other.m_charProfile)
 				{
-					LogAdminAction(sender, "Teleport player '" + other.m_charProfile.m_name + "' to admin.");
+					LogAdminAction(sender, "Teleport player '" + other.m_charProfile.m_name + "' (" + other.GetIdentity().GetId() + ") to admin.");
 				}
 				else
 				{
-					LogAdminAction(sender, "Teleport player with UID = " + other.GetIdentity().GetId() + " to admin.");	
+					LogAdminAction(sender, "Teleport player with UID (" + other.GetIdentity().GetId() + ") to admin.");	
 				}	
 			}
 		}
@@ -554,11 +554,11 @@ modded class PluginAdminTool
 			{
 				if (other.m_charProfile)
 				{
-					LogAdminAction(sender, "Send admin message to player '" + other.m_charProfile.m_name + "': " + serverData.param2);
+					LogAdminAction(sender, "Send admin message to player '" + other.m_charProfile.m_name + "' (" + other.GetIdentity().GetId() + "): " + serverData.param2);
 				}
 				else
 				{
-					LogAdminAction(sender, "Send admin message to player with UID = " + other.GetIdentity().GetId() + ": " + serverData.param2);	
+					LogAdminAction(sender, "Send admin message to player with UID (" + other.GetIdentity().GetId() + "): " + serverData.param2);	
 				}
 				
 				GetSyberiaRPC().SendToClient( SyberiaRPC.SYBRPC_ADMINTOOL_MESSAGE, other.GetIdentity(), new Param1< string >( serverData.param2 ) );
@@ -573,7 +573,7 @@ modded class PluginAdminTool
 		ref CharProfile profile = GetSyberiaCharacters().Get(player.GetIdentity());
 		if (!profile || !profile.m_skills) return;
 		
-		LogAdminAction(sender, "Change player '" + profile.m_name + "' state " + statName + " to " + value);
+		LogAdminAction(sender, "Change player '" + profile.m_name + "' (" + player.GetIdentity().GetId() + ") state " + statName + " to " + value);
 		
 		if (statName == "Health") player.SetHealth("", "Health", value);
 		else if (statName == "Blood") player.SetHealth("", "Blood", value);

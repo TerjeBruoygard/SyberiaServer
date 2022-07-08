@@ -1972,11 +1972,12 @@ modded class PlayerBase
 		float value = 0;
 		float state = 0;
 		EntityAI attachment;
+		ItemBase itemMask = GetItemOnSlot("Mask");
 		int attCount = GetInventory().AttachmentCount();
 		for ( int attIdx = 0; attIdx < attCount; attIdx++ )
 		{
 			attachment = GetInventory().GetAttachmentFromIndex( attIdx );
-			if ( attachment && attachment.IsClothing() )
+			if ( attachment && attachment.IsClothing() && attachment != itemMask )
 			{
 				state = Math.Clamp(attachment.GetHealth01("", "") * 2, 0, 1);
 				value = value + (GetGame().ConfigGetFloat( "CfgVehicles " + attachment.GetType() + " radiationProtection" ) * state);
