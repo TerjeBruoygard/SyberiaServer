@@ -1961,4 +1961,10 @@ modded class PlayerBase
 	{
 		return !IsDamageDestroyed();
 	}
+	
+	void MarkAsNPC()
+	{
+		m_isNPC = true;
+		SetSynchDirty();
+	}
 };
