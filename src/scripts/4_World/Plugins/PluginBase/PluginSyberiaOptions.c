@@ -3,6 +3,7 @@ modded class PluginSyberiaOptions extends PluginBase
 	ref PluginSyberiaOptions_Main m_main;
 	ref PluginSyberiaOptions_GroupDefault m_groupDefault;
 	ref map<string, ref PluginSyberiaOptions_GroupFaction> m_groupFactions;
+	ref map<int, float> m_skillModifiers;
 	
 	override void OnInit()
 	{
@@ -45,6 +46,23 @@ modded class PluginSyberiaOptions extends PluginBase
 					groupfac.LoadMembers();
 					m_groupFactions.Insert(group, groupfac);
 				}
+			}
+		}
+		
+		m_skillModifiers = new map<int, float>;
+		if (m_main.m_skillModifiers)
+		{
+			for (int i = 0; i < SyberiaSkillType.SYBSKILL_TOTALCOUNT; i++)
+			{
+				float skillModValue = 1;
+				foreach (ref PluginSyberiaOptions_SkillModifier skillMod : m_main.m_skillModifiers)
+				{
+					if (skillMod.m_id == i)
+					{
+						skillModValue = skillMod.m_mod;
+					}
+				}
+				m_skillModifiers.Insert(i, skillModValue);
 			}
 		}
 	}
@@ -246,11 +264,21 @@ class PluginSyberiaOptions_Main
 	int m_newchar_points = 10;
 	int m_roleplay_mode = 0;
 	ref array<string> m_groups;
+	ref array<ref PluginSyberiaOptions_SkillModifier> m_skillModifiers;
 
 	void ~PluginSyberiaOptions_Main()
 	{
 		delete m_groups;
+	
+		foreach (ref PluginSyberiaOptions_SkillModifier sm : m_skillModifiers) delete sm;
+		delete m_skillModifiers;	
 	}
+};
+
+class PluginSyberiaOptions_SkillModifier
+{
+	int m_id;
+	float m_mod;
 };
 
 class PluginSyberiaOptions_GroupDefault

@@ -370,6 +370,7 @@ modded class MissionServer
 				}
 				
 				profile.m_skills = clientData.param1.m_skills;
+				profile.m_skills.m_dirty = true;
 				
 				GetSyberiaCharacters().Create(sender, profile, this, "OnCreateNewCharRequest_CreateChar");
 				delete profile;	

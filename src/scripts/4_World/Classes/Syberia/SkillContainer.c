@@ -1,5 +1,5 @@
 modded class SkillsContainer
-{
+{	
 	string SerializeAsDbField()
 	{
 		string result;
@@ -35,5 +35,13 @@ modded class SkillsContainer
 				SetValue(id, value);
 			}
 		}
+	}
+	
+	void AddExpirience(int id, float value)
+	{
+		int skillLevel = (int)GetValue(id);
+		float skillMod = GetSyberiaOptions().m_skillModifiers.Get(id);
+		float skillInc = (value * skillMod) / SkillsContainer.CalculateLevelSize(skillLevel);
+		AddValue(id, skillInc);
 	}
 };

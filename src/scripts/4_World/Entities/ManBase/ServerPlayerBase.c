@@ -235,6 +235,16 @@ modded class PlayerBase
 			OnTickMindState();
 			OnTickSickCheck();
 			OnTickStomatchpoison();
+			OnTickSkills();
+		}
+	}
+	
+	private void OnTickSkills()
+	{
+		if (m_charProfile && m_charProfile.m_skills && m_charProfile.m_skills.m_dirty)
+		{
+			m_charProfile.m_skills.m_dirty = false;			
+			GetSyberiaRPC().SendToClient(SyberiaRPC.SYBRPC_SKILLS_UPDATE, GetIdentity(), new Param1<ref SkillsContainer>(m_charProfile.m_skills));
 		}
 	}
 	
