@@ -24,6 +24,9 @@
         <a class="nav-link" id="zones-tab" data-toggle="tab" href="#zones" role="tab" aria-controls="zones" aria-selected="false">Zones</a>
     </li>
     <li class="nav-item">
+        <a class="nav-link" id="crafting-tab" data-toggle="tab" href="#crafting" role="tab" aria-controls="crafting" aria-selected="false">Crafting</a>
+    </li>
+    <li class="nav-item">
         <a class="nav-link" id="variables-tab" data-toggle="tab" href="#variables" role="tab" aria-controls="variables" aria-selected="false">Variables</a>
     </li>
 </ul>
@@ -125,7 +128,7 @@
                         <option value="2">Dead bodies only</option>
                     </select>
                     <script>
-                        $('#inputCheckIdentityMode').find('option[value="${m_clientConfig.m_checkIdentityMode}"]').attr('selected', true);
+                        $('#inputCheckIdentityMode').find('option[value="${m_clientConfig.m_checkIdentityMode}"]').prop('selected', true);
                     </script>
                     <p><em>Sets the rules under which players can look at each other player's name.</em></p>
                 </div>
@@ -2186,6 +2189,663 @@
             });
 
             $('#inputZonesSelect').change();
+        </script>
+    </div>
+    <div class="tab-pane" id="crafting" role="tabpanel" aria-labelledby="crafting-tab">
+        <h3>Default crafts:</h3>
+        <p><em>You can enable or disable default crafts and crafts added by another mods.</em></p>
+        <div style="overflow-y: scroll; height:350px; width: auto;">
+        <table class="table table-hover">
+            <thead>
+                <tr>
+                    <th scope="col">Craft Classname</th>
+                    <th scope="col">Enabled</th>
+                </tr>
+            </thead>
+            <tbody id="inputCraftingDefaultRecipes">
+            </tbody>
+        </table>
+        </div>
+        <br>
+        <h3>Custom crafts:</h3>
+        <div class="input-group">
+            <div class="input-group-prepend">
+                <button class="btn btn-outline-secondary" type="button" id="inputCraftingNew">New</button>
+            </div>
+            <select class="custom-select" id="inputCraftingsSelect"></select>
+            <div class="input-group-append">
+                <button class="btn btn-outline-secondary" type="button" id="inputCraftingDelete">Delete</button>
+            </div>
+        </div>
+        <p><em>Custom crafts allow to add new recipes to the game.</em></p>
+        <br>
+        <h5>Craft parameters:</h5>
+        <div class="form-group row">
+            <label for="inputCraftingName" class="col-sm-2 col-form-label">Craft name:</label>
+            <div class="col-sm-10">
+                <input type="text" class="form-control" id="inputCraftingName" required>
+                <p><em>The name of the craft is displayed in the game and allows the player to understand what he will get as result.</em></p>
+            </div>
+        </div>
+        <div class="form-group row">
+            <label for="inputCraftingIsInstaRecipe" class="col-sm-2 col-form-label">Is instant recipe:</label>
+            <div class="col-sm-10">
+                <input class="form-check-input" type="checkbox" id="inputCraftingIsInstaRecipe">
+                <p><em>Should this recipe be performed instantly without animation?</em></p>
+            </div>
+        </div>
+        <div class="form-group row">
+            <label for="inputCraftingAnimationLength" class="col-sm-2 col-form-label">Crafting time:</label>
+            <div class="col-sm-10">
+                <input type="number" min="0" max="100000" step="any" class="form-control" id="inputCraftingAnimationLength" onchange="validateNumberInput(this)" required>
+                <p><em>Crafting animation time in seconds.</em></p>
+            </div>
+        </div>
+        <br>
+        <br>
+        <div class="form-group row">
+            <h5 class="col-sm-2">Ingredients:</h5>
+            <div class="col-sm-10">
+                <div class="btn-group btn-group-toggle" data-toggle="buttons">
+                    <label class="btn btn-secondary active">
+                        <input type="radio" name="inputCraftingSwitchIngredient" id="inputCraftingSwitchIngredient1" autocomplete="off" x-index="0" checked> First ingredient
+                    </label>
+                    <label class="btn btn-secondary">
+                        <input type="radio" name="inputCraftingSwitchIngredient" id="inputCraftingSwitchIngredient2" autocomplete="off" x-index="1"> Second ingredient
+                    </label>
+                </div>
+            </div>
+        </div>
+        <br>
+        <div class="form-group row">
+            <label for="inputCraftingIngredientItems" class="col-sm-2 col-form-label">Items:</label>
+            <div class="col-sm-10">
+                <textarea class="form-control" id="inputCraftingIngredientItems"></textarea>
+                <p><em>Specify one or more items to be used as the first ingredient. The classname of each item should be on a new line. It is allowed to use base classes to generalize a subset of items.</em></p>
+            </div>
+        </div>
+        <div class="form-group row">
+            <label for="inputCraftingMinQuantityIngredient" class="col-sm-2 col-form-label">Minimum quantity check:</label>
+            <div class="col-sm-10">
+                <input type="number" min="-1" max="1000000" step="any" class="form-control" id="inputCraftingMinQuantityIngredient" onchange="validateNumberInput(this)" required>
+                <p><em>The minimum quantity of an item required for crafting. Use "-1" to disable check.</em></p>
+            </div>
+        </div>
+        <div class="form-group row">
+            <label for="inputCraftingMaxQuantityIngredient" class="col-sm-2 col-form-label">Maximum quantity check:</label>
+            <div class="col-sm-10">
+                <input type="number" min="-1" max="1000000" step="any" class="form-control" id="inputCraftingMaxQuantityIngredient" onchange="validateNumberInput(this)" required>
+                <p><em>The maximum quantity of the item with which crafting is allowed. Use "-1" to disable check.</em></p>
+            </div>
+        </div>
+        <div class="form-group row">
+            <label for="inputCraftingMinDamageIngredient" class="col-sm-2 col-form-label">Minimum damage check:</label>
+            <div class="col-sm-10">
+                <select id="inputCraftingMinDamageIngredient" class="form-select">
+                    <option value="-1">Disable check</option>
+                    <option value="0">Pristine</option>
+                    <option value="1">Worn</option>
+                    <option value="2">Damaged</option>
+                    <option value="3">Badly damaged</option>
+                    <option value="4">Ruined</option>
+                </select>
+                <p><em>The minimum damage level of an item required for crafting.</em></p>
+            </div>
+        </div>
+        <div class="form-group row">
+            <label for="inputCraftingMaxDamageIngredient" class="col-sm-2 col-form-label">Maximum damage check:</label>
+            <div class="col-sm-10">
+                <select id="inputCraftingMaxDamageIngredient" class="form-select">
+                    <option value="-1">Disable check</option>
+                    <option value="0">Pristine</option>
+                    <option value="1">Worn</option>
+                    <option value="2">Damaged</option>
+                    <option value="3">Badly damaged</option>
+                    <option value="4">Ruined</option>
+                </select>
+                <p><em>The maximum damage of the item with which crafting is allowed.</em></p>
+            </div>
+        </div>
+        <div class="form-group row">
+            <label for="inputCraftingHealthActionSelect" class="col-sm-2 col-form-label">Damage action:</label>
+            <div class="col-sm-10">
+                <select id="inputCraftingHealthActionSelect" class="form-select">
+                    <option value="0">None</option>
+                    <option value="1">Increase health</option>
+                    <option value="2">Set health</option>
+                    <option value="3">Decrease health</option>
+                </select>
+                <input type="number" min="0" max="1000000" step="any" class="form-control" id="inputCraftingHealthActionValue" onchange="validateNumberInput(this)" required>
+                <p><em>Action on ingredient item health after crafting.</em></p>
+            </div>
+        </div>
+        <div class="form-group row">
+            <label for="inputCraftingQuantityActionSelect" class="col-sm-2 col-form-label">Quantity action:</label>
+            <div class="col-sm-10">
+                <select id="inputCraftingQuantityActionSelect" class="form-select">
+                    <option value="0">None</option>
+                    <option value="1">Increase quantity</option>
+                    <option value="2">Decrease quantity</option>
+                    <option value="3">Destroy item</option>
+                </select>
+                <input type="number" min="0" max="1000000" step="any" class="form-control" id="inputCraftingQuantityActionValue" onchange="validateNumberInput(this)" required>
+                <p><em>Action on ingredient item quantity after crafting. Use "Destroy item" if the crafting ingredient should be destroyed after crafting.</em></p>
+            </div>
+        </div>
+
+        <h5>Crafting result:</h5>
+        <div class="form-group row">
+            <div class="col-sm-10 input-group-btn">
+                <div class="input-group-prepend">
+                    <button class="btn btn-outline-secondary" type="button" id="inputCraftingResultsNew">Add</button>
+                    <select class="form-control custom-select" id="inputCraftingResults"></select>
+                    <button class="btn btn-outline-secondary" type="button" id="inputCraftingResultsDelete">Remove</button>
+                </div>
+                <p><em>A list of items and their condition that the player will get as a result of crafting. Can be empty.</em></p>
+                <div class="row" style="margin-top: 20px">
+                    <label for="inputCraftingResultsClassname" class="col-sm-2 col-form-label">Item:</label>
+                    <div class="col-sm-10">
+                        <input type="text" class="form-control" id="inputCraftingResultsClassname" required>
+                        <p><em>The classname of resulted item.</em></p>
+                    </div>
+                </div>
+                <div class="row" style="margin-top: 20px">
+                    <label for="inputCraftingResultQuantityActionSelect" class="col-sm-2 col-form-label">Quantity action:</label>
+                    <div class="col-sm-10">
+                        <select id="inputCraftingResultQuantityActionSelect" class="form-select">
+                            <option value="0" selected>None</option>
+                            <option value="1">Set quantity</option>
+                            <option value="2">Set full quantity</option>
+                        </select>
+                        <input type="number" min="0" max="1000000" step="any" class="form-control" id="inputCraftingResultQuantityActionValue" onchange="validateNumberInput(this)" required>
+                    </div>
+                </div>
+                <div class="row" style="margin-top: 20px">
+                    <label for="inputCraftingResultHealthActionSelect" class="col-sm-2 col-form-label">Health action:</label>
+                    <div class="col-sm-10">
+                        <select id="inputCraftingResultHealthActionSelect" class="form-select">
+                            <option value="0" selected>None</option>
+                            <option value="1">Set health</option>
+                            <option value="2">Inherit health</option>
+                        </select>
+                        <input type="number" min="0" max="1000000" step="any" class="form-control" id="inputCraftingResultHealthActionValue1" onchange="validateNumberInput(this)" required>
+                        <select id="inputCraftingResultHealthActionValue2" class="form-select">
+                            <option value="0" selected>First ingredient</option>
+                            <option value="1">Second ingredient</option>
+                            <option value="-2">Average of all ingredients</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="row" style="margin-top: 20px">
+                    <label for="inputCraftingResultToInventorySelect" class="col-sm-2 col-form-label">Result destination:</label>
+                    <div class="col-sm-10">
+                        <select id="inputCraftingResultToInventorySelect" class="form-select">
+                            <option value="0" selected>On ground</option>
+                            <option value="-1">In inventory</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="alert" role="alert" style="visibility: hidden" id="alertMessageCraftings"></div>
+        <button type="button" class="btn btn-primary btn-lg" wid onclick="savePageSettings(getCraftingsDataObject(), '#alertMessageCraftings')">Save</button>
+        <script>
+            var currentCraftingId = -1;
+            var currentCraftingIngredientId = 0;
+            var currentCraftingResultId = -1;
+            var craftingConfig = JSON.parse('#{m_craftingConfig}');
+            var craftingsDataobject = craftingConfig['m_customRecipes'];
+
+            for (var i = 0; i < craftingConfig['m_allDefaultRecipes'].length; i++) {
+                let checkedState = craftingConfig['m_disabledDefaultRecipes'].some(x => x === craftingConfig['m_allDefaultRecipes'][i]) ? '' : 'checked';
+                $('#inputCraftingDefaultRecipes').append('<tr><th>' + craftingConfig['m_allDefaultRecipes'][i] + '</th><td><input type="checkbox" x-name="' + craftingConfig['m_allDefaultRecipes'][i] + '" ' + checkedState + '/></td></tr>');
+            }
+
+            $('#inputCraftingDefaultRecipes').find('input[x-name]').change(function () {
+                let name = $(this).attr('x-name');
+                var index = craftingConfig['m_disabledDefaultRecipes'].indexOf(name);
+                if (index != -1) {
+                    craftingConfig['m_disabledDefaultRecipes'].remove(index);
+                }
+
+                if ($(this).is(':checked') == false) {
+                    craftingConfig['m_disabledDefaultRecipes'].push(name);
+                }
+            });
+
+            function getCraftingsDataObject() {
+                return {
+                    m_craftingConfig: craftingConfig
+                };
+            }
+
+            function initializeCraftingsSelection() {
+                $('#inputCraftingsSelect').html('');
+                for (var i = 0; i < craftingsDataobject.length; i++) {
+                    let craftingObject = craftingsDataobject[i];
+                    $('#inputCraftingsSelect').append('<option value="' + i + '" ' + (i == (craftingsDataobject.length - 1) ? 'selected' : '') + '>' + craftingObject['m_Name'] + '</option>');
+                }
+            }
+
+            function initializeCraftingsIngredient(craftingData) {
+                $('#inputCraftingIngredientItems').val(craftingData['m_Ingredients'][currentCraftingIngredientId].join('\n'));
+                $('#inputCraftingMinQuantityIngredient').val(craftingData['m_MinQuantityIngredient'][currentCraftingIngredientId]);
+                $('#inputCraftingMaxQuantityIngredient').val(craftingData['m_MaxQuantityIngredient'][currentCraftingIngredientId]);
+
+                $('#inputCraftingMinDamageIngredient').find('option[value="' + craftingData['m_MinDamageIngredient'][currentCraftingIngredientId] + '"]').prop('selected', true);
+                $('#inputCraftingMaxDamageIngredient').find('option[value="' + craftingData['m_MaxDamageIngredient'][currentCraftingIngredientId] + '"]').prop('selected', true);
+
+                if (craftingData['m_IngredientAddHealth'][currentCraftingIngredientId] > 0) {
+                    $('#inputCraftingHealthActionSelect').find('option[value="1"]').prop('selected', true);
+                    $('#inputCraftingHealthActionValue').val(craftingData['m_IngredientAddHealth'][currentCraftingIngredientId]);
+                    $('#inputCraftingHealthActionValue').prop("disabled", false);
+                }
+                else if (craftingData['m_IngredientAddHealth'][currentCraftingIngredientId] < 0) {
+                    $('#inputCraftingHealthActionSelect').find('option[value="3"]').prop('selected', true);
+                    $('#inputCraftingHealthActionValue').val(craftingData['m_IngredientAddHealth'][currentCraftingIngredientId] * -1);
+                    $('#inputCraftingHealthActionValue').prop("disabled", false);
+                }
+                else if (craftingData['m_IngredientSetHealth'][currentCraftingIngredientId] >= 0) {
+                    $('#inputCraftingHealthActionSelect').find('option[value="2"]').prop('selected', true);
+                    $('#inputCraftingHealthActionValue').val(craftingData['m_IngredientSetHealth'][currentCraftingIngredientId]);
+                    $('#inputCraftingHealthActionValue').prop("disabled", false);
+                }
+                else {
+                    $('#inputCraftingHealthActionSelect').find('option[value="0"]').prop('selected', true);
+                    $('#inputCraftingHealthActionValue').val('');
+                    $('#inputCraftingHealthActionValue').prop("disabled", true);
+                }
+
+                if (craftingData['m_IngredientDestroy'][currentCraftingIngredientId] == 1) {
+                    $('#inputCraftingQuantityActionSelect').find('option[value="3"]').prop('selected', true);
+                    $('#inputCraftingQuantityActionValue').val('');
+                    $('#inputCraftingQuantityActionValue').prop("disabled", true);
+                }
+                else if (craftingData['m_IngredientAddQuantity'][currentCraftingIngredientId] > 0) {
+                    $('#inputCraftingQuantityActionSelect').find('option[value="1"]').prop('selected', true);
+                    $('#inputCraftingQuantityActionValue').val(craftingData['m_IngredientAddQuantity'][currentCraftingIngredientId]);
+                    $('#inputCraftingQuantityActionValue').prop("disabled", false);
+                }
+                else if (craftingData['m_IngredientAddQuantity'][currentCraftingIngredientId] < 0) {
+                    $('#inputCraftingQuantityActionSelect').find('option[value="2"]').prop('selected', true);
+                    $('#inputCraftingQuantityActionValue').val(craftingData['m_IngredientAddQuantity'][currentCraftingIngredientId] * -1);
+                    $('#inputCraftingQuantityActionValue').prop("disabled", false);
+                }
+                else {
+                    $('#inputCraftingQuantityActionSelect').find('option[value="0"]').prop('selected', true);
+                    $('#inputCraftingQuantityActionValue').val('');
+                    $('#inputCraftingQuantityActionValue').prop("disabled", true);
+                }
+            }
+
+            function initializeCraftingsResultSelection(craftingData) {
+                $('#inputCraftingResults').html('');
+                for (var i = 0; i < craftingData['m_ItemsToCreate'].length && i < 10; i++) {
+                    $('#inputCraftingResults').append('<option value="' + i + '" ' + (i == (craftingData['m_ItemsToCreate'].length - 1) ? 'selected' : '') + '>Result #' + i + ": " + craftingData['m_ItemsToCreate'][i] + '</option>');
+                }
+            }
+
+            initializeCraftingsSelection();
+
+            $('#inputCraftingsSelect').change(function () {
+                let inputs = '#inputCraftingName,#inputCraftingIsInstaRecipe,#inputCraftingAnimationLength,' +
+                    '#inputCraftingIngredientItems,#inputCraftingMinQuantityIngredient,#inputCraftingMaxQuantityIngredient,' +
+                    '#inputCraftingMinDamageIngredient,#inputCraftingMaxDamageIngredient,#inputCraftingHealthActionSelect,#inputCraftingHealthActionValue,' +
+                    '#inputCraftingQuantityActionSelect,#inputCraftingQuantityActionValue,#inputCraftingResults,#inputCraftingResultsNew,#inputCraftingResultsDelete,' +
+                    '#inputCraftingResultsClassname,#inputCraftingResultQuantityActionSelect,#inputCraftingResultQuantityActionValue,#inputCraftingResultHealthActionSelect,' +
+                    '#inputCraftingResultHealthActionValue1,#inputCraftingResultHealthActionValue2,#inputCraftingResultToInventorySelect';
+                $('#inputCraftingResults').html('');
+
+                let craftingId = $(this).val() != undefined ? parseInt($(this).val()) : -1;
+                if (craftingId != -1) {
+                    $(inputs).prop("disabled", false);
+
+                    let crafting = craftingsDataobject[craftingId];
+                    $('#inputCraftingName').val(crafting['m_Name']);
+                    $('#inputCraftingIsInstaRecipe').prop('checked', crafting['m_IsInstaRecipe'] == 1);
+                    $('#inputCraftingAnimationLength').val(crafting['m_AnimationLength']);
+
+                    initializeCraftingsIngredient(crafting);
+                    initializeCraftingsResultSelection(crafting);
+                }
+                else {
+                    $(inputs).val('');
+                    $(inputs).prop("disabled", true);
+                }
+
+                currentCraftingId = craftingId;
+                $('#inputCraftingResults').change();
+            });
+
+            $('#inputCraftingResults').change(function () {
+                let inputs = '#inputCraftingResultsClassname,#inputCraftingResultQuantityActionSelect,#inputCraftingResultQuantityActionValue,#inputCraftingResultHealthActionSelect,' +
+                    '#inputCraftingResultHealthActionValue1,#inputCraftingResultHealthActionValue2,#inputCraftingResultToInventorySelect';
+
+                let craftingResultId = $(this).val() != undefined ? parseInt($(this).val()) : -1;
+                if (craftingResultId != -1 && currentCraftingId != -1) {
+                    $(inputs).prop("disabled", false);
+
+                    let crafting = craftingsDataobject[currentCraftingId];
+                    $('#inputCraftingResultsClassname').val(crafting['m_ItemsToCreate'][craftingResultId]);
+
+                    if (crafting['m_ResultSetFullQuantity'][craftingResultId] == 1) {
+                        $('#inputCraftingResultQuantityActionSelect').find('option[value="2"]').prop('selected', true);
+                        $('#inputCraftingResultQuantityActionValue').prop("disabled", true);
+                    }
+                    else if (crafting['m_ResultSetQuantity'][craftingResultId] != -1) {
+                        $('#inputCraftingResultQuantityActionSelect').find('option[value="1"]').prop('selected', true);
+                        $('#inputCraftingResultQuantityActionValue').val(crafting['m_ResultSetQuantity'][craftingResultId]);
+                        $('#inputCraftingResultQuantityActionValue').prop("disabled", false);
+                    }
+                    else {
+                        $('#inputCraftingResultQuantityActionSelect').find('option[value="0"]').prop('selected', true);
+                        $('#inputCraftingResultQuantityActionValue').prop("disabled", true);
+                    }
+
+                    if (crafting['m_ResultInheritsHealth'][craftingResultId] != -1) {
+                        $('#inputCraftingResultHealthActionSelect').find('option[value="2"]').prop('selected', true);
+                        $('#inputCraftingResultHealthActionValue1').hide();
+                        $('#inputCraftingResultHealthActionValue2').show();
+                        $('#inputCraftingResultHealthActionValue2').find('option[value="' + crafting['m_ResultInheritsHealth'][craftingResultId] + '"]').prop('selected', true);
+                    }
+                    else if (crafting['m_ResultSetHealth'][craftingResultId] != -1) {
+                        $('#inputCraftingResultHealthActionSelect').find('option[value="1"]').prop('selected', true);
+                        $('#inputCraftingResultHealthActionValue2').hide();
+                        $('#inputCraftingResultHealthActionValue1').show();
+                        $('#inputCraftingResultHealthActionValue1').val(crafting['m_ResultSetHealth'][craftingResultId]);
+                    }
+                    else {
+                        $('#inputCraftingResultHealthActionSelect').find('option[value="0"]').prop('selected', true);
+                        $('#inputCraftingResultHealthActionValue1').hide();
+                        $('#inputCraftingResultHealthActionValue2').hide();
+                    }
+
+                    $('#inputCraftingResultToInventorySelect').find('option[value="' + crafting['m_ResultToInventory'][craftingResultId] + '"]').prop('selected', true);
+                }
+                else {
+                    $(inputs).val('');
+                    $(inputs).prop("disabled", true);
+                }
+
+                currentCraftingResultId = craftingResultId;
+            });
+
+            $('#inputCraftingName').change(function () {
+                if (currentCraftingId != -1) {
+                    craftingsDataobject[currentCraftingId]['m_Name'] = $(this).val();
+                    $('#inputCraftingsSelect').find('option[value="' + currentCraftingId + '"]').text($(this).val());
+                }
+            });
+            $('#inputCraftingIsInstaRecipe').change(function () { if (currentCraftingId != -1) craftingsDataobject[currentCraftingId]['m_IsInstaRecipe'] = $(this).is(':checked') ? 1 : 0; });
+            $('#inputCraftingAnimationLength').change(function () { if (currentCraftingId != -1) craftingsDataobject[currentCraftingId]['m_AnimationLength'] = parseFloat($(this).val()); });
+
+            $('#inputCraftingIngredientItems').change(function () { if (currentCraftingId != -1) craftingsDataobject[currentCraftingId]['m_Ingredients'][currentCraftingIngredientId] = $(this).val().split('\n').filter(n => n.trim()); });
+            $('#inputCraftingMinQuantityIngredient').change(function () { if (currentCraftingId != -1) craftingsDataobject[currentCraftingId]['m_MinQuantityIngredient'][currentCraftingIngredientId] = parseFloat($(this).val()); });
+            $('#inputCraftingMaxQuantityIngredient').change(function () { if (currentCraftingId != -1) craftingsDataobject[currentCraftingId]['m_MaxQuantityIngredient'][currentCraftingIngredientId] = parseFloat($(this).val()); });
+
+            $('#inputCraftingMinDamageIngredient').change(function () {
+                if (currentCraftingId != -1) {
+                    let selectionId = $(this).val() != undefined ? parseInt($(this).val()) : -1;
+                    craftingsDataobject[currentCraftingId]['m_MinDamageIngredient'][currentCraftingIngredientId] = selectionId;
+                }
+            });
+
+            $('#inputCraftingMaxDamageIngredient').change(function () {
+                if (currentCraftingId != -1) {
+                    let selectionId = $(this).val() != undefined ? parseInt($(this).val()) : -1;
+                    craftingsDataobject[currentCraftingId]['m_MaxDamageIngredient'][currentCraftingIngredientId] = selectionId;
+                }
+            });
+
+            $('#inputCraftingHealthActionSelect').change(function () {
+                if (currentCraftingId != -1) {
+                    let selectionId = $(this).val() != undefined ? parseInt($(this).val()) : 0;
+
+                    craftingsDataobject[currentCraftingId]['m_IngredientAddHealth'][currentCraftingIngredientId] = 0;
+                    craftingsDataobject[currentCraftingId]['m_IngredientSetHealth'][currentCraftingIngredientId] = -1;
+
+                    if (selectionId == 0) {
+                        $('#inputCraftingHealthActionValue').val('');
+                        $('#inputCraftingHealthActionValue').prop("disabled", true);
+                    }
+                    else {
+                        $('#inputCraftingHealthActionValue').val('0');
+                        $('#inputCraftingHealthActionValue').prop("disabled", false);
+                        $('#inputCraftingHealthActionValue').change();
+                    }
+                }
+            });
+
+            $('#inputCraftingHealthActionValue').change(function () {
+                if (currentCraftingId != -1) {
+                    let selectionId = $('#inputCraftingHealthActionSelect').val() != undefined ? parseInt($('#inputCraftingHealthActionSelect').val()) : 0;
+                    if (selectionId == 1) {
+                        craftingsDataobject[currentCraftingId]['m_IngredientAddHealth'][currentCraftingIngredientId] = parseFloat($(this).val());
+                        craftingsDataobject[currentCraftingId]['m_IngredientSetHealth'][currentCraftingIngredientId] = -1;
+                    }
+                    else if (selectionId == 3) {
+                        craftingsDataobject[currentCraftingId]['m_IngredientAddHealth'][currentCraftingIngredientId] = parseFloat($(this).val()) * -1;
+                        craftingsDataobject[currentCraftingId]['m_IngredientSetHealth'][currentCraftingIngredientId] = -1;
+                    }
+                    else if (selectionId == 2) {
+                        craftingsDataobject[currentCraftingId]['m_IngredientAddHealth'][currentCraftingIngredientId] = 0;
+                        craftingsDataobject[currentCraftingId]['m_IngredientSetHealth'][currentCraftingIngredientId] = parseFloat($(this).val());
+                    }
+                    else {
+                        craftingsDataobject[currentCraftingId]['m_IngredientAddHealth'][currentCraftingIngredientId] = 0;
+                        craftingsDataobject[currentCraftingId]['m_IngredientSetHealth'][currentCraftingIngredientId] = -1;
+                    }
+                }
+            });
+
+            $('#inputCraftingQuantityActionSelect').change(function () {
+                if (currentCraftingId != -1) {
+                    let selectionId = $(this).val() != undefined ? parseInt($(this).val()) : 0;
+
+                    craftingsDataobject[currentCraftingId]['m_IngredientDestroy'][currentCraftingIngredientId] = 0;
+                    craftingsDataobject[currentCraftingId]['m_IngredientAddQuantity'][currentCraftingIngredientId] = 0;
+
+                    if (selectionId == 0 || selectionId == 3) {
+                        $('#inputCraftingQuantityActionValue').val('');
+                        $('#inputCraftingQuantityActionValue').prop("disabled", true);
+                    }
+                    else {
+                        $('#inputCraftingQuantityActionValue').val('0');
+                        $('#inputCraftingQuantityActionValue').prop("disabled", false);
+                        $('#inputCraftingQuantityActionValue').change();
+                    }
+                }
+            });
+
+            $('#inputCraftingQuantityActionValue').change(function () {
+                if (currentCraftingId != -1) {
+                    let selectionId = $('#inputCraftingQuantityActionSelect').val() != undefined ? parseInt($('#inputCraftingQuantityActionSelect').val()) : 0;
+                    if (selectionId == 3) {
+                        craftingsDataobject[currentCraftingId]['m_IngredientDestroy'][currentCraftingIngredientId] = 1;
+                        craftingsDataobject[currentCraftingId]['m_IngredientAddQuantity'][currentCraftingIngredientId] = 0;
+                    }
+                    else if (selectionId == 1) {
+                        craftingsDataobject[currentCraftingId]['m_IngredientDestroy'][currentCraftingIngredientId] = 0;
+                        craftingsDataobject[currentCraftingId]['m_IngredientAddQuantity'][currentCraftingIngredientId] = parseFloat($(this).val());
+                    }
+                    else if (selectionId == 2) {
+                        craftingsDataobject[currentCraftingId]['m_IngredientDestroy'][currentCraftingIngredientId] = 0;
+                        craftingsDataobject[currentCraftingId]['m_IngredientAddQuantity'][currentCraftingIngredientId] = parseFloat($(this).val()) * -1;
+                    }
+                    else {
+                        craftingsDataobject[currentCraftingId]['m_IngredientDestroy'][currentCraftingIngredientId] = 0;
+                        craftingsDataobject[currentCraftingId]['m_IngredientAddQuantity'][currentCraftingIngredientId] = 0;
+                    }
+                }
+            });
+
+            $("input[name='inputCraftingSwitchIngredient']:radio").on("change", function () {
+                currentCraftingIngredientId = parseInt($(this).attr('x-index'));
+
+                if (currentCraftingId != -1) {
+                    initializeCraftingsIngredient(craftingsDataobject[currentCraftingId]);
+                }
+            });
+
+            $('#inputCraftingResultsClassname').change(function () {
+                if (currentCraftingId != -1 && currentCraftingResultId != -1) {
+                    craftingsDataobject[currentCraftingId]['m_ItemsToCreate'][currentCraftingResultId] = $(this).val();
+                    $('#inputCraftingResults').find('option[value="' + currentCraftingResultId + '"]').text('Result #' + currentCraftingResultId + ': ' + $(this).val());
+                }
+            });
+
+            $('#inputCraftingResultQuantityActionSelect').change(function () {
+                if (currentCraftingId != -1 && currentCraftingResultId != -1) {
+                    let selectionId = $(this).val() != undefined ? parseInt($(this).val()) : 0;
+
+                    craftingsDataobject[currentCraftingId]['m_ResultSetFullQuantity'][currentCraftingResultId] = 0;
+                    craftingsDataobject[currentCraftingId]['m_ResultSetQuantity'][currentCraftingResultId] = -1;
+
+                    if (selectionId == 0 || selectionId == 2) {
+                        $('#inputCraftingResultQuantityActionValue').val('');
+                        $('#inputCraftingResultQuantityActionValue').prop("disabled", true);
+                    }
+                    else {
+                        $('#inputCraftingResultQuantityActionValue').val('0');
+                        $('#inputCraftingResultQuantityActionValue').prop("disabled", false);
+                        $('#inputCraftingResultQuantityActionValue').change();
+                    }
+                }
+            });
+
+            $('#inputCraftingResultQuantityActionValue').change(function () {
+                if (currentCraftingId != -1 && currentCraftingResultId != -1) {
+                    let selectionId = $('#inputCraftingResultQuantityActionSelect').val() != undefined ? parseInt($('#inputCraftingResultQuantityActionSelect').val()) : 0;
+                    if (selectionId == 1) {
+                        craftingsDataobject[currentCraftingId]['m_ResultSetFullQuantity'][currentCraftingResultId] = 0;
+                        craftingsDataobject[currentCraftingId]['m_ResultSetQuantity'][currentCraftingResultId] = parseFloat($(this).val());
+                    }
+                    else if (selectionId == 2) {
+                        craftingsDataobject[currentCraftingId]['m_ResultSetFullQuantity'][currentCraftingResultId] = 1;
+                        craftingsDataobject[currentCraftingId]['m_ResultSetQuantity'][currentCraftingResultId] = -1;
+                    }
+                    else {
+                        craftingsDataobject[currentCraftingId]['m_ResultSetFullQuantity'][currentCraftingResultId] = 0;
+                        craftingsDataobject[currentCraftingId]['m_ResultSetQuantity'][currentCraftingResultId] = -1;
+                    }
+                }
+            });
+
+            $('#inputCraftingResultHealthActionSelect').change(function () {
+                if (currentCraftingId != -1 && currentCraftingResultId != -1) {
+                    let selectionId = $(this).val() != undefined ? parseInt($(this).val()) : 0;
+
+                    craftingsDataobject[currentCraftingId]['m_ResultSetHealth'][currentCraftingResultId] = -1;
+                    craftingsDataobject[currentCraftingId]['m_ResultInheritsHealth'][currentCraftingResultId] = -1;
+
+                    if (selectionId == 1) {
+                        $('#inputCraftingResultHealthActionValue2').hide();
+                        $('#inputCraftingResultHealthActionValue1').show();
+                        $('#inputCraftingResultHealthActionValue1').val('0');
+                        $('#inputCraftingResultHealthActionValue1').change();
+                    }
+                    else if (selectionId == 2) {
+                        $('#inputCraftingResultHealthActionValue1').hide();
+                        $('#inputCraftingResultHealthActionValue2').show();
+                        $('#inputCraftingResultHealthActionValue2').find('option[value="0"]').prop('selected', true);
+                        $('#inputCraftingResultHealthActionValue2').change();
+                    }
+                    else {
+                        $('#inputCraftingResultHealthActionValue1').hide();
+                        $('#inputCraftingResultHealthActionValue2').hide();
+                    }
+                }
+            });
+
+            $('#inputCraftingResultHealthActionValue1').change(function () {
+                if (currentCraftingId != -1 && currentCraftingResultId != -1) {
+                    craftingsDataobject[currentCraftingId]['m_ResultSetHealth'][currentCraftingResultId] = parseFloat($(this).val());
+                    craftingsDataobject[currentCraftingId]['m_ResultInheritsHealth'][currentCraftingResultId] = -1;
+                }
+            });
+
+            $('#inputCraftingResultHealthActionValue2').change(function () {
+                if (currentCraftingId != -1 && currentCraftingResultId != -1) {
+                    let selectionId = $(this).val() != undefined ? parseInt($(this).val()) : 0;
+                    craftingsDataobject[currentCraftingId]['m_ResultSetHealth'][currentCraftingResultId] = -1;
+                    craftingsDataobject[currentCraftingId]['m_ResultInheritsHealth'][currentCraftingResultId] = selectionId;
+                }
+            });
+
+            $('#inputCraftingResultToInventorySelect').change(function () {
+                if (currentCraftingId != -1 && currentCraftingResultId != -1) {
+                    let selectionId = $(this).val() != undefined ? parseInt($(this).val()) : 0;
+                    craftingsDataobject[currentCraftingId]['m_ResultToInventory'][currentCraftingResultId] = selectionId;
+                }
+            });
+
+            $('#inputCraftingNew').click(function () {
+                craftingsDataobject.push({
+                    m_Name: 'Crafting ' + (craftingsDataobject.length + 1),
+                    m_IsInstaRecipe: 0,
+                    m_AnimationLength: 1,
+
+                    m_Ingredients: [[], []],
+                    m_MinQuantityIngredient: [-1, -1],
+                    m_MaxQuantityIngredient: [-1, -1],
+                    m_MinDamageIngredient: [-1, -1],
+                    m_MaxDamageIngredient: [-1, -1],
+                    m_IngredientAddHealth: [0, 0],
+                    m_IngredientAddQuantity: [0, 0],
+                    m_IngredientSetHealth: [-1, -1],
+                    m_IngredientDestroy: [1, 1],
+
+                    m_ResultSetFullQuantity: [],
+                    m_ResultSetQuantity: [],
+                    m_ResultSetHealth: [],
+                    m_ResultToInventory: [],
+                    m_ResultInheritsHealth: [],
+                    m_ItemsToCreate: [],
+                });
+
+                initializeCraftingsSelection();
+                $('#inputCraftingsSelect').change();
+            });
+            $('#inputCraftingDelete').click(function () {
+                if (currentCraftingId != -1) {
+                    if (confirm('Are you sure you want to delete current custom crafting?')) {
+                        craftingsDataobject.remove(currentCraftingId);
+                        initializeCraftingsSelection();
+                        $('#inputCraftingsSelect').change();
+                    }
+                }
+            });
+
+            $('#inputCraftingResultsNew').click(function () {
+                if (currentCraftingId != -1 && craftingsDataobject[currentCraftingId]['m_ItemsToCreate'].length < 10) {
+                    craftingsDataobject[currentCraftingId]['m_ItemsToCreate'].push('');
+                    craftingsDataobject[currentCraftingId]['m_ResultSetFullQuantity'].push(0);
+                    craftingsDataobject[currentCraftingId]['m_ResultSetQuantity'].push(-1);
+                    craftingsDataobject[currentCraftingId]['m_ResultSetHealth'].push(-1);
+                    craftingsDataobject[currentCraftingId]['m_ResultToInventory'].push(-1);
+                    craftingsDataobject[currentCraftingId]['m_ResultInheritsHealth'].push(-1);
+
+                    initializeCraftingsResultSelection(craftingsDataobject[currentCraftingId]);
+                    $('#inputCraftingResults').change();
+                }
+            });
+            $('#inputCraftingResultsDelete').click(function () {
+                if (currentCraftingId != -1 && currentCraftingResultId != -1) {
+                    if (confirm('Are you sure you want to delete current crafting result?')) {
+                        craftingsDataobject[currentCraftingId]['m_ItemsToCreate'].remove(currentCraftingResultId);
+                        craftingsDataobject[currentCraftingId]['m_ResultSetFullQuantity'].remove(currentCraftingResultId);
+                        craftingsDataobject[currentCraftingId]['m_ResultSetQuantity'].remove(currentCraftingResultId);
+                        craftingsDataobject[currentCraftingId]['m_ResultSetHealth'].remove(currentCraftingResultId);
+                        craftingsDataobject[currentCraftingId]['m_ResultToInventory'].remove(currentCraftingResultId);
+                        craftingsDataobject[currentCraftingId]['m_ResultInheritsHealth'].remove(currentCraftingResultId);
+
+                        initializeCraftingsResultSelection(craftingsDataobject[currentCraftingId]);
+                        $('#inputCraftingResults').change();
+                    }
+                }
+            });
+
+            $('#inputCraftingsSelect').change();
         </script>
     </div>
     <div class="tab-pane" id="variables" role="tabpanel" aria-labelledby="variables-tab">

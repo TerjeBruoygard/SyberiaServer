@@ -51,6 +51,7 @@ modded class MissionServer
 				GetSyberiaOptions().SendClientOptions(identity, player.m_charProfile);
 				PluginLogicPDA.Cast(GetPlugin(PluginLogicPDA)).SendPdaUserState(identity, player.m_charProfile);
 				PluginZones.Cast(GetPlugin(PluginZones)).SendToxicZonesToPlayer(identity);
+				PluginRecipesManager.Cast(GetPlugin(PluginRecipesManager)).SendCraftingSettings(identity);
 			}
 		}
 	}

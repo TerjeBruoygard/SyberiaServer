@@ -36,6 +36,27 @@ namespace SyberiaWebPanel
         [ScriptObjectSerializableAttribute]
         public ZonesConfig m_zonesConfig { private set; get; }
 
+        [ScriptObjectSerializableAttribute]
+        public CraftingConfig m_craftingConfig {
+            get
+            {
+                if (m_crafting_instance != null)
+                {
+                    return m_crafting_instance;
+                }
+
+                var craftingConfigPath = Path.Combine(m_configDir, "CraftingSettings.json");
+                if (File.Exists(craftingConfigPath))
+                {
+                    m_crafting_instance = JsonConvert.DeserializeObject<CraftingConfig>(File.ReadAllText(craftingConfigPath));
+                    return m_crafting_instance;
+                }
+                
+                throw new ApplicationException("Crafting settings not found.");
+            }
+        }
+        private CraftingConfig m_crafting_instance = null;
+
         public GameConfig(string gameDir)
         {
             m_configDir = Path.Combine(gameDir, "profiles", "Syberia");
@@ -142,6 +163,11 @@ namespace SyberiaWebPanel
                 }
 
                 File.WriteAllText(Path.Combine(m_configDir, $"Group_{name}.json"), JsonConvert.SerializeObject(faction, saveSettings));
+            }
+
+            if (m_crafting_instance != null)
+            {
+                File.WriteAllText(Path.Combine(m_configDir, "CraftingSettings.json"), JsonConvert.SerializeObject(m_crafting_instance, saveSettings));
             }
         }
 
@@ -256,6 +282,7 @@ namespace SyberiaWebPanel
                 if (prop.GetCustomAttributes(typeof(ScriptObjectSerializableAttribute), true)?.Length == 1)
                 {
                     sb.ReplaceScriptObject("#" + mainPattern, prop.GetValue(obj));
+                    continue;
                 }
 
                 if (prop.PropertyType == typeof(int))
@@ -814,5 +841,44 @@ namespace SyberiaWebPanel
                 }
             }
         }
+
+        public class CraftingConfig
+        {
+            public List<string> m_allDefaultRecipes { set; get; }
+            public List<string> m_disabledDefaultRecipes { set; get; }
+            public List<CustomRecipeData> m_customRecipes { set; get; }
+
+            public CraftingConfig InitializeDefault()
+            {
+                m_allDefaultRecipes = new List<string>();
+                m_disabledDefaultRecipes = new List<string>();
+                m_customRecipes = new List<CustomRecipeData>();
+                return this;
+            }
+
+            public class CustomRecipeData
+            {
+                public string m_Name { set; get; }
+                public int m_IsInstaRecipe { set; get; }
+                public float m_AnimationLength { set; get; }
+
+                public List<string>[] m_Ingredients { set; get; }
+                public float[] m_MinQuantityIngredient { set; get; }
+                public float[] m_MaxQuantityIngredient { set; get; }
+                public int[] m_MinDamageIngredient { set; get; }
+                public int[] m_MaxDamageIngredient { set; get; }
+                public float[] m_IngredientAddHealth { set; get; }
+                public float[] m_IngredientAddQuantity { set; get; }
+                public float[] m_IngredientSetHealth { set; get; }
+                public int[] m_IngredientDestroy { set; get; }
+
+                public List<int> m_ResultSetFullQuantity { set; get; }
+                public List<float> m_ResultSetQuantity { set; get; }
+                public List<float> m_ResultSetHealth { set; get; }
+                public List<int> m_ResultToInventory { set; get; }
+                public List<int> m_ResultInheritsHealth { set; get; }
+                public List<string> m_ItemsToCreate { set; get; }
+            }
+        };
     }
 }
