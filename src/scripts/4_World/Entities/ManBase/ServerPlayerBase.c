@@ -292,14 +292,11 @@ modded class PlayerBase
 				
 				float maxHealth = GetMaxHealth("GlobalHealth","Health");
 				AddHealth("GlobalHealth", "Health", maxHealth * SLEEPING_HEAL_PER_SEC_01);			
-				if (m_influenzaLevel == 1)
+				if (m_influenzaLevel <= 1 && Math.RandomFloat01() < SLEEPING_HEAL_INFLUENZA_CHANCE)
 				{
-					if (SLEEPING_HEAL_INFLUENZA_CHANCE < Math.RandomFloat01())
-					{
-						m_influenzaLevel = 0;
-						m_influenzaTimer = 0;
-						SetSynchDirty();
-					}
+					m_influenzaLevel = 0;
+					m_influenzaTimer = 0;
+					SetSynchDirty();
 				}
 			}
 			else
@@ -334,14 +331,14 @@ modded class PlayerBase
 	private void OnTickSickCheck()
 	{
 		float currHeatComf = GetStatHeatComfort().Get();
-		if (currHeatComf < -0.4)
+		if (currHeatComf < -0.5)
 		{
 			if (Math.RandomFloat01() < INFLUENZA_APPLY_ON_COLD_CRIT_CHANCE)
 			{
 				AddInfluenza();
 			}
 		}
-		else if (currHeatComf < -0.8)
+		else if (currHeatComf < -0.9)
 		{
 			if (Math.RandomFloat01() < INFLUENZA_APPLY_ON_COLD_WARN_CHANCE)
 			{
@@ -530,6 +527,11 @@ modded class PlayerBase
 					if (edibleBaseSource.IsFoodBurned()) SetStomatchPoison(STOMATCHPOISON_BURNED_FOOD[0], STOMATCHPOISON_BURNED_FOOD[1] * amount);
 				}
 			}
+			
+			if (source.ContainsAgent(eAgents.SALMONELLA) || source.ContainsAgent(eAgents.CHOLERA))
+			{
+				SetStomatchPoison(STOMATCHPOISON_INFECTION[0], STOMATCHPOISON_INFECTION[1] * amount);
+			}
 		}
 		
 		if (HasBloodyHands() && !HasMedicalWellGloves())
@@ -537,12 +539,12 @@ modded class PlayerBase
 			SetStomatchPoison(STOMATCHPOISON_DIRTY_HANDS[0], STOMATCHPOISON_DIRTY_HANDS[1] * amount);
 		}
 		
-		if (consume_type == EConsumeType.ENVIRO_POND && STOMATCHPOISON_CHANCE_DRINK_POND < Math.RandomFloat01())
+		if (consume_type == EConsumeType.ENVIRO_POND && Math.RandomFloat01() < STOMATCHPOISON_CHANCE_DRINK_POND)
 		{
 			SetStomatchPoison(STOMATCHPOISON_DRINK_POND[0], STOMATCHPOISON_DRINK_POND[1] * amount);
 		}
 		
-		if (consume_type == EConsumeType.ENVIRO_WELL && STOMATCHPOISON_CHANCE_DRINK_WELL < Math.RandomFloat01())
+		if (consume_type == EConsumeType.ENVIRO_WELL && Math.RandomFloat01() < STOMATCHPOISON_CHANCE_DRINK_WELL)
 		{
 			SetStomatchPoison(STOMATCHPOISON_DRINK_WELL[0], STOMATCHPOISON_DRINK_WELL[1] * amount);
 		}
@@ -1056,7 +1058,11 @@ modded class PlayerBase
 		if (m_influenzaLevel > 0 && m_influenzaLevel <= 3)
 		{
 			int influenzaLevelIndex = m_influenzaLevel - 1;	
-			AddToEnvironmentTemperature(INFLUENZA_TEMPERATURE_LEVELS[influenzaLevelIndex]);
+			if (INFLUENZA_TEMPERATURE_LEVELS[influenzaLevelIndex] > 0)
+			{
+				AddToEnvironmentTemperature(INFLUENZA_TEMPERATURE_LEVELS[influenzaLevelIndex]);
+			}
+			
 			if ( Math.RandomFloat01() < INFLUENZA_SYMPTHOM_CHANCE[influenzaLevelIndex] * deltaTime )
 			{
 				if (influenzaLevelIndex == 0)
