@@ -143,12 +143,17 @@ modded class PluginTrader
 	
 	void RpcRequstTraderAction(ref ParamsReadContext ctx, ref PlayerIdentity sender)
 	{
+		PlayerBase player = GetPlayerByIdentity(sender);
+		if (!player)
+			return;
+		
 		// Prepare
-		Param2<int, ref array<ItemBase>> clientData;
+		Param3<int, ref array<ItemBase>, ref map<string, float>> clientData;
        	if ( !ctx.Read( clientData ) ) return;
 		
 		int traderId = clientData.param1;
 		ref array<ItemBase>	sellItems = clientData.param2;
+		ref map<string, float> buyItems = clientData.param3;
 		
 		ref PluginTrader_TraderServer traderInfo;
 		if (!m_traderCache.Find(traderId, traderInfo))
@@ -163,6 +168,11 @@ modded class PluginTrader
 		foreach (ItemBase sellItem1 : sellItems)
 		{
 			resultPrice = resultPrice + CalculateSellPrice(traderInfo, traderData, sellItem1);
+		}
+		
+		foreach (string buyClassname1, float buyQuantity1 : buyItems)
+		{
+			resultPrice = resultPrice - CalculateBuyPrice(traderInfo, buyClassname1, buyQuantity1);
 		}
 		
 		if (resultPrice < 0)
@@ -198,6 +208,26 @@ modded class PluginTrader
 			}
 		}
 		
+		foreach (string buyClassname2, float buyQuantity2 : buyItems)
+		{
+			if (traderData.m_items.Contains(buyClassname2) && traderData.m_items.Get(buyClassname2) >= buyQuantity2)
+			{
+				float newValue2 = Math.Max(0, traderData.m_items.Get(buyClassname2) - buyQuantity2);				
+				if (newValue2 == 0)
+				{
+					traderData.m_items.Remove(buyClassname2);
+					updateDbQueries.Insert("DELETE FROM trader_data WHERE trader_id = " + traderId + " AND classname = '" + buyClassname2 + "';");
+				}
+				else
+				{
+					traderData.m_items.Set( buyClassname2, newValue2 );
+					updateDbQueries.Insert("UPDATE trader_data SET data = '" + newValue2 + "' WHERE trader_id = " + traderId + " AND classname = '" + buyClassname2 + "';");
+				}
+			}
+			
+			SybLogSrv("TRADER " + traderId + " SELL ITEM " + buyClassname2 + ":" + buyQuantity2);
+		}
+		
 		// Update database
 		GetDatabase().TransactionAsync(SYBERIA_DB_NAME, updateDbQueries, this, "OnUpdateTraderDataDB", null);
 		
@@ -207,6 +237,43 @@ modded class PluginTrader
 			if (sellItem3)
 			{
 				GetGame().ObjectDelete(sellItem3);				
+			}
+		}
+		
+		// Spawn buy items
+		foreach (string buyClassname3, float buyQuantity3 : buyItems)
+		{
+			float calcQuantity = buyQuantity3;
+			while (calcQuantity > 0)
+			{
+				ItemBase buyEntity = ItemBase.Cast( player.CreateInInventory(buyClassname3) );
+				if (buyEntity)
+				{
+					float spawnQuantity01 = Math.Clamp(calcQuantity, 0, 1);
+					if (buyEntity.IsInherited( Magazine ))
+					{
+						Magazine buyMagazine;
+						Class.CastTo(buyMagazine, buyEntity);
+						if ( buyEntity.IsInherited( Ammunition_Base ))
+						{
+							buyMagazine.ServerSetAmmoCount( (int)Math.Round(buyMagazine.GetAmmoMax() * spawnQuantity01) );
+						}
+						else
+						{
+							buyMagazine.ServerSetAmmoCount(0);
+						}
+					}
+					else
+					{
+						buyEntity.SetQuantityNormalized(spawnQuantity01);
+					}
+				}
+				else
+				{
+					break;
+				}
+				
+				calcQuantity = calcQuantity - 1;
 			}
 		}
 		
@@ -276,7 +343,27 @@ modded class PluginTrader_Data
 		
 		for (int i = 0; i < response.GetRowsCount(); i++)
 		{
-			m_items.Insert( response.GetValue(i, 0), response.GetValue(i, 1).ToFloat() );
+			string classname = response.GetValue(i, 0);
+			float quantity = response.GetValue(i, 1).ToFloat();
+			bool exist = false;
+			
+			if (GetGame().ConfigIsExisting(CFG_VEHICLESPATH + " " + classname))
+			{
+				exist = true;
+			}
+			else if (GetGame().ConfigIsExisting(CFG_MAGAZINESPATH + " " + classname))
+			{
+				exist = true;
+			}
+			else if (GetGame().ConfigIsExisting(CFG_WEAPONSPATH + " " + classname))
+			{
+				exist = true;
+			}
+			
+			if (exist)
+			{
+				m_items.Insert( classname, quantity );
+			}
 		}
 	}
 };
