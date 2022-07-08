@@ -33,7 +33,7 @@ modded class ZombieBase extends DayZInfected
 			foreach (Object obj : objects)
 			{
 				Building building;
-				if( Building.CastTo(building, obj) )
+				if( Building.CastTo(building, obj) && building.GetType().Contains("Wreck") == false )
 				{
 					HandleBuilding(building);
 				}
@@ -52,7 +52,12 @@ modded class ZombieBase extends DayZInfected
 				if (vector.Distance(doorPos, GetPosition()) < GetSyberiaConfig().m_zombieOpenDoorDistance)
 				{
 					building.OpenDoor(i);
-					SyberiaSoundEmitter.Spawn("ZombieDoorBreak" + Math.RandomIntInclusive(1, 5) + "_SoundEmitter", doorPos);
+					EntityAI soundFx = EntityAI.Cast( GetGame().CreateObject("ZombieDoorBreak" + Math.RandomIntInclusive(1, 5) + "_SoundEmitter", doorPos) );
+					if (soundFx)
+					{
+						int anim_type = Math.RandomIntInclusive(9,13);
+						StartCommand_Attack(soundFx, anim_type, anim_type);
+					}	
 				}
 			}
 		}
