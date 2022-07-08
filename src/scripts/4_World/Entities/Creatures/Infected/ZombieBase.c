@@ -83,7 +83,7 @@ modded class ZombieBase extends DayZInfected
 							SetHealth("", "Health", 0);
 						}
 						
-						if (Math.RandomFloat01() < GetSyberiaConfig().m_skillsExpStrengthHeavyAttackChance)
+						if (!sourcePlayer.HasVisibleZVirus() && sourcePlayer.GetItemInHands() && Math.RandomFloat01() < GetSyberiaConfig().m_skillsExpStrengthHeavyAttackChance)
 						{
 							sourcePlayer.AddExperience(SyberiaSkillType.SYBSKILL_STRENGTH, GetSyberiaConfig().m_skillsExpStrengthHeavyAttackValue);
 						}
@@ -92,7 +92,7 @@ modded class ZombieBase extends DayZInfected
 					{
 						additionalDmg = additionalDmg * sourcePlayer.GetPerkFloatValue(SyberiaPerkType.SYBPERK_STRENGTH_FAST_ATTACK_STRENGTH, 0, 0);
 						
-						if (Math.RandomFloat01() < GetSyberiaConfig().m_skillsExpStrengthLightAttackChance)
+						if (!sourcePlayer.HasVisibleZVirus() && sourcePlayer.GetItemInHands() && Math.RandomFloat01() < GetSyberiaConfig().m_skillsExpStrengthLightAttackChance)
 						{
 							sourcePlayer.AddExperience(SyberiaSkillType.SYBSKILL_STRENGTH, GetSyberiaConfig().m_skillsExpStrengthLightAttackValue);
 						}

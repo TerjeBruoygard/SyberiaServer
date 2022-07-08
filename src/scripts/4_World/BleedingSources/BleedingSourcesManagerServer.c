@@ -293,6 +293,18 @@ modded class BleedingSourcesManagerServer
 		{
 			AddKnifeHit();
 		}
+		else if ( ammo == "BarbedWireHit" )
+		{
+			if (Math.RandomFloat01() < 0.2)
+			{
+				AttemptAddBleedingSource(component);
+				
+				if (Math.RandomFloat01() < 0.05)
+				{
+					SetBloodInfection(true);
+				}
+			}
+		}
 		else if (ammoType == "Melee")
 		{
 			bool blockMeleeDamage = false;
