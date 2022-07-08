@@ -235,6 +235,10 @@ modded class BleedingSourcesManagerServer
 		{
 			AddHematomaHit();
 		}
+		else if ( ammo == "BearTrapHit" )
+		{
+			AddKnifeHit();
+		}
 		else if (ammoType == "Melee")
 		{
 			bool blockMeleeDamage = false;

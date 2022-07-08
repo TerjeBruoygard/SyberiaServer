@@ -356,11 +356,15 @@ modded class PlayerBase
 	
 	void SetStomatchPoison(int level, float time)
 	{
-		m_stomatchpoisonTimer += time;
 		if (level > m_stomatchpoisonLevel)
 		{
 			m_stomatchpoisonLevel = Math.Clamp(level, 0, 3);
 			SetSynchDirty();
+		}
+		
+		if (m_stomatchpoisonLevel > 0)
+		{
+			m_stomatchpoisonTimer = Math.Clamp(m_stomatchpoisonTimer + time, 0, STOMATCHPOISON_DEFAULT_TIMES[m_stomatchpoisonLevel - 1]);
 		}
 	}
 	

@@ -105,7 +105,7 @@ const float ANTIBIOTICS_GLOBAL_EFFECTIVITY_MODIFIER = 0.006;
 const float STOMATCHPOISON_VOMIT_CHANCE[3] = { 1 / 120, 1 / 60, 1 / 30 };
 const int STOMATCHPOISON_WATER_DRAIN_FROM_VOMIT[3] = { 100, 300, 500 };
 const int STOMATCHPOISON_ENERGY_DRAIN_FROM_VOMIT[3] = { 150, 400, 1000 };
-const float STOMATCHHEAL_MODIFIER = 5;
+const float STOMATCHHEAL_MODIFIER = 10;
 
 const int STOMATCHPOISON_RAW_MEAT[2] = { 1, 5 * 60 }; // level, seconds * amount
 const int STOMATCHPOISON_BURNED_MEAT[2] = { 1, 5 * 60 }; // level, seconds * amount
