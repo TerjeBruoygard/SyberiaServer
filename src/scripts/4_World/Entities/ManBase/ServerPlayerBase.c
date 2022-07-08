@@ -599,7 +599,7 @@ modded class PlayerBase
 			}
 		}
 		
-		if (HasBloodyHands() && !HasMedicalWellGloves())
+		if (HasDirtyHands())
 		{
 			SetStomatchPoison(GetSyberiaConfig().m_stomatchpoisonDirtyHands[0], GetSyberiaConfig().m_stomatchpoisonDirtyHands[1] * amount);
 		}
@@ -944,9 +944,11 @@ modded class PlayerBase
 	protected void OnTickAdvMedicine_Pain(float deltaTime)
 	{
 		m_painTimer = Math.Clamp(m_painTimer - deltaTime, 0, GetSyberiaConfig().m_painMaxDurationSec);
-		if (m_painLevel != 0 && m_painTimer < 0.1)
+		if (m_painLevel > 0 && m_painTimer < 0.1)
 		{
-			m_painLevel = 0;
+			m_painLevel = m_painLevel - 1;
+			if (m_painLevel == 2) m_painTimer = GetSyberiaConfig().m_painLvl2TimeSec;
+			else if (m_painLevel == 1) m_painTimer = GetSyberiaConfig().m_painLvl1TimeSec;
 			SetSynchDirty();
 		}
 		
@@ -1261,11 +1263,26 @@ modded class PlayerBase
 		}
 	}
 	
-	bool HasMedicalWellGloves()
+	bool HasDirtyHands()
 	{
 		ItemBase gloves = GetItemOnSlot("Gloves");
-		if (!gloves) return false;
-		if (gloves.IsRuined()) return false;		
-		return GetGame().ConfigGetInt("CfgVehicles " + gloves.GetType() + " medGloves") == 1;
+		if (gloves)
+		{
+			if (gloves.GetHealthLevel() != GameConstants.STATE_PRISTINE)
+			{
+				return true;
+			}
+			
+			/*if (GetGame().ConfigGetInt("CfgVehicles " + gloves.GetType() + " medGloves") == 1)
+			{
+				return false;
+			}*/
+		}
+		else if (HasBloodyHands())
+		{
+			return true;
+		}
+		
+		return false;
 	}
 };

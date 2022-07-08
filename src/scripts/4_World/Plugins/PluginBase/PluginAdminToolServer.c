@@ -102,10 +102,10 @@ modded class PluginAdminTool
 					entity = player.CreateInInventory(context.m_classname);
 				}
 				else if (spawnType == 1) {
-					entity = EntityAI.Cast( GetGame().CreateObjectEx(context.m_classname, player.GetPosition(), ECE_PLACE_ON_SURFACE) );
+					entity = EntityAI.Cast( GetGame().CreateObject(context.m_classname, player.GetPosition(), false, true, true) );
 				}
 				else if (spawnType == 2) {
-					entity = EntityAI.Cast( GetGame().CreateObjectEx(context.m_classname, cursorPos, ECE_PLACE_ON_SURFACE) );
+					entity = EntityAI.Cast( GetGame().CreateObject(context.m_classname, cursorPos, false, true, true) );
 				}
 				
 				if (entity)
