@@ -7,11 +7,17 @@ void SybLogSrv(string message)
 }
 
 // ADV MED
-const float DIRTY_SYRINGE_BLOOD_INFECTION_CHANCE = 1.0; // 0.2
+const float DIRTY_SYRINGE_BLOOD_INFECTION_CHANCE = 0.2;
 
-const float SEPSIS_STAGE1_TIME_SEC = 30;
-const float SEPSIS_TEMPERATURE_MAX = 0.9;
-const float SEPSIS_DEATH_TIME_SEC = 30;
+const float SEPSIS_STAGE1_TIME_SEC = 600; // 10 min
+const float SEPSIS_STAGE2_TIME_SEC = 1200; // 20 min
+const float SEPSIS_DEATH_TIME_SEC = 600; // 10 min
+
+const float ZVIRUS_STAGE1_TIME_SEC = 60;
+const float ZVIRUS_STAGE2_TIME_SEC = 60;
+const float ZVIRUS_DEATH_TIME_SEC = 60;
+const float ZVIRUS_BLOOD_REGEN_PER_SEC = 30;
+const float ZVIRUS_ZOMBIE_HIT_CHANCE = 0.2;
 
 const float PAIN_LVL1_TIME_SEC = 60 * 5;
 const float PAIN_LVL2_TIME_SEC = 60 * 30;
@@ -41,3 +47,6 @@ const float HEMATOMA_REGEN_TIMER_SEC = 60 * 15;
 const float CUTHIT_REGEN_TIMER_SEC = 60 * 5;
 
 const float HEMOLOGIC_SHOCK_DIETIME_SEC = 60; 
+
+const bool ZOMBIE_OPEN_DOOR_ENABLE = true;
+const float ZOMBIE_OPEN_DOOR_DISTANCE = 1.6;
