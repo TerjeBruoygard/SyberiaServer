@@ -1,5 +1,5 @@
 const string SyberiaServer_ModPreffix = "[SYBERIA SERVER] ";
-const bool SyberiaServer_DebugMode = false;
+const bool SyberiaServer_DebugMode = true;
 
 void SybLogSrv(string message)
 {
