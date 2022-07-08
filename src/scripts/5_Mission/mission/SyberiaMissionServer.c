@@ -56,7 +56,7 @@ modded class MissionServer
 	
 	override void OnClientReadyEvent(PlayerIdentity identity, PlayerBase player)
 	{
-		GetGame().SelectPlayer(identity, player);
+		super.OnClientReadyEvent(identity, player);
 		OnPlayerStarted(identity, player);
 	}
 	
