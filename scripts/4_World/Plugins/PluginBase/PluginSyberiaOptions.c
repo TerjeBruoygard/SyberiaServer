@@ -11,11 +11,11 @@ class PluginSyberiaOptions extends PluginBase
 		
 		if (FileExist(path))
 		{
-			JsonFileLoader.JsonLoadFile(path, this);
+			JsonFileLoader<PluginSyberiaOptions>.JsonLoadFile(path, this);
 		}
 		else
 		{
-			JsonFileLoader.JsonSaveFile(path, this);
+			JsonFileLoader<PluginSyberiaOptions>.JsonSaveFile(path, this);
 		}
 	}
 	
