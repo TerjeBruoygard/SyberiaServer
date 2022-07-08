@@ -258,6 +258,13 @@ modded class BleedingSourcesManagerServer
 		string ammoType = GetGame().ConfigGetTextOut( "CfgAmmo " + ammo + " DamageApplied " + "type" );
 		bleed_threshold = Math.Clamp(bleed_threshold,0,1);
 		
+		float meleeHeadProtection = 0;
+		ItemBase helmet = m_Player.GetItemOnSlot("Headgear");
+		if (helmet)
+		{
+			meleeHeadProtection = helmet.ConfigGetFloat("meleeProtection");
+		}
+		
 		if (source.IsZombie())
 		{
 			bool blockZedDamage = false;
@@ -293,7 +300,7 @@ modded class BleedingSourcesManagerServer
 			else if (Math.RandomFloat01() < zedHematomaChance)
 			{
 				AddHematomaHit();
-				if (zone == "Head" && Math.RandomFloat01() < 0.3)
+				if (zone == "Head" && Math.RandomFloat01() < 0.3 && Math.RandomFloat01() > meleeHeadProtection)
 				{
 					SetConcussionHit(true, false);
 				}
@@ -314,7 +321,7 @@ modded class BleedingSourcesManagerServer
 				AddKnifeHit();
 			}
 			
-			if (Math.RandomFloat01() < GetSyberiaConfig().m_concussionZombieHitChance)
+			if (Math.RandomFloat01() < GetSyberiaConfig().m_concussionZombieHitChance && Math.RandomFloat01() > meleeHeadProtection)
 			{
 				SetConcussionHit(true, false);
 			}
@@ -361,7 +368,7 @@ modded class BleedingSourcesManagerServer
 			if (affectSkeleton > 1 && !ammo.Contains("Axe"))
 			{
 				AddHematomaHit();
-				if (zone == "Head")
+				if (zone == "Head" && Math.RandomFloat01() > meleeHeadProtection)
 				{
 					SetConcussionHit(true);
 				}
