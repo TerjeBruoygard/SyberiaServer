@@ -214,7 +214,7 @@ namespace SyberiaWebPanel
                         }
                         else if (fieldRef.FieldType == typeof(float[]))
                         {
-                            var array = (int[])fieldRef.GetValue(sectionValue);
+                            var array = (float[])fieldRef.GetValue(sectionValue);
                             builder.AppendLine($"       {fieldRef.Name}[] = {{ {string.Join(", ", array.Select(x => x.ToString().Replace(',', '.')))} }};");
                         }
                     }
