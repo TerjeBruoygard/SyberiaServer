@@ -1,0 +1,5 @@
+/manager/bin
+/manager/obj
+/manager/packages
+/manager/.vs
+/manager/DayzDatabaseServer.csproj.user
