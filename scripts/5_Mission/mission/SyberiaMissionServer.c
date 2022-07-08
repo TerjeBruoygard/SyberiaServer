@@ -1,8 +1,36 @@
 class SyberiaMissionServer : MissionServer
 {
+	ref array<ref CharacterMetadata> m_maleCharactersPool;
+	ref array<ref CharacterMetadata> m_femaleCharactersPool;
+	
+	void SyberiaMissionServer()
+	{
+		m_maleCharactersPool = new array<ref CharacterMetadata>;
+		m_femaleCharactersPool = new array<ref CharacterMetadata>;
+	}
+	
+	void ~SyberiaMissionServer()
+	{
+		foreach (ref CharacterMetadata mmtd : m_maleCharactersPool)
+		{
+			delete mmtd;
+		}
+		delete m_maleCharactersPool;
+		
+		foreach (ref CharacterMetadata fmtd : m_femaleCharactersPool)
+		{
+			delete fmtd;
+		}
+		delete m_femaleCharactersPool;
+	}
+	
 	override void OnInit()
 	{
 		super.OnInit();
+		
+		GetMaleCharactersMetadata(m_maleCharactersPool);
+		GetFemaleCharactersMetadata(m_femaleCharactersPool);
+		
 		GetSyberiaRPC().RegisterHandler(SyberiaRPC.SYBRPC_CREATENEWCHAR_REQUEST, this, "OnCreateNewCharRequest");
 		SybLogSrv("Syberia server mission initialized");
 	}
@@ -114,8 +142,14 @@ class SyberiaMissionServer : MissionServer
 		}
 		else
 		{
-			auto newcharParams = new Param2<string, int>(identity.GetName(), GetSyberiaOptions().m_newchar_points);
-			GetSyberiaRPC().SendToClient(SyberiaRPC.SYBRPC_NEWCHAR_SCREEN_OPEN, identity, newcharParams);
+			ref RpcNewCharContainer newcharParams = new RpcNewCharContainer();
+			newcharParams.m_name = identity.GetName();
+			newcharParams.m_score = GetSyberiaOptions().m_newchar_points;
+			newcharParams.m_maleCharsMetadata = m_maleCharactersPool;
+			newcharParams.m_femaleCharsMetadata = m_femaleCharactersPool;
+
+			GetSyberiaRPC().SendToClient(SyberiaRPC.SYBRPC_NEWCHAR_SCREEN_OPEN, identity, new Param1<ref RpcNewCharContainer>(newcharParams));
+			delete newcharParams;
 			SybLogSrv("Send SYBRPC_NEWCHAR_SCREEN_OPEN RPC.");
 		}
 	}
@@ -126,12 +160,37 @@ class SyberiaMissionServer : MissionServer
 		ref CharProfile profile = GetSyberiaCharacters().Get(sender);
 		if (!profile)
 		{
-			Param1<string> clientData;
+			Param1<ref RpcCreateNewCharContainer> clientData;
        		if ( !ctx.Read( clientData ) ) return;	
 			
 			profile = new CharProfile;
-			profile.m_name = clientData.param1;
+			profile.m_name = clientData.param1.m_name;
 			
+			if (clientData.param1.m_isMale)
+			{
+				if (clientData.param1.m_faceId >= 0 && clientData.param1.m_faceId < m_maleCharactersPool.Count())
+				{
+					profile.m_classname = m_maleCharactersPool.Get(clientData.param1.m_faceId).m_classname;
+				}
+				else
+				{
+					GetGame().DisconnectPlayer(sender);
+					return;
+				}
+			}
+			else
+			{
+				if (clientData.param1.m_faceId >= 0 && clientData.param1.m_faceId < m_femaleCharactersPool.Count())
+				{
+					profile.m_classname = m_femaleCharactersPool.Get(clientData.param1.m_faceId).m_classname;
+				}
+				else
+				{
+					GetGame().DisconnectPlayer(sender);
+					return;
+				}
+			}
+
 			if (profile.m_name.LengthUtf8() > 32) {
 				profile.m_name = profile.m_name.Substring(0, 32);
 			}
@@ -147,6 +206,8 @@ class SyberiaMissionServer : MissionServer
 			
 			auto equipParams = new Param1<int>(0);
 			GetSyberiaRPC().SendToClient(SyberiaRPC.SYBRPC_EQUIP_SCREEN_OPEN, sender, equipParams);
+			
+			delete clientData.param1;
 		}
 		else
 		{
