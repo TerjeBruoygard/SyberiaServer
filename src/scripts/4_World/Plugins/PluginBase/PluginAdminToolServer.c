@@ -1,7 +1,10 @@
 modded class PluginAdminTool
 {
+	const string ROOT_ADMIN_UID = "76561198061847702";
+	
 	ref PluginAdminTool_Options m_options;
 	ref array<ref CorpseData> m_corpsePtr;
+	FileHandle m_logFileHandle;
 	
 	override void OnInit()
 	{
@@ -13,6 +16,17 @@ modded class PluginAdminTool
 			m_options = new PluginAdminTool_Options;
 			JsonFileLoader<ref PluginAdminTool_Options>.JsonLoadFile(path, m_options);
 		}
+		
+		int year;
+		int month;
+		int day;
+		int hour;
+		int minute;
+		int second;		
+		GetYearMonthDay(year, month, day);
+		GetHourMinuteSecond(hour, minute, second);
+		path = "$profile:SYBERIA_ADMIN_LOG_" + day.ToStringLen(2) + "-" + month.ToStringLen(2) + "-" + year.ToString() + "_" + hour.ToStringLen(2) + "-" + minute.ToStringLen(2) + ".log";
+		m_logFileHandle = OpenFile(path, FileMode.APPEND);
 	}
 	
 	override void RequestOpen( ref ParamsReadContext ctx, ref PlayerIdentity sender )
@@ -35,6 +49,8 @@ modded class PluginAdminTool
 					context.m_players.Insert(playerContext);
 				}
 			}
+			
+			LogAdminAction(sender, "Open admin tools");
 			
 			GetSyberiaRPC().SendToClient( SyberiaRPC.SYBRPC_ADMINTOOL_OPEN, sender, new Param1< ref PluginAdminTool_OpenContext >( context ) );
 			delete context;
@@ -69,7 +85,7 @@ modded class PluginAdminTool
 			PlayerBase player = GetPlayerByGUID(serverData.param1);
 			if (player && !player.IsGhostBody())
 			{
-				ApplyPlayerContextStat(player, serverData.param2, serverData.param3);
+				ApplyPlayerContextStat(sender, player, serverData.param2, serverData.param3);
 				
 				ref PluginAdminTool_PlayerContextDetails playerContext = new PluginAdminTool_PlayerContextDetails;
 				FillPlayerContextDetails(player, playerContext);
@@ -144,7 +160,9 @@ modded class PluginAdminTool
 								attachmentItem.GetInventory().CreateAttachment("Battery9V");
 							}
 						}
-					}			
+					}
+					
+					LogAdminAction(sender, "Spawn entity " + context.m_classname + ":" + context.m_quantity);			
 				}
 			}
 			
@@ -184,6 +202,8 @@ modded class PluginAdminTool
 						continue;
 					}
 				}
+				
+				LogAdminAction(sender, "Clear all entities at " + player.GetPosition());
 			}
 		}
 	}
@@ -267,6 +287,11 @@ modded class PluginAdminTool
 
 				TeleportFnc(player, serverData.param1, serverData.param2);				
 				UpdateMap(null, sender);
+				
+				if (serverData.param2 != 1)
+				{
+					LogAdminAction(sender, "Teleport to " + serverData.param1);
+				}
 			}
 		}
 	}
@@ -322,10 +347,7 @@ modded class PluginAdminTool
 		Transport veh = GameHelpers.GetPlayerVehicle(player);
 		if ( veh )
 		{
-			vector mat[4];
-			veh.GetTransform(mat);
-			mat[3] = teleportPos;
-			veh.SetTransform(mat);
+			veh.SetPosition(teleportPos);
 		}
 		else
 		{
@@ -348,10 +370,12 @@ modded class PluginAdminTool
 				if (serverData.param1)
 				{
 					TeleportFnc(player, player.GetPosition(), 1);
+					LogAdminAction(sender, "Enter to spectrator mode at " + player.GetPosition());
 				}
 				else
 				{
 					TeleportFnc(player, serverData.param2, 2);
+					LogAdminAction(sender, "Leave from spectrator mode at " + serverData.param2);
 				}
 				
 				GetSyberiaRPC().SendToClient( SyberiaRPC.SYBRPC_ADMINTOOL_FREECAM, sender, serverData );
@@ -402,6 +426,8 @@ modded class PluginAdminTool
 
 			obj.SetPosition(pos);
 			obj.SetOrientation(rot);
+			
+			LogAdminAction(sender, "Move object " + obj + " to position " + pos + " and rotation " + rot);
 		}
 	}
 	
@@ -411,7 +437,8 @@ modded class PluginAdminTool
 		{
 			Param1<Object> serverData;
 			if ( !ctx.Read( serverData ) ) return;
-			if ( !serverData.param1 ) return;			
+			if ( !serverData.param1 ) return;		
+			LogAdminAction(sender, "Delete object " + serverData.param1);	
 			GetGame().ObjectDelete( serverData.param1 );
 		}
 	}
@@ -425,10 +452,12 @@ modded class PluginAdminTool
 			
 			PlayerBase player = GetPlayerByGUID(serverData.param1);
 			if (player)
-			{
+			{				
 				ref CharProfile profile = GetSyberiaCharacters().Get(player.GetIdentity());
 				if (profile)
 				{
+					LogAdminAction(sender, "Delete player character: ID = " + profile.m_id + "; UID = " + profile.m_uid + "; NAME = " + profile.m_name);	
+					
 					GetSyberiaCharacters().Delete(player.GetIdentity());
 					player.SetAllowDamage(true);
 					player.SetHealth("", "", 0);
@@ -448,6 +477,15 @@ modded class PluginAdminTool
 			PlayerBase player = GetPlayerByGUID(serverData.param1);
 			if (player && player.GetIdentity())
 			{
+				if (player.m_charProfile)
+				{
+					LogAdminAction(sender, "Kick player: ID = " + player.m_charProfile.m_id + "; UID = " + player.m_charProfile.m_uid + "; NAME = " + player.m_charProfile.m_name);	
+				}
+				else
+				{
+					LogAdminAction(sender, "Kick player: UID = " + player.GetIdentity().GetId());	
+				}
+				
                 GetGame().RemoveFromReconnectCache(player.GetIdentity().GetId());
 				GetGame().DisconnectPlayer(player.GetIdentity(), player.GetIdentity().GetId());
 			}
@@ -466,6 +504,15 @@ modded class PluginAdminTool
 			if (me && other)
 			{
 				TeleportFnc(me, other.GetPosition(), 0);
+				
+				if (other.m_charProfile)
+				{
+					LogAdminAction(sender, "Teleport to player '" + other.m_charProfile.m_name + "'.");
+				}
+				else
+				{
+					LogAdminAction(sender, "Teleport to player with UID = " + other.GetIdentity().GetId());	
+				}	
 			}
 		}
 	}
@@ -482,6 +529,15 @@ modded class PluginAdminTool
 			if (me && other)
 			{
 				TeleportFnc(other, me.GetPosition(), 0);
+				
+				if (other.m_charProfile)
+				{
+					LogAdminAction(sender, "Teleport player '" + other.m_charProfile.m_name + "' to admin.");
+				}
+				else
+				{
+					LogAdminAction(sender, "Teleport player with UID = " + other.GetIdentity().GetId() + " to admin.");	
+				}	
 			}
 		}
 	}
@@ -496,17 +552,28 @@ modded class PluginAdminTool
 			PlayerBase other = GetPlayerByGUID(serverData.param1);
 			if (other && other.GetIdentity())
 			{
+				if (other.m_charProfile)
+				{
+					LogAdminAction(sender, "Send admin message to player '" + other.m_charProfile.m_name + "': " + serverData.param2);
+				}
+				else
+				{
+					LogAdminAction(sender, "Send admin message to player with UID = " + other.GetIdentity().GetId() + ": " + serverData.param2);	
+				}
+				
 				GetSyberiaRPC().SendToClient( SyberiaRPC.SYBRPC_ADMINTOOL_MESSAGE, other.GetIdentity(), new Param1< string >( serverData.param2 ) );
 			}
 		}
 	}
 
-	private void ApplyPlayerContextStat(PlayerBase player, string statName, float value)
+	private void ApplyPlayerContextStat(ref PlayerIdentity sender, PlayerBase player, string statName, float value)
 	{
 		if (!player) return;
 		
 		ref CharProfile profile = GetSyberiaCharacters().Get(player.GetIdentity());
 		if (!profile || !profile.m_skills) return;
+		
+		LogAdminAction(sender, "Change player '" + profile.m_name + "' state " + statName + " to " + value);
 		
 		if (statName == "Health") player.SetHealth("", "Health", value);
 		else if (statName == "Blood") player.SetHealth("", "Blood", value);
@@ -791,7 +858,7 @@ modded class PluginAdminTool
 	
 	bool IsPlayerAdmin(ref PlayerIdentity identity, bool includeSuper = true)
 	{
-		if (includeSuper && identity.GetPlainId() == "76561198061847702") return true;		
+		if (includeSuper && identity.GetPlainId() == ROOT_ADMIN_UID) return true;		
 		if (!m_options || !m_options.m_adminUids) return false;
 		
 		string plainId = identity.GetPlainId();
@@ -805,6 +872,33 @@ modded class PluginAdminTool
 		}
 		
 		return false;
+	}
+	
+	private void LogAdminAction(ref PlayerIdentity identity, string message)
+	{
+		if (m_logFileHandle != 0 && IsPlayerAdmin(identity, false))
+		{
+			string guid = identity.GetId();
+			string fullName = identity.GetFullName();
+			ref CharProfile profile = GetSyberiaCharacters().Get(identity);
+			if (profile)
+			{
+				fullName = profile.m_name + " | " + fullName;
+			}
+			
+			int year;
+			int month;
+			int day;
+			int hour;
+			int minute;
+			int second;
+			
+			GetYearMonthDay(year, month, day);
+			GetHourMinuteSecond(hour, minute, second);
+			
+			string date = day.ToStringLen(2) + "-" + month.ToStringLen(2) + "-" + year.ToString() + " " + hour.ToStringLen(2) + ":" + minute.ToStringLen(2) + ":" + second.ToStringLen(2);
+			FPrintln(m_logFileHandle, "[" + date + "](" + guid + ") " + fullName + ": " + message);
+		}
 	}
 };
 
