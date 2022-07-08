@@ -414,17 +414,50 @@ modded class PluginAdminTool
         else if (statName == "Viscera") player.m_visceraHit = (value > 0.5);
         else if (statName == "Sepsis") player.m_sepsis = (value > 0.5);
         else if (statName == "Concussion") player.m_concussionHit = (value > 0.5);
-        else if (statName == "Hemostasis") player.m_bloodHemostaticEffect = (value > 0.5);
-        else if (statName == "Hemopoesis") player.m_hematopoiesisEffect = (value > 0.5);
-        else if (statName == "Salve") player.m_salveEffect = (value > 0.5);
-        else if (statName == "Pain") player.m_painLevel = (int)value;
-        else if (statName == "Painkiller") player.m_painkillerEffect = (int)value;
+        else if (statName == "Hemostasis") 
+		{
+			player.m_bloodHemostaticEffect = (value > 0.5);
+			if (player.m_bloodHemostaticEffect) player.m_bloodHemostaticTimer = 300;
+		}
+        else if (statName == "Hemopoesis")
+		{
+			player.m_hematopoiesisEffect = (value > 0.5);
+			if (player.m_hematopoiesisEffect) player.m_hematopoiesisTimer = 300;
+		}
+        else if (statName == "Salve") 
+		{
+			player.m_salveEffect = (value > 0.5);
+			if (player.m_salveEffect) player.m_salveEffectTimer = 300;
+		}
+        else if (statName == "Pain") 
+		{
+			int ival = (int)value;
+			if (ival == 0) player.m_painLevel = 0;
+			else player.GetBleedingManagerServer().SetPainLevel(ival);
+		}
+        else if (statName == "Painkiller") 
+		{
+			player.m_painkillerEffect = (int)value;
+			if (player.m_painkillerEffect > 0) player.m_painkillerTime = 300;
+		}
         else if (statName == "VirusZ") player.m_zombieVirus = (int)value;
         else if (statName == "Influenza") player.m_influenzaLevel = (int)value;
         else if (statName == "Antibiotics") player.m_antibioticsLevel = (int)value;
-        else if (statName == "StomatchPoison") player.m_stomatchpoisonLevel = (int)value;
-        else if (statName == "StomatchHeal") player.m_stomatchhealLevel = (int)value;
-        else if (statName == "Adrenalin") player.m_adrenalinEffect = (int)value;
+        else if (statName == "StomatchPoison") 
+		{
+			player.m_stomatchpoisonLevel = (int)value;
+			if (player.m_stomatchpoisonLevel > 0) player.m_stomatchpoisonTimer = 300;
+		}
+        else if (statName == "StomatchHeal") 
+		{
+			player.m_stomatchhealLevel = (int)value;
+			if (player.m_stomatchhealLevel > 0) player.m_stomatchhealTimer = 300;
+		}
+        else if (statName == "Adrenalin") 
+		{
+			player.m_adrenalinEffect = (int)value;
+			if (player.m_adrenalinEffect > 0) player.m_adrenalinEffectTimer = 300;
+		}
         else if (statName == "Overdose") player.m_overdosedValue = value;		
 		else if (statName == "Immunity") profile.m_skills.SetSkillValue(SyberiaSkillType.SYBSKILL_IMMUNITY, value);
 		else if (statName == "Athletics") profile.m_skills.SetSkillValue(SyberiaSkillType.SYBSKILL_ATHLETICS, value);
@@ -495,8 +528,6 @@ modded class PluginAdminTool
 			playerContext.m_stats.Insert(new PluginAdminTool_PlayerStatContext("KnifeWounds", 0, 99, player.m_knifeHits));
 			playerContext.m_stats.Insert(new PluginAdminTool_PlayerStatContext("BulletWounds", 0, 99, player.m_bulletHits));
 			playerContext.m_stats.Insert(new PluginAdminTool_PlayerStatContext("Hematomas", 0, 99, player.m_hematomaHits));
-			playerContext.m_stats.Insert(new PluginAdminTool_PlayerStatContext("ActiveBandages1", 0, 99, player.m_bulletBandage1 + player.m_knifeBandage1));
-			playerContext.m_stats.Insert(new PluginAdminTool_PlayerStatContext("ActiveBandages2", 0, 99, player.m_bulletBandage2 + player.m_knifeBandage2));
 			
 			playerContext.m_stats.Insert(new PluginAdminTool_PlayerStatContext("Viscera", 0, 1, (int)player.m_visceraHit));
 			playerContext.m_stats.Insert(new PluginAdminTool_PlayerStatContext("Sepsis", 0, 1, (int)player.m_sepsis));

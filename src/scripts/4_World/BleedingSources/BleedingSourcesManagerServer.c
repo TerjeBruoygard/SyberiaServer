@@ -127,8 +127,16 @@ modded class BleedingSourcesManagerServer
 	
 	void AddHematomaHit()
 	{
+		if ( Math.RandomFloat01() < m_Player.GetPerkFloatValue(SyberiaPerkType.SYBPERK_IMMUNITY_HEMATOMA_CHANCE, 0, 0) )
+			return;
+		
 		m_Player.m_hematomaHits = m_Player.m_hematomaHits + 1;
-		SetPainLevel(1);
+		
+		if (Math.RandomFloat01() < GetSyberiaConfig().m_hematomaPainChance)
+		{
+			SetPainLevel(1);
+		}
+		
 		m_Player.SetSynchDirty();
 	}
 	
@@ -171,6 +179,11 @@ modded class BleedingSourcesManagerServer
 	
 	void SetPainLevel(int value)
 	{
+		if (m_Player.GetPerkBoolValue(SyberiaPerkType.SYBPERK_IMMUNITY_PAIN_STRONG))
+		{
+			value = value - 1;
+		}
+		
 		if (value == 1) m_Player.m_painTimer = m_Player.m_painTimer + GetSyberiaConfig().m_painLvl1TimeSec;
 		else if (value == 2) m_Player.m_painTimer = m_Player.m_painTimer + GetSyberiaConfig().m_painLvl2TimeSec;
 		else if (value == 3) m_Player.m_painTimer = m_Player.m_painTimer + GetSyberiaConfig().m_painLvl3TimeSec;
@@ -180,6 +193,14 @@ modded class BleedingSourcesManagerServer
 			m_Player.m_painLevel = value;
 			m_Player.SetSynchDirty();
 		}
+	}
+	
+	override bool AttemptAddBleedingSource(int component)
+	{
+		if ( Math.RandomFloat01() < m_Player.GetPerkFloatValue(SyberiaPerkType.SYBPERK_IMMUNITY_CUTHIT_CHANCE, 0, 0) )
+			return false;
+		
+		return super.AttemptAddBleedingSource(component);
 	}
 	
 	override void ProcessHit(float damage, EntityAI source, int component, string zone, string ammo, vector modelPos)
