@@ -30,8 +30,10 @@ namespace SyberiaWebPanel
 
         public PdaConfig m_pdaConfig { private set; get; }
 
+        [ScriptObjectSerializableAttribute]
         public TradingConfig m_tradingConfig { private set; get; }
 
+        [ScriptObjectSerializableAttribute]
         public ZonesConfig m_zonesConfig { private set; get; }
 
         public GameConfig(string gameDir)
@@ -84,7 +86,31 @@ namespace SyberiaWebPanel
                 m_groupFactions.Add(groupFaction);
             }
 
+            this.UpdateVersioncheck();
             this.Save();
+        }
+
+        private void UpdateVersioncheck()
+        {
+            foreach (var trader in m_tradingConfig.m_traders)
+            {
+                if (string.IsNullOrWhiteSpace(trader.m_displayName))
+                {
+                    trader.m_displayName = "Trader " + trader.m_traderId;
+                }
+            }
+
+            if (string.IsNullOrWhiteSpace(m_zonesConfig.m_defaultZone.m_displayName))
+            {
+                m_zonesConfig.m_defaultZone.m_displayName = "Default Zone";
+            }
+            foreach (var zone in m_zonesConfig.m_customZones)
+            {
+                if (string.IsNullOrWhiteSpace(zone.m_displayName))
+                {
+                    zone.m_displayName = "Zone " + zone.m_id;
+                }
+            }
         }
 
         public void Save()
@@ -106,6 +132,15 @@ namespace SyberiaWebPanel
             {
                 var name = m_mainConfig.m_groups[i];
                 var faction = m_groupFactions[i];
+
+                if (faction.m_allowDefaultSpawnpoints == 0)
+                {
+                    if (!faction.m_spawnpoints.Any(x => x.m_positions.Any()))
+                    {
+                        faction.m_allowDefaultSpawnpoints = 1;
+                    }
+                }
+
                 File.WriteAllText(Path.Combine(m_configDir, $"Group_{name}.json"), JsonConvert.SerializeObject(faction, saveSettings));
             }
         }
@@ -686,6 +721,7 @@ namespace SyberiaWebPanel
             public class TraderInfo
             {
                 public int m_traderId { set; get; }
+                public string m_displayName { set; get; }
                 public string m_classname { set; get; }
                 public List<string> m_attachments { set; get; }
                 public float[] m_position { set; get; }
@@ -703,6 +739,7 @@ namespace SyberiaWebPanel
                 public TraderInfo InitializeDefault(int id)
                 {
                     m_traderId = id;
+                    m_displayName = "Trader " + id;
                     m_classname = "SurvivorM_Boris";
                     m_attachments = new List<string>() 
                     {
@@ -739,6 +776,7 @@ namespace SyberiaWebPanel
             public class Zone
             {
                 public int m_id { set; get; }
+                public string m_displayName { set; get; }
                 public float[] m_position { set; get; }
                 public float m_radius { set; get; }
                 public float m_height { set; get; }
