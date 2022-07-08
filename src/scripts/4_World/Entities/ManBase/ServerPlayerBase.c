@@ -60,6 +60,10 @@ modded class PlayerBase
 	float m_zonePsiTotalValue = 0;
 	int m_zoneToxicEffect = 0;
 	float m_radiationDose = 0;
+	bool m_isAlreadyDead = false;
+	float m_lastHealth;
+	float m_lastBlood;
+	float m_lastShock;
 	
 	override void Init()
 	{
@@ -113,8 +117,8 @@ modded class PlayerBase
 	{
 		super.OnStoreSave(ctx);
         
-        // VER 100
-        ctx.Write( SYBERIA_V100_VERSION );
+        // VER 0.1
+        ctx.Write( SYBERIA_B10_VERSION );
         ctx.Write( m_sleepingValue );
         ctx.Write( m_sleepingBoostTimer );
         ctx.Write( m_sleepingBoostValue );
@@ -163,14 +167,18 @@ modded class PlayerBase
 		ctx.Write( m_mindDegradationForce );
 		ctx.Write( m_mindDegradationTime );
 		
-		// VER 100
-        ctx.Write( SYBERIA_V101_VERSION );
+		// VER 0.2
+        ctx.Write( SYBERIA_B20_VERSION );
 		ctx.Write( m_sybstats.m_radiationSickness );
 		ctx.Write( m_radiationDose );
 		ctx.Write( m_sybstats.m_radioprotectionLevel );
 		ctx.Write( m_radioprotectionTimer );
 		ctx.Write( m_sybstats.m_antidepresantLevel );
 		ctx.Write( m_antidepresantTimer );
+		
+		// VER 0.49
+		ctx.Write( SYBERIA_B49_VERSION );
+		ctx.Write( m_sybstats.m_isPveIntruder );
 	}
 	
 	override bool OnStoreLoad( ParamsReadContext ctx, int version )
@@ -178,77 +186,88 @@ modded class PlayerBase
 		if (!super.OnStoreLoad(ctx, version))
 			return false;
 		
-        // VER 100
+        // VER 0.1
         int syb_ver;
-        if(ctx.Read( syb_ver ) && syb_ver == SYBERIA_V100_VERSION)
+        if(ctx.Read( syb_ver ) && syb_ver == SYBERIA_B10_VERSION)
 		{
 			// Sleeping
-			if(!ctx.Read( m_sleepingValue )) return false;		
-			if(!ctx.Read( m_sleepingBoostTimer )) return false;		
-			if(!ctx.Read( m_sleepingBoostValue )) return false;
+			if (!ctx.Read( m_sleepingValue )) return false;		
+			if (!ctx.Read( m_sleepingBoostTimer )) return false;		
+			if (!ctx.Read( m_sleepingBoostValue )) return false;
 			
 			// Adv medicine
-			if(!ctx.Read( m_sybstats.m_bulletHits )) return false;		
-			if(!ctx.Read( m_sybstats.m_knifeHits )) return false;		
-			if(!ctx.Read( m_sybstats.m_hematomaHits )) return false;		
-			if(!ctx.Read( m_sybstats.m_visceraHit )) return false;		
-			if(!ctx.Read( m_sybstats.m_concussionHit )) return false;		
-			if(!ctx.Read( m_sybstats.m_painLevel )) return false;		
-			if(!ctx.Read( m_painTimer )) return false;		
-			if(!ctx.Read( m_hematomaRegenTimer )) return false;		
-			if(!ctx.Read( m_cuthitRegenTimer )) return false;		
-			if(!ctx.Read( m_sybstats.m_painkillerEffect )) return false;		
-			if(!ctx.Read( m_painkillerTime )) return false;		
-			if(!ctx.Read( m_sybstats.m_stomatchpoisonLevel )) return false;		
-			if(!ctx.Read( m_sybstats.m_stomatchhealLevel )) return false;	
-			if(!ctx.Read( m_stomatchhealTimer )) return false;		
-			if(!ctx.Read( m_hemologicShock )) return false;		
-			if(!ctx.Read( m_sybstats.m_sepsis )) return false;		
-			if(!ctx.Read( m_sepsisTime )) return false;		
-			if(!ctx.Read( m_sybstats.m_zombieVirus )) return false;	
-			if(!ctx.Read( m_zvirusTimer )) return false;		
-			if(!ctx.Read( m_sybstats.m_bulletBandage1 )) return false;		
-			if(!ctx.Read( m_sybstats.m_bulletBandage2 )) return false;		
-			if(!ctx.Read( m_sybstats.m_knifeBandage1 )) return false;		
-			if(!ctx.Read( m_sybstats.m_knifeBandage2 )) return false;		
-			if(!ctx.Read( m_bullethitRegenTimer )) return false;		
-			if(!ctx.Read( m_knifehitRegenTimer )) return false;		
-			if(!ctx.Read( m_concussionRegenTimer )) return false;		
-			if(!ctx.Read( m_sybstats.m_bloodHemostaticEffect )) return false;		
-			if(!ctx.Read( m_bloodHemostaticTimer )) return false;		
-			if(!ctx.Read( m_sybstats.m_hematopoiesisEffect )) return false;		
-			if(!ctx.Read( m_hematopoiesisTimer )) return false;		
-			if(!ctx.Read( m_sybstats.m_salveEffect )) return false;		
-			if(!ctx.Read( m_salveEffectTimer )) return false;		
-			if(!ctx.Read( m_sybstats.m_adrenalinEffect )) return false;
-			if(!ctx.Read( m_adrenalinEffectTimer )) return false;
-			if(!ctx.Read( m_overdosedValue )) return false;
-			if(!ctx.Read( m_sybstats.m_influenzaLevel )) return false;
-			if(!ctx.Read( m_influenzaTimer )) return false;
-			if(!ctx.Read( m_sybstats.m_antibioticsLevel )) return false;
-			if(!ctx.Read( m_antibioticsTimer )) return false;
-			if(!ctx.Read( m_antibioticsStrange )) return false;
-			if(!ctx.Read( m_stomatchpoisonTimer )) return false;
+			if (!ctx.Read( m_sybstats.m_bulletHits )) return false;		
+			if (!ctx.Read( m_sybstats.m_knifeHits )) return false;		
+			if (!ctx.Read( m_sybstats.m_hematomaHits )) return false;		
+			if (!ctx.Read( m_sybstats.m_visceraHit )) return false;		
+			if (!ctx.Read( m_sybstats.m_concussionHit )) return false;		
+			if (!ctx.Read( m_sybstats.m_painLevel )) return false;		
+			if (!ctx.Read( m_painTimer )) return false;		
+			if (!ctx.Read( m_hematomaRegenTimer )) return false;		
+			if (!ctx.Read( m_cuthitRegenTimer )) return false;		
+			if (!ctx.Read( m_sybstats.m_painkillerEffect )) return false;		
+			if (!ctx.Read( m_painkillerTime )) return false;		
+			if (!ctx.Read( m_sybstats.m_stomatchpoisonLevel )) return false;		
+			if (!ctx.Read( m_sybstats.m_stomatchhealLevel )) return false;	
+			if (!ctx.Read( m_stomatchhealTimer )) return false;		
+			if (!ctx.Read( m_hemologicShock )) return false;		
+			if (!ctx.Read( m_sybstats.m_sepsis )) return false;		
+			if (!ctx.Read( m_sepsisTime )) return false;		
+			if (!ctx.Read( m_sybstats.m_zombieVirus )) return false;	
+			if (!ctx.Read( m_zvirusTimer )) return false;		
+			if (!ctx.Read( m_sybstats.m_bulletBandage1 )) return false;		
+			if (!ctx.Read( m_sybstats.m_bulletBandage2 )) return false;		
+			if (!ctx.Read( m_sybstats.m_knifeBandage1 )) return false;		
+			if (!ctx.Read( m_sybstats.m_knifeBandage2 )) return false;		
+			if (!ctx.Read( m_bullethitRegenTimer )) return false;		
+			if (!ctx.Read( m_knifehitRegenTimer )) return false;		
+			if (!ctx.Read( m_concussionRegenTimer )) return false;		
+			if (!ctx.Read( m_sybstats.m_bloodHemostaticEffect )) return false;		
+			if (!ctx.Read( m_bloodHemostaticTimer )) return false;		
+			if (!ctx.Read( m_sybstats.m_hematopoiesisEffect )) return false;		
+			if (!ctx.Read( m_hematopoiesisTimer )) return false;		
+			if (!ctx.Read( m_sybstats.m_salveEffect )) return false;		
+			if (!ctx.Read( m_salveEffectTimer )) return false;		
+			if (!ctx.Read( m_sybstats.m_adrenalinEffect )) return false;
+			if (!ctx.Read( m_adrenalinEffectTimer )) return false;
+			if (!ctx.Read( m_overdosedValue )) return false;
+			if (!ctx.Read( m_sybstats.m_influenzaLevel )) return false;
+			if (!ctx.Read( m_influenzaTimer )) return false;
+			if (!ctx.Read( m_sybstats.m_antibioticsLevel )) return false;
+			if (!ctx.Read( m_antibioticsTimer )) return false;
+			if (!ctx.Read( m_antibioticsStrange )) return false;
+			if (!ctx.Read( m_stomatchpoisonTimer )) return false;
 			
 			// Mind state
-			if(!ctx.Read( m_mindStateValue )) return false;
+			if (!ctx.Read( m_mindStateValue )) return false;
 			m_mindStateLast = m_mindStateValue;
-			if(!ctx.Read( m_mindDegradationForce )) return false;
-			if(!ctx.Read( m_mindDegradationTime )) return false;
+			if (!ctx.Read( m_mindDegradationForce )) return false;
+			if (!ctx.Read( m_mindDegradationTime )) return false;
 		}
 		else
 		{
 			return false;
 		}
 		
-		if(ctx.Read( syb_ver ) && syb_ver == SYBERIA_V101_VERSION)
+		// VER 0.2
+		if(ctx.Read( syb_ver ) && syb_ver == SYBERIA_B20_VERSION)
 		{
-			if(!ctx.Read( m_sybstats.m_radiationSickness )) return false;
-			if(!ctx.Read( m_radiationDose )) return false;
-			if(!ctx.Read( m_sybstats.m_radioprotectionLevel )) return false;
-			if(!ctx.Read( m_radioprotectionTimer )) return false;
-			if(!ctx.Read( m_sybstats.m_antidepresantLevel )) return false;
-			if(!ctx.Read( m_antidepresantTimer )) return false;
+			if (!ctx.Read( m_sybstats.m_radiationSickness )) return false;
+			if (!ctx.Read( m_radiationDose )) return false;
+			if (!ctx.Read( m_sybstats.m_radioprotectionLevel )) return false;
+			if (!ctx.Read( m_radioprotectionTimer )) return false;
+			if (!ctx.Read( m_sybstats.m_antidepresantLevel )) return false;
+			if (!ctx.Read( m_antidepresantTimer )) return false;
+		}
+		else
+		{
+			return false;
+		}
+		
+		// VER 0.49
+		if(ctx.Read( syb_ver ) && syb_ver == SYBERIA_B49_VERSION)
+		{
+			if (!ctx.Read( m_sybstats.m_isPveIntruder )) return false;
 		}
 		else
 		{
@@ -295,6 +314,7 @@ modded class PlayerBase
 				OnTickAdvMedicine_Adrenalin(m_advMedUpdateTimer);
 				OnTickAdvMedicine_Radprotector(m_advMedUpdateTimer);
 				OnTickAdvMedicine_Antidepresant(m_advMedUpdateTimer);
+				OnTickUpdateLastHealthstate();
 				m_advMedUpdateTimer = 0;
 			}
 			
@@ -338,6 +358,13 @@ modded class PlayerBase
 				}
 			}
 		}
+	}
+	
+	private void OnTickUpdateLastHealthstate()
+	{
+		m_lastHealth = this.GetHealth("GlobalHealth", "Health");
+		m_lastBlood = this.GetHealth("GlobalHealth", "Blood");
+		m_lastShock = this.GetHealth("GlobalHealth", "Shock");
 	}
 	
 	private void OnTickDisinfectedHands()
@@ -1935,34 +1962,38 @@ modded class PlayerBase
 		super.EEKilled(killer);
 		
 		PlayerBase otherPlayer = PlayerBase.Cast(killer);
-		if (otherPlayer && !this.m_sybstats.m_isPveIntruder)
+		if (otherPlayer && otherPlayer != this && !m_isAlreadyDead && !this.m_sybstats.m_isPveIntruder)
 		{
 			if (otherPlayer.IsInversedDammageEnabled() || this.IsInversedDammageEnabled())
 			{
 				otherPlayer.SetAllowDamage(true);
 				otherPlayer.SetHealth("", "", 0);
 				otherPlayer.m_sybstats.m_isPveIntruder = true;
+				otherPlayer.SetSynchDirty();
+				otherPlayer.MarkSybStatsDirty(30);
 			}
 		}
+		
+		m_isAlreadyDead = true;
 	}
 	
-	private void PostEEHitByAction(PlayerBase sourcePlayer, string dmgZone, float healthLose, float bloodLose, float shockLose)
+	private void PostEEHitByAction(PlayerBase sourcePlayer, string dmgZone, float healthLose, float bloodLose, float shockLose, float healthDiff, float bloodDiff, float shockDiff)
 	{
 		this.AddHealth(dmgZone, "Health", healthLose);
 		this.AddHealth(dmgZone, "Blood", bloodLose);
 		this.AddHealth(dmgZone, "Shock", shockLose);
 		
-		this.AddHealth("GlobalHealth", "Health", healthLose);
-		this.AddHealth("GlobalHealth", "Blood", bloodLose);
-		this.AddHealth("GlobalHealth", "Shock", shockLose);
+		this.AddHealth("GlobalHealth", "Health", healthDiff);
+		this.AddHealth("GlobalHealth", "Blood", bloodDiff);
+		this.AddHealth("GlobalHealth", "Shock", shockDiff);
 		
-		sourcePlayer.AddHealth(dmgZone, "Health", -1 * healthLose);
-		sourcePlayer.AddHealth(dmgZone, "Blood", -1 * bloodLose);
-		sourcePlayer.AddHealth(dmgZone, "Shock", -1 * shockLose);
+		sourcePlayer.DecreaseHealth(dmgZone, "Health", healthLose * 2);
+		sourcePlayer.DecreaseHealth(dmgZone, "Blood", bloodLose * 2);
+		sourcePlayer.DecreaseHealth(dmgZone, "Shock", shockLose * 2);
 		
-		sourcePlayer.AddHealth("GlobalHealth", "Health", -1 * healthLose);
-		sourcePlayer.AddHealth("GlobalHealth", "Blood", -1 * bloodLose);
-		sourcePlayer.AddHealth("GlobalHealth", "Shock", -1 * shockLose);		
+		sourcePlayer.DecreaseHealth("GlobalHealth", "Health", healthDiff * 2);
+		sourcePlayer.DecreaseHealth("GlobalHealth", "Blood", bloodDiff * 2);
+		sourcePlayer.DecreaseHealth("GlobalHealth", "Shock", shockDiff * 2);	
 	}
 	
 	override void EEHitBy(TotalDamageResult damageResult, int damageType, EntityAI source, int component, string dmgZone, string ammo, vector modelPos, float speedCoef)
@@ -1971,7 +2002,7 @@ modded class PlayerBase
 		PlayerBase sourcePlayer = PlayerBase.Cast( source.GetHierarchyRootPlayer() );
 		if (sourcePlayer)
 		{
-			if ( sourcePlayer != this && (sourcePlayer.IsInversedDammageEnabled() || this.IsInversedDammageEnabled()) )
+			if ( sourcePlayer != this && !m_isAlreadyDead && (sourcePlayer.IsInversedDammageEnabled() || this.IsInversedDammageEnabled()) )
 			{
 				if (!this.m_sybstats.m_isPveIntruder)
 				{
@@ -1979,13 +2010,18 @@ modded class PlayerBase
 					float bloodLose = damageResult.GetDamage(dmgZone, "Blood");
 					float shockLose = damageResult.GetDamage(dmgZone, "Shock");
 					
+					float healthDiff = Math.Max(0, this.m_lastHealth - this.GetHealth("GlobalHealth", "Health"));
+					float bloodDiff = Math.Max(0, this.m_lastBlood - this.GetHealth("GlobalHealth", "Blood"));
+					float shockDiff = Math.Max(0, this.m_lastShock - this.GetHealth("GlobalHealth", "Shock"));
+					this.OnTickUpdateLastHealthstate();	
+					
 					sourcePlayer.SetAllowDamage(true);
 					sourcePlayer.m_sybstats.m_isPveIntruder = true;
 					sourcePlayer.SetSynchDirty();
-					sourcePlayer.MarkSybStatsDirty(30);
+					sourcePlayer.MarkSybStatsDirty(33);
 					inverseDammage = true;
 					
-					GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(this.PostEEHitByAction, 10, false, sourcePlayer, dmgZone, healthLose, bloodLose, shockLose);
+					GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(this.PostEEHitByAction, 10, false, sourcePlayer, dmgZone, healthLose, bloodLose, shockLose, healthDiff, bloodDiff, shockDiff);
 				}
 			}
 			else if (damageResult != null && source != null)
@@ -2152,6 +2188,6 @@ modded class PlayerBase
 	void MarkSybStatsDirty(int synchIndexDebug)
 	{
 		m_sybstatsDirty = true;
-		SybLogSrv("MARK SYBSTATS DIRTY FOR PLAYER " + this + " WITH DEBUG INDEX " + synchIndexDebug);
+		SybLogSrv("SYBSTATS mark dirty for player " + this + " with debug index " + synchIndexDebug);
 	}
 };

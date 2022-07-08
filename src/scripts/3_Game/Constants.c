@@ -9,8 +9,9 @@ void SybLogSrv(string message)
 const string SYBERIA_DB_NAME = "Syberia";
 
 // STORAGE VERSIONING
-const int SYBERIA_V100_VERSION = 7834100;
-const int SYBERIA_V101_VERSION = 7834101;
+const int SYBERIA_B10_VERSION = 7834100;
+const int SYBERIA_B20_VERSION = 7834101;
+const int SYBERIA_B49_VERSION = 7834102;
 
 modded class SyberiaConfig
 {

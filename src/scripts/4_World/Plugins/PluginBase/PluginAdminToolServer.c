@@ -569,6 +569,7 @@ modded class PluginAdminTool
 	private void ApplyPlayerContextStat(ref PlayerIdentity sender, PlayerBase player, string statName, float value)
 	{
 		if (!player) return;
+		if (!player.GetSybStats()) return;
 		
 		ref CharProfile profile = GetSyberiaCharacters().Get(player.GetIdentity());
 		if (!profile || !profile.m_skills) return;
