@@ -1282,6 +1282,7 @@ modded class PlayerBase
 	
 	protected void OnTickAdvMedicine_Adrenalin(float deltaTime)
 	{
+		float staminaDepMod = 1;
 		if (m_adrenalinEffect > 0)
 		{
 			m_adrenalinEffectTimer = m_adrenalinEffectTimer - deltaTime;
@@ -1298,21 +1299,19 @@ modded class PlayerBase
 					float shockEffectValue = GetSyberiaConfig().m_adrenalinEffectShockUpPerSec[m_adrenalinEffect - 1]; 
 					AddHealth("", "Shock", shockEffectValue * maxShock * deltaTime);
 					
-					float staminaDepMod = GetSyberiaConfig().m_adrenalinEffectStaminaDepletionMod[m_adrenalinEffect - 1];
-					if (GetStaminaHandler().GetDepletionMultiplier() != staminaDepMod)
-					{
-						GetStaminaHandler().SetDepletionMultiplier( staminaDepMod );
-					}
+					staminaDepMod = GetSyberiaConfig().m_adrenalinEffectStaminaDepletionMod[m_adrenalinEffect - 1];
 				}
 			}
 		}
 		else
 		{
 			m_adrenalinEffectTimer = 0;
-			if (GetStaminaHandler().GetDepletionMultiplier() != 1)
-			{
-				GetStaminaHandler().SetDepletionMultiplier( 1 );
-			}
+		}
+		
+		staminaDepMod = staminaDepMod / GetPerkFloatValue(SyberiaPerkType.SYBPERK_STRENGTH_STAMINA_MAX, 1, 1);		
+		if (GetStaminaHandler().GetDepletionMultiplier() != staminaDepMod)
+		{
+			GetStaminaHandler().SetDepletionMultiplier( staminaDepMod );
 		}
 	}
 	
@@ -1359,5 +1358,36 @@ modded class PlayerBase
 		}
 		
 		return defaultValue;
+	}
+	
+	override void EEHitBy(TotalDamageResult damageResult, int damageType, EntityAI source, int component, string dmgZone, string ammo, vector modelPos, float speedCoef)
+	{
+		super.EEHitBy(damageResult, damageType, source, component, dmgZone, ammo, modelPos, speedCoef);
+		
+		if (damageResult != null && source != null)
+		{
+			PlayerBase sourcePlayer = PlayerBase.Cast( source.GetHierarchyRootPlayer() );
+			if (sourcePlayer)
+			{
+				string ammoType = GetGame().ConfigGetTextOut( "CfgAmmo " + ammo + " DamageApplied " + "type" );
+				if (ammoType == "Melee")
+				{
+					float additionalDmg = damageResult.GetDamage(dmgZone, "Health");
+					if ( ammo.Contains("_Heavy") )
+					{
+						additionalDmg = additionalDmg * sourcePlayer.GetPerkFloatValue(SyberiaPerkType.SYBPERK_STRENGTH_HEAVY_ATTACK_STRENGTH, 0, 0);
+					}
+					else
+					{
+						additionalDmg = additionalDmg * sourcePlayer.GetPerkFloatValue(SyberiaPerkType.SYBPERK_STRENGTH_FAST_ATTACK_STRENGTH, 0, 0);
+					}
+					
+					if (additionalDmg > 0)
+					{
+						DecreaseHealth("", "Health", additionalDmg);
+					}
+				}
+			}
+		}
 	}
 };

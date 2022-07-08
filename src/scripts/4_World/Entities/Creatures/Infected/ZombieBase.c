@@ -62,4 +62,47 @@ modded class ZombieBase extends DayZInfected
 			}
 		}
 	}
+	
+	override void EEHitBy(TotalDamageResult damageResult, int damageType, EntityAI source, int component, string dmgZone, string ammo, vector modelPos, float speedCoef)
+	{
+		super.EEHitBy(damageResult, damageType, source, component, dmgZone, ammo, modelPos, speedCoef);
+
+		if (damageResult != null && source != null)
+		{			
+			PlayerBase sourcePlayer = PlayerBase.Cast( source.GetHierarchyRootPlayer() );
+			if (sourcePlayer)
+			{
+				string ammoType = GetGame().ConfigGetTextOut( "CfgAmmo " + ammo + " DamageApplied " + "type" );
+				if (ammoType == "Melee")
+				{
+					float additionalDmg = damageResult.GetDamage(dmgZone, "Health");
+					if ( ammo.Contains("_Heavy") )
+					{
+						additionalDmg = additionalDmg * sourcePlayer.GetPerkFloatValue(SyberiaPerkType.SYBPERK_STRENGTH_HEAVY_ATTACK_STRENGTH, 0, 0);
+						
+						if (sourcePlayer.GetPerkBoolValue(SyberiaPerkType.SYBPERK_STRENGTH_KNOCKOUT_HEAVY_ITEMS))
+						{
+							StartCommand_Crawl(1);
+							GetGame().GetCallQueue( CALL_CATEGORY_SYSTEM ).CallLater(KnockoutStateReset, 1000, false);
+						}
+					}
+					else
+					{
+						additionalDmg = additionalDmg * sourcePlayer.GetPerkFloatValue(SyberiaPerkType.SYBPERK_STRENGTH_FAST_ATTACK_STRENGTH, 0, 0);
+					}
+					
+					if (additionalDmg > 0)
+					{
+						DecreaseHealth("", "Health", additionalDmg);
+					}
+				}
+			}
+		}
+	}
+	
+	void KnockoutStateReset()
+	{
+		if (!IsAlive()) return;
+		SetHealth("", "Health", 0);
+	}
 };
