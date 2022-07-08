@@ -19,6 +19,8 @@ namespace SyberiaWebPanel
 
         private GameConfig gameConfig = null;
 
+        private InternalVariables internalVariables = null;
+
         private Tuple<string, string> credentials = null;
 
         private Dictionary<string, Tuple<DateTime, int>> authSpamFilter = new Dictionary<string, Tuple<DateTime, int>>();
@@ -29,6 +31,7 @@ namespace SyberiaWebPanel
         {
             this.serverDir = gamedir;
             this.gameConfig = new GameConfig(gamedir);
+            this.internalVariables = new InternalVariables();
 
             var cfgData = ReadCfg(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "credentials.cfg"));
             if (cfgData.ContainsKey("login") && cfgData.ContainsKey("pass"))
@@ -99,6 +102,11 @@ namespace SyberiaWebPanel
         public GameConfig GetGameConfig()
         {
             return gameConfig;
+        }
+
+        public InternalVariables GetInternalVariables()
+        {
+            return internalVariables;
         }
 
         public IEnumerable<string> ReadBanList()

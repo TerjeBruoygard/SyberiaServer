@@ -175,6 +175,85 @@ namespace SyberiaWebPanel
                     StatusCode = HttpStatusCode.OK
                 };
             });
+
+            Post("/internalVariables", x => {
+                var request = this.Context.Request;
+                if (!WebPanel.GetInstance().CheckSpamFilter(request.UserHostAddress))
+                {
+                    logger.Warn($"[/login] Blocked by spam-filter. Too many failed login attempts from {request.UserHostAddress}");
+                    return new Response()
+                    {
+                        StatusCode = HttpStatusCode.Forbidden
+                    };
+                }
+
+                var body = new StreamReader(request.Body).ReadToEnd();
+                var data = HttpUtility.ParseQueryString(body);
+                var login = data.Get("login");
+                var passMd5 = data.Get("pass");
+
+                if (!WebPanel.GetInstance().CheckCredentials(login, passMd5))
+                {
+                    logger.Warn($"[/login] Invalid login from {request.UserHostAddress}. Spam filter incremented.");
+                    WebPanel.GetInstance().IncrementSpamFilter(request.UserHostAddress);
+                    return new Response()
+                    {
+                        StatusCode = HttpStatusCode.InternalServerError
+                    };
+                }
+
+                var startTime = DateTime.Now;
+                var htmlPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Resources", "variables.html");
+                var htmlData = new StringBuilder(File.ReadAllText(htmlPath));
+
+                var variables = WebPanel.GetInstance().GetInternalVariables();
+                htmlData.Replace("#{CfgSyberia}", Newtonsoft.Json.JsonConvert.SerializeObject(variables.CfgSyberia));
+                htmlData.Replace("#{OverridedVariables}", Newtonsoft.Json.JsonConvert.SerializeObject(variables.OverridedVariables));
+                htmlData.Replace("#{VariableTypes}", Newtonsoft.Json.JsonConvert.SerializeObject(variables.VariableTypes));
+
+                var timeDiff = DateTime.Now - startTime;
+                logger.Info($"[/internalVariables] Successfully loaded from {request.UserHostAddress}. UI rendered in {(int)timeDiff.TotalMilliseconds} ms.");
+                return new TextResponse(htmlData.ToString(), "text/html", Encoding.UTF8).NoCache();
+            });
+
+            Post("/internalVariablesApply", x =>
+            {
+                var request = this.Context.Request;
+                if (!WebPanel.GetInstance().CheckSpamFilter(request.UserHostAddress))
+                {
+                    logger.Warn($"[/login] Blocked by spam-filter. Too many failed login attempts from {request.UserHostAddress}");
+                    return new Response()
+                    {
+                        StatusCode = HttpStatusCode.Forbidden
+                    };
+                }
+
+                var bodyString = new StreamReader(request.Body).ReadToEnd();
+                var bodyObject = Newtonsoft.Json.JsonConvert.DeserializeObject(bodyString) as JToken;
+                var auth = bodyObject["auth"];
+                var login = auth["login"].Value<string>();
+                var passMd5 = auth["pass"].Value<string>();
+
+                if (!WebPanel.GetInstance().CheckCredentials(login, passMd5))
+                {
+                    logger.Warn($"[/login] Invalid login from {request.UserHostAddress}. Spam filter incremented.");
+                    WebPanel.GetInstance().IncrementSpamFilter(request.UserHostAddress);
+                    return new Response()
+                    {
+                        StatusCode = HttpStatusCode.InternalServerError
+                    };
+                }
+
+                var variables = bodyObject["request"];
+                WebPanel.GetInstance().GetInternalVariables().Apply(variables);
+                WebPanel.GetInstance().GetInternalVariables().Save();
+                WebPanel.GetInstance().GetInternalVariables().BuildPbo();
+
+                return new Response()
+                {
+                    StatusCode = HttpStatusCode.OK
+                };
+            });
         }
     }
 }
