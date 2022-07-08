@@ -1808,23 +1808,45 @@ modded class PlayerBase
 		}
 	}
 	
+	private void PostEEHitByAction(PlayerBase sourcePlayer, string dmgZone, float healthLose, float bloodLose, float shockLose)
+	{
+		this.AddHealth(dmgZone, "Health", healthLose);
+		this.AddHealth(dmgZone, "Blood", bloodLose);
+		this.AddHealth(dmgZone, "Shock", shockLose);
+		
+		this.AddHealth("GlobalHealth", "Health", healthLose);
+		this.AddHealth("GlobalHealth", "Blood", bloodLose);
+		this.AddHealth("GlobalHealth", "Shock", shockLose);
+		
+		sourcePlayer.AddHealth(dmgZone, "Health", -1 * healthLose);
+		sourcePlayer.AddHealth(dmgZone, "Blood", -1 * bloodLose);
+		sourcePlayer.AddHealth(dmgZone, "Shock", -1 * shockLose);
+		
+		sourcePlayer.AddHealth("GlobalHealth", "Health", -1 * healthLose);
+		sourcePlayer.AddHealth("GlobalHealth", "Blood", -1 * bloodLose);
+		sourcePlayer.AddHealth("GlobalHealth", "Shock", -1 * shockLose);		
+	}
+	
 	override void EEHitBy(TotalDamageResult damageResult, int damageType, EntityAI source, int component, string dmgZone, string ammo, vector modelPos, float speedCoef)
 	{
 		bool inverseDammage = false;
 		PlayerBase sourcePlayer = PlayerBase.Cast( source.GetHierarchyRootPlayer() );
 		if (sourcePlayer)
 		{
-			if (sourcePlayer.IsInversedDammageEnabled() || this.IsInversedDammageEnabled())
+			if ( sourcePlayer != this && (sourcePlayer.IsInversedDammageEnabled() || this.IsInversedDammageEnabled()) )
 			{
 				if (!this.m_isPveIntruder)
 				{
-					this.AddHealth("", "", damageResult.GetDamage("", ""));
+					float healthLose = damageResult.GetDamage(dmgZone, "Health");
+					float bloodLose = damageResult.GetDamage(dmgZone, "Blood");
+					float shockLose = damageResult.GetDamage(dmgZone, "Shock");
 					
 					sourcePlayer.SetAllowDamage(true);
-					sourcePlayer.DecreaseHealth("", "", damageResult.GetDamage("", ""));
 					sourcePlayer.m_isPveIntruder = true;
 					sourcePlayer.SetSynchDirty();
 					inverseDammage = true;
+					
+					GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(this.PostEEHitByAction, 10, false, sourcePlayer, dmgZone, healthLose, bloodLose, shockLose);
 				}
 			}
 			else if (damageResult != null && source != null)
