@@ -5,20 +5,12 @@ modded class DebugBuildingTool
 	override void EEDelete(EntityAI parent)
 	{
 		super.EEDelete(parent);
-		
-		foreach (BuildingLivespace livespaceToDel : m_livespaces) {
-			GetGame().ObjectDelete(livespaceToDel);
-		}
-		
 		delete m_livespaces;
 	}
 	
 	override void LinkHouse(House house)
 	{
-		// Cleanup
-		foreach (BuildingLivespace livespaceToDel : m_livespaces) {
-			GetGame().ObjectDelete(livespaceToDel);
-		}		
+		// Cleanup	
 		delete m_livespaces;
 
 		// Misc
@@ -34,7 +26,8 @@ modded class DebugBuildingTool
 			int livespaceId = 0;
 			while ( GetGame().ConfigIsExisting(configPath + " Livespace" + livespaceId) )
 			{
-				BuildingLivespace livespace = BuildingLivespace.SpawnLivespace(house, livespaceId);
+                ref map<string, string> data = new map<string, string>;
+				BuildingLivespace livespace = BuildingLivespace.SpawnLivespace(-1, house, livespaceId, data);
 				m_livespaces.Insert(livespace);
 				livespaceId = livespaceId + 1;
 			}
