@@ -135,6 +135,7 @@ modded class SyberiaConfig
 	
 	// Others
 	int m_bookPagesCountToCut;
+	float m_gasMaskFilterDegradationInToxicZone;
 	
 	// Skills Experience System
 	float m_skillsExpImmunityPain;
@@ -292,6 +293,7 @@ modded class SyberiaConfig
 		
 		// Others
 		m_bookPagesCountToCut = ConfigGetInt("CfgSyberia IngameSystem bookPagesCountToCut");
+		m_gasMaskFilterDegradationInToxicZone = ConfigGetFloat("CfgSyberia IngameSystem gasMaskFilterDegradationInToxicZone");
 		
 		// Skills Experience System
 		m_skillsExpImmunityPain = ConfigGetFloat("CfgSyberia SkillsExperienceSystem skillsExpImmunityPain");

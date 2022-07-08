@@ -155,6 +155,7 @@ class CfgSyberia
     class IngameSystem
     {
         bookPagesCountToCut = 10;
+        gasMaskFilterDegradationInToxicZone = -0.33;
     };
 
     class SkillsExperienceSystem
