@@ -84,7 +84,7 @@ class SyberiaMissionServer : MissionServer
 				
 				if (profile.m_startGear)
 				{					
-					allowedEquip = GetCharacterAllowedEquipment(identity);					
+					allowedEquip = GetSyberiaOptions().GetCharacterAllowedEquipment(identity, profile);					
 					if (allowedEquip.Count() == profile.m_startGear.Count())
 					{
 						int spawnPointId = profile.m_startGear.Get(0);
@@ -120,7 +120,7 @@ class SyberiaMissionServer : MissionServer
 				
 				if (profile.m_needToConfigureGear)
 				{
-					allowedEquip = GetCharacterAllowedEquipment(identity);
+					allowedEquip = GetSyberiaOptions().GetCharacterAllowedEquipment(identity, profile);
 					auto equipParams = new Param1<ref array<ref array<string>>>(allowedEquip);
 					GetSyberiaRPC().SendToClient(SyberiaRPC.SYBRPC_EQUIP_SCREEN_OPEN, identity, equipParams);
 					SybLogSrv("Send SYBRPC_EQUIP_SCREEN_OPEN RPC.");
@@ -263,60 +263,6 @@ class SyberiaMissionServer : MissionServer
 		}
 	}
 	
-	private int GetCharacterAllowedEquipmentSize()
-	{
-		return 8;
-	}
-	
-	private ref array<ref array<string>> GetCharacterAllowedEquipment(ref PlayerIdentity identity)
-	{
-		ref array<ref array<string>> result = new array<ref array<string>>;
-		
-		// SPAWNPOINTS
-		ref array<string> spawnPoints = new array<string>;
-		foreach (ref SpawnpointInfo sp : GetSyberiaOptions().m_groupDefault.m_spawnpoints)
-		{
-			spawnPoints.Insert(sp.m_name);
-		}		
-		result.Insert(spawnPoints);
-		
-		// GEAR BODY
-		ref array<string> bodyGear = new array<string>;
-		bodyGear.Copy(GetSyberiaOptions().m_groupDefault.m_gearBody);
-		result.Insert(bodyGear);
-		
-		// GEAR PANTS
-		ref array<string> pantsGear = new array<string>;
-		pantsGear.Copy(GetSyberiaOptions().m_groupDefault.m_gearPants);
-		result.Insert(pantsGear);
-		
-		// GEAR FOOT
-		ref array<string> footGear = new array<string>;
-		footGear.Copy(GetSyberiaOptions().m_groupDefault.m_gearFoot);
-		result.Insert(footGear);
-		
-		// GEAR HEAD
-		ref array<string> headGear = new array<string>;
-		headGear.Copy(GetSyberiaOptions().m_groupDefault.m_gearHead);
-		result.Insert(headGear);
-		
-		// GEAR WEAPON
-		ref array<string> weapGear = new array<string>;
-		weapGear.Copy(GetSyberiaOptions().m_groupDefault.m_gearWeapon);
-		result.Insert(weapGear);
-		
-		// GEAR ITEMS
-		ref array<string> itemsGear = new array<string>;
-		itemsGear.Copy(GetSyberiaOptions().m_groupDefault.m_gearItems);
-		result.Insert(itemsGear);
-		
-		// GEAR SPECIAL
-		ref array<string> specGear = new array<string>;
-		result.Insert(specGear);
-		
-		return result;
-	}
-	
 	void OnCreateNewCharRequest(ref ParamsReadContext ctx, ref PlayerIdentity sender)
 	{
 		SybLogSrv("SYBRPC_CREATENEWCHAR_REQUEST Received from " + sender);
@@ -416,7 +362,7 @@ class SyberiaMissionServer : MissionServer
        		if ( !ctx.Read( clientData ) ) return;	
 			
 			ref array<int> selectedIndexes = clientData.param1;
-			if (selectedIndexes.Count() != GetCharacterAllowedEquipmentSize())
+			if (selectedIndexes.Count() != GetSyberiaOptions().GetCharacterAllowedEquipmentSize())
 			{
 				GetGame().DisconnectPlayer(sender);
 				return;
