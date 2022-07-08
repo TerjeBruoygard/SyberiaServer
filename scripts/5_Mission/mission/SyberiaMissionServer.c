@@ -126,10 +126,27 @@ class SyberiaMissionServer : MissionServer
 		ref CharProfile profile = GetSyberiaCharacters().Get(sender);
 		if (!profile)
 		{
+			Param1<string> clientData;
+       		if ( !ctx.Read( clientData ) ) return;	
+			
 			profile = new CharProfile;
-			profile.m_name = sender.GetName();
+			profile.m_name = clientData.param1;
+			
+			if (profile.m_name.LengthUtf8() > 32) {
+				profile.m_name = profile.m_name.Substring(0, 32);
+			}
+			else if (profile.m_name.LengthUtf8() < 4)
+			{
+				profile.m_name = sender.GetName();
+			}
+			
 			profile.m_souls = GetSyberiaOptions().m_startSoulsCount;
 			GetSyberiaCharacters().Create(sender, profile);
+			
+			SybLogSrv("SYBRPC_CREATENEWCHAR_REQUEST char name " + profile.m_name);
+			
+			auto equipParams = new Param1<int>(0);
+			GetSyberiaRPC().SendToClient(SyberiaRPC.SYBRPC_EQUIP_SCREEN_OPEN, sender, equipParams);
 		}
 		else
 		{
