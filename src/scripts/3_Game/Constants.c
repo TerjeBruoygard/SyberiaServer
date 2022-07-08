@@ -146,6 +146,7 @@ modded class SyberiaConfig
     float m_skillsExpStrengthLightAttackChance;
     float m_skillsExpStrengthHeavyAttackValue;
     float m_skillsExpStrengthHeavyAttackChance;
+	float m_skillsExpStrengthMineWoodOrStone;	
 	float m_skillsExpMedicineBandage;
 	float m_skillsExpMedicineTablets;
 	float m_skillsExpMedicineAmpoule;
@@ -292,6 +293,7 @@ modded class SyberiaConfig
 	    m_skillsExpStrengthLightAttackChance = ConfigGetFloat("CfgSyberia SkillsExperienceSystem skillsExpStrengthLightAttackChance");
 	    m_skillsExpStrengthHeavyAttackValue = ConfigGetFloat("CfgSyberia SkillsExperienceSystem skillsExpStrengthHeavyAttackValue");
 	    m_skillsExpStrengthHeavyAttackChance = ConfigGetFloat("CfgSyberia SkillsExperienceSystem skillsExpStrengthHeavyAttackChance");
+		m_skillsExpStrengthMineWoodOrStone = ConfigGetFloat("CfgSyberia SkillsExperienceSystem skillsExpStrengthMineWoodOrStone");
 		m_skillsExpMedicineBandage = ConfigGetFloat("CfgSyberia SkillsExperienceSystem skillsExpMedicineBandage");
 		m_skillsExpMedicineTablets = ConfigGetFloat("CfgSyberia SkillsExperienceSystem skillsExpMedicineTablets");
 		m_skillsExpMedicineAmpoule = ConfigGetFloat("CfgSyberia SkillsExperienceSystem skillsExpMedicineAmpoule");
