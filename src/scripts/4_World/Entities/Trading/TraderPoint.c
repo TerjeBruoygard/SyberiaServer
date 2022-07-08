@@ -1,12 +1,23 @@
 modded class TraderPoint
 {
 	Object m_traderObject;
+	PlayerBase m_traderActiveUser;
 	
 	void InitTraderPoint(int id, Object traderObj)
 	{
 		m_traderId = id;
 		m_traderObject = traderObj;
 		m_ready = true;
+	}
+	
+	void SetActiveUser(PlayerBase player)
+	{
+		m_traderActiveUser = player;
+	}
+	
+	bool HasActiveUser()
+	{
+		return m_traderActiveUser && m_traderActiveUser.IsAlive();
 	}
 	
     override void OnRPC(PlayerIdentity sender, int rpc_type, ParamsReadContext ctx)
