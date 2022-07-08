@@ -58,7 +58,12 @@
             <div class="form-group row">
                 <label for="inputRoleplayMode" class="col-sm-2 col-form-label">Disable character deletion:</label>
                 <div class="col-sm-10">
-                    <input class="form-check-input" type="checkbox" id="inputRoleplayMode" mapping="m_mainConfig.m_roleplay_mode" ${m_mainConfig.m_roleplay_mode}>
+                    <input class="form-check-input" type="checkbox" id="inputRoleplayMode" mapping="m_mainConfig.m_roleplay_mode">
+                    <script>
+                        if ('${m_mainConfig.m_roleplay_mode}' == '1') {
+                            $('#inputRoleplayMode').attr('checked', true);
+                        }
+                    </script>
                     <p><em>When this option is enabled, players will not be able to delete their character on the respawn screen.</em></p>
                 </div>
             </div>
@@ -83,8 +88,85 @@
                     <p><em>A set of starting equipment that the player can choose on respawn when character has reached level 100 of survival skill and activated the corresponding perk. Each new item's classname must be specified on a new line. To set the amount in the stack and the damage state, you can use the rules from the loadouts category.</em></p>
                 </div>
             </div>
+            <div class="form-group row">
+                <label for="inputCheckIdentityMode" class="col-sm-2 col-form-label">Check identity mode:</label>
+                <div class="col-sm-10">
+                    <select class="custom-select" id="inputCheckIdentityMode" mapping="m_clientConfig.m_checkIdentityMode">
+                        <option value="0">Disabled</option>
+                        <option value="1">Always (When face not hidden by mask)</option>
+                        <option value="2">Dead bodies only</option>
+                    </select>
+                    <script>
+                        $('#inputCheckIdentityMode').find('option[value="${m_clientConfig.m_checkIdentityMode}"]').attr('selected', true);
+                    </script>
+                    <p><em>Sets the rules under which players can look at each other player's name.</em></p>
+                </div>
+            </div>
+            <div class="form-group row">
+                <label for="inputOperateVisceraHimself" class="col-sm-2 col-form-label">Allow surgery on yourself:</label>
+                <div class="col-sm-10">
+                    <input class="form-check-input" type="checkbox" id="inputOperateVisceraHimself" mapping="m_clientConfig.m_operateVisceraHimself">
+                    <script>
+                        if ('${m_clientConfig.m_operateVisceraHimself}' == '1') {
+                            $('#inputOperateVisceraHimself').attr('checked', true);
+                        }
+                    </script>
+                    <p><em>Determines whether the player can use the surgical kit to perform surgery on himself without the help of other players.</em></p>
+                </div>
+            </div>
             <br>
-            <h3>Skill settings:</h3>
+            <h3>PDA settings</h3>
+            <div class="form-group row">
+                <label for="inputPdaEnableGlobalChat" class="col-sm-2 col-form-label">Enable global channel:</label>
+                <div class="col-sm-10">
+                    <input class="form-check-input" type="checkbox" id="inputPdaEnableGlobalChat" mapping="m_pdaConfig.m_enableGlobalChat">
+                    <script>
+                        if ('${m_pdaConfig.m_enableGlobalChat}' == '1') {
+                            $('#inputPdaEnableGlobalChat').attr('checked', true);
+                        }
+                    </script>
+                    <p><em>This option adds to the list of conversations in the PDA a global channel for communication between players who have PDAs.</em></p>
+                </div>
+            </div>
+            <div class="form-group row">
+                <label for="inputPdaEnableMapPage" class="col-sm-2 col-form-label">Enable GPS tab:</label>
+                <div class="col-sm-10">
+                    <input class="form-check-input" type="checkbox" id="inputPdaEnableMapPage" mapping="m_pdaConfig.m_enableMapPage">
+                    <script>
+                        if ('${m_pdaConfig.m_enableMapPage}' == '1') {
+                            $('#inputPdaEnableMapPage').attr('checked', true);
+                        }
+                    </script>
+                    <p><em>This option enables a PDA tab with a map and the exact location of the player on it.</em></p>
+                </div>
+            </div>
+            <div class="form-group row">
+                <label for="inputPdaServerInstanceName" class="col-sm-2 col-form-label">Communication satellite ID:</label>
+                <div class="col-sm-10">
+                    <input type="text" class="form-control" id="inputPdaServerInstanceName" mapping="m_pdaConfig.m_serverInstanceName" value="${m_pdaConfig.m_serverInstanceName}" required>
+                    <p><em>Sets the name of the communication satellite for the PDA. If you want the list of contacts and conversations to be shared between several DeyZ servers, use the same satellite ID. Do not change this value unnecessarily.</em></p>
+                </div>
+            </div>
+            <br>
+            <h3>Skill settings</h3>
+            <div class="form-group row">
+                <label for="inputSkillLevelSize" class="col-sm-2 col-form-label">Base skill experience amount:</label>
+                <div class="col-sm-10">
+                    <input type="number" min="10" max="1000000" step="1" pattern="^[\d]+$" class="form-control" onchange="validateNumberInput(this)"
+                           id="inputSkillLevelSize" mapping="m_clientConfig.m_skillLevelSize" value="${m_clientConfig.m_skillLevelSize}" required>
+                    <p><em>Determines the amount of experience a player needs at the first level of any skill.</em></p>
+                </div>
+            </div>
+            <div class="form-group row">
+                <label for="inputSkillLevelSize" class="col-sm-2 col-form-label">Additional skill experience amount per level:</label>
+                <div class="col-sm-10">
+                    <input type="number" min="10" max="100000" step="1" pattern="^[\d]+$" class="form-control" onchange="validateNumberInput(this)"
+                           id="inputSkillLevelSize" mapping="m_clientConfig.m_skillLevelModifier" value="${m_clientConfig.m_skillLevelModifier}" required>
+                    <p><em>The amount of experience added to the base with each new skill level.</em></p>
+                </div>
+            </div>
+            <br>
+            <h5>Experience gain modifiers for each skill</h5>
             <p><em>The experience multiplier defines how quickly the player gains experience in the game for each skill. The default value is 1. If you want the player to get 2 times more experience, set this value to 2. And vice versa, if you want to slow down the process of gaining experience, set the value less than one (0.5 for example)</em></p>
             <p><em>The decrease in the skill level at death determines how much experience the player will lose for each skill when the character dies. A value of 1 indicates that the player will lose 1 skill level upon death. With a value of 0.5, the player will only lose half of the level. If you want to disable the loss of experience by players on death, specify 0 as the value.</em></p>
             <div class="form-group row">
@@ -191,7 +273,7 @@
                 </table>
             </div>
             <div class="alert" role="alert" style="visibility: hidden" id="alertMessageSettings"></div>
-            <button type="button" class="btn btn-primary btn-lg" wid onclick="savePageSettings('#settingsForm', '#alertMessageSettings')">Save</button>
+            <button type="button" class="btn btn-primary btn-lg" wid onclick="savePageSettings(readPageValues('#settingsForm'), '#alertMessageSettings')">Save</button>
         </div>
     </div>
     <div class="tab-pane" id="admins" role="tabpanel" aria-labelledby="admins-tab">
@@ -206,7 +288,7 @@
                 </div>
             </div>
             <div class="alert" role="alert" style="visibility: hidden" id="alertMessageAdmins"></div>
-            <button type="button" class="btn btn-primary btn-lg" wid onclick="savePageSettings('#adminsForm', '#alertMessageAdmins')">Save</button>
+            <button type="button" class="btn btn-primary btn-lg" wid onclick="savePageSettings(readPageValues('#adminsForm'), '#alertMessageAdmins')">Save</button>
         </div>
     </div>
     <div class="tab-pane" id="groups" role="tabpanel" aria-labelledby="groups-tab">
@@ -280,12 +362,14 @@
                         <input type="number" min="1" max="100" step="any" class="form-control" id="inputLoadoutSpawnpointsRadius" onchange="validateNumberInput(this)" required>
                     </div>
                 </div>
-                <br/>
-                <p><em>Respawn locations allow the player to select a specific spawn location while respawning.</em><br/>
-                <em>The name of the location for the respawn will be displayed in the list on the player's respawn screen.</em><br/>
-                <em>The points determine the list of possible points of the player's appearance in the given location. The selection of a point from a subset of all available ones occurs randomly.</em><br/>
-                <em>The position is set with 3 numbers on the XYZ axes separated by spaces. You can find out the coordinates of the player's current position in the game using the admin tools.</em><br/>
-                <em>The radius allows you to set a circle relative to the position inside which the player can respawn. Please do not set the radius too high to prevent the player from getting stuck in objects.</em></p>
+                <br />
+                <p>
+                    <em>Respawn locations allow the player to select a specific spawn location while respawning. These spawn locations will be added to the list of default spawn locations.</em><br />
+                    <em>The name of the location for the respawn will be displayed in the list on the player's respawn screen.</em><br />
+                    <em>The points determine the list of possible points of the player's appearance in the given location. The selection of a point from a subset of all available ones occurs randomly.</em><br />
+                    <em>The position is set with 3 numbers on the XYZ axes separated by spaces. You can find out the coordinates of the player's current position in the game using the admin tools.</em><br />
+                    <em>The radius allows you to set a circle relative to the position inside which the player can respawn. Please do not set the radius too high to prevent the player from getting stuck in objects.</em>
+                </p>
             </div>
         </div>
         <br>
@@ -383,13 +467,19 @@
             </div>
         </div>
         <div class="alert" role="alert" style="visibility: hidden" id="alertMessageLoadouts"></div>
-        <button type="button" class="btn btn-primary btn-lg" wid onclick="">Save</button>
+        <button type="button" class="btn btn-primary btn-lg" wid onclick="savePageSettings(getLoadoutsDataObject(), '#alertMessageLoadouts')">Save</button>
         <script>
             var currentLoadoutId = -1;
             var currentLoadoutSpawnpointId = -1;
             var currentLoadoutSpawnpointPosition = -1;
             var currentLoadoutItemsId = -1;
             var loadoutsDataobject = JSON.parse('#{m_customLoadouts}');
+
+            function getLoadoutsDataObject() {
+                return {
+                    m_customLoadouts: loadoutsDataobject
+                };
+            }
 
             function initializeLoadoutsSelection() {
                 $('#inputLoadoutsSelect').html('');
@@ -711,10 +801,10 @@
         }
     }
 
-    function savePageSettings(rootElement, alertMessage) {
+    function savePageSettings(dataObject, alertMessage) {
         var requestData = {
             auth: userData,
-            data: readPageValues(rootElement)
+            data: dataObject
         };
 
         $.post("/save", JSON.stringify(requestData), function (data) {
@@ -751,6 +841,9 @@
             }
             else if ($(this).is("textarea")) {
                 result = val.split('\n').filter(n => n.trim());
+            }
+            else if ($(this).is("select")) {
+                result = parseInt(val);
             }
 
             let refPath = $(this).attr('mapping');

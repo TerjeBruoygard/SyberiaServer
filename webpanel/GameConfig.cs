@@ -149,8 +149,17 @@ namespace SyberiaWebPanel
                     }
                     else
                     {
-                        var newValue = Newtonsoft.Json.JsonConvert.DeserializeAnonymousType(jprop.Value.ToString(Formatting.None), prop.PropertyType);
-                        prop.SetValue(obj, newValue);
+                        var jarray = jprop.Value as JArray;
+                        var listIfc = prop.GetValue(obj) as IList;
+                        listIfc.Clear();
+
+                        foreach (var jelement in jarray) 
+                        {
+                            var method = typeof(Newtonsoft.Json.JsonConvert).GetMethods().First(x => x.IsGenericMethod && x.GetParameters().Length == 1 && x.Name.Equals("DeserializeObject"));
+                            var generic = method.MakeGenericMethod(prop.PropertyType.GetGenericArguments()[0]);
+                            var result = generic.Invoke(null, new object[] { jelement.ToString(Formatting.None) });
+                            listIfc.Add(result);
+                        }
                     }
                 }
                 else if (prop.PropertyType.IsArray)
@@ -344,7 +353,7 @@ namespace SyberiaWebPanel
 
             public ClientConfig InitializeDefault()
             {
-                m_checkIdentityMode = 2;
+                m_checkIdentityMode = 1;
                 m_operateVisceraHimself = 1;
                 m_skillLevelSize = 1000;
                 m_skillLevelModifier = 200;
