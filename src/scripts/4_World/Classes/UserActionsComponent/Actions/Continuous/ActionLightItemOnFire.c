@@ -2,7 +2,6 @@ modded class ActionLightItemOnFire
 {
     override void OnFinishProgressServer( ActionData action_data )
 	{
-		bool can_be_ignited = false;
 		ItemBase target_item = ItemBase.Cast( action_data.m_Target.GetObject() );
 		ItemBase item = action_data.m_MainItem;
 		ItemBase ignited_item;				//item that was lit on fire
@@ -29,10 +28,37 @@ modded class ActionLightItemOnFire
 				
 		if (Math.RandomFloat01() < chance)
 		{
-			super.OnFinishProgressServer(action_data);
+			bool is_ignition_successful = false;
+			if ( item.CanIgniteItem( target_item ) )
+			{
+				is_ignition_successful = target_item.IsThisIgnitionSuccessful( item );
+				ignited_item = target_item;
+				fire_source_item = item;
+			}
+			else if ( item.CanBeIgnitedBy( target_item ) )
+			{
+				is_ignition_successful = target_item.IsTargetIgnitionSuccessful( item );
+				ignited_item = item;
+				fire_source_item = target_item;			
+			}
+			
+			if ( is_ignition_successful )
+			{
+				fire_source_item.OnIgnitedTarget( ignited_item );
+				ignited_item.OnIgnitedThis( fire_source_item );
+				action_data.m_Player.AddExperienceOnIgniteFireplace(1);
+			}
+			else
+			{
+				fire_source_item.OnIgnitedTargetFailed( ignited_item );
+				ignited_item.OnIgnitedThisFailed( fire_source_item );
+				GetSyberiaRPC().SendToClient(SyberiaRPC.SYBRPC_SCREEN_MESSAGE, action_data.m_Player.GetIdentity(), new Param1<string>("#syb_failed_ignite_skillcheck"));		
+				action_data.m_Player.AddExperienceOnIgniteFireplace(0);
+			}
 		}
 		else
 		{
+			bool can_be_ignited = false;
 			if ( item.CanIgniteItem( target_item ) )
 			{
 				ignited_item = target_item;
@@ -50,7 +76,8 @@ modded class ActionLightItemOnFire
 			{
 				fire_source_item.OnIgnitedTargetFailed( ignited_item );
 				ignited_item.OnIgnitedThisFailed( fire_source_item ); 
-				GetSyberiaRPC().SendToClient(SyberiaRPC.SYBRPC_SCREEN_MESSAGE, action_data.m_Player.GetIdentity(), new Param1<string>("#syb_failed_ignite_skillcheck"));	
+				GetSyberiaRPC().SendToClient(SyberiaRPC.SYBRPC_SCREEN_MESSAGE, action_data.m_Player.GetIdentity(), new Param1<string>("#syb_failed_ignite_skillcheck"));
+				action_data.m_Player.AddExperienceOnIgniteFireplace(-1);	
 			}
 		}
 						

@@ -211,7 +211,7 @@ class CfgSyberia
         skillsExpHuntingButchWolf = 500;
         skillsExpHuntingButchBear = 3000;
         
-        skillsExpSurvivalIgniteFireSuccess = 300;
-        skillsExpSurvivalIgniteFireFailed = 30;
+        skillsExpSurvivalIgniteFireSuccess = 500;
+        skillsExpSurvivalIgniteFireFailed = 50;
     };
 };
