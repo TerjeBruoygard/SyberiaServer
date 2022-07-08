@@ -464,7 +464,7 @@ modded class PlayerBase
 		if (filter && filter.GetQuantity() > 0)
 		{
 			filterProtection = true;
-			if (m_zone.m_gas.Length() > 0)
+			if (m_zone.m_gas > 0)
 			{
 				filter.AddQuantity(GetSyberiaConfig().m_gasMaskFilterDegradationInToxicZone);				
 			}
@@ -478,7 +478,7 @@ modded class PlayerBase
 			}
 		}
 		
-		if (m_zone.m_gas.Length() > 0 && !filterProtection)
+		if (m_zone.m_gas > 0 && !filterProtection)
 		{
 			m_zoneToxicEffect = m_zoneToxicEffect + 1;
 		}

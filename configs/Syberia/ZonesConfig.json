@@ -13,7 +13,7 @@
         "m_blockInteractionWithPlayers":0,
         "m_radiation": 0,
         "m_psi": 0,
-        "m_gas": "",
+        "m_gas": 0,
         "m_spawnChance": 0
     },
     "m_customZones":[
@@ -32,7 +32,7 @@
             "m_blockInteractionWithPlayers":0,
             "m_radiation": 0,
             "m_psi": 0,
-            "m_gas": "",
+            "m_gas": 0,
             "m_spawnChance": 1
         }
     ]
