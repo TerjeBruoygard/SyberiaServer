@@ -52,9 +52,10 @@
         </div>
     </div>
     <script>
+        let userData = null;
         $("#loginForm").submit(function (event) {
             event.preventDefault();
-            let userData = {
+            userData = {
                 login: $('#inputUsername').val(),
                 pass: CryptoJS.MD5($('#inputPassword').val()).toString(CryptoJS.enc.Base64)
             };
@@ -75,6 +76,80 @@
                 }
             });
         });
+
+        function savePageSettings(rootElement, alertMessage) {
+            var requestData = {
+                auth: userData,
+                data: readPageValues(rootElement)
+            };
+
+            $.post("/save", JSON.stringify(requestData), function (data) {
+                $(alertMessage).removeClass('alert-danger');
+                $(alertMessage).addClass('alert-success');
+                $(alertMessage).html('Changes successfully saved. Please restart DayZ server to apply them.');
+                $(alertMessage).css('visibility', 'visible');
+            }).fail(function (err) {
+                $(alertMessage).removeClass('alert-success');
+                $(alertMessage).addClass('alert-danger');
+                $(alertMessage).html('Internal server error. Failed to save changes.');
+                $(alertMessage).css('visibility', 'visible');
+            });
+        };
+
+        function readPageValues(rootElement) {
+            var dataObject = {};
+            $(rootElement).find('[mapping]').each(function () {
+                var result = null;
+                let val = $(this).val();
+                if ($(this).is("input")) {
+                    let type = $(this).attr('type');
+                    if (type == 'number') {
+                        result = parseFloat(val);
+                    }
+                    else if (type == 'checkbox') {
+                        result = $(this).is(":checked") ? 1 : 0;
+                    }
+                    else {
+                        result = String(val);
+                    }
+                }
+                else if ($(this).is("textarea")) {
+                    result = val.split('\n').filter(n => n.trim());
+                }
+
+                let refPath = $(this).attr('mapping');
+                let refParts = refPath.split('.');
+                var currentObject = dataObject;
+                for (var i = 0; i < refParts.length; i++) {
+                    let part = refParts[i];
+                    let last = (i == refParts.length - 1);
+                    if (part.endsWith(']')) {
+                        let name = part.substring(0, part.indexOf('['));
+                        let index = parseInt(part.substring(part.indexOf('[') + 1, part.length - 1));
+                        if (!currentObject[name]) {
+                            currentObject[name] = [];
+                        }
+                        if (last) {
+                            currentObject[name][index] = result;
+                        }
+                        else if (!currentObject[name][index]) {
+                            currentObject[name][index] = {};
+                        }
+                        currentObject = currentObject[name][index];
+                    }
+                    else {
+                        if (last) {
+                            currentObject[part] = result;
+                        }
+                        else if (!currentObject[part]) {
+                            currentObject[part] = {};
+                        }
+                        currentObject = currentObject[part];
+                    }
+                }
+            });
+            return dataObject;
+        };
     </script>
 </body>
 </html>
