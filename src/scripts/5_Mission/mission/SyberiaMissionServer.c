@@ -1,38 +1,19 @@
-class SyberiaMissionServer : MissionServer
+modded class MissionServer
 {
 	ref array<ref CharacterMetadata> m_maleCharactersPool;
 	ref array<ref CharacterMetadata> m_femaleCharactersPool;
 	ref SkillsContainer m_defaultSkillsContainer;
 	ref array<ref PerkDescription> m_allPerksDesc;
 	
-	void SyberiaMissionServer()
-	{
-		m_maleCharactersPool = new array<ref CharacterMetadata>;
-		m_femaleCharactersPool = new array<ref CharacterMetadata>;
-		m_defaultSkillsContainer = CreateDefaultSkillsContainer();
-		
-		m_allPerksDesc = new array<ref PerkDescription>;
-		GetPerkDescriptions(m_allPerksDesc);
-	}
-	
-	void ~SyberiaMissionServer()
-	{
-		foreach (ref CharacterMetadata mmtd : m_maleCharactersPool)
-		{
-			delete mmtd;
-		}
-		delete m_maleCharactersPool;
-		
-		foreach (ref CharacterMetadata fmtd : m_femaleCharactersPool)
-		{
-			delete fmtd;
-		}
-		delete m_femaleCharactersPool;
-	}
-	
 	override void OnInit()
 	{
 		super.OnInit();
+		
+		m_maleCharactersPool = new array<ref CharacterMetadata>;
+		m_femaleCharactersPool = new array<ref CharacterMetadata>;
+		m_defaultSkillsContainer = CreateDefaultSkillsContainer();		
+		m_allPerksDesc = new array<ref PerkDescription>;
+		GetPerkDescriptions(m_allPerksDesc);
 		
 		GetMaleCharactersMetadata(m_maleCharactersPool);
 		GetFemaleCharactersMetadata(m_femaleCharactersPool);
@@ -310,9 +291,8 @@ class SyberiaMissionServer : MissionServer
 		PlayerBase pbase = PlayerBase.Cast(player);
 		if (pbase && pbase.IsGhostBody())
 		{
-			SybLogSrv("Delete ghost player");
-			pbase.Delete();
-			return false;
+			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(GetGame().ObjectDelete, 10000, false, pbase);
+			return true;
 		}
 		
 		return super.InsertCorpse(player);
@@ -335,6 +315,7 @@ class SyberiaMissionServer : MissionServer
 		{
 			player.SetAllowDamage(true);
 			player.SetHealth("", "", 0);
+			player.SetSynchDirty();
 		}
 		else
 		{

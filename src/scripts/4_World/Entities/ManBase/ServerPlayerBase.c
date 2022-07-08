@@ -491,6 +491,8 @@ modded class PlayerBase
 	
 	void AddInfluenza()
 	{
+		if (m_antibioticsLevel > 0) return;
+		
 		if (m_influenzaLevel == 0 && m_influenzaTimer == 0)
 		{
 			m_influenzaTimer = INFLUENZA_INCUBATE_PERIODS_SEC[0];
