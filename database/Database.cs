@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.Data.SQLite;
 using System.IO;
 
-namespace SyberiaServerManager
+namespace SyberiaDatabase
 {
     public class Database
     {

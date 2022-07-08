@@ -3,7 +3,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 
-namespace SyberiaServerManager
+namespace SyberiaDatabase
 {
     public class DatabasePool
     {

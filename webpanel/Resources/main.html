@@ -23,13 +23,44 @@
     <li class="nav-item">
         <a class="nav-link" id="zones-tab" data-toggle="tab" href="#zones" role="tab" aria-controls="zones" aria-selected="false">Zones</a>
     </li>
+    <!--
     <li class="nav-item">
         <a class="nav-link" id="variables-tab" data-toggle="tab" href="#variables" role="tab" aria-controls="variables" aria-selected="false">Variables</a>
     </li>
+    -->
 </ul>
 <div class="tab-content" style="margin-top: 30px; margin-left: 50px; margin-right: 50px; margin-bottom: 30px">
     <div class="tab-pane active" id="players" role="tabpanel" aria-labelledby="players-tab">
-        Players
+        <div id="playersOfflineContent">
+            <div class="container">
+                <div class="row">
+                    <div class="col text-center">
+                        <div class="alert alert-danger" role="alert" style="visibility: hidden" id="alertMessagePlayersOffline"></div>
+                        <button type="button" class="btn btn-primary btn-md" onclick="loadPlayersListOffline(this)">Load players list</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <script>
+            function loadPlayersListOffline(button) {
+                $(button).prop("disabled", true);
+                $('#playersOfflineContent').load("/playersOffline", userData, function (response, status, xhr) {
+                    if (status == "success") {
+                        console.log('Players list successfully loaded.');
+                    }
+                    else {
+                        $(button).prop("disabled", false);
+                        $("#alertMessagePlayersOffline").css('visibility', 'visible');
+                        if (xhr.status == 0) {
+                            $("#alertMessagePlayersOffline").html('Service is unreachable. Please check is server running or internet connection.');
+                        }
+                        else {
+                            $("#alertMessagePlayersOffline").html('Service is temporarily unavailable.');
+                        }
+                    }
+                });
+            }
+        </script>
     </div>
     <div class="tab-pane" id="settings" role="tabpanel" aria-labelledby="settings-tab">
         <div id="settingsForm">
@@ -2159,9 +2190,11 @@
             $('#inputZonesSelect').change();
         </script>
     </div>
+    <!--
     <div class="tab-pane" id="variables" role="tabpanel" aria-labelledby="variables-tab">
         Variables
     </div>
+    -->
 </div>
 <script>
     function validateVectorInput(field) {

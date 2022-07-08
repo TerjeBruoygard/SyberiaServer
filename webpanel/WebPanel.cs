@@ -23,9 +23,12 @@ namespace SyberiaWebPanel
 
         private Dictionary<string, Tuple<DateTime, int>> authSpamFilter = new Dictionary<string, Tuple<DateTime, int>>();
 
+        private string serverDir;
+
         public WebPanel(string gamedir)
         {
-            gameConfig = new GameConfig(gamedir);
+            this.serverDir = gamedir;
+            this.gameConfig = new GameConfig(gamedir);
 
             var cfgData = ReadCfg(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "credentials.cfg"));
             if (cfgData.ContainsKey("login") && cfgData.ContainsKey("pass"))
@@ -96,6 +99,64 @@ namespace SyberiaWebPanel
         public GameConfig GetGameConfig()
         {
             return gameConfig;
+        }
+
+        public IEnumerable<string> ReadBanList()
+        {
+            var bans = new List<string>();
+            var path = Path.Combine(serverDir, "ban.txt");
+            if (File.Exists(path))
+            {
+                var lines = File.ReadAllLines(path);
+                foreach (var line in lines)
+                {
+                    var uid = line;
+                    var index = uid.IndexOf("//");
+                    if (index != -1)
+                    {
+                        uid = uid.Substring(0, index);
+                    }
+
+                    uid = uid.Trim();
+                    if (!string.IsNullOrEmpty(uid))
+                    {
+                        bans.Add(uid);
+                    }
+                }
+            }
+
+            return bans;
+        }
+
+        public void ProccessBanUnban(string uid, bool ban)
+        {
+            var lines = new List<string>();
+            var path = Path.Combine(serverDir, "ban.txt");
+            if (File.Exists(path))
+            {
+                lines = File.ReadAllLines(path).ToList();
+            }
+
+            if (ban)
+            {
+                lines.Add($"{uid} // Ban added from syberia webpanel");
+            }
+            else
+            {
+                lines.RemoveAll(line =>
+                {
+                    var value = line;
+                    var index = value.IndexOf("//");
+                    if (index != -1)
+                    {
+                        value = value.Substring(0, index);
+                    }
+
+                    return value.Trim().Equals(uid);
+                });
+            }
+
+            File.WriteAllLines(path, lines);
         }
 
         public bool CheckCredentials(string login, string passMd5)

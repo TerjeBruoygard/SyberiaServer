@@ -68,8 +68,16 @@
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
-  <ItemGroup />
   <ItemGroup>
+    <ProjectReference Include="..\database\SyberiaDatabase.csproj">
+      <Project>{c4fe0df6-94c0-4181-a502-5c0e694bd8f7}</Project>
+      <Name>SyberiaDatabase</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Resources\players.html">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="Resources\main.html">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>

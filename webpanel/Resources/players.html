@@ -1,0 +1,58 @@
+<table class="table">
+    <thead>
+        <tr>
+            <th scope="col">Name</th>
+            <th scope="col">UID</th>
+            <th scope="col">Souls count</th>
+            <th scope="col">Respawns count</th>
+            <th scope="col">Last activity</th>
+            <th scope="col">Actions</th>
+        </tr>
+    </thead>
+    <tbody id="playersOfflineTableBody">
+    </tbody>
+</table>
+<script>
+    let offlinePlayersList = JSON.parse('#{offlinePlayersList}');
+    let bansList = JSON.parse('#{bansList}');
+
+    function playersOfflineBan(button, uid) {
+        let banned = $(button).attr('banned') == "1";
+        if (confirm('Are you sure you want to ' + (banned ? 'UNBAN' : 'BAN') + ' this player?')) {
+            var requestData = {
+                auth: userData,
+                uid: uid,
+                ban: !banned
+            };
+            $.post("/ban", JSON.stringify(requestData), function (data) {
+                console.log('Player banned/unbanned: ', uid);
+                $(button).removeClass(banned ? 'btn-warning' : 'btn-danger');
+                $(button).addClass(banned ? 'btn-danger' : 'btn-warning');
+                $(button).text(banned ? 'Ban' : 'Unban');
+                $(button).attr('banned', banned ? '0' : '1');
+            });
+        }
+    }
+
+    function playersOfflineUnban(button, uid) {
+        if (confirm('Are you sure you want to UNBAN this player?')) {
+
+        }
+    }
+
+    function playersOfflineIsBanned(uid) {
+        return bansList.some(x => x == uid);
+    }
+
+    for (let player of offlinePlayersList) {
+        let banned = playersOfflineIsBanned(player[0]);
+        let button = null;
+        if (banned) {
+            button = '<button type="button" class="btn btn-warning" banned="1" onclick="playersOfflineBan(this, \'' + player[0] + '\')">Unban</button>';
+        }
+        else {
+            button = '<button type="button" class="btn btn-danger" banned="0" onclick="playersOfflineBan(this, \'' + player[0] + '\')">Ban</button>';
+        }
+        $('#playersOfflineTableBody').append(`<tr><td>${player[1]}</td><td>${player[0]}</td><td>${player[2]}</td><td>${player[3]}</td><td>${player[4]}</td><td>${button}</td></tr>`);
+    }
+</script>
