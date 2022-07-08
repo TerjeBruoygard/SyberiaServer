@@ -350,7 +350,7 @@ modded class MissionServer
 		// DO NOTHING
 	}
 	
-	private void ForceRespawnPlayer(ref PlayerIdentity identity, ref PlayerBase player)
+	private void ForceRespawnPlayer(PlayerIdentity identity, ref PlayerBase player)
 	{
 		if (player)
 		{
@@ -366,7 +366,7 @@ modded class MissionServer
 		}
 	}
 	
-	void OnCreateNewCharRequest(ref ParamsReadContext ctx, ref PlayerIdentity sender)
+	void OnCreateNewCharRequest(ParamsReadContext ctx, PlayerIdentity sender)
 	{
 		SybLogSrv("SYBRPC_CREATENEWCHAR_REQUEST Received from " + sender);
 		int errorCode = 0;
@@ -438,7 +438,7 @@ modded class MissionServer
 		}
 	}
 	
-	void OnCreateNewCharRequest_CreateChar(ref PlayerIdentity sender, bool success)
+	void OnCreateNewCharRequest_CreateChar(PlayerIdentity sender, bool success)
 	{
 		if (success)
 		{
@@ -452,7 +452,7 @@ modded class MissionServer
 		}
 	}
 	
-	void OnStartGameRequest(ref ParamsReadContext ctx, ref PlayerIdentity sender)
+	void OnStartGameRequest(ParamsReadContext ctx, PlayerIdentity sender)
 	{
 		SybLogSrv("SYBRPC_STARTGAME_REQUEST Received from " + sender);
 		int errorCode = 0;
@@ -490,7 +490,7 @@ modded class MissionServer
 		}
 	}
 	
-	void OnRespawnRequest(ref ParamsReadContext ctx, ref PlayerIdentity sender)
+	void OnRespawnRequest(ParamsReadContext ctx, PlayerIdentity sender)
 	{
 		SybLogSrv("SYBRPC_RESPAWN_REQUEST Received from " + sender);
 		int errorCode = 0;
@@ -527,7 +527,7 @@ modded class MissionServer
 		}
 	}
 	
-	void OnDeleteCharRequest(ref ParamsReadContext ctx, ref PlayerIdentity sender)
+	void OnDeleteCharRequest(ParamsReadContext ctx, PlayerIdentity sender)
 	{
 		if (GetSyberiaOptions().m_main.m_roleplay_mode == 1)
 		{
@@ -550,7 +550,7 @@ modded class MissionServer
 		}
 	}
 	
-	void OnSkillActivate(ref ParamsReadContext ctx, ref PlayerIdentity sender)
+	void OnSkillActivate(ParamsReadContext ctx, PlayerIdentity sender)
 	{
 		int errorCode = 0;
 		ref CharProfile profile = GetSyberiaCharacters().Get(sender, errorCode);
@@ -568,7 +568,7 @@ modded class MissionServer
 		}
 	}
 	
-	void OnSelfKick(ref ParamsReadContext ctx, ref PlayerIdentity sender)
+	void OnSelfKick(ParamsReadContext ctx, PlayerIdentity sender)
 	{
 		if (sender)
 		{

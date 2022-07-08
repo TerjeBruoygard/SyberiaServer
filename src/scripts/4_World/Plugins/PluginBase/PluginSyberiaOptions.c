@@ -100,7 +100,7 @@ modded class PluginSyberiaOptions extends PluginBase
 		return SyberiaScreenEquipPages.SYBSEP_TOTAL_COUNT;
 	}
 	
-	ref SpawnpointInfo GetCharacterSpawnpoint(ref PlayerIdentity identity, ref CharProfile profile, ref PluginSyberiaOptions_GroupFaction faction, int spawnpointId)
+	ref SpawnpointInfo GetCharacterSpawnpoint(PlayerIdentity identity, ref CharProfile profile, ref PluginSyberiaOptions_GroupFaction faction, int spawnpointId)
 	{
 		ref PluginSyberiaOptions_GroupSingleUser customLoadout = null;
 		if (m_customLoadouts)
@@ -144,7 +144,7 @@ modded class PluginSyberiaOptions extends PluginBase
 		return result;
 	}
 	
-	ref array<string> GetCharacterLoadoutItems(ref PlayerIdentity identity, ref CharProfile profile, ref PluginSyberiaOptions_GroupFaction faction, int loadoutId)
+	ref array<string> GetCharacterLoadoutItems(PlayerIdentity identity, ref CharProfile profile, ref PluginSyberiaOptions_GroupFaction faction, int loadoutId)
 	{			
 		ref PluginSyberiaOptions_GroupSingleUser customLoadout = null;
 		if (m_customLoadouts)
@@ -195,7 +195,7 @@ modded class PluginSyberiaOptions extends PluginBase
 		return null;
 	}
 	
-	ref array<ref array<string>> GetCharacterAllowedEquipment(ref PlayerIdentity identity, ref CharProfile profile, ref PluginSyberiaOptions_GroupFaction faction)
+	ref array<ref array<string>> GetCharacterAllowedEquipment(PlayerIdentity identity, ref CharProfile profile, ref PluginSyberiaOptions_GroupFaction faction)
 	{
 		ref PluginSyberiaOptions_GroupSingleUser customLoadout = null;
 		if (m_customLoadouts)
@@ -334,7 +334,7 @@ modded class PluginSyberiaOptions extends PluginBase
 		return result;
 	}
 	
-	ref PluginSyberiaOptions_GroupFaction FindGroupByLeader(ref PlayerIdentity identity)
+	ref PluginSyberiaOptions_GroupFaction FindGroupByLeader(PlayerIdentity identity)
 	{
 		foreach (string name, ref PluginSyberiaOptions_GroupFaction group : m_groupFactions)
 		{

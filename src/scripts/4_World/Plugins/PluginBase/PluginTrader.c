@@ -139,7 +139,7 @@ modded class PluginTrader
 		GetSyberiaRPC().SendToClient(SyberiaRPC.SYBRPC_OPEN_TRADE_MENU, player.GetIdentity(), params);
 	}
 	
-	void RpcRequstTraderMenuClose(ref ParamsReadContext ctx, ref PlayerIdentity sender)
+	void RpcRequstTraderMenuClose(ParamsReadContext ctx, PlayerIdentity sender)
     {   
 		Param1<int> clientData;
        	if ( !ctx.Read( clientData ) ) return;		
@@ -151,7 +151,7 @@ modded class PluginTrader
 		}
 	}
 	
-	void RpcRequstTraderAction(ref ParamsReadContext ctx, ref PlayerIdentity sender)
+	void RpcRequstTraderAction(ParamsReadContext ctx, PlayerIdentity sender)
 	{
 		PluginAdminTool pluginAdminTool = PluginAdminTool.Cast(GetPlugin(PluginAdminTool));
 		if (!pluginAdminTool)

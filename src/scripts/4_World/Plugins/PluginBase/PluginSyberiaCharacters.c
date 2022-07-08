@@ -22,7 +22,7 @@ class PluginSyberiaCharacters extends PluginBase
 		delete queries;
 	}
 	
-	ref CharProfile Get(ref PlayerIdentity identity, out int errorCode, bool cacheOnly = false)
+	ref CharProfile Get(PlayerIdentity identity, out int errorCode, bool cacheOnly = false)
 	{
 		string uid = identity.GetId();
 		ref CharProfile result = null;	
@@ -68,7 +68,7 @@ class PluginSyberiaCharacters extends PluginBase
 		return result;
 	}
 	
-	void Create(ref PlayerIdentity identity, ref CharProfile newProfile, Class callbackClass, string callbackFnc)
+	void Create(PlayerIdentity identity, ref CharProfile newProfile, Class callbackClass, string callbackFnc)
 	{
 		string uid = identity.GetId();
 		if (m_cachedProfiles.Contains(uid))
@@ -80,11 +80,11 @@ class PluginSyberiaCharacters extends PluginBase
 		TStringArray queries = new TStringArray;
 		newProfile.CreateQuery(queries);
 				
-		ref auto params = new ref Param3<ref PlayerIdentity, Class, string>(identity, callbackClass, callbackFnc);
+		ref auto params = new ref Param3<PlayerIdentity, Class, string>(identity, callbackClass, callbackFnc);
 		GetDatabase().TransactionAsync(SYBERIA_DB_NAME, queries, this, "OnCreateNewCharacter", params);
 	}
 	
-	void Save(ref PlayerIdentity identity)
+	void Save(PlayerIdentity identity)
 	{
 		ref CharProfile profile;	
 		string uid = identity.GetId();
@@ -94,7 +94,7 @@ class PluginSyberiaCharacters extends PluginBase
 		}
 	}
 	
-	void Delete(ref PlayerIdentity identity)
+	void Delete(PlayerIdentity identity)
 	{
 		string uid = identity.GetId();
 		ref CharProfile result = null;		
@@ -108,8 +108,8 @@ class PluginSyberiaCharacters extends PluginBase
 	
 	protected void OnCreateNewCharacter(DatabaseResponse response, ref Param args)
 	{
-		ref auto metadata = Param3<ref PlayerIdentity, Class, string>.Cast(args);	
-		ref PlayerIdentity sender = metadata.param1;	
+		ref auto metadata = Param3<PlayerIdentity, Class, string>.Cast(args);	
+		PlayerIdentity sender = metadata.param1;	
 		bool result = false;
 		
 		if (response && response.GetRowsCount() == 1)
@@ -123,7 +123,7 @@ class PluginSyberiaCharacters extends PluginBase
 		
 		GetGame().GameScript.CallFunctionParams(
 				metadata.param2, metadata.param3, null, 
-				new Param2<ref PlayerIdentity, bool>(sender, result));
+				new Param2<PlayerIdentity, bool>(sender, result));
 		
 		delete args;
 	}
