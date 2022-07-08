@@ -186,13 +186,16 @@ modded class BleedingSourcesManagerServer
 		}
 	}
 	
-	void SetConcussionHit(bool value)
+	void SetConcussionHit(bool value, bool uncounsion = true)
 	{
 		m_Player.m_concussionHit = value;
 		if (value)
 		{
-			m_Player.m_UnconsciousEndTime = -60;
-			m_Player.SetHealth("","Shock",0);
+			if (uncounsion)
+			{
+				m_Player.m_UnconsciousEndTime = -60;
+				m_Player.SetHealth("","Shock",0);
+			}
 			SetPainLevel(1);
 		}
 		m_Player.SetSynchDirty();
@@ -269,7 +272,7 @@ modded class BleedingSourcesManagerServer
 				AddHematomaHit();
 				if (zone == "Head" && Math.RandomFloat01() < 0.3)
 				{
-					SetConcussionHit(true);
+					SetConcussionHit(true, false);
 				}
 				
 				if (m_Player.IsFaceBlocked(false))
@@ -290,7 +293,7 @@ modded class BleedingSourcesManagerServer
 			
 			if (Math.RandomFloat01() < GetSyberiaConfig().m_concussionZombieHitChance)
 			{
-				SetConcussionHit(true);
+				SetConcussionHit(true, false);
 			}
 			
 			m_Player.AddMindDegradation( GetSyberiaConfig().m_zombieHitDecreaseMind[0], GetSyberiaConfig().m_zombieHitDecreaseMind[1] );
