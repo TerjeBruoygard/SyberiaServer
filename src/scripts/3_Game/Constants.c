@@ -41,6 +41,7 @@ modded class SyberiaConfig
 	float m_zvirusZombieBloodTransferChance;
 	float m_zvirusAntidotBloodDmg01;
 	float m_zvirusAntidotHealthDmg01;
+	float m_zvirusOnHitIncrementTimer;
 	float m_painLvl1TimeSec;
 	float m_painLvl2TimeSec;
 	float m_painLvl3TimeSec;
@@ -206,6 +207,7 @@ modded class SyberiaConfig
 		m_zvirusZombieBloodTransferChance = ConfigGetFloat("CfgSyberia MedicineSystem zvirusZombieBloodTransferChance");
 		m_zvirusAntidotBloodDmg01 = ConfigGetFloat("CfgSyberia MedicineSystem zvirusAntidotBloodDmg01");
 		m_zvirusAntidotHealthDmg01 = ConfigGetFloat("CfgSyberia MedicineSystem zvirusAntidotHealthDmg01");
+		m_zvirusOnHitIncrementTimer = ConfigGetFloat("CfgSyberia MedicineSystem zvirusOnHitIncrementTimer");
 		m_painLvl1TimeSec = ConfigGetFloat("CfgSyberia MedicineSystem painLvl1TimeSec");
 		m_painLvl2TimeSec = ConfigGetFloat("CfgSyberia MedicineSystem painLvl2TimeSec");
 		m_painLvl3TimeSec = ConfigGetFloat("CfgSyberia MedicineSystem painLvl3TimeSec");
