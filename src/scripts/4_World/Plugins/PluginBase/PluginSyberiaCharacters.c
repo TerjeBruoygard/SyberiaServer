@@ -8,7 +8,7 @@ class PluginSyberiaCharacters extends PluginBase
 		
 		DatabaseResponse response;
 		ref array<string> queries = new array<string>;
-		queries.Insert("CREATE TABLE IF NOT EXISTS characters (uid TEXT PRIMARY KEY, " + CharProfile.ToFieldsDesc() + ");");
+		CharProfile.InitQueries(queries);
 		GetDatabase().TransactionSync(SYBERIA_DB_NAME, queries, response);	
 		delete queries;
 	}
@@ -19,7 +19,7 @@ class PluginSyberiaCharacters extends PluginBase
 		ref array<string> queries = new array<string>;
 		foreach (string uid, ref CharProfile profile : m_cachedProfiles)
 		{
-			queries.Insert("UPDATE characters SET " + profile.ToSaveProfileData() + " WHERE uid = '" + uid + "';");
+			queries.Insert(profile.UpdateQuery());
 			delete profile;
 		}
 		
@@ -27,7 +27,7 @@ class PluginSyberiaCharacters extends PluginBase
 		delete queries;
 	}
 	
-	ref CharProfile Get(ref PlayerIdentity identity)
+	ref CharProfile Get(ref PlayerIdentity identity, bool cacheOnly = false)
 	{
 		string uid = identity.GetId();
 		ref CharProfile result = null;		
@@ -36,8 +36,13 @@ class PluginSyberiaCharacters extends PluginBase
 			return result;
 		}
 		
+		if (cacheOnly) 
+		{
+			return null;
+		}
+		
 		DatabaseResponse response = null;
-		if (GetDatabase().QuerySync(SYBERIA_DB_NAME, "SELECT " + CharProfile.ToSaveProfileFields() + " FROM characters WHERE uid = '" + uid + "';", response))
+		if (GetDatabase().QuerySync(SYBERIA_DB_NAME, CharProfile.SelectQuery(uid), response))
 		{
 			if (response && response.GetRowsCount() == 1) 
 			{
@@ -59,8 +64,21 @@ class PluginSyberiaCharacters extends PluginBase
 			m_cachedProfiles.Remove(uid);
 		}
 				
+
+		
+		ref array<string> queries = new array<string>;
+		newProfile.CreateQuery(queries);
+		
+		DatabaseResponse response = null;
 		m_cachedProfiles.Insert(uid, newProfile);
-		GetDatabase().QueryAsync(SYBERIA_DB_NAME, "INSERT OR REPLACE INTO characters(uid, " + CharProfile.ToSaveProfileFields() + ") VALUES('" + uid + "', " + newProfile.ToSaveProfileValue() + ");", this, "OnUpdateOrCreateCharacter");	
+		GetDatabase().TransactionSync(SYBERIA_DB_NAME, queries, response);
+
+		if (response && response.GetRowsCount() == 1)
+		{
+			newProfile.m_id = response.GetValue(0, 0).ToInt();
+		}	
+		
+		delete queries;
 	}
 	
 	void Save(ref PlayerIdentity identity)
@@ -69,20 +87,20 @@ class PluginSyberiaCharacters extends PluginBase
 		string uid = identity.GetId();
 		if (m_cachedProfiles.Find(uid, profile))
 		{
-			GetDatabase().QueryAsync(SYBERIA_DB_NAME, "UPDATE characters SET " + profile.ToSaveProfileData() + " WHERE uid = '" + uid + "';", this, "OnUpdateOrCreateCharacter");
+			GetDatabase().QueryAsync(SYBERIA_DB_NAME, profile.UpdateQuery(), this, "OnUpdateOrCreateCharacter");
 		}
 	}
 	
 	void Delete(ref PlayerIdentity identity)
 	{
 		string uid = identity.GetId();
-		if (m_cachedProfiles.Contains(uid))
+		ref CharProfile result = null;		
+		if (m_cachedProfiles.Find(uid, result))
 		{
-			delete m_cachedProfiles.Get(uid);
 			m_cachedProfiles.Remove(uid);
+			GetDatabase().QueryAsync(SYBERIA_DB_NAME, result.DeleteQuery(), this, "OnDeleteCharacter");						
+			delete result;
 		}
-		
-		GetDatabase().QueryAsync(SYBERIA_DB_NAME, "DELETE FROM characters WHERE uid = '" + uid + "';", this, "OnDeleteCharacter");
 	}
 	
 	protected void OnDeleteCharacter(DatabaseResponse response) {}

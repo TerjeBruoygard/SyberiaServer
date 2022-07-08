@@ -1,6 +1,8 @@
 class CharProfile
 {
 	// Database fields
+	int m_id;
+	string m_uid;
 	string m_name;
 	int m_souls;
 	string m_classname = "SurvivorM_Mirek";
@@ -19,39 +21,48 @@ class CharProfile
 		if (m_startGear) delete m_startGear;
 	}
 	
-	static string ToFieldsDesc()
+	static void InitQueries(ref array<string> queries)
 	{
-		return "name TEXT NOT NULL, souls INT NOT NULL, classname TEXT NOT NULL, needToConfigureGear BOOLEAN NOT NULL, needToForceRespawn BOOLEAN NOT NULL, respawnCounter INT NOT NULL";
+		queries.Insert("CREATE TABLE IF NOT EXISTS characters (id INTEGER PRIMARY KEY AUTOINCREMENT, uid TEXT UNIQUE, name TEXT NOT NULL, souls INT NOT NULL, classname TEXT NOT NULL, needToConfigureGear BOOLEAN NOT NULL, needToForceRespawn BOOLEAN NOT NULL, respawnCounter INT NOT NULL);");
 	}
 	
-	static string ToSaveProfileFields()
+	string UpdateQuery()
 	{
-		return "name, souls, classname, needToConfigureGear, needToForceRespawn, respawnCounter";
+		string fieldsSet = "uid='" + m_uid + "', ";
+		fieldsSet = fieldsSet + "name='" + m_name + "', ";
+		fieldsSet = fieldsSet + "souls=" + m_souls + ", ";
+		fieldsSet = fieldsSet + "classname='" + m_classname + "', ";
+		fieldsSet = fieldsSet + "needToConfigureGear=" + ((int)m_needToConfigureGear) + ", ";
+		fieldsSet = fieldsSet + "needToForceRespawn=" + ((int)m_needToForceRespawn) + ", ";
+		fieldsSet = fieldsSet + "respawnCounter=" + m_respawnCounter;
+		return "UPDATE characters SET " + fieldsSet + " WHERE id = " + m_id + ";";
 	}
 	
-	string ToSaveProfileValue()
+	void CreateQuery(ref array<string> queries)
 	{
-		return "'" + m_name + "', " + m_souls + ", '" + m_classname + "', " + ((int)m_needToConfigureGear) + ", " + ((int)m_needToForceRespawn) + ", " + m_respawnCounter;
+		queries.Insert( "INSERT INTO characters(uid, name, souls, classname, needToConfigureGear, needToForceRespawn, respawnCounter) VALUES('" + m_uid + "', '" + m_name + "', " + m_souls + ", '" + m_classname + "', " + ((int)m_needToConfigureGear) + ", " + ((int)m_needToForceRespawn) + ", " + m_respawnCounter + ");" );
+		queries.Insert( "SELECT last_insert_rowid();" );
 	}
 	
-	string ToSaveProfileData()
+	string DeleteQuery()
 	{
-		string result = "name='" + m_name + "', ";
-		result = result + "souls=" + m_souls + ", ";
-		result = result + "classname='" + m_classname + "', ";
-		result = result + "needToConfigureGear=" + ((int)m_needToConfigureGear) + ", ";
-		result = result + "needToForceRespawn=" + ((int)m_needToForceRespawn) + ", ";
-		result = result + "respawnCounter=" + m_respawnCounter;
-		return result;
+		return "DELETE FROM characters WHERE id = " + m_id + ";";
+	}
+	
+	static string SelectQuery(string uid)
+	{
+		return "SELECT * FROM characters WHERE uid = '" + uid + "';";
 	}
 	
 	void LoadFromDatabase(ref DatabaseResponse response)
 	{
-		m_name = response.GetValue(0, 0);
-		m_souls = response.GetValue(0, 1).ToInt();
-		m_classname = response.GetValue(0, 2);
-		m_needToConfigureGear = response.GetValue(0, 3) == "True";
-		m_needToForceRespawn = response.GetValue(0, 4) == "True";
-		m_respawnCounter = response.GetValue(0, 5).ToInt();
+		m_id = response.GetValue(0, 0).ToInt();
+		m_uid = response.GetValue(0, 1);
+		m_name = response.GetValue(0, 2);
+		m_souls = response.GetValue(0, 3).ToInt();
+		m_classname = response.GetValue(0, 4);
+		m_needToConfigureGear = response.GetValue(0, 5).ToInt();
+		m_needToForceRespawn = response.GetValue(0, 6).ToInt();
+		m_respawnCounter = response.GetValue(0, 7).ToInt();
 	}
 };

@@ -1,15 +1,13 @@
 modded class PluginLogicPDA
 {	
-	ref PdaGroupsConfig m_groupsConfig;
 	ref PdaServerConfig m_serverConfig;
-	string mainPath = "$profile:SyberiaPDA\\groups.json";
-	string confPath = "$profile:SyberiaPDA\\config.json";
+	string confPath = "$profile:Syberia\\PdaConfig.json";
 	
 	override void OnInit()
 	{
 		super.OnInit();
 		
-		MakeDirectory("$profile:SyberiaPDA");
+		MakeDirectory("$profile:Syberia");
 		if (!FileExist(confPath))
 		{
 			m_serverConfig = new PdaServerConfig();
@@ -18,28 +16,6 @@ modded class PluginLogicPDA
 		else
 		{
 			JsonFileLoader<ref PdaServerConfig>.JsonLoadFile(confPath, m_serverConfig);
-		}
-		
-		if (!FileExist(mainPath))
-		{
-			ref PdaGroupConfig sampleElement = new PdaGroupConfig();
-			sampleElement.m_name = "sampleGroup";
-			sampleElement.m_maxMembers = 50;
-			
-			sampleElement.m_leaders = new array<string>();
-			sampleElement.m_leaders.Insert("Leader Steam ID");
-			
-			sampleElement.m_members = new array<ref GroupMember>();
-			
-			m_groupsConfig = new PdaGroupsConfig();
-			m_groupsConfig.m_groups = new ref array<ref PdaGroupConfig>;
-			m_groupsConfig.m_groups.Insert(sampleElement);
-			
-			JsonFileLoader<ref PdaGroupsConfig>.JsonSaveFile(mainPath, m_groupsConfig);
-		}
-		else
-		{
-			JsonFileLoader<ref PdaGroupsConfig>.JsonLoadFile(mainPath, m_groupsConfig);
 		}
 	}
 	
@@ -62,16 +38,19 @@ modded class PluginLogicPDA
         
         if (!sender) return;
         
-        ref PdaGroupConfig group = FindGroupByMember(sender.GetId());
+		ref CharProfile profile = GetSyberiaCharacters().Get(sender, true);
+		if (!profile) return;
+		
+        ref PluginSyberiaOptions_GroupFaction group = FindGroupByMember(profile.m_id);
         if (!group) return;
         
         ref array<PlayerIdentity> identities = new array<PlayerIdentity>();
         GetGame().GetPlayerIndentities(identities);
         foreach (ref PlayerIdentity identity : identities)
         {
-            foreach (ref GroupMember member : group.m_members)
+            foreach (ref SyberiaPdaGroupMember member : group.m_members)
             {
-                if (identity.GetId() == member.m_guid)
+                if (identity.GetId() == member.m_uid)
                 {
                     GetSyberiaRPC().SendToClient( SyberiaRPC.SYBRPC_PDA_SEND_GROUP_MESSAGE, identity, new Param2< string, string >( sender.GetName(), serverData.param1 ) );
                 }
@@ -153,8 +132,8 @@ modded class PluginLogicPDA
 	
 	void CheckContactsResponse(ref PlayerIdentity sender, ref array<string> contacts)
 	{
-		ref PdaGroupConfig leadedGroup = FindGroupByLeader(sender);
-		ref array<ref GroupMember> groupMembers = null;
+		ref PluginSyberiaOptions_GroupFaction leadedGroup = FindGroupByLeader(sender);
+		ref array<ref SyberiaPdaGroupMember> groupMembers = null;
 		string infoText = "";
 		bool useGroupManagenemt = false;
 		
@@ -166,19 +145,27 @@ modded class PluginLogicPDA
 		}
 		
 		string groupChatName = "";
-		ref PdaGroupConfig memberGroup = FindGroupByMember(sender.GetId());
+		
+		ref CharProfile profile = GetSyberiaCharacters().Get(sender, true);
+		if (!profile) return;
+		
+		ref PluginSyberiaOptions_GroupFaction memberGroup = FindGroupByMember(profile.m_id);
 		if (memberGroup)
 		{
-			groupChatName = memberGroup.m_name;
+			groupChatName = memberGroup.m_displayName;
 		}
 		
-		GetSyberiaRPC().SendToClient( SyberiaRPC.SYBRPC_PDA_CHECK_CONTACT, sender, new Param5< ref array<string>, bool, ref array<ref GroupMember>, string, string >( contacts, useGroupManagenemt, groupMembers, infoText, groupChatName ) );
+		GetSyberiaRPC().SendToClient( SyberiaRPC.SYBRPC_PDA_CHECK_CONTACT, sender, new Param5< ref array<string>, bool, ref array<ref SyberiaPdaGroupMember>, string, string >( contacts, useGroupManagenemt, groupMembers, infoText, groupChatName ) );
 	}
 	
 	override void GetVisualUserId( ref ParamsReadContext ctx, ref PlayerIdentity sender )
     {   
-        string userVisualId = sender.GetPlainId();
-        GetSyberiaRPC().SendToClient( SyberiaRPC.SYBRPC_PDA_USER_STATE, sender, new Param3<string, bool, bool>( userVisualId, m_serverConfig.m_enableGlobalChat, m_serverConfig.m_enableMapPage ) );
+        
+	}
+	
+	void SendPdaUserState(ref PlayerIdentity identity, ref CharProfile profile)
+	{
+		GetSyberiaRPC().SendToClient( SyberiaRPC.SYBRPC_PDA_USER_STATE, identity, new Param3<string, bool, bool>( profile.m_name, m_serverConfig.m_enableGlobalChat, m_serverConfig.m_enableMapPage ) );
 	}
 	
 	override void AddContact( ref ParamsReadContext ctx, ref PlayerIdentity sender )
@@ -186,6 +173,7 @@ modded class PluginLogicPDA
         Param1< string > serverData;
         if ( !ctx.Read( serverData ) ) return;
         string requestName = serverData.param1;
+		requestName.ToLower();
         
         ref array<Man> players = new array<Man>();
         GetGame().GetPlayers(players);
@@ -195,10 +183,11 @@ modded class PluginLogicPDA
             if (player)
             {
                 PlayerIdentity identity = player.GetIdentity();
-                string contactPlainId = identity.GetPlainId();
                 string contactSteamId = identity.GetId();
-                string contactName = identity.GetName();
-                if ( (contactPlainId == requestName) || (contactName == requestName) ) 
+                string contactName = player.m_charProfile.m_name + "";
+				contactName.ToLower();
+				
+                if ( contactName == requestName ) 
                 {
                     if (sender.GetId() != contactSteamId)
                     {
@@ -212,9 +201,10 @@ modded class PluginLogicPDA
         //GetRPCManager().SendRPC( GearPDAModPreffix, "AddContact", new Param2<string, string>( "", "" ), true, sender );
     }
 	
-	ref PdaGroupConfig FindGroupByLeader(ref PlayerIdentity identity)
+	ref PluginSyberiaOptions_GroupFaction FindGroupByLeader(ref PlayerIdentity identity)
 	{
-		foreach (ref PdaGroupConfig group : m_groupsConfig.m_groups)
+		ref auto factions = GetSyberiaOptions().m_groupFactions;
+		foreach (string name, ref PluginSyberiaOptions_GroupFaction group : factions)
 		{
 			foreach (string leader : group.m_leaders)
 			{
@@ -235,13 +225,14 @@ modded class PluginLogicPDA
 		return null;
 	}
 	
-	ref PdaGroupConfig FindGroupByMember(string guid)
+	ref PluginSyberiaOptions_GroupFaction FindGroupByMember(int character_id)
 	{
-		foreach (ref PdaGroupConfig group : m_groupsConfig.m_groups)
+		ref auto factions = GetSyberiaOptions().m_groupFactions;
+		foreach (string name, ref PluginSyberiaOptions_GroupFaction group : factions)
 		{
-			foreach (ref GroupMember member : group.m_members)
+			foreach (ref SyberiaPdaGroupMember member : group.m_members)
 			{
-				if (guid == member.m_guid)
+				if (character_id == member.m_id)
 				{
 					return group;
 				}
@@ -249,24 +240,6 @@ modded class PluginLogicPDA
 		}
 		
 		return null;
-	}
-	
-	bool FindGroupMember(string guid, out ref GroupMember groupMember, out ref PdaGroupConfig groupResult)
-	{
-		foreach (ref PdaGroupConfig group : m_groupsConfig.m_groups)
-		{
-			foreach (ref GroupMember member : group.m_members)
-			{
-				if (guid == member.m_guid)
-				{
-					groupMember = member;
-					groupResult = group;
-					return true;
-				}
-			}
-		}
-		
-		return false;
 	}
 	
 	override void GroupCommand( ref ParamsReadContext ctx, ref PlayerIdentity sender )
@@ -278,7 +251,7 @@ modded class PluginLogicPDA
         
         int action = serverData.param1;
         string fid = serverData.param2;
-        ref PdaGroupConfig group = FindGroupByLeader(sender);
+        ref PluginSyberiaOptions_GroupFaction group = FindGroupByLeader(sender);
         
         if (group == null) return;	
         
@@ -290,17 +263,16 @@ modded class PluginLogicPDA
             GetGame().GetPlayerIndentities(identities);
             ref PlayerIdentity newMemberIdentity = null;
             
+			fid.ToLower();
+			
             foreach (ref PlayerIdentity identity : identities)
             {
-                string fvalue = identity.GetName();
-                if (fvalue == fid)
-                {
-                    newMemberIdentity = identity;
-                    break;
-                }
-                
-                fvalue = identity.GetPlainId();
-                if (fvalue == fid)
+				ref CharProfile profile = GetSyberiaCharacters().Get(identity, true);
+				if (!profile) continue;
+				
+				string pname = profile.m_name + "";
+				pname.ToLower();				
+                if (pname == fid)
                 {
                     newMemberIdentity = identity;
                     break;
@@ -309,48 +281,33 @@ modded class PluginLogicPDA
             
             if (newMemberIdentity == null) return;
             
-            ref PdaGroupConfig groupForNewMember = FindGroupByMember(newMemberIdentity.GetId());
+			ref CharProfile newMemberProfile = GetSyberiaCharacters().Get(newMemberIdentity, true);
+			if (!newMemberProfile) return;
+			
+            ref PluginSyberiaOptions_GroupFaction groupForNewMember = FindGroupByMember(newMemberProfile.m_id);
             if (groupForNewMember != null) return;
-            
-            ref GroupMember newMember = new GroupMember();
-            newMember.m_guid = newMemberIdentity.GetId();
-            newMember.m_uid = newMemberIdentity.GetPlainId();
-            newMember.m_name = newMemberIdentity.GetName();
-            
-            group.m_members.Insert(newMember);
+  
+            ref SyberiaPdaGroupMember newMember = new SyberiaPdaGroupMember;
+			newMember.m_id = newMemberProfile.m_id;
+            newMember.m_uid = newMemberProfile.m_uid;
+            newMember.m_name = newMemberProfile.m_name;
+            group.AddMember(newMember);
         }
         else if (action == 1)
         {
-            int memberId = -1;
+            int memberId = fid.ToInt();
             for (int i = 0; i < group.m_members.Count(); i++)
             {
-                if (group.m_members.Get(i).m_guid == fid)
+                if (group.m_members.Get(i).m_id == memberId)
                 {
-                    memberId = i;
+                    group.RemoveMember(group.m_members.Get(i));
                     break;
                 }
             }
-            
-            if (memberId < 0) return;
-            group.m_members.Remove(memberId);
         }
         
-        JsonFileLoader<ref PdaGroupsConfig>.JsonSaveFile(mainPath, m_groupsConfig);
         CheckContactsResponse(sender, null);
 	}
-};
-
-class PdaGroupsConfig
-{
-	ref array<ref PdaGroupConfig> m_groups;
-};
-
-class PdaGroupConfig
-{
-	string m_name;
-	int m_maxMembers;
-	ref array<string> m_leaders;
-	ref array<ref GroupMember> m_members;
 };
 
 class PdaServerConfig
