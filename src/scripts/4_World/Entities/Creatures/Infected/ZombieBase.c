@@ -65,8 +65,6 @@ modded class ZombieBase extends DayZInfected
 	
 	override void EEHitBy(TotalDamageResult damageResult, int damageType, EntityAI source, int component, string dmgZone, string ammo, vector modelPos, float speedCoef)
 	{
-		super.EEHitBy(damageResult, damageType, source, component, dmgZone, ammo, modelPos, speedCoef);
-
 		if (damageResult != null && source != null)
 		{			
 			PlayerBase sourcePlayer = PlayerBase.Cast( source.GetHierarchyRootPlayer() );
@@ -80,15 +78,24 @@ modded class ZombieBase extends DayZInfected
 					{
 						additionalDmg = additionalDmg * sourcePlayer.GetPerkFloatValue(SyberiaPerkType.SYBPERK_STRENGTH_HEAVY_ATTACK_STRENGTH, 0, 0);
 						
-						if (sourcePlayer.GetPerkBoolValue(SyberiaPerkType.SYBPERK_STRENGTH_KNOCKOUT_HEAVY_ITEMS))
+						if (dmgZone == "Head" && sourcePlayer.GetPerkBoolValue(SyberiaPerkType.SYBPERK_STRENGTH_KNOCKOUT_HEAVY_ITEMS))
 						{
-							StartCommand_Crawl(1);
-							GetGame().GetCallQueue( CALL_CATEGORY_SYSTEM ).CallLater(KnockoutStateReset, 1000, false);
+							SetHealth("", "Health", 0);
+						}
+						
+						if (Math.RandomFloat01() < GetSyberiaConfig().m_skillsExpStrengthHeavyAttackChance)
+						{
+							sourcePlayer.AddExperience(SyberiaSkillType.SYBSKILL_STRENGTH, GetSyberiaConfig().m_skillsExpStrengthHeavyAttackValue);
 						}
 					}
 					else
 					{
 						additionalDmg = additionalDmg * sourcePlayer.GetPerkFloatValue(SyberiaPerkType.SYBPERK_STRENGTH_FAST_ATTACK_STRENGTH, 0, 0);
+						
+						if (Math.RandomFloat01() < GetSyberiaConfig().m_skillsExpStrengthLightAttackChance)
+						{
+							sourcePlayer.AddExperience(SyberiaSkillType.SYBSKILL_STRENGTH, GetSyberiaConfig().m_skillsExpStrengthLightAttackValue);
+						}
 					}
 					
 					if (additionalDmg > 0)
@@ -98,11 +105,7 @@ modded class ZombieBase extends DayZInfected
 				}
 			}
 		}
-	}
-	
-	void KnockoutStateReset()
-	{
-		if (!IsAlive()) return;
-		SetHealth("", "Health", 0);
+		
+		super.EEHitBy(damageResult, damageType, source, component, dmgZone, ammo, modelPos, speedCoef);
 	}
 };

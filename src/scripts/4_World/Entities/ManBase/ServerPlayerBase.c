@@ -1307,8 +1307,7 @@ modded class PlayerBase
 		{
 			m_adrenalinEffectTimer = 0;
 		}
-		
-		staminaDepMod = staminaDepMod / GetPerkFloatValue(SyberiaPerkType.SYBPERK_STRENGTH_STAMINA_MAX, 1, 1);		
+			
 		if (GetStaminaHandler().GetDepletionMultiplier() != staminaDepMod)
 		{
 			GetStaminaHandler().SetDepletionMultiplier( staminaDepMod );
@@ -1376,10 +1375,26 @@ modded class PlayerBase
 					if ( ammo.Contains("_Heavy") )
 					{
 						additionalDmg = additionalDmg * sourcePlayer.GetPerkFloatValue(SyberiaPerkType.SYBPERK_STRENGTH_HEAVY_ATTACK_STRENGTH, 0, 0);
+						
+						if (dmgZone == "Head" && sourcePlayer.GetPerkBoolValue(SyberiaPerkType.SYBPERK_STRENGTH_KNOCKOUT_HEAVY_ITEMS))
+						{
+							SetHealth("", "Shock", 0);
+							GetGame().GetCallQueue( CALL_CATEGORY_SYSTEM ).CallLater(KnockoutStateReset, 1000, false);
+						}
+						
+						if (Math.RandomFloat01() < GetSyberiaConfig().m_skillsExpStrengthHeavyAttackChance)
+						{
+							sourcePlayer.AddExperience(SyberiaSkillType.SYBSKILL_STRENGTH, GetSyberiaConfig().m_skillsExpStrengthHeavyAttackValue);
+						}
 					}
 					else
 					{
 						additionalDmg = additionalDmg * sourcePlayer.GetPerkFloatValue(SyberiaPerkType.SYBPERK_STRENGTH_FAST_ATTACK_STRENGTH, 0, 0);
+						
+						if (Math.RandomFloat01() < GetSyberiaConfig().m_skillsExpStrengthLightAttackChance)
+						{
+							sourcePlayer.AddExperience(SyberiaSkillType.SYBSKILL_STRENGTH, GetSyberiaConfig().m_skillsExpStrengthLightAttackValue);
+						}
 					}
 					
 					if (additionalDmg > 0)
@@ -1389,5 +1404,11 @@ modded class PlayerBase
 				}
 			}
 		}
+	}
+	
+	void KnockoutStateReset()
+	{
+		if (!IsAlive()) return;
+		SetHealth("", "Shock", 50);
 	}
 };
