@@ -498,7 +498,8 @@ modded class PluginAdminTool
 		else if (statName == "Water") player.GetStatWater().Set(value);
 		else if (statName == "Energy") player.GetStatEnergy().Set(value);	
 		else if (statName == "Mind") player.m_mindStateValue = value;
-		else if (statName == "Sleeping") player.m_sleepingValue = (int)value;	
+		else if (statName == "Sleeping") player.m_sleepingValue = (int)value;
+		else if (statName == "RadiationDose") player.SetRadiationDose(value);	
 		else if (statName == "HeatBuffer") player.GetStatHeatBuffer().Set(value);
 		else if (statName == "BrokenLegs") player.UpdateBrokenLegs( (int)value );
 		else if (statName == "CutWounds")
@@ -631,6 +632,7 @@ modded class PluginAdminTool
 			playerContext.m_stats.Insert(new PluginAdminTool_PlayerStatContext("Energy", player.GetStatEnergy().GetMin(), player.GetStatEnergy().GetMax(), player.GetStatEnergy().Get()));
 			playerContext.m_stats.Insert(new PluginAdminTool_PlayerStatContext("Mind", 0, GetSyberiaConfig().m_mindstateMaxValue, player.m_mindStateValue));
 			playerContext.m_stats.Insert(new PluginAdminTool_PlayerStatContext("Sleeping", 0, GetSyberiaConfig().m_sleepingMaxValue, player.m_sleepingValue));
+			playerContext.m_stats.Insert(new PluginAdminTool_PlayerStatContext("RadiationDose", 0, 9999, player.GetRadiationDose()));
 			playerContext.m_stats.Insert(new PluginAdminTool_PlayerStatContext("HeatBuffer", player.GetStatHeatBuffer().GetMin(), player.GetStatHeatBuffer().GetMax(), player.GetStatHeatBuffer().Get()));
 			
 			playerContext.m_stats.Insert(new PluginAdminTool_PlayerStatContext("BrokenLegs", 0, 2, player.m_BrokenLegState));

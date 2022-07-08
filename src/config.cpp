@@ -130,6 +130,10 @@ class CfgSyberia
         startSurgeryKnifeChance = 0.3;
         surgerySideEffectBloodLoseCount = 500;
         surgerySideEffectHealthLoseCount = 20;
+        radiationDoseDecrementPerSec = -0.03;
+        radiationLevels[] = { 20, 60, 120 };
+        radiationHealthDamage[] = { 0.09, 0.2, 0.8 };
+        radiationSleepingDec = 3;
     };
 
     class AttackSystem
@@ -156,6 +160,8 @@ class CfgSyberia
     {
         bookPagesCountToCut = 10;
         gasMaskFilterDegradationInToxicZone = -0.33;
+        gasMaskFilterDegradationInRadZone = -0.2;
+        gasMaskFilterDegradationDefault = -0.05;
     };
 
     class SkillsExperienceSystem

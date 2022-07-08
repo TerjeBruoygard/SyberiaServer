@@ -28,6 +28,7 @@ modded class ActionStethoscopeInspect
 		data.m_sepsis = ntarget.HasVisibleSepsis();
 		data.m_concussion = ntarget.m_concussionHit;
 		data.m_virusZ = ntarget.HasVisibleZVirus();
+		data.m_radiationSickness = ntarget.GetRadiationSicknessLevel();
 		
 		if (!ntarget.IsAlive())
 		{

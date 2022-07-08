@@ -48,6 +48,7 @@ modded class PlayerBase
 	float m_zoneLeaveTimer = 0;
 	int m_zoneToxicEffect = 0;
 	float m_zoneToxicValue = 0;
+	float m_radiationDose = 0;
 	
 	override void Init()
 	{
@@ -95,13 +96,9 @@ modded class PlayerBase
         
         // VER 100
         ctx.Write( SYBERIA_V100_VERSION );
-
-        // Sleeping
         ctx.Write( m_sleepingValue );
         ctx.Write( m_sleepingBoostTimer );
         ctx.Write( m_sleepingBoostValue );
-        
-        // Adv medicine
         ctx.Write( m_bulletHits );
         ctx.Write( m_knifeHits );
         ctx.Write( m_hematomaHits );
@@ -143,11 +140,14 @@ modded class PlayerBase
 		ctx.Write( m_antibioticsTimer );
 		ctx.Write( m_antibioticsStrange );
 		ctx.Write( m_stomatchpoisonTimer );
-		
-		// Mind state
 		ctx.Write( m_mindStateValue );
 		ctx.Write( m_mindDegradationForce );
 		ctx.Write( m_mindDegradationTime );
+		
+		// VER 100
+        ctx.Write( SYBERIA_V101_VERSION );
+		ctx.Write( m_radiationSickness );
+		ctx.Write( m_radiationDose );
 	}
 	
 	override bool OnStoreLoad( ParamsReadContext ctx, int version )
@@ -156,8 +156,8 @@ modded class PlayerBase
 			return false;
 		
         // VER 100
-        int syb_ver_100;
-        if(ctx.Read( syb_ver_100 ) && syb_ver_100 == SYBERIA_V100_VERSION)
+        int syb_ver;
+        if(ctx.Read( syb_ver ) && syb_ver == SYBERIA_V100_VERSION)
 		{
 			// Sleeping
 			if(!ctx.Read( m_sleepingValue )) return false;		
@@ -212,6 +212,16 @@ modded class PlayerBase
 			m_mindStateLast = m_mindStateValue;
 			if(!ctx.Read( m_mindDegradationForce )) return false;
 			if(!ctx.Read( m_mindDegradationTime )) return false;
+		}
+		else
+		{
+			return false;
+		}
+		
+		if(ctx.Read( syb_ver ) && syb_ver == SYBERIA_V101_VERSION)
+		{
+			if(!ctx.Read( m_radiationSickness )) return false;
+			if(!ctx.Read( m_radiationDose )) return false;
 		}
 		else
 		{
@@ -336,6 +346,9 @@ modded class PlayerBase
 			return;
 		}
 		
+		int waterDrain;
+		int energyDrain;
+		
 		if (m_zoneToxicEffect > 0)
 		{
 			if (m_zoneToxicEffect < 10)
@@ -349,13 +362,13 @@ modded class PlayerBase
 			{			
 				if (m_zoneToxicEffect % 10 == 0)
 				{
-					SymptomBase symptom = GetSymptomManager().QueueUpPrimarySymptom(SymptomIDs.SYMPTOM_VOMIT);				
-					if( symptom )
+					SymptomBase symptom1 = GetSymptomManager().QueueUpPrimarySymptom(SymptomIDs.SYMPTOM_VOMIT);				
+					if( symptom1 )
 					{
-						symptom.SetDuration(5);
+						symptom1.SetDuration(5);
 						
-						int waterDrain = GetSyberiaConfig().m_stomatchpoisonWaterDrainFromVomit[1];
-						int energyDrain = GetSyberiaConfig().m_stomatchpoisonEnergyDrainFromVomit[1];
+						waterDrain = GetSyberiaConfig().m_stomatchpoisonWaterDrainFromVomit[1];
+						energyDrain = GetSyberiaConfig().m_stomatchpoisonEnergyDrainFromVomit[1];
 		
 						if (GetStatWater().Get() > waterDrain)
 							GetStatWater().Add(-1 * waterDrain);
@@ -371,13 +384,21 @@ modded class PlayerBase
 		}
 		
 		bool filterProtection = false;
-		if (m_zone.m_gas > 0)
+		ItemBase filter = GetGasMaskFilter();
+		if (filter && filter.GetQuantity() > 0)
 		{
-			ItemBase filter = GetGasMaskFilter();
-			if (filter && filter.GetQuantity() > 0)
+			filterProtection = true;
+			if (m_zone.m_gas > 0)
 			{
-				filter.AddQuantity(GetSyberiaConfig().m_gasMaskFilterDegradationInToxicZone);
-				filterProtection = true;
+				filter.AddQuantity(GetSyberiaConfig().m_gasMaskFilterDegradationInToxicZone);				
+			}
+			else if (m_zone.m_radiation > 0)
+			{
+				filter.AddQuantity(GetSyberiaConfig().m_gasMaskFilterDegradationInRadZone);	
+			}
+			else
+			{
+				filter.AddQuantity(GetSyberiaConfig().m_gasMaskFilterDegradationDefault);	
 			}
 		}
 		
@@ -389,6 +410,56 @@ modded class PlayerBase
 		else if (m_zoneToxicEffect > 0)
 		{
 			m_zoneToxicEffect = m_zoneToxicEffect - 1;
+		}
+		
+		if (m_zone.m_radiation > 0)
+		{
+			float radIncrement = (1.0 - GetRadiationProtection()) * m_zone.m_radiation;
+			if (radIncrement > 0)
+			{
+				AddRadiationDose(radIncrement);
+			}
+		}
+		else if (GetRadiationDose() > 0)
+		{
+			AddRadiationDose(GetSyberiaConfig().m_radiationDoseDecrementPerSec);
+		}
+		
+		if (m_radiationSickness > 0)
+		{
+			DecreaseHealth("", "Health", GetSyberiaConfig().m_radiationHealthDamage[m_radiationSickness - 1]);
+		}
+		
+		if (m_radiationSickness >= 2 && Math.RandomFloat01() < 0.05)
+		{
+			// Vomit
+			SymptomBase symptom2 = GetSymptomManager().QueueUpPrimarySymptom(SymptomIDs.SYMPTOM_VOMIT);				
+			if( symptom2 )
+			{
+				symptom2.SetDuration(3);
+				
+				waterDrain = GetSyberiaConfig().m_stomatchpoisonWaterDrainFromVomit[2];
+				energyDrain = GetSyberiaConfig().m_stomatchpoisonEnergyDrainFromVomit[2];
+
+				if (GetStatWater().Get() > waterDrain)
+					GetStatWater().Add(-1 * waterDrain);
+				
+				if (GetStatEnergy().Get() > energyDrain)
+					GetStatEnergy().Add(-1 * energyDrain);
+			}
+		}
+		
+		if (m_radiationSickness == 3)
+		{
+			if (Math.RandomFloat01() < 0.1)
+			{
+				DecreaseHealth("", "Shock", 20);
+			}
+			
+			if (Math.RandomFloat01() < 0.05 && m_BleedingManagerServer.GetBleedingSourcesCount() == 0)
+			{
+				GetBleedingManagerServer().AttemptAddBleedingSource(0);
+			}
 		}
 	}
 	
@@ -476,6 +547,11 @@ modded class PlayerBase
 	{
 		int sleepingDiff = 0;		
 		sleepingDiff = sleepingDiff - GetSyberiaConfig().m_sleepingDecPerSec;
+		
+		if (m_radiationSickness > 0)
+		{
+			sleepingDiff = sleepingDiff - GetSyberiaConfig().m_radiationSleepingDec;
+		}
 		
 		if (m_sleepingBoostTimer > 0)
 		{
@@ -1662,5 +1738,70 @@ modded class PlayerBase
 		if (!itemMask) return null;
 		
 		return itemMask.GetInventory().FindAttachmentByName("GasMaskFilter");
+	}
+	
+	void OnRadiationDoseChanged()
+	{
+		int newRadLevel = 0;
+		if (m_radiationDose > GetSyberiaConfig().m_radiationLevels[2])
+		{
+			newRadLevel = 3;
+		}
+		else if (m_radiationDose > GetSyberiaConfig().m_radiationLevels[1])
+		{
+			newRadLevel = 2;
+		}
+		else if (m_radiationDose > GetSyberiaConfig().m_radiationLevels[0])
+		{
+			newRadLevel = 1;
+		}
+		
+		if (newRadLevel != m_radiationSickness)
+		{
+			m_radiationSickness = newRadLevel;
+			SetSynchDirty();
+		}
+	}
+	
+	void SetRadiationDose(float dose)
+	{
+		m_radiationDose = Math.Max(0, dose);
+		OnRadiationDoseChanged();
+	}
+	
+	void AddRadiationDose(float dose)
+	{
+		m_radiationDose = Math.Max(0, m_radiationDose + dose);
+		OnRadiationDoseChanged();
+	}
+	
+	float GetRadiationDose()
+	{
+		return m_radiationDose;
+	}
+	
+	// 0 - no protection
+	// 1 - full protection
+	float GetRadiationProtection()
+	{
+		float value = 0;
+		EntityAI attachment;
+		int attCount = GetInventory().AttachmentCount();
+		for ( int attIdx = 0; attIdx < attCount; attIdx++ )
+		{
+			attachment = GetInventory().GetAttachmentFromIndex( attIdx );
+			if ( attachment.IsClothing() )
+			{
+				value = value + GetGame().ConfigGetFloat( "CfgVehicles " + attachment.GetType() + " radiationProtection" );
+			}
+		}
+		
+		ItemBase gasMaskFilter = GetGasMaskFilter();
+		if (gasMaskFilter && gasMaskFilter.GetQuantity() > 0)
+		{
+			value = value + GetGame().ConfigGetFloat( "CfgVehicles " + gasMaskFilter.GetType() + " radiationProtection" );
+		}
+		
+		return Math.Clamp(value, 0, 1);
 	}
 };
