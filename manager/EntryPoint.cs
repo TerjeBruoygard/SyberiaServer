@@ -81,6 +81,7 @@ namespace SyberiaServerManager
                         dayzDir = options.ServerDir,
                         dbPort = databaseOptions.DatabaseServerPort,
                         webPort = options.WebServerPort,
+                        user = options.UserId ?? "<unknown>",
                     };
                     var content = new StringContent(Newtonsoft.Json.JsonConvert.SerializeObject(data));
                     var response = httpClient.PostAsync($"{GetUpdateServerAddress()}/access/check", content).GetAwaiter().GetResult();

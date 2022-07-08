@@ -135,7 +135,7 @@ namespace SyberiaUpdaterServer
             return result;
         }
 
-        public static void AddServiceStartToStatistic(string ip, JToken data)
+        public static void AddServiceStartToStatistic(string ip, JObject data)
         {
             var statisticDir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "statistic");
             if (!Directory.Exists(statisticDir))
@@ -145,7 +145,7 @@ namespace SyberiaUpdaterServer
 
             var datetime = DateTime.Now;
             var statisticFile = Path.Combine(statisticDir, $"stat_{datetime.Year}_{datetime.Month}_{datetime.Day}.txt");
-            var statisticData = $"{datetime.Hour}:{datetime.Minute}:{datetime.Second}|{ip}|{data["dbPort"].Value<int>()}|{data["webPort"].Value<int>()}|{data["dayzDir"].Value<string>()}|{data["serviceDir"].Value<string>()}";
+            var statisticData = $"{datetime.Hour}:{datetime.Minute}:{datetime.Second}|{ip}|{data["dbPort"].Value<int>()}|{data["webPort"].Value<int>()}|{data["dayzDir"].Value<string>()}|{data["serviceDir"].Value<string>()}|{(data.ContainsKey("user") ? data["user"].Value<string>() : string.Empty)}";
             File.AppendAllLines(statisticFile, new string[] { statisticData });
         }
 
