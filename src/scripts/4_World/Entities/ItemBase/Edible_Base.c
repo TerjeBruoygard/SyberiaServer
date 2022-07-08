@@ -12,11 +12,11 @@ modded class Edible_Base
 	override void EEOnCECreate()
     {
         super.EEOnCECreate();
-        if (IsFruit() && Math.RandomFloat01() < 0.25)
+        if (IsFruit() && Math.RandomFloat01() < GetSyberiaConfig().m_dirtyFruitsSpawnChance)
         {
             InsertAgent(eAgents.FOOD_POISON, 1);
         }
-		else if (IsMushroom() && Math.RandomFloat01() < 0.6)
+		else if (IsMushroom() && Math.RandomFloat01() < GetSyberiaConfig().m_dirtyMushroomsSpawnChance)
         {
             InsertAgent(eAgents.FOOD_POISON, 1);
         }

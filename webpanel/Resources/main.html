@@ -568,7 +568,7 @@
             });
             $('#inputGroupSpawnpointsPosition').change(function () {
                 if (currentGroupSpawnpointId != -1 && currentGroupSpawnpointPosition != -1) {
-                    let pos = $(this).val().split(' ').map(parseFloat);
+                    let pos = $(this).val().split(' ').map(val => parseFloat(val));
                     defaultGroupDataobject['m_spawnpoints'][currentGroupSpawnpointId]['m_positions'][currentGroupSpawnpointPosition]['m_pos'] = pos;
                     $('#inputGroupSpawnpointsPositionsSelection').find('option[value="' + currentGroupSpawnpointPosition + '"]').text($(this).val());
                 }
@@ -1041,7 +1041,7 @@
             });
             $('#inputFactionSpawnpointsPosition').change(function () {
                 if (currentFactionId != -1 && currentFactionSpawnpointId != -1 && currentFactionSpawnpointPosition != -1) {
-                    let pos = $(this).val().split(' ').map(parseFloat);
+                    let pos = $(this).val().split(' ').map(val => parseFloat(val));
                     factionsDataobject[currentFactionId]['m_spawnpoints'][currentFactionSpawnpointId]['m_positions'][currentFactionSpawnpointPosition]['m_pos'] = pos;
                     $('#inputFactionSpawnpointsPositionsSelection').find('option[value="' + currentFactionSpawnpointPosition + '"]').text($(this).val());
                 }
@@ -1506,7 +1506,7 @@
             });
             $('#inputLoadoutSpawnpointsPosition').change(function () {
                 if (currentLoadoutId != -1 && currentLoadoutSpawnpointId != -1 && currentLoadoutSpawnpointPosition != -1) {
-                    let pos = $(this).val().split(' ').map(parseFloat);
+                    let pos = $(this).val().split(' ').map(val => parseFloat(val));
                     loadoutsDataobject[currentLoadoutId]['m_spawnpoints'][currentLoadoutSpawnpointId]['m_positions'][currentLoadoutSpawnpointPosition]['m_pos'] = pos;
                     $('#inputLoadoutSpawnpointsPositionsSelection').find('option[value="' + currentLoadoutSpawnpointPosition + '"]').text($(this).val());
                 }
@@ -1801,7 +1801,7 @@
             $('#inputBarterTraderAttachments').change(function () { if (currentBarterTraderId != -1) barterTradersDataobject[currentBarterTraderId]['m_attachments'] = $(this).val().split('\n').filter(n => n.trim()); });
             $('#inputBarterTraderPosition').change(function () {
                 if (currentBarterTraderId != -1) {
-                    let pos = $(this).val().split(' ').map(parseFloat);
+                    let pos = $(this).val().split(' ').map(val => parseFloat(val));
                     barterTradersDataobject[currentBarterTraderId]['m_position'] = pos;
                 }
             });
@@ -2058,7 +2058,7 @@
 
             $('#inputZonePosition').change(function () {
                 if (currentZoneId != undefined && currentZoneId != 'default') {
-                    let pos = $(this).val().split(' ').map(parseFloat);
+                    let pos = $(this).val().split(' ').map(val => parseFloat(val));
                     zonesCustom[parseInt(currentZoneId)]['m_position'] = pos;
                 }
             });

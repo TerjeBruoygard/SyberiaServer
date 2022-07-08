@@ -61,9 +61,9 @@ class CfgSyberia
         zvirusDeathTimeSec = 1200;
         zvirusBloodLosePerSec = 0.05;
         zvirusHealthLosePerSec = 0.01;
-        zvirusCuthitSpawnChance = 0.005;
-        zvirusPainSpawnChance = 0.002;
-        zvirusVommitSpawnChance = 0.001;
+        zvirusCuthitSpawnChance = 0.003;
+        zvirusPainSpawnChance = 0.001;
+        zvirusVommitSpawnChance = 0.0002;
         zvirusBlindnessSpawnChance = 0.01;
         zvirusFeverblurSpawnChance = 0.01;
         zvirusOnHitIncrementTimer = 300;
@@ -185,6 +185,8 @@ class CfgSyberia
         damageClothingInRadiationZone = 0.0;
         defaultStaminaDepletionMultiplier = 1.0;
         defaultStaminaRecoveryMultiplier = 1.0;
+        dirtyFruitsSpawnChance = 0.25;
+        dirtyMushroomsSpawnChance = 0.6;
     };
 
     class SkillsExperienceSystem
