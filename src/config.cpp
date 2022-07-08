@@ -95,8 +95,8 @@ class CfgSyberia
         visceraBullethitTorsoChance = 0.3;
         concussionRegenTimeSec = 1800; //30 min
         concussionZombieHitChance = 0.05;
-        hemostaticEffectModifier = 0.4; // 40% of total bloodlose
-        hematopoiesisEffectBloodPerSec = 5;
+        hemostaticEffectModifier = 0.3; // 30% of total bloodlose
+        hematopoiesisEffectBloodPerSec = 2;
         adrenalinEffectShockUpPerSec[] = { 0.01666, 0.03333, 0.2 };
         adrenalinEffectStaminaDepletionMod[] = { 0.5, 0.25, 0.1 };
         overdoseDecrementPerSec = 0.001;
