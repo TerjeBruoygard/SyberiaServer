@@ -9,9 +9,9 @@ modded class ActionCloseDoors
 			if ( doorIndex != -1 )
 			{
 				building.CloseDoor(doorIndex);
-				if (building.IsInherited(BuildingDoorBase))
+				if (building.IsInherited(BuildingLivespace))
 				{
-					BuildingDoorBase.Cast(building).CloseDoorLinked(doorIndex);
+					BuildingLivespace.Cast(building).CloseDoorLinked(doorIndex);
 				}
 			}
 		}
