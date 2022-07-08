@@ -154,6 +154,7 @@ class CfgSyberia
         zombieOpenDoorEnable = 1;
         zombieOpenDoorDistance = 1.8;
         zombieFindHouseDistance = 20.0;
+        zombieBloodHandsChanceOnLooting = 0.25;
     };
     
     class AnimalsSystem
