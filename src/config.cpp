@@ -177,5 +177,10 @@ class CfgSyberia
         skillsExpMedicineAmpoule = 100;
         skillsExpMedicineInjector = 100;
         skillsExpMedicineSurgery = 1000;
+        
+        skillsExpHuntingButchSmall = 100;
+        skillsExpHuntingButchCommon = 250;
+        skillsExpHuntingButchWolf = 500;
+        skillsExpHuntingButchBear = 3000;
     };
 };
