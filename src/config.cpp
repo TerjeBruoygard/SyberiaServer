@@ -227,4 +227,188 @@ class CfgSyberia
         skillsExpSurvivalIgniteFireSuccess = 500;
         skillsExpSurvivalIgniteFireFailed = 50;
     };
+    
+    class Characters
+    {
+        class SurvivorM_Mirek
+        {
+            gender = "male";
+            ghost = "SurvivorM_Mirek_Ghost";
+            facelogo = "SyberiaScripts/data/faces/m0.paa";
+        };
+        class SurvivorM_Boris
+        {
+            gender = "male";
+            ghost = "SurvivorM_Boris_Ghost";
+            facelogo = "SyberiaScripts/data/faces/m1.paa";
+        };
+        class SurvivorM_Cyril
+        {
+            gender = "male";
+            ghost = "SurvivorM_Cyril_Ghost";
+            facelogo = "SyberiaScripts/data/faces/m2.paa";
+        };
+        class SurvivorM_Denis
+        {
+            gender = "male";
+            ghost = "SurvivorM_Denis_Ghost";
+            facelogo = "SyberiaScripts/data/faces/m3.paa";
+        };
+        class SurvivorM_Elias
+        {
+            gender = "male";
+            ghost = "SurvivorM_Elias_Ghost";
+            facelogo = "SyberiaScripts/data/faces/m4.paa";
+        };
+        class SurvivorM_Francis
+        {
+            gender = "male";
+            ghost = "SurvivorM_Francis_Ghost";
+            facelogo = "SyberiaScripts/data/faces/m5.paa";
+        };
+        class SurvivorM_Guo
+        {
+            gender = "male";
+            ghost = "SurvivorM_Guo_Ghost";
+            facelogo = "SyberiaScripts/data/faces/m6.paa";
+        };
+        class SurvivorM_Hassan
+        {
+            gender = "male";
+            ghost = "SurvivorM_Hassan_Ghost";
+            facelogo = "SyberiaScripts/data/faces/m7.paa";
+        };
+        class SurvivorM_Indar
+        {
+            gender = "male";
+            ghost = "SurvivorM_Indar_Ghost";
+            facelogo = "SyberiaScripts/data/faces/m8.paa";
+        };
+        class SurvivorM_Jose
+        {
+            gender = "male";
+            ghost = "SurvivorM_Jose_Ghost";
+            facelogo = "SyberiaScripts/data/faces/m9.paa";
+        };
+        class SurvivorM_Kaito
+        {
+            gender = "male";
+            ghost = "SurvivorM_Kaito_Ghost";
+            facelogo = "SyberiaScripts/data/faces/m10.paa";
+        };
+        class SurvivorM_Lewis
+        {
+            gender = "male";
+            ghost = "SurvivorM_Lewis_Ghost";
+            facelogo = "SyberiaScripts/data/faces/m11.paa";
+        };
+        class SurvivorM_Manua
+        {
+            gender = "male";
+            ghost = "SurvivorM_Manua_Ghost";
+            facelogo = "SyberiaScripts/data/faces/m12.paa";
+        };
+        class SurvivorM_Niki
+        {
+            gender = "male";
+            ghost = "SurvivorM_Niki_Ghost";
+            facelogo = "SyberiaScripts/data/faces/m13.paa";
+        };
+        class SurvivorM_Oliver
+        {
+            gender = "male";
+            ghost = "SurvivorM_Oliver_Ghost";
+            facelogo = "SyberiaScripts/data/faces/m14.paa";
+        };
+        class SurvivorM_Peter
+        {
+            gender = "male";
+            ghost = "SurvivorM_Peter_Ghost";
+            facelogo = "SyberiaScripts/data/faces/m15.paa";
+        };
+        class SurvivorM_Quinn
+        {
+            gender = "male";
+            ghost = "SurvivorM_Quinn_Ghost";
+            facelogo = "SyberiaScripts/data/faces/m16.paa";
+        };
+        class SurvivorM_Rolf
+        {
+            gender = "male";
+            ghost = "SurvivorM_Rolf_Ghost";
+            facelogo = "SyberiaScripts/data/faces/m17.paa";
+        };
+        class SurvivorM_Seth
+        {
+            gender = "male";
+            ghost = "SurvivorM_Seth_Ghost";
+            facelogo = "SyberiaScripts/data/faces/m18.paa";
+        };
+        class SurvivorM_Taiki
+        {
+            gender = "male";
+            ghost = "SurvivorM_Taiki_Ghost";
+            facelogo = "SyberiaScripts/data/faces/m19.paa";
+        };
+        
+        class SurvivorF_Eva
+        {
+            gender = "female";
+            ghost = "SurvivorF_Eva_Ghost";
+            facelogo = "SyberiaScripts/data/faces/f0.paa";
+        };
+        class SurvivorF_Frida
+        {
+            gender = "female";
+            ghost = "SurvivorF_Frida_Ghost";
+            facelogo = "SyberiaScripts/data/faces/f1.paa";
+        };
+        class SurvivorF_Gabi
+        {
+            gender = "female";
+            ghost = "SurvivorF_Gabi_Ghost";
+            facelogo = "SyberiaScripts/data/faces/f2.paa";
+        };
+        class SurvivorF_Helga
+        {
+            gender = "female";
+            ghost = "SurvivorF_Helga_Ghost";
+            facelogo = "SyberiaScripts/data/faces/f3.paa";
+        };
+        class SurvivorF_Irena
+        {
+            gender = "female";
+            ghost = "SurvivorF_Irena_Ghost";
+            facelogo = "SyberiaScripts/data/faces/f4.paa";
+        };
+        class SurvivorF_Judy
+        {
+            gender = "female";
+            ghost = "SurvivorF_Judy_Ghost";
+            facelogo = "SyberiaScripts/data/faces/f5.paa";
+        };
+        class SurvivorF_Keiko
+        {
+            gender = "female";
+            ghost = "SurvivorF_Keiko_Ghost";
+            facelogo = "SyberiaScripts/data/faces/f6.paa";
+        };class SurvivorF_Linda
+        {
+            gender = "female";
+            ghost = "SurvivorF_Linda_Ghost";
+            facelogo = "SyberiaScripts/data/faces/f7.paa";
+        };
+        class SurvivorF_Maria
+        {
+            gender = "female";
+            ghost = "SurvivorF_Maria_Ghost";
+            facelogo = "SyberiaScripts/data/faces/f8.paa";
+        };
+        class SurvivorF_Naomi
+        {
+            gender = "female";
+            ghost = "SurvivorF_Naomi_Ghost";
+            facelogo = "SyberiaScripts/data/faces/f9.paa";
+        };
+    };
 };
