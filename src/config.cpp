@@ -74,6 +74,7 @@ class CfgSyberia
         bleedingBullethitCupd1PerSecond = 0.3;
         bleedingBullethitCupd2PerSecond = 0.1;
         bleedingBullethitRemoveBandagedTimeSec = -1; // DISABLED
+        bleedingKnifehitZombieChance = 0.005;
         bleedingKnifehitHealthlosePerSecond = 0.003;
         bleedingKnifehitOpenPerSecond = 6;
         bleedingKnifehitCupd1PerSecond = 0.35;
@@ -93,6 +94,7 @@ class CfgSyberia
         visceraKnifehitTorsoChance = 0.4;
         visceraBullethitTorsoChance = 0.3;
         concussionRegenTimeSec = 1800; //30 min
+        concussionZombieHitChance = 0.05;
         hemostaticEffectModifier = 0.4; // 40% of total bloodlose
         hematopoiesisEffectBloodPerSec = 5;
         adrenalinEffectShockUpPerSec[] = { 0.01666, 0.03333, 0.2 };
