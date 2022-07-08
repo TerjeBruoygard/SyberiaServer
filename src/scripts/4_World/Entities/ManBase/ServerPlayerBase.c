@@ -37,6 +37,10 @@ modded class PlayerBase
 	// Admin tool
 	bool m_freeCamMode = false;
 	
+	// Skills
+	int m_skillsSaveInterval = 0;
+	bool m_skillsSaveDirty = false;
+	
 	override void Init()
 	{
 		super.Init();
@@ -210,54 +214,66 @@ modded class PlayerBase
 	{
 		super.OnScheduledTick(deltaTime);
 		
-		m_advMedUpdateTimer = m_advMedUpdateTimer + deltaTime;
-		if (m_advMedUpdateTimer > 0.2)
+		if (IsAlive())
 		{
-			OnTickAdvMedicine_Bloodlose(m_advMedUpdateTimer);
-			OnTickAdvMedicine_Salve(m_advMedUpdateTimer);
-			OnTickAdvMedicine_Regen(m_advMedUpdateTimer);
-			OnTickAdvMedicine_Pain(m_advMedUpdateTimer);
-			OnTickAdvMedicine_Sepsis(m_advMedUpdateTimer);
-			OnTickAdvMedicine_ZVirus(m_advMedUpdateTimer);
-			OnTickAdvMedicine_Stomatchheal(m_advMedUpdateTimer);
-			OnTickAdvMedicine_Antibiotics(m_advMedUpdateTimer);
-			OnTickAdvMedicine_Influenza(m_advMedUpdateTimer);
-			//OnTickAdvMedicine_HemorlogicShock(m_advMedUpdateTimer);
-			OnTickAdvMedicine_Overdose(m_advMedUpdateTimer);
-			OnTickAdvMedicine_HemostatickEffect(m_advMedUpdateTimer);
-			OnTickAdvMedicine_HematopoiesisEffect(m_advMedUpdateTimer);
-			OnTickAdvMedicine_Adrenalin(m_advMedUpdateTimer);
-			m_advMedUpdateTimer = 0;
-		}
-		
-		m_sleepingDecTimer = m_sleepingDecTimer + deltaTime;
-		while (m_sleepingDecTimer > 1.0)
-		{
-			m_sleepingDecTimer = m_sleepingDecTimer - 1.0;
-			OnTickSleeping();
-			OnTickMindState();
-			OnTickSickCheck();
-			OnTickStomatchpoison();
-			OnTickSkills();
-		}
-		
-		if (m_freeCamMode)
-		{
-			vector teleportPos = GetPosition();
-			teleportPos[1] = GetGame().SurfaceY(teleportPos[0], teleportPos[2]) - 50;
-			if ( !GameHelpers.GetPlayerVehicle(this) )
+			m_advMedUpdateTimer = m_advMedUpdateTimer + deltaTime;
+			if (m_advMedUpdateTimer > 0.2)
 			{
-				SetPosition(teleportPos);
+				OnTickAdvMedicine_Bloodlose(m_advMedUpdateTimer);
+				OnTickAdvMedicine_Salve(m_advMedUpdateTimer);
+				OnTickAdvMedicine_Regen(m_advMedUpdateTimer);
+				OnTickAdvMedicine_Pain(m_advMedUpdateTimer);
+				OnTickAdvMedicine_Sepsis(m_advMedUpdateTimer);
+				OnTickAdvMedicine_ZVirus(m_advMedUpdateTimer);
+				OnTickAdvMedicine_Stomatchheal(m_advMedUpdateTimer);
+				OnTickAdvMedicine_Antibiotics(m_advMedUpdateTimer);
+				OnTickAdvMedicine_Influenza(m_advMedUpdateTimer);
+				//OnTickAdvMedicine_HemorlogicShock(m_advMedUpdateTimer);
+				OnTickAdvMedicine_Overdose(m_advMedUpdateTimer);
+				OnTickAdvMedicine_HemostatickEffect(m_advMedUpdateTimer);
+				OnTickAdvMedicine_HematopoiesisEffect(m_advMedUpdateTimer);
+				OnTickAdvMedicine_Adrenalin(m_advMedUpdateTimer);
+				m_advMedUpdateTimer = 0;
+			}
+			
+			m_sleepingDecTimer = m_sleepingDecTimer + deltaTime;
+			while (m_sleepingDecTimer > 1.0)
+			{
+				m_sleepingDecTimer = m_sleepingDecTimer - 1.0;
+				OnTickSleeping();
+				OnTickMindState();
+				OnTickSickCheck();
+				OnTickStomatchpoison();
+				OnTickSkills();
+			}
+			
+			if (m_freeCamMode)
+			{
+				vector teleportPos = GetPosition();
+				teleportPos[1] = GetGame().SurfaceY(teleportPos[0], teleportPos[2]) - 50;
+				if ( !GameHelpers.GetPlayerVehicle(this) )
+				{
+					SetPosition(teleportPos);
+				}
 			}
 		}
 	}
 	
 	private void OnTickSkills()
-	{
+	{		
 		if (m_charProfile && m_charProfile.m_skills && m_charProfile.m_skills.m_dirty)
 		{
 			m_charProfile.m_skills.m_dirty = false;			
 			GetSyberiaRPC().SendToClient(SyberiaRPC.SYBRPC_SKILLS_UPDATE, GetIdentity(), new Param1<ref SkillsContainer>(m_charProfile.m_skills));
+			m_skillsSaveDirty = true;
+		}
+		
+		m_skillsSaveInterval = m_skillsSaveInterval + 1;
+		if (m_skillsSaveDirty && m_skillsSaveInterval > 60)
+		{
+			m_skillsSaveDirty = false;
+			m_skillsSaveInterval = 0;
+			GetSyberiaCharacters().Save( GetIdentity() );
 		}
 	}
 	

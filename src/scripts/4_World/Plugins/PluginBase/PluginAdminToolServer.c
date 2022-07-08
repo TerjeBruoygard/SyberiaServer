@@ -383,6 +383,11 @@ modded class PluginAdminTool
 
 	private void ApplyPlayerContextStat(PlayerBase player, string statName, float value)
 	{
+		if (!player) return;
+		
+		ref CharProfile profile = GetSyberiaCharacters().Get(player.GetIdentity());
+		if (!profile || !profile.m_skills) return;
+		
 		if (statName == "Health") player.SetHealth("", "Health", value);
 		else if (statName == "Blood") player.SetHealth("", "Blood", value);
 		else if (statName == "Shock") player.SetHealth("", "Shock", value);		
@@ -412,7 +417,25 @@ modded class PluginAdminTool
         else if (statName == "StomatchPoison") player.m_stomatchpoisonLevel = (int)value;
         else if (statName == "StomatchHeal") player.m_stomatchhealLevel = (int)value;
         else if (statName == "Adrenalin") player.m_adrenalinEffect = (int)value;
-        else if (statName == "Overdose") player.m_overdosedValue = value;
+        else if (statName == "Overdose") player.m_overdosedValue = value;		
+		else if (statName == "Immunity") profile.m_skills.SetSkillValue(SyberiaSkillType.SYBSKILL_IMMUNITY, value);
+		else if (statName == "Athletics") profile.m_skills.SetSkillValue(SyberiaSkillType.SYBSKILL_ATHLETICS, value);
+		else if (statName == "Strength") profile.m_skills.SetSkillValue(SyberiaSkillType.SYBSKILL_STRENGTH, value);
+		else if (statName == "Medicine") profile.m_skills.SetSkillValue(SyberiaSkillType.SYBSKILL_MEDICINE, value);
+		else if (statName == "Stealth") profile.m_skills.SetSkillValue(SyberiaSkillType.SYBSKILL_STEALTH, value);
+		else if (statName == "Survival") profile.m_skills.SetSkillValue(SyberiaSkillType.SYBSKILL_SURVIVAL, value);
+		else if (statName == "Farming") profile.m_skills.SetSkillValue(SyberiaSkillType.SYBSKILL_FARMING, value);
+		else if (statName == "Hunting") profile.m_skills.SetSkillValue(SyberiaSkillType.SYBSKILL_HUNTING, value);
+		else if (statName == "Fishing") profile.m_skills.SetSkillValue(SyberiaSkillType.SYBSKILL_FISHING, value);
+		else if (statName == "Mechanics") profile.m_skills.SetSkillValue(SyberiaSkillType.SYBSKILL_MECHANICS, value);
+		else if (statName == "Electronics") profile.m_skills.SetSkillValue(SyberiaSkillType.SYBSKILL_ELECTRONICS, value);
+		else if (statName == "Carpentry") profile.m_skills.SetSkillValue(SyberiaSkillType.SYBSKILL_CARPENTRY, value);
+		else if (statName == "Metalworking") profile.m_skills.SetSkillValue(SyberiaSkillType.SYBSKILL_METALWORKING, value);
+		else if (statName == "Building") profile.m_skills.SetSkillValue(SyberiaSkillType.SYBSKILL_BUILDING, value);
+		else if (statName == "Firearm") profile.m_skills.SetSkillValue(SyberiaSkillType.SYBSKILL_FIREARMS, value);
+		else if (statName == "Lockpicking") profile.m_skills.SetSkillValue(SyberiaSkillType.SYBSKILL_LOCKPICKING, value);
+		else if (statName == "Herbalism") profile.m_skills.SetSkillValue(SyberiaSkillType.SYBSKILL_HERBALISM, value);
+		else if (statName == "Tailoring") profile.m_skills.SetSkillValue(SyberiaSkillType.SYBSKILL_SEAMSTRESS, value);
 				
 		player.SetSynchDirty();
 	}
@@ -447,7 +470,7 @@ modded class PluginAdminTool
 		}
 		
 		playerContext.m_stats = new array<ref PluginAdminTool_PlayerStatContext>;
-		if (!playerContext.m_isGhost)
+		if (!playerContext.m_isGhost && profile && profile.m_skills)
 		{
 			playerContext.m_stats.Insert(new PluginAdminTool_PlayerStatContext("Health", 0, player.GetMaxHealth("GlobalHealth", "Health"), player.GetHealth("", "Health")));
 			playerContext.m_stats.Insert(new PluginAdminTool_PlayerStatContext("Blood", 2500, player.GetMaxHealth("GlobalHealth", "Blood"), player.GetHealth("", "Blood")));
@@ -491,6 +514,26 @@ modded class PluginAdminTool
 			
 			playerContext.m_stats.Insert(new PluginAdminTool_PlayerStatContext("Adrenalin", 0, 3, player.m_adrenalinEffect));
 			playerContext.m_stats.Insert(new PluginAdminTool_PlayerStatContext("Overdose", 0, 3, player.m_overdosedValue));
+			
+			playerContext.m_stats.Insert(new PluginAdminTool_PlayerStatContext("Immunity", 0, 100, profile.m_skills.GetSkillValue(SyberiaSkillType.SYBSKILL_IMMUNITY)));
+			playerContext.m_stats.Insert(new PluginAdminTool_PlayerStatContext("Athletics", 0, 100, profile.m_skills.GetSkillValue(SyberiaSkillType.SYBSKILL_ATHLETICS)));
+			playerContext.m_stats.Insert(new PluginAdminTool_PlayerStatContext("Strength", 0, 100, profile.m_skills.GetSkillValue(SyberiaSkillType.SYBSKILL_STRENGTH)));
+			playerContext.m_stats.Insert(new PluginAdminTool_PlayerStatContext("Medicine", 0, 100, profile.m_skills.GetSkillValue(SyberiaSkillType.SYBSKILL_MEDICINE)));
+			playerContext.m_stats.Insert(new PluginAdminTool_PlayerStatContext("Stealth", 0, 100, profile.m_skills.GetSkillValue(SyberiaSkillType.SYBSKILL_STEALTH)));
+			playerContext.m_stats.Insert(new PluginAdminTool_PlayerStatContext("Survival", 0, 100, profile.m_skills.GetSkillValue(SyberiaSkillType.SYBSKILL_SURVIVAL)));
+			playerContext.m_stats.Insert(new PluginAdminTool_PlayerStatContext("Farming", 0, 100, profile.m_skills.GetSkillValue(SyberiaSkillType.SYBSKILL_FARMING)));
+			playerContext.m_stats.Insert(new PluginAdminTool_PlayerStatContext("Hunting", 0, 100, profile.m_skills.GetSkillValue(SyberiaSkillType.SYBSKILL_HUNTING)));
+			playerContext.m_stats.Insert(new PluginAdminTool_PlayerStatContext("Fishing", 0, 100, profile.m_skills.GetSkillValue(SyberiaSkillType.SYBSKILL_FISHING)));
+			playerContext.m_stats.Insert(new PluginAdminTool_PlayerStatContext("Mechanics", 0, 100, profile.m_skills.GetSkillValue(SyberiaSkillType.SYBSKILL_MECHANICS)));
+			playerContext.m_stats.Insert(new PluginAdminTool_PlayerStatContext("Electronics", 0, 100, profile.m_skills.GetSkillValue(SyberiaSkillType.SYBSKILL_ELECTRONICS)));
+			playerContext.m_stats.Insert(new PluginAdminTool_PlayerStatContext("Carpentry", 0, 100, profile.m_skills.GetSkillValue(SyberiaSkillType.SYBSKILL_CARPENTRY)));
+			playerContext.m_stats.Insert(new PluginAdminTool_PlayerStatContext("Metalworking", 0, 100, profile.m_skills.GetSkillValue(SyberiaSkillType.SYBSKILL_METALWORKING)));
+			playerContext.m_stats.Insert(new PluginAdminTool_PlayerStatContext("Building", 0, 100, profile.m_skills.GetSkillValue(SyberiaSkillType.SYBSKILL_BUILDING)));
+			playerContext.m_stats.Insert(new PluginAdminTool_PlayerStatContext("Firearm", 0, 100, profile.m_skills.GetSkillValue(SyberiaSkillType.SYBSKILL_FIREARMS)));
+			playerContext.m_stats.Insert(new PluginAdminTool_PlayerStatContext("Lockpicking", 0, 100, profile.m_skills.GetSkillValue(SyberiaSkillType.SYBSKILL_LOCKPICKING)));
+			playerContext.m_stats.Insert(new PluginAdminTool_PlayerStatContext("Herbalism", 0, 100, profile.m_skills.GetSkillValue(SyberiaSkillType.SYBSKILL_HERBALISM)));
+			playerContext.m_stats.Insert(new PluginAdminTool_PlayerStatContext("Tailoring", 0, 100, profile.m_skills.GetSkillValue(SyberiaSkillType.SYBSKILL_SEAMSTRESS)));
+
 			
 			/*playerContext.m_stats.Insert(new PluginAdminTool_PlayerStatContext("SleepingBoost", 0, 99999, player.m_sleepingBoostTimer));
 			playerContext.m_stats.Insert(new PluginAdminTool_PlayerStatContext("HematomaTime", 0, 99999, player.m_hematomaRegenTimer));
