@@ -587,7 +587,17 @@ modded class PluginAdminTool
 		else if (statName == "Sleeping") player.m_sleepingValue = (int)value;
 		else if (statName == "RadiationDose") player.SetRadiationDose(value);	
 		else if (statName == "HeatBuffer") player.GetStatHeatBuffer().Set(value);
-		else if (statName == "BrokenLegs") player.UpdateBrokenLegs( (int)value );
+		else if (statName == "BrokenLegs")
+		{
+			if (value == 0)
+			{
+				player.SetBrokenLegs(eBrokenLegs.NO_BROKEN_LEGS);
+			}
+			else 
+			{
+				player.SetBrokenLegs(eBrokenLegs.BROKEN_LEGS);
+			}
+		}
 		else if (statName == "CutWounds")
 		{
 			if (player.GetBleedingManagerServer())
@@ -730,6 +740,18 @@ modded class PluginAdminTool
 		playerContext.m_stats = new array<ref PluginAdminTool_PlayerStatContext>;
 		if (!playerContext.m_isGhost && profile && profile.m_skills)
 		{
+			int cutWounds = 0;
+			if (player.GetBleedingManagerServer() != null)
+			{
+				cutWounds = player.GetBleedingManagerServer().GetBleedingSourcesCount();
+			}
+			
+			int brokenLegs = 0;
+			if (player.GetBrokenLegs() != eBrokenLegs.NO_BROKEN_LEGS)
+			{
+				brokenLegs = 1;
+			}
+			
 			playerContext.m_stats.Insert(new PluginAdminTool_PlayerStatContext("Health", 0, player.GetMaxHealth("GlobalHealth", "Health"), player.GetHealth("", "Health")));
 			playerContext.m_stats.Insert(new PluginAdminTool_PlayerStatContext("Blood", 2500, player.GetMaxHealth("GlobalHealth", "Blood"), player.GetHealth("", "Blood")));
 			playerContext.m_stats.Insert(new PluginAdminTool_PlayerStatContext("Shock", 0, player.GetMaxHealth("GlobalHealth", "Shock"), player.GetHealth("", "Shock")));
@@ -741,8 +763,8 @@ modded class PluginAdminTool
 			playerContext.m_stats.Insert(new PluginAdminTool_PlayerStatContext("RadiationDose", 0, 9999, player.GetRadiationDose()));
 			playerContext.m_stats.Insert(new PluginAdminTool_PlayerStatContext("HeatBuffer", player.GetStatHeatBuffer().GetMin(), player.GetStatHeatBuffer().GetMax(), player.GetStatHeatBuffer().Get()));
 			
-			playerContext.m_stats.Insert(new PluginAdminTool_PlayerStatContext("BrokenLegs", 0, 2, player.m_BrokenLegState));
-			playerContext.m_stats.Insert(new PluginAdminTool_PlayerStatContext("CutWounds", 0, 99, player.m_BleedingManagerServer.GetBleedingSourcesCount()));
+			playerContext.m_stats.Insert(new PluginAdminTool_PlayerStatContext("BrokenLegs", 0, 1, brokenLegs));
+			playerContext.m_stats.Insert(new PluginAdminTool_PlayerStatContext("CutWounds", 0, 99, cutWounds));
 			playerContext.m_stats.Insert(new PluginAdminTool_PlayerStatContext("KnifeWounds", 0, 99, player.GetSybStats().m_knifeHits));
 			playerContext.m_stats.Insert(new PluginAdminTool_PlayerStatContext("BulletWounds", 0, 99, player.GetSybStats().m_bulletHits));
 			playerContext.m_stats.Insert(new PluginAdminTool_PlayerStatContext("Hematomas", 0, 99, player.GetSybStats().m_hematomaHits));
