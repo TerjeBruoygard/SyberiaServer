@@ -13,18 +13,20 @@ namespace SyberiaWebPanel
     {
         public string m_configDir { private set; get; }
 
-        public AdminToolOptions m_adminToolOptions { private set; get; }
+        public MainConfig m_mainConfig { private set; get; }
 
         public ClientConfig m_clientConfig { private set; get; }
+
+        public AdminToolOptions m_adminToolOptions { private set; get; }
+
+        [ScriptObjectSerializableAttribute]
+        public GroupDefault m_groupDefault { private set; get; }
 
         [ScriptObjectSerializableAttribute]
         public List<CustomLoadout> m_customLoadouts { private set; get; }
 
-        public GroupDefault m_groupDefault { private set; get; }
-
-        public MainConfig m_mainConfig { private set; get; }
-
-        public Dictionary<string, GroupFaction> m_groupFactions { private set; get; }
+        [ScriptObjectSerializableAttribute]
+        public List<GroupFaction> m_groupFactions { private set; get; }
 
         public PdaConfig m_pdaConfig { private set; get; }
 
@@ -72,14 +74,14 @@ namespace SyberiaWebPanel
             if (File.Exists(zonesConfigPath)) m_zonesConfig = JsonConvert.DeserializeObject<ZonesConfig>(File.ReadAllText(zonesConfigPath));
             else m_zonesConfig = new ZonesConfig().InitializeDefault();
 
-            m_groupFactions = new Dictionary<string, GroupFaction>();
+            m_groupFactions = new List<GroupFaction>();
             foreach (var groupName in m_mainConfig.m_groups)
             {
                 GroupFaction groupFaction = null;
                 var groupFactionPath = Path.Combine(m_configDir, $"Group_{groupName}.json");
                 if (File.Exists(groupFactionPath)) groupFaction = JsonConvert.DeserializeObject<GroupFaction>(File.ReadAllText(groupFactionPath));
                 else groupFaction = new GroupFaction().InitializeDefault();
-                m_groupFactions.Add(groupName, groupFaction);
+                m_groupFactions.Add(groupFaction);
             }
 
             this.Save();
@@ -100,9 +102,11 @@ namespace SyberiaWebPanel
             File.WriteAllText(Path.Combine(m_configDir, "TradingConfig.json"), JsonConvert.SerializeObject(m_tradingConfig, saveSettings));
             File.WriteAllText(Path.Combine(m_configDir, "ZonesConfig.json"), JsonConvert.SerializeObject(m_zonesConfig, saveSettings));
 
-            foreach (var pair in m_groupFactions)
+            for (int i = 0; i < m_mainConfig.m_groups.Count; i++)
             {
-                File.WriteAllText(Path.Combine(m_configDir, $"Group_{pair.Key}.json"), JsonConvert.SerializeObject(pair.Value, saveSettings));
+                var name = m_mainConfig.m_groups[i];
+                var faction = m_groupFactions[i];
+                File.WriteAllText(Path.Combine(m_configDir, $"Group_{name}.json"), JsonConvert.SerializeObject(faction, saveSettings));
             }
         }
 
@@ -127,11 +131,6 @@ namespace SyberiaWebPanel
                 else if (prop.PropertyType == typeof(string))
                 {
                     prop.SetValue(obj, jprop.Value.Value<string>());
-                }
-                else if (prop.PropertyType.IsGenericType && prop.PropertyType == typeof(Dictionary<string, GroupFaction>))
-                {
-                    var newValue = Newtonsoft.Json.JsonConvert.DeserializeAnonymousType(jprop.Value.ToString(Formatting.None), prop.PropertyType);
-                    prop.SetValue(obj, newValue);
                 }
                 else if (prop.PropertyType.IsGenericType && prop.PropertyType.GetGenericTypeDefinition() == typeof(List<>))
                 {
@@ -235,16 +234,6 @@ namespace SyberiaWebPanel
                 else if (prop.PropertyType == typeof(string))
                 {
                     sb.Replace(singlePattern, (string)prop.GetValue(obj));
-                }
-                else if (prop.PropertyType.IsGenericType && prop.PropertyType == typeof(Dictionary<string, GroupFaction>))
-                {
-                    foreach (var elem in (Dictionary<string, GroupFaction>)prop.GetValue(obj))
-                    {
-                        var newPath = path;
-                        if (newPath.Length > 0) newPath += ".";
-                        newPath += prop.Name + "[\"" + elem.Key + "\"]";
-                        ReplaceValues(sb, elem.Value, newPath);
-                    }
                 }
                 else if (prop.PropertyType.IsGenericType && prop.PropertyType.GetGenericTypeDefinition() == typeof(List<>))
                 {
@@ -641,7 +630,6 @@ namespace SyberiaWebPanel
 
         public class GroupFaction : GroupDefault
         {
-            public string m_name { set; get; }
             public string m_displayName { set; get; }
             public int m_maxMembers { set; get; }
             public int m_allowDefaultSpawnpoints { set; get; }
@@ -651,7 +639,6 @@ namespace SyberiaWebPanel
             public new GroupFaction InitializeDefault()
             {
                 base.InitializeDefault();
-                m_name = string.Empty;
                 m_displayName = string.Empty;
                 m_maxMembers = 100;
                 m_allowDefaultLoadout = 1;
