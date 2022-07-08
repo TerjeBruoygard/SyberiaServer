@@ -2,7 +2,8 @@ modded class BleedingSourcesManagerServer
 {
 	void SetBloodInfection(bool value)
 	{
-		// TODO: Implement blood infection
+		m_Player.m_sepsis = value;
+		m_Player.SetSynchDirty();
 	}
 	
 	void AddBulletHit()

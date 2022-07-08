@@ -28,8 +28,6 @@ modded class SyringeFull extends Inventory_Base
 		if (!ctx.Read(m_medDirty))
 			return false;
 		
-		SybLogSrv("m_medSolution = " + m_medSolution);
-		
 		return result;
 	}
 	

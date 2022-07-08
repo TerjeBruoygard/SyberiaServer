@@ -219,7 +219,7 @@ class SyberiaMissionServer : MissionServer
 	}
 	
 		
-	override void EquipCharacter() 
+	override void EquipCharacter(MenuDefaultCharacterData char_data) 
 	{
 		// DO NOTHING
 	}
