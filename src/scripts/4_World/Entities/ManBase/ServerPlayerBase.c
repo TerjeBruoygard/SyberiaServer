@@ -633,7 +633,13 @@ modded class PlayerBase
 		
         if (m_overdosedValue > 0)
         {
+			int lastOverdoseInt = (int)m_overdosedValue;
             m_overdosedValue = m_overdosedValue - (OVERDOSE_DECREMENT_PER_SEC * deltaTime);
+			int newOverdoseInt = (int)m_overdosedValue;
+			if (lastOverdoseInt != newOverdoseInt)
+			{
+				SetSynchDirty();
+			}
         }
 	}
 	
