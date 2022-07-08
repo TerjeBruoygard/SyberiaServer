@@ -28,7 +28,10 @@ modded class PluginLogicPDA
         
         if (!m_serverConfig.m_enableGlobalChat) return;
         
-        GetSyberiaRPC().SendToAll( SyberiaRPC.SYBRPC_PDA_SEND_GLOBAL_MESSAGE, new Param2< string, string >( sender.GetName(), serverData.param1 ) );
+		ref CharProfile profile = GetSyberiaCharacters().Get(sender, true);
+		if (!profile) return;
+		
+        GetSyberiaRPC().SendToAll( SyberiaRPC.SYBRPC_PDA_SEND_GLOBAL_MESSAGE, new Param2< string, string >( profile.m_name, serverData.param1 ) );
 	}
 	
 	override void SendGroupMessage( ref ParamsReadContext ctx, ref PlayerIdentity sender )
@@ -44,84 +47,83 @@ modded class PluginLogicPDA
         ref PluginSyberiaOptions_GroupFaction group = GetSyberiaOptions().FindGroupByMember(profile.m_id);
         if (!group) return;
         
-        ref array<PlayerIdentity> identities = new array<PlayerIdentity>();
-        GetGame().GetPlayerIndentities(identities);
-        foreach (ref PlayerIdentity identity : identities)
+        foreach (ref SyberiaPdaGroupMember member : group.m_members)
         {
-            foreach (ref SyberiaPdaGroupMember member : group.m_members)
+			ref PlayerBase memberPlayer = GetPlayerByCharId(member.m_id); 
+            if (memberPlayer)
             {
-                if (identity.GetId() == member.m_uid)
-                {
-                    GetSyberiaRPC().SendToClient( SyberiaRPC.SYBRPC_PDA_SEND_GROUP_MESSAGE, identity, new Param2< string, string >( sender.GetName(), serverData.param1 ) );
-                }
+                GetSyberiaRPC().SendToClient( SyberiaRPC.SYBRPC_PDA_SEND_GROUP_MESSAGE, memberPlayer.GetIdentity(), new Param2< string, string >( profile.m_name, serverData.param1 ) );
             }
         }
-            
-        delete identities;
 	}
 	
 	override void SendMessage( ref ParamsReadContext ctx, ref PlayerIdentity sender )
     { 
-        Param2< string, string > serverData;			
+        Param2< int, string > serverData;			
         if ( !ctx.Read( serverData ) ) return;
 
-        string senderId = sender.GetId();
-        string senderName = sender.GetName();
-        ref array<Man> players = new array<Man>();
+		ref CharProfile senderProfile = GetSyberiaCharacters().Get(sender, true);
+		if (!senderProfile) return;
+		
+        int senderId = senderProfile.m_id;
+        string senderName = senderProfile.m_name;
+        array<Man> players = new array<Man>();
         GetGame().GetPlayers(players);
         for (int q = 0; q < players.Count(); q++)
         {
             ref PlayerBase player = PlayerBase.Cast(players[q]);
             if (player)
             {
-                ref PlayerIdentity identity = player.GetIdentity();
-                string identityId = identity.GetId();
-                if (serverData.param1 == identityId)
-                {
-                    if (HasWorkingPDA(player))
-                    {
-                        string identityName = identity.GetName();
-                        GetSyberiaRPC().SendToClient( SyberiaRPC.SYBRPC_PDA_SEND_MESSAGE, sender, new Param4< string, string, string, string >( identityId, identityName, senderId, serverData.param2 ) );
-                        
-                        if (!(senderId == identityId))
-                        {
-                            GetSyberiaRPC().SendToClient( SyberiaRPC.SYBRPC_PDA_SEND_MESSAGE, identity, new Param4< string, string, string, string >( senderId, senderName, senderId, serverData.param2 ) );
-                        }
-                        
-                        return;
-                    }
-                }
+				ref CharProfile receiverProfile = player.m_charProfile;
+				if (receiverProfile)
+				{				
+	                ref PlayerIdentity identity = player.GetIdentity();
+	                int identityId = receiverProfile.m_id;
+	                if (serverData.param1 == identityId)
+	                {
+	                    if (HasWorkingPDA(player))
+	                    {
+							
+	                        string identityName = receiverProfile.m_name;
+	                        GetSyberiaRPC().SendToClient( SyberiaRPC.SYBRPC_PDA_SEND_MESSAGE, sender, new Param4< int, string, int, string >( identityId, identityName, senderId, serverData.param2 ) );
+	                        
+	                        if (!(senderId == identityId))
+	                        {
+	                            GetSyberiaRPC().SendToClient( SyberiaRPC.SYBRPC_PDA_SEND_MESSAGE, identity, new Param4< int, string, int, string >( senderId, senderName, senderId, serverData.param2 ) );
+	                        }
+	                        
+	                        return;
+	                    }
+	                }
+				}
             }
         }
-        
-        //GetSyberiaRPC().SendToClient( SyberiaRPC.SYBRPC_PDA_SEND_MESSAGE, sender, new Param4< string, string, string, string >( "", "", "", "" ) );
 	}
 	
 	override void CheckContacts( ref ParamsReadContext ctx, ref PlayerIdentity sender )
     { 
-        Param1< array<string> > serverData;			
+        Param1< array<int> > serverData;			
         if ( !ctx.Read( serverData ) ) return;
         
-        ref array<string> request = new array<string>();
+        array<int> request = new array<int>();
         request.Copy(serverData.param1);
         
-        ref array<Man> players = new array<Man>();
+        array<Man> players = new array<Man>();
         GetGame().GetPlayers(players);
         
-        ref array<string> result = new array<string>();
+        array<int> result = new array<int>();
         for (int i = 0; i < request.Count(); i++)
         {
-            string uid = request[i];				
+            int id = request[i];				
             for (int q = 0; q < players.Count(); q++)
             {
                 ref PlayerBase player = PlayerBase.Cast(players[q]);
-                if (player)
+                if (player && player.m_charProfile)
                 {
-                    ref PlayerIdentity identity = player.GetIdentity();
-                    string identityId = identity.GetId();
-                    if (uid == identityId && HasWorkingPDA(player))
+                    ref CharProfile profile = player.m_charProfile;
+                    if (id == profile.m_id && HasWorkingPDA(player))
                     {
-                        result.Insert(uid);
+                        result.Insert(id);
                     }
                 }
             }
@@ -130,7 +132,7 @@ modded class PluginLogicPDA
         CheckContactsResponse(sender, result);
 	}
 	
-	void CheckContactsResponse(ref PlayerIdentity sender, ref array<string> contacts)
+	void CheckContactsResponse(ref PlayerIdentity sender, ref array<int> contacts)
 	{
 		ref PluginSyberiaOptions_GroupFaction leadedGroup = GetSyberiaOptions().FindGroupByLeader(sender);
 		ref array<ref SyberiaPdaGroupMember> groupMembers = null;
@@ -155,17 +157,18 @@ modded class PluginLogicPDA
 			groupChatName = memberGroup.m_displayName;
 		}
 		
-		GetSyberiaRPC().SendToClient( SyberiaRPC.SYBRPC_PDA_CHECK_CONTACT, sender, new Param5< ref array<string>, bool, ref array<ref SyberiaPdaGroupMember>, string, string >( contacts, useGroupManagenemt, groupMembers, infoText, groupChatName ) );
+		GetSyberiaRPC().SendToClient( SyberiaRPC.SYBRPC_PDA_CHECK_CONTACT, sender, new Param5< ref array<int>, bool, ref array<ref SyberiaPdaGroupMember>, string, string >( contacts, useGroupManagenemt, groupMembers, infoText, groupChatName ) );
 	}
 	
-	override void GetVisualUserId( ref ParamsReadContext ctx, ref PlayerIdentity sender )
+	override void InitPdaProfile( ref ParamsReadContext ctx, ref PlayerIdentity sender )
     {   
         
 	}
 	
 	void SendPdaUserState(ref PlayerIdentity identity, ref CharProfile profile)
 	{
-		GetSyberiaRPC().SendToClient( SyberiaRPC.SYBRPC_PDA_USER_STATE, identity, new Param3<string, bool, bool>( profile.m_name, m_serverConfig.m_enableGlobalChat, m_serverConfig.m_enableMapPage ) );
+		string instanceName = m_serverConfig.m_serverInstanceName + "_" + profile.m_id; 
+		GetSyberiaRPC().SendToClient( SyberiaRPC.SYBRPC_PDA_USER_STATE, identity, new Param4<string, string, bool, bool>( profile.m_name, instanceName, m_serverConfig.m_enableGlobalChat, m_serverConfig.m_enableMapPage ) );
 	}
 	
 	override void AddContact( ref ParamsReadContext ctx, ref PlayerIdentity sender )
@@ -175,30 +178,30 @@ modded class PluginLogicPDA
         string requestName = serverData.param1;
 		requestName.ToLower();
         
-        ref array<Man> players = new array<Man>();
+		ref CharProfile profile = GetSyberiaCharacters().Get(sender, true);
+		if (!profile) return;
+		
+        array<Man> players = new array<Man>();
         GetGame().GetPlayers(players);
         for (int i = 0; i < players.Count(); i++)
         {
             PlayerBase player = PlayerBase.Cast(players[i]);
-            if (player)
+            if (player && player.m_charProfile)
             {
-                PlayerIdentity identity = player.GetIdentity();
-                string contactSteamId = identity.GetId();
+                int contactId = player.m_charProfile.m_id;
                 string contactName = player.m_charProfile.m_name + "";
 				contactName.ToLower();
 				
                 if ( contactName == requestName ) 
                 {
-                    if (sender.GetId() != contactSteamId)
+                    if (profile.m_id != contactId)
                     {
-                        GetSyberiaRPC().SendToClient( SyberiaRPC.SYBRPC_PDA_ADD_CONTACT, sender, new Param2<string, string>( contactSteamId, contactName ) );
+                        GetSyberiaRPC().SendToClient( SyberiaRPC.SYBRPC_PDA_ADD_CONTACT, sender, new Param2<int, string>( contactId, player.m_charProfile.m_name ) );
                         return;
                     }
                 }
             }
         }
-        
-        //GetRPCManager().SendRPC( GearPDAModPreffix, "AddContact", new Param2<string, string>( "", "" ), true, sender );
     }
 	
 	override void GroupCommand( ref ParamsReadContext ctx, ref PlayerIdentity sender )
@@ -217,7 +220,7 @@ modded class PluginLogicPDA
         {		
             if (group.m_members.Count() >= group.m_maxMembers) return;
             
-            ref array<PlayerIdentity> identities = new array<PlayerIdentity>;
+            array<PlayerIdentity> identities = new array<PlayerIdentity>;
             GetGame().GetPlayerIndentities(identities);
             ref PlayerIdentity newMemberIdentity = null;
             
@@ -248,7 +251,6 @@ modded class PluginLogicPDA
   
             ref SyberiaPdaGroupMember newMember = new SyberiaPdaGroupMember;
 			newMember.m_id = newMemberProfile.m_id;
-            newMember.m_uid = newMemberProfile.m_uid;
             newMember.m_name = newMemberProfile.m_name;
             group.AddMember(newMember);
 			
@@ -277,4 +279,5 @@ class PdaServerConfig
 {
 	bool m_enableGlobalChat = true;
 	bool m_enableMapPage = true;
+	string m_serverInstanceName = "";
 };

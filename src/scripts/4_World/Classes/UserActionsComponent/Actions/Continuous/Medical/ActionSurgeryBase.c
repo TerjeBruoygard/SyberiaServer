@@ -2,7 +2,7 @@ modded class ActionSurgeryBase
 {
     override void ApplySurgery( ItemBase item, PlayerBase player, bool self)
     {
-        if (!self && player.m_visceraHit)
+        if ( (GetSyberiaOptions().m_client.m_operateVisceraHimself || !self) && player.m_visceraHit)
         {
             player.m_BleedingManagerServer.RemoveVisceraHit();
         }

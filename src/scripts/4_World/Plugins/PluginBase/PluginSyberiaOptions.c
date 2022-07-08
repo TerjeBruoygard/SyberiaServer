@@ -1,11 +1,11 @@
-class PluginSyberiaOptions extends PluginBase
-{	
+modded class PluginSyberiaOptions extends PluginBase
+{
 	ref PluginSyberiaOptions_Main m_main;
 	ref PluginSyberiaOptions_GroupDefault m_groupDefault;
 	ref map<string, ref PluginSyberiaOptions_GroupFaction> m_groupFactions;
 	
-	void PluginSyberiaOptions()
-	{	
+	override void OnInit()
+	{
 		MakeDirectory("$profile:Syberia");
 			
 		string path = "$profile:Syberia\\MainConfig.json";
@@ -13,6 +13,13 @@ class PluginSyberiaOptions extends PluginBase
 		{
 			m_main = new PluginSyberiaOptions_Main;
 			JsonFileLoader<ref PluginSyberiaOptions_Main>.JsonLoadFile(path, m_main);
+		}
+		
+		path = "$profile:Syberia\\ClientConfig.json";
+		if (FileExist(path))
+		{
+			m_client = new PluginSyberiaOptions_Client;
+			JsonFileLoader<ref PluginSyberiaOptions_Client>.JsonLoadFile(path, m_client);
 		}
 		
 		path = "$profile:Syberia\\Group_Default.json";
@@ -49,6 +56,11 @@ class PluginSyberiaOptions extends PluginBase
 		
 		foreach (string name, ref PluginSyberiaOptions_GroupFaction gf : m_groupFactions) delete gf;
 		delete m_groupFactions;
+	}
+	
+	void SendClientOptions(PlayerIdentity identity, ref CharProfile profile)
+	{
+		GetSyberiaRPC().SendToClient(SyberiaRPC.SYBRPC_CLIENT_OPTIONS, identity, new Param2<ref PluginSyberiaOptions_Client, int>(m_client, profile.m_id));
 	}
 	
 	int GetCharacterAllowedEquipmentSize()
@@ -225,7 +237,7 @@ class PluginSyberiaOptions_GroupFaction : PluginSyberiaOptions_GroupDefault
 	
 	string SelectQuery()
 	{
-		return "SELECT characters.id, characters.uid, characters.name FROM characters INNER JOIN group_members ON group_members.character_id = characters.id WHERE group_members.group_name = '" + m_name + "';";
+		return "SELECT characters.id, characters.displayName FROM characters INNER JOIN group_members ON group_members.character_id = characters.id WHERE group_members.group_name = '" + m_name + "';";
 	}
 	
 	void AddMember(ref SyberiaPdaGroupMember member)
@@ -258,16 +270,10 @@ class PluginSyberiaOptions_GroupFaction : PluginSyberiaOptions_GroupDefault
 				{
 					ref SyberiaPdaGroupMember member = new SyberiaPdaGroupMember;
 					member.m_id = response.GetValue(rowId, 0).ToInt();
-					member.m_uid = response.GetValue(rowId, 1);
-					member.m_name = response.GetValue(rowId, 2);
+					member.m_name = response.GetValue(rowId, 1);
 					m_members.Insert(member);
 				}
 			}
 		}
 	}
 };
-
-PluginSyberiaOptions GetSyberiaOptions() 
-{
-    return PluginSyberiaOptions.Cast(GetPlugin(PluginSyberiaOptions));
-}

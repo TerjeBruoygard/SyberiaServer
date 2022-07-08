@@ -55,6 +55,7 @@ class SyberiaMissionServer : MissionServer
 			}
 			else
 			{
+				GetSyberiaOptions().SendClientOptions(identity, player.m_charProfile);
 				PluginLogicPDA.Cast(GetPlugin(PluginLogicPDA)).SendPdaUserState(identity, player.m_charProfile);
 			}
 		}
@@ -162,7 +163,6 @@ class SyberiaMissionServer : MissionServer
 			ghostMode = true;
 			
 			ref RpcNewCharContainer newcharParams = new RpcNewCharContainer();
-			newcharParams.m_name = identity.GetName();
 			newcharParams.m_score = GetSyberiaOptions().m_main.m_newchar_points;
 			newcharParams.m_maleCharsMetadata = m_maleCharactersPool;
 			newcharParams.m_femaleCharsMetadata = m_femaleCharactersPool;
@@ -356,15 +356,6 @@ class SyberiaMissionServer : MissionServer
 				profile.m_uid = sender.GetId();
 				profile.m_name = newFullName;
 				profile.m_souls = GetSyberiaOptions().m_main.m_startSoulsCount;
-				
-				if (profile.m_name.LengthUtf8() < 3)
-				{
-					profile.m_name = sender.GetName();
-				}
-				if (profile.m_name.LengthUtf8() > 32)
-				{
-					profile.m_name = profile.m_name.SubstringUtf8(0, 32);
-				}
 							
 				if (clientData.param1.m_isMale)
 				{
@@ -389,14 +380,6 @@ class SyberiaMissionServer : MissionServer
 						GetGame().DisconnectPlayer(sender);
 						return;
 					}
-				}
-	
-				if (profile.m_name.LengthUtf8() > 32) {
-					profile.m_name = profile.m_name.Substring(0, 32);
-				}
-				else if (profile.m_name.LengthUtf8() < 4)
-				{
-					profile.m_name = sender.GetName();
 				}
 				
 				int charScore = GetSyberiaOptions().m_main.m_newchar_points;

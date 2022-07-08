@@ -174,7 +174,7 @@ modded class BleedingSourcesManagerServer
 	
 	override void ProcessHit(float damage, EntityAI source, int component, string zone, string ammo, vector modelPos)
 	{
-		//SybLogSrv("ProcessHit " + m_Player.GetIdentity().GetName() + "; Damage: " + damage + "; Source: " + source.GetType() + "; Component: " + component + "; Zone: " + zone + "; Ammo: " + ammo);
+		SybLogSrv("ProcessHit " + m_Player.GetIdentity().GetName() + "; Damage: " + damage + "; Source: " + source.GetType() + "; Component: " + component + "; Zone: " + zone + "; Ammo: " + ammo);
 		
 		float bleed_threshold = GetGame().ConfigGetFloat( "CfgAmmo " + ammo + " DamageApplied " + "bleedThreshold" );		
 		string ammoType = GetGame().ConfigGetTextOut( "CfgAmmo " + ammo + " DamageApplied " + "type" );
@@ -182,11 +182,11 @@ modded class BleedingSourcesManagerServer
 		
 		if (source.IsZombie())
 		{
-			if (Math.RandomFloat01() < 0.3)
+			if (Math.RandomFloat01() < BLEEDING_ZOMBIE_HIT_CHANCE)
 			{
 				AttemptAddBleedingSource(component);
 			}
-			else
+			else if (Math.RandomFloat01() < HEMATOMA_ZOMBIE_HIT_CHANCE)
 			{
 				AddHematomaHit();
 				if (zone == "Head" && Math.RandomFloat01() < 0.1)
@@ -217,7 +217,7 @@ modded class BleedingSourcesManagerServer
 				if (ammo.Contains("_Heavy") || Math.RandomFloat01() >= 0.3)
 				{
 					AddKnifeHit();
-					if (zone == "Torso")
+					if (zone == "Torso" && Math.RandomFloat01() < VISCERA_KNIFEHIT_TORSO_CHANCE)
 					{
 						AddVisceraHit();
 					}
@@ -229,7 +229,10 @@ modded class BleedingSourcesManagerServer
 			}
 			else
 			{
-				AttemptAddBleedingSource(component);
+				if (Math.RandomFloat01() < HEMATOMA_PLAYERHANDS_HIT_CHANCE)
+				{
+					AddHematomaHit();
+				}
 			}
 		}
 		else if (ammoType == "Projectile")
@@ -256,7 +259,7 @@ modded class BleedingSourcesManagerServer
 					}
 				}
 				
-				if (!isBulletStopped)
+				if (!isBulletStopped && Math.RandomFloat01() < VISCERA_BULLETHIT_TORSO_CHANCE)
 				{
 					AddVisceraHit();
 				}
@@ -277,7 +280,6 @@ modded class BleedingSourcesManagerServer
 		}
 		else if (ammoType == "FragGrenade")
 		{
-			AttemptAddBleedingSource(component);
 			SetConcussionHit(true);
 		}
 	};
