@@ -315,6 +315,7 @@ class PluginSyberiaOptions_SkillModifier
 {
 	int m_id;
 	float m_mod;
+	float m_decreaseOnDeath;
 };
 
 class PluginSyberiaOptions_GroupDefault
