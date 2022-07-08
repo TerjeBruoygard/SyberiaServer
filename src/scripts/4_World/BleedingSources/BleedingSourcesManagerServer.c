@@ -3,6 +3,7 @@ modded class BleedingSourcesManagerServer
 	void AddBulletHit()
 	{
 		m_Player.m_bulletHits = m_Player.m_bulletHits + 1;
+		SetPainLevel(2);
 		m_Player.SetSynchDirty();
 	}
 	
@@ -18,6 +19,7 @@ modded class BleedingSourcesManagerServer
 	void AddKnifeHit()
 	{
 		m_Player.m_knifeHits = m_Player.m_knifeHits + 1;
+		SetPainLevel(2);
 		m_Player.SetSynchDirty();
 	}
 	
@@ -33,6 +35,7 @@ modded class BleedingSourcesManagerServer
 	void AddHematomaHit()
 	{
 		m_Player.m_hematomaHits = m_Player.m_hematomaHits + 1;
+		SetPainLevel(1);
 		m_Player.SetSynchDirty();
 	}
 	
@@ -45,16 +48,40 @@ modded class BleedingSourcesManagerServer
 		}
 	}
 	
-	void SetVisceraHit(bool value)
+	void AddVisceraHit()
 	{
-		m_Player.m_visceraHit = value;
+		m_Player.m_visceraHit = m_Player.m_visceraHit + 1;
+		SetPainLevel(3);
 		m_Player.SetSynchDirty();
+	}
+	
+	void RemoveVisceraHit()
+	{
+		if (m_Player.m_visceraHit > 0)
+		{
+			m_Player.m_visceraHit = m_Player.m_visceraHit - 1;
+			m_Player.SetSynchDirty();
+		}
 	}
 	
 	void SetConcussionHit(bool value)
 	{
 		m_Player.m_concussionHit = value;
+		SetPainLevel(1);
 		m_Player.SetSynchDirty();
+	}
+	
+	void SetPainLevel(int value)
+	{
+		if (value == 1) m_Player.m_painTimer = m_Player.m_painTimer + PAIN_LVL1_TIME_SEC;
+		else if (value == 2) m_Player.m_painTimer = m_Player.m_painTimer + PAIN_LVL2_TIME_SEC;
+		else if (value == 3) m_Player.m_painTimer = m_Player.m_painTimer + PAIN_LVL3_TIME_SEC;
+		
+		if (m_Player.m_painLevel < value)
+		{
+			m_Player.m_painLevel = value;
+			m_Player.SetSynchDirty();
+		}
 	}
 	
 	override void ProcessHit(float damage, EntityAI source, int component, string zone, string ammo, vector modelPos)
@@ -110,7 +137,7 @@ modded class BleedingSourcesManagerServer
 		}
 		else if (ammoType == "Projectile")
 		{
-			if (zone == "Head")
+			if (zone == "Head" || zone == "Brain")
 			{
 				SetConcussionHit(true);
 			}
@@ -134,7 +161,7 @@ modded class BleedingSourcesManagerServer
 				
 				if (!isBulletStopped)
 				{
-					SetVisceraHit(true);
+					AddVisceraHit();
 				}
 			}
 			
@@ -158,7 +185,7 @@ modded class BleedingSourcesManagerServer
 		}
 		else
 		{
-			SybLogSrv("Unknown ammo type detected: " + ammoType + " (" + ammo + ")");
+			SybLogSrv("ProcessHit unknown ammo type detected: " + ammoType + " (" + ammo + ")");
 		}
 	};
 };
