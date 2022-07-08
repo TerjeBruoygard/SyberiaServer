@@ -167,12 +167,18 @@ modded class PluginTrader
 		int resultPrice = 0;
 		foreach (ItemBase sellItem1 : sellItems)
 		{
-			resultPrice = resultPrice + CalculateSellPrice(traderInfo, traderData, sellItem1);
+			if (CanSellItem(traderInfo, sellItem1))
+			{
+				resultPrice = resultPrice + CalculateSellPrice(traderInfo, traderData, sellItem1);
+			}
 		}
 		
 		foreach (string buyClassname1, float buyQuantity1 : buyItems)
 		{
-			resultPrice = resultPrice - CalculateBuyPrice(traderInfo, traderData, buyClassname1, buyQuantity1);
+			if (CanBuyItem(traderInfo, buyClassname1))
+			{
+				resultPrice = resultPrice - CalculateBuyPrice(traderInfo, traderData, buyClassname1, buyQuantity1);
+			}
 		}
 		
 		if (resultPrice < 0)
@@ -184,7 +190,7 @@ modded class PluginTrader
 		TStringArray updateDbQueries = new TStringArray;
 		foreach (ItemBase sellItem2 : sellItems)
 		{
-			if (sellItem2)
+			if (sellItem2 && CanSellItem(traderInfo, sellItem2))
 			{
 				string classname = sellItem2.GetType();
 				float maxQuantity = CalculateTraiderItemQuantityMax(traderInfo, classname);
@@ -210,18 +216,21 @@ modded class PluginTrader
 		
 		foreach (string buyClassname2, float buyQuantity2 : buyItems)
 		{
-			if (traderData.m_items.Contains(buyClassname2) && traderData.m_items.Get(buyClassname2) >= buyQuantity2)
+			if (CanBuyItem(traderInfo, buyClassname2))
 			{
-				float newValue2 = Math.Max(0, traderData.m_items.Get(buyClassname2) - buyQuantity2);				
-				if (newValue2 == 0)
+				if (traderData.m_items.Contains(buyClassname2) && traderData.m_items.Get(buyClassname2) >= buyQuantity2)
 				{
-					traderData.m_items.Remove(buyClassname2);
-					updateDbQueries.Insert("DELETE FROM trader_data WHERE trader_id = " + traderId + " AND classname = '" + buyClassname2 + "';");
-				}
-				else
-				{
-					traderData.m_items.Set( buyClassname2, newValue2 );
-					updateDbQueries.Insert("UPDATE trader_data SET data = '" + newValue2 + "' WHERE trader_id = " + traderId + " AND classname = '" + buyClassname2 + "';");
+					float newValue2 = Math.Max(0, traderData.m_items.Get(buyClassname2) - buyQuantity2);				
+					if (newValue2 == 0)
+					{
+						traderData.m_items.Remove(buyClassname2);
+						updateDbQueries.Insert("DELETE FROM trader_data WHERE trader_id = " + traderId + " AND classname = '" + buyClassname2 + "';");
+					}
+					else
+					{
+						traderData.m_items.Set( buyClassname2, newValue2 );
+						updateDbQueries.Insert("UPDATE trader_data SET data = '" + newValue2 + "' WHERE trader_id = " + traderId + " AND classname = '" + buyClassname2 + "';");
+					}
 				}
 			}
 			
@@ -243,37 +252,50 @@ modded class PluginTrader
 		// Spawn buy items
 		foreach (string buyClassname3, float buyQuantity3 : buyItems)
 		{
-			float calcQuantity = buyQuantity3;
-			while (calcQuantity > 0)
+			if (CanBuyItem(traderInfo, buyClassname3))
 			{
-				ItemBase buyEntity = ItemBase.Cast( player.CreateInInventory(buyClassname3) );
-				if (buyEntity)
+				float calcQuantity = buyQuantity3;
+				while (calcQuantity > 0)
 				{
-					float spawnQuantity01 = Math.Clamp(calcQuantity, 0, 1);
-					if (buyEntity.IsInherited( Magazine ))
+					ItemBase buyEntity;
+					InventoryLocation inv_loc = new InventoryLocation;
+					if (player.GetInventory().FindFirstFreeLocationForNewEntity(buyClassname3, FindInventoryLocationType.ANY, inv_loc))
 					{
-						Magazine buyMagazine;
-						Class.CastTo(buyMagazine, buyEntity);
-						if ( buyEntity.IsInherited( Ammunition_Base ))
+						buyEntity = ItemBase.Cast( player.SpawnItemOnLocation(buyClassname3, inv_loc, false) );
+					}
+					else
+					{
+						buyEntity = ItemBase.Cast( GetGame().CreateObject(buyClassname3, player.GetPosition()) );
+					}
+					
+					if (buyEntity)
+					{
+						float spawnQuantity01 = Math.Clamp(calcQuantity, 0, 1);
+						if (buyEntity.IsInherited( Magazine ))
 						{
-							buyMagazine.ServerSetAmmoCount( (int)Math.Round(buyMagazine.GetAmmoMax() * spawnQuantity01) );
+							Magazine buyMagazine;
+							Class.CastTo(buyMagazine, buyEntity);
+							if ( buyEntity.IsInherited( Ammunition_Base ))
+							{
+								buyMagazine.ServerSetAmmoCount( (int)Math.Round(buyMagazine.GetAmmoMax() * spawnQuantity01) );
+							}
+							else
+							{
+								buyMagazine.ServerSetAmmoCount(0);
+							}
 						}
 						else
 						{
-							buyMagazine.ServerSetAmmoCount(0);
+							buyEntity.SetQuantityNormalized(spawnQuantity01);
 						}
 					}
 					else
 					{
-						buyEntity.SetQuantityNormalized(spawnQuantity01);
+						break;
 					}
+					
+					calcQuantity = calcQuantity - 1;
 				}
-				else
-				{
-					break;
-				}
-				
-				calcQuantity = calcQuantity - 1;
 			}
 		}
 		
