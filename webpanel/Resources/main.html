@@ -213,7 +213,458 @@
         Groups
     </div>
     <div class="tab-pane" id="loadouts" role="tabpanel" aria-labelledby="loadouts-tab">
-        Loadouts
+        <h3>Personal loadouts:</h3>
+        <div class="input-group">
+            <div class="input-group-prepend">
+                <button class="btn btn-outline-secondary" type="button" id="inputLoadoutNew">New</button>
+            </div>
+            <select class="custom-select" id="inputLoadoutsSelect"></select>
+            <div class="input-group-append">
+                <button class="btn btn-outline-secondary" type="button" id="inputLoadoutDelete">Delete</button>
+            </div>
+        </div>
+        <p><em>Personal Loadouts allow you to set a specific configuration of starting equipment and spawn points for a specific player. If you need to set starting equipment or spawn points for a group of players, please use the Groups tab.</em></p>
+        <br>
+        <h5>Loadout parameters:</h5>
+        <div class="form-group row">
+            <label for="inputLoadoutName" class="col-sm-2 col-form-label">Loadout name:</label>
+            <div class="col-sm-10">
+                <input type="text" class="form-control" id="inputLoadoutName" required>
+                <p><em>The loadout name is displayed only in the admin panel and is required only for ease to use.</em></p>
+            </div>
+        </div>
+        <div class="form-group row">
+            <label for="inputLoadoutUid" class="col-sm-2 col-form-label">Player UID:</label>
+            <div class="col-sm-10">
+                <input type="text" class="form-control" id="inputLoadoutUid" required>
+                <p><em>Specify the UID or SteamID64 of the player to which this ladout will be applied.</em></p>
+            </div>
+        </div>
+        <div class="form-group row">
+            <label for="inputLoadoutSpawnpointsSelect" class="col-sm-2 col-form-label">Respawn locations:</label>
+            <div class="col-sm-10 input-group-btn">
+                <div class="input-group-prepend">
+                    <button class="btn btn-outline-secondary" type="button" id="inputLoadoutSpawnpointNew">Add</button>
+                    <select class="form-control custom-select" id="inputLoadoutSpawnpointsSelect"></select>
+                    <button class="btn btn-outline-secondary" type="button" id="inputLoadoutSpawnpointDelete">Remove</button>
+                </div>
+                <div class="row">
+                    <div class="col col-sm-1">
+                    </div>
+                    <div class="col col-sm-11">
+                        <label for="inputLoadoutSpawnpointsName">Name:</label>
+                        <input type="text" class="form-control" id="inputLoadoutSpawnpointsName" required>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col col-sm-1">
+                    </div>
+                    <div class="col col-sm-11">
+                        <label for="inputLoadoutSpawnpointsPositionsSelection">Points:</label>
+                        <div class="input-group-prepend">
+                            <button class="btn btn-outline-secondary" type="button" id="inputLoadoutSpawnpointPositionNew">Add</button>
+                            <select class="form-control custom-select" id="inputLoadoutSpawnpointsPositionsSelection"></select>
+                            <button class="btn btn-outline-secondary" type="button" id="inputLoadoutSpawnpointPositionDelete">Remove</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col col-sm-2">
+                    </div>
+                    <div class="col col-sm-6">
+                        <label for="inputLoadoutSpawnpointsPosition">Position:</label>
+                        <input type="text" class="form-control" onchange="validateVectorInput(this)" id="inputLoadoutSpawnpointsPosition" required>
+                    </div>
+                    <div class="col col-sm-4">
+                        <label for="inputLoadoutSpawnpointsRadius">Radius:</label>
+                        <input type="number" min="1" max="100" step="any" class="form-control" id="inputLoadoutSpawnpointsRadius" onchange="validateNumberInput(this)" required>
+                    </div>
+                </div>
+                <br/>
+                <p><em>Respawn locations allow the player to select a specific spawn location while respawning.</em><br/>
+                <em>The name of the location for the respawn will be displayed in the list on the player's respawn screen.</em><br/>
+                <em>The points determine the list of possible points of the player's appearance in the given location. The selection of a point from a subset of all available ones occurs randomly.</em><br/>
+                <em>The position is set with 3 numbers on the XYZ axes separated by spaces. You can find out the coordinates of the player's current position in the game using the admin tools.</em><br/>
+                <em>The radius allows you to set a circle relative to the position inside which the player can respawn. Please do not set the radius too high to prevent the player from getting stuck in objects.</em></p>
+            </div>
+        </div>
+        <br>
+        <br>
+        <h5>Clothing & Weapons presets:</h5>
+        <p><em>A list of items available for the player to select upon respawn from the list for each body part or weapon slot. The classname of each item should start on a new line. You can also set the amount and percent of damage to the item if necessary using additional parameters.</em></p>
+        <div class="form-group row">
+            <label for="inputLoadoutGearBody" class="col-sm-2 col-form-label">Body clothing:</label>
+            <div class="col-sm-10">
+                <textarea class="form-control" id="inputLoadoutGearBody"></textarea>
+                <p><em>Example:</em> <span class="badge badge-info">Hoodie_Black; H0.5</span><em> - Black hoodie with 50% health (Damaged)</em></p>
+            </div>
+        </div>
+        <div class="form-group row">
+            <label for="inputLoadoutGearPants" class="col-sm-2 col-form-label">Pants:</label>
+            <div class="col-sm-10">
+                <textarea class="form-control" id="inputLoadoutGearPants"></textarea>
+                <p><em>Example:</em> <span class="badge badge-info">Jeans_Blue</span><em> - Blue jeans (Pristine)</em></p>
+            </div>
+        </div>
+        <div class="form-group row">
+            <label for="inputLoadoutGearShoes" class="col-sm-2 col-form-label">Shoes:</label>
+            <div class="col-sm-10">
+                <textarea class="form-control" id="inputLoadoutGearShoes"></textarea>
+                <p><em>Example:</em> <span class="badge badge-info">AthleticShoes_Black; H0.8</span><em> - Shoes with 80% health</em></p>
+            </div>
+        </div>
+        <div class="form-group row">
+            <label for="inputLoadoutGearHeadgears" class="col-sm-2 col-form-label">Headgears:</label>
+            <div class="col-sm-10">
+                <textarea class="form-control" id="inputLoadoutGearHeadgears"></textarea>
+                <p><em>Example:</em> <span class="badge badge-info">BoonieHat_Olive</span><em> - Boonie Hat (Pristine)</em></p>
+            </div>
+        </div>
+        <div class="form-group row">
+            <label for="inputLoadoutGearMasks" class="col-sm-2 col-form-label">Masks:</label>
+            <div class="col-sm-10">
+                <textarea class="form-control" id="inputLoadoutGearMasks"></textarea>
+                <p><em>Example:</em> <span class="badge badge-info">GasMask; @GasMask_Filter</span><em> - Gas mask with filter in attachment.</em></p>
+            </div>
+        </div>
+        <div class="form-group row">
+            <label for="inputLoadoutGearGloves" class="col-sm-2 col-form-label">Gloves:</label>
+            <div class="col-sm-10">
+                <textarea class="form-control" id="inputLoadoutGearGloves"></textarea>
+                <p><em>Example:</em> <span class="badge badge-info">OMNOGloves_Gray</span></p>
+            </div>
+        </div>
+        <div class="form-group row">
+            <label for="inputLoadoutGearVests" class="col-sm-2 col-form-label">Vests:</label>
+            <div class="col-sm-10">
+                <textarea class="form-control" id="inputLoadoutGearVests"></textarea>
+                <p><em>Example:</em> <span class="badge badge-info">PlateCarrierVest; H0.5; @PlateCarrierPouches,PlateCarrierHolster</span><em> - Damaged plate carrier with pouches and holster in attachments.</em></p>
+            </div>
+        </div>
+        <div class="form-group row">
+            <label for="inputLoadoutGearBackpacks" class="col-sm-2 col-form-label">Backpacks:</label>
+            <div class="col-sm-10">
+                <textarea class="form-control" id="inputLoadoutGearBackpacks"></textarea>
+                <p><em>Example:</em> <span class="badge badge-info">DryBag_Orange</span></p>
+            </div>
+        </div>
+        <div class="form-group row">
+            <label for="inputLoadoutGearWeapons" class="col-sm-2 col-form-label">Weapons:</label>
+            <div class="col-sm-10">
+                <textarea class="form-control" id="inputLoadoutGearWeapons"></textarea>
+                <p><em>Examples:</em> <span class="badge badge-info">M4A1; @M4_CarryHandleOptic,M4_CQBBttstck,M4_RISHndgrd; &Mag_STANAGCoupled_30Rnd; H0.5</span><em> - M4A1 with attachments or </em><span class="badge badge-info">Izh43Shotgun; &Ammo_12gaPellets</span><em> - double-barreled shotgun with ammo.</em></p>
+            </div>
+        </div>
+        <div class="form-group row">
+            <label for="inputLoadoutGearItems" class="col-sm-2 col-form-label">Item sets:</label>
+            <div class="col-sm-10 input-group-btn">
+                <div class="input-group-prepend">
+                    <button class="btn btn-outline-secondary" type="button" id="inputLoadoutGearItemsNew">Add</button>
+                    <select class="form-control custom-select" id="inputLoadoutGearItems"></select>
+                    <button class="btn btn-outline-secondary" type="button" id="inputLoadoutGearItemsDelete">Remove</button>
+                </div>
+                <p><em>Determines the sets of items that the player can choose upon respawn. Each set can contain several items at the same time. The name of the set will be displayed to the player when choosing a starting equipment.</em></p>
+                <div class="row">
+                    <div class="col col-sm-1">
+                    </div>
+                    <div class="col col-sm-11">
+                        <label for="inputLoadoutGearItemsName">Name:</label>
+                        <input type="text" class="form-control" id="inputLoadoutGearItemsName" required>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col col-sm-1">
+                    </div>
+                    <div class="col col-sm-11">
+                        <label for="inputLoadoutGearItemsList">Items:</label>
+                        <textarea class="form-control" id="inputLoadoutGearItemsList"></textarea>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="alert" role="alert" style="visibility: hidden" id="alertMessageLoadouts"></div>
+        <button type="button" class="btn btn-primary btn-lg" wid onclick="">Save</button>
+        <script>
+            var currentLoadoutId = -1;
+            var currentLoadoutSpawnpointId = -1;
+            var currentLoadoutSpawnpointPosition = -1;
+            var currentLoadoutItemsId = -1;
+            var loadoutsDataobject = JSON.parse('#{m_customLoadouts}');
+
+            function initializeLoadoutsSelection() {
+                $('#inputLoadoutsSelect').html('');
+                for (var i = 0; i < loadoutsDataobject.length; i++) {
+                    let loadoutObject = loadoutsDataobject[i];
+                    $('#inputLoadoutsSelect').append('<option value="' + i + '" ' + (i == (loadoutsDataobject.length - 1) ? 'selected' : '') + '>' + loadoutObject['m_displayName'] + '</option>');
+                }
+            }
+
+            function initializeLoadoutsSpawnpointSelection(spawnpoints) {
+                $('#inputLoadoutSpawnpointsSelect').html('');
+                for (var i = 0; i < spawnpoints.length; i++) {
+                    $('#inputLoadoutSpawnpointsSelect').append('<option value="' + i + '" ' + (i == (spawnpoints.length - 1) ? 'selected' : '') + '>' + spawnpoints[i]['m_name'] + '</option>');
+                }
+            }
+
+            function initializeLoadoutsSpawnpointPosition(positions) {
+                $('#inputLoadoutSpawnpointsPositionsSelection').html('');
+                for (var i = 0; i < positions.length; i++) {
+                    let pos = positions[i]['m_pos'];
+                    $('#inputLoadoutSpawnpointsPositionsSelection').append('<option value="' + i + '" ' + (i == (positions.length - 1) ? 'selected' : '') + '>' + pos[0] + ' ' + pos[1] + ' ' + pos[2] + '</option>');
+                }
+            }
+
+            function initializeLoadoutsGearItemsSelection(gearItems) {
+                $('#inputLoadoutGearItems').html('');
+                for (var i = 0; i < gearItems.length; i++) {
+                    $('#inputLoadoutGearItems').append('<option value="' + i + '" ' + (i == (gearItems.length - 1) ? 'selected' : '') + '>' + gearItems[i]['m_name'] + '</option>');
+                }
+            }
+
+            initializeLoadoutsSelection();
+
+            $('#inputLoadoutsSelect').change(function () {
+                let inputs = '#inputLoadoutName,#inputLoadoutUid,#inputLoadoutGearBody,#inputLoadoutGearPants,#inputLoadoutGearShoes,#inputLoadoutGearHeadgears,' +
+                    '#inputLoadoutGearMasks,#inputLoadoutGearGloves,#inputLoadoutGearVests,#inputLoadoutGearBackpacks,#inputLoadoutGearWeapons,#inputLoadoutSpawnpointsSelect';
+                $('#inputLoadoutSpawnpointsSelect').html('');
+                $('#inputLoadoutGearItems').html('');
+
+                let loadoutId = $(this).val() != undefined ? parseInt($(this).val()) : -1;
+                if (loadoutId != -1) {
+                    $(inputs).prop("disabled", false);
+
+                    let loadout = loadoutsDataobject[loadoutId];
+                    $('#inputLoadoutName').val(loadout['m_displayName']);
+                    $('#inputLoadoutUid').val(loadout['m_uid']);
+                    $('#inputLoadoutGearBody').val(loadout['m_gearBody'].join('\n'));
+                    $('#inputLoadoutGearPants').val(loadout['m_gearPants'].join('\n'));
+                    $('#inputLoadoutGearShoes').val(loadout['m_gearFoot'].join('\n'));
+                    $('#inputLoadoutGearHeadgears').val(loadout['m_gearHead'].join('\n'));
+                    $('#inputLoadoutGearMasks').val(loadout['m_gearMask'].join('\n'));
+                    $('#inputLoadoutGearGloves').val(loadout['m_gearGloves'].join('\n'));
+                    $('#inputLoadoutGearVests').val(loadout['m_gearVest'].join('\n'));
+                    $('#inputLoadoutGearBackpacks').val(loadout['m_gearBackpack'].join('\n'));
+                    $('#inputLoadoutGearWeapons').val(loadout['m_gearWeapon'].join('\n'));
+
+                    initializeLoadoutsSpawnpointSelection(loadout['m_spawnpoints']);
+                    initializeLoadoutsGearItemsSelection(loadout['m_gearItems']);
+                }
+                else {
+                    $(inputs).val('');
+                    $(inputs).prop("disabled", true);
+                }
+
+                currentLoadoutId = loadoutId;
+                $('#inputLoadoutSpawnpointsSelect').change();
+                $('#inputLoadoutGearItems').change();
+            });
+
+            $('#inputLoadoutSpawnpointsSelect').change(function () {
+                let inputs = '#inputLoadoutSpawnpointsName,#inputLoadoutSpawnpointsPositionsSelection';
+                $('#inputLoadoutSpawnpointsPositionsSelection').html('');
+
+                let loadoutSpawnpointId = $(this).val() != undefined ? parseInt($(this).val()) : -1;
+                if (loadoutSpawnpointId != -1 && currentLoadoutId != -1) {
+                    $(inputs).prop("disabled", false);
+
+                    let spawnpoint = loadoutsDataobject[currentLoadoutId]['m_spawnpoints'][loadoutSpawnpointId];
+                    $('#inputLoadoutSpawnpointsName').val(spawnpoint['m_name']);
+
+                    initializeLoadoutsSpawnpointPosition(spawnpoint['m_positions']);
+                }
+                else {
+                    $(inputs).val('');
+                    $(inputs).prop("disabled", true);
+                }
+
+                currentLoadoutSpawnpointId = loadoutSpawnpointId;
+                $('#inputLoadoutSpawnpointsPositionsSelection').change();
+            });
+
+            $('#inputLoadoutSpawnpointsPositionsSelection').change(function () {
+                let inputs = '#inputLoadoutSpawnpointsPosition,#inputLoadoutSpawnpointsRadius';
+
+                let loadoutSpawnpointPosition = $(this).val() != undefined ? parseInt($(this).val()) : -1;
+                if (loadoutSpawnpointPosition != -1 && currentLoadoutSpawnpointId != -1 && currentLoadoutId != -1) {
+                    $(inputs).prop("disabled", false);
+
+                    let position = loadoutsDataobject[currentLoadoutId]['m_spawnpoints'][currentLoadoutSpawnpointId]['m_positions'][loadoutSpawnpointPosition];
+                    $('#inputLoadoutSpawnpointsPosition').val(position['m_pos'][0] + ' ' + position['m_pos'][1] + ' ' + position['m_pos'][2]);
+                    $('#inputLoadoutSpawnpointsRadius').val(position['m_radius']);
+                }
+                else {
+                    $(inputs).val('');
+                    $(inputs).prop("disabled", true);
+                }
+
+                currentLoadoutSpawnpointPosition = loadoutSpawnpointPosition;
+            });
+
+            $('#inputLoadoutGearItems').change(function () {
+                let inputs = '#inputLoadoutGearItemsName,#inputLoadoutGearItemsList';
+
+                let loadoutItemsId = $(this).val() != undefined ? parseInt($(this).val()) : -1;
+                if (loadoutItemsId != -1 && currentLoadoutId != -1) {
+                    $(inputs).prop("disabled", false);
+
+                    let itemData = loadoutsDataobject[currentLoadoutId]['m_gearItems'][loadoutItemsId];
+                    $('#inputLoadoutGearItemsName').val(itemData['m_name']);
+                    $('#inputLoadoutGearItemsList').val(itemData['m_items'].join('\n'));
+                }
+                else {
+                    $(inputs).val('');
+                    $(inputs).prop("disabled", true);
+                }
+
+                currentLoadoutItemsId = loadoutItemsId;
+            });
+
+            $('#inputLoadoutName').change(function () {
+                if (currentLoadoutId != -1) {
+                    loadoutsDataobject[currentLoadoutId]['m_displayName'] = $(this).val();
+                    $('#inputLoadoutsSelect').find('option[value="' + currentLoadoutId + '"]').text($(this).val());
+                }
+            });
+            $('#inputLoadoutUid').change(function () { if (currentLoadoutId != -1) loadoutsDataobject[currentLoadoutId]['m_uid'] = $(this).val(); });
+            $('#inputLoadoutGearBody').change(function () { if (currentLoadoutId != -1) loadoutsDataobject[currentLoadoutId]['m_gearBody'] = $(this).val().split('\n').filter(n => n.trim()); });
+            $('#inputLoadoutGearPants').change(function () { if (currentLoadoutId != -1) loadoutsDataobject[currentLoadoutId]['m_gearPants'] = $(this).val().split('\n').filter(n => n.trim()); });
+            $('#inputLoadoutGearShoes').change(function () { if (currentLoadoutId != -1) loadoutsDataobject[currentLoadoutId]['m_gearFoot'] = $(this).val().split('\n').filter(n => n.trim()); });
+            $('#inputLoadoutGearHeadgears').change(function () { if (currentLoadoutId != -1) loadoutsDataobject[currentLoadoutId]['m_gearHead'] = $(this).val().split('\n').filter(n => n.trim()); });
+            $('#inputLoadoutGearMasks').change(function () { if (currentLoadoutId != -1) loadoutsDataobject[currentLoadoutId]['m_gearMask'] = $(this).val().split('\n').filter(n => n.trim()); });
+            $('#inputLoadoutGearGloves').change(function () { if (currentLoadoutId != -1) loadoutsDataobject[currentLoadoutId]['m_gearGloves'] = $(this).val().split('\n').filter(n => n.trim()); });
+            $('#inputLoadoutGearVests').change(function () { if (currentLoadoutId != -1) loadoutsDataobject[currentLoadoutId]['m_gearVest'] = $(this).val().split('\n').filter(n => n.trim()); });
+            $('#inputLoadoutGearBackpacks').change(function () { if (currentLoadoutId != -1) loadoutsDataobject[currentLoadoutId]['m_gearBackpack'] = $(this).val().split('\n').filter(n => n.trim()); });
+            $('#inputLoadoutGearWeapons').change(function () { if (currentLoadoutId != -1) loadoutsDataobject[currentLoadoutId]['m_gearWeapon'] = $(this).val().split('\n').filter(n => n.trim()); });
+            $('#inputLoadoutSpawnpointsName').change(function () {
+                if (currentLoadoutId != -1 && currentLoadoutSpawnpointId != -1) {
+                    loadoutsDataobject[currentLoadoutId]['m_spawnpoints'][currentLoadoutSpawnpointId]['m_name'] = $(this).val();
+                    $('#inputLoadoutSpawnpointsSelect').find('option[value="' + currentLoadoutSpawnpointId + '"]').text($(this).val());
+                }
+            });
+            $('#inputLoadoutSpawnpointsPosition').change(function () {
+                if (currentLoadoutId != -1 && currentLoadoutSpawnpointId != -1 && currentLoadoutSpawnpointPosition != -1) {
+                    let pos = $(this).val().split(' ').map(parseFloat);
+                    loadoutsDataobject[currentLoadoutId]['m_spawnpoints'][currentLoadoutSpawnpointId]['m_positions'][currentLoadoutSpawnpointPosition]['m_pos'] = pos;
+                    $('#inputLoadoutSpawnpointsPositionsSelection').find('option[value="' + currentLoadoutSpawnpointPosition + '"]').text($(this).val());
+                }
+            });
+            $('#inputLoadoutSpawnpointsRadius').change(function () {
+                if (currentLoadoutId != -1 && currentLoadoutSpawnpointId != -1 && currentLoadoutSpawnpointPosition != -1) {
+                    let radius = parseFloat($(this).val());
+                    loadoutsDataobject[currentLoadoutId]['m_spawnpoints'][currentLoadoutSpawnpointId]['m_positions'][currentLoadoutSpawnpointPosition]['m_radius'] = radius;
+                }
+            });
+            $('#inputLoadoutGearItemsName').change(function () {
+                if (currentLoadoutId != -1 && currentLoadoutItemsId != -1) {
+                    loadoutsDataobject[currentLoadoutId]['m_gearItems'][currentLoadoutItemsId]['m_name'] = $(this).val();
+                    $('#inputLoadoutGearItems').find('option[value="' + currentLoadoutItemsId + '"]').text($(this).val());
+                }
+            });
+            $('#inputLoadoutGearItemsList').change(function () {
+                if (currentLoadoutId != -1 && currentLoadoutItemsId != -1) {
+                    loadoutsDataobject[currentLoadoutId]['m_gearItems'][currentLoadoutItemsId]['m_items'] = $(this).val().split('\n').filter(n => n.trim());
+                }
+            });
+
+            $('#inputLoadoutNew').click(function () {
+                loadoutsDataobject.push({
+                    m_displayName: 'Loadout ' + (loadoutsDataobject.length + 1),
+                    m_uid: '',
+                    m_spawnpoints: [],
+                    m_gearBody: [],
+                    m_gearPants: [],
+                    m_gearFoot: [],
+                    m_gearHead: [],
+                    m_gearMask: [],
+                    m_gearGloves: [],
+                    m_gearVest: [],
+                    m_gearBackpack: [],
+                    m_gearWeapon: [],
+                    m_gearItems: []
+                });
+
+                initializeLoadoutsSelection();
+                $('#inputLoadoutsSelect').change();
+            });
+            $('#inputLoadoutDelete').click(function () {
+                if (currentLoadoutId != -1) {
+                    if (confirm('Are you sure you want to delete current loadout?')) {
+                        loadoutsDataobject.remove(currentLoadoutId);
+                        initializeLoadoutsSelection();
+                        $('#inputLoadoutsSelect').change();
+                    }
+                }
+            });
+
+            $('#inputLoadoutSpawnpointNew').click(function () {
+                if (currentLoadoutId != -1) {
+                    let spawnpoints = loadoutsDataobject[currentLoadoutId]['m_spawnpoints'];
+                    spawnpoints.push({
+                        m_name: 'Location ' + (spawnpoints.length + 1),
+                        m_positions: []
+                    });
+
+                    initializeLoadoutsSpawnpointSelection(spawnpoints);
+                    $('#inputLoadoutSpawnpointsSelect').change();
+                }
+            });
+            $('#inputLoadoutSpawnpointDelete').click(function () {
+                if (currentLoadoutId != -1 && currentLoadoutSpawnpointId != -1) {
+                    if (confirm('Are you sure you want to delete current spawn location?')) {
+                        let spawnpoints = loadoutsDataobject[currentLoadoutId]['m_spawnpoints'];
+                        spawnpoints.remove(currentLoadoutSpawnpointId);
+                        initializeLoadoutsSpawnpointSelection(spawnpoints);
+                        $('#inputLoadoutSpawnpointsSelect').change();
+                    }
+                }
+            });
+
+            $('#inputLoadoutSpawnpointPositionNew').click(function () {
+                if (currentLoadoutId != -1 && currentLoadoutSpawnpointId != -1) {
+                    let positions = loadoutsDataobject[currentLoadoutId]['m_spawnpoints'][currentLoadoutSpawnpointId]['m_positions'];
+                    positions.push({
+                        m_pos: [0, 0, 0],
+                        m_radius: 1
+                    });
+
+                    initializeLoadoutsSpawnpointPosition(positions);
+                    $('#inputLoadoutSpawnpointsPositionsSelection').change();
+                }
+            });
+            $('#inputLoadoutSpawnpointPositionDelete').click(function () {
+                if (currentLoadoutId != -1 && currentLoadoutSpawnpointId != -1 && currentLoadoutSpawnpointPosition != -1) {
+                    let positions = loadoutsDataobject[currentLoadoutId]['m_spawnpoints'][currentLoadoutSpawnpointId]['m_positions'];
+                    positions.remove(currentLoadoutSpawnpointPosition);
+                    initializeLoadoutsSpawnpointPosition(positions);
+                    $('#inputLoadoutSpawnpointsPositionsSelection').change();
+                }
+            });
+
+            $('#inputLoadoutGearItemsNew').click(function () {
+                if (currentLoadoutId != -1) {
+                    let gearItems = loadoutsDataobject[currentLoadoutId]['m_gearItems'];
+                    gearItems.push({
+                        m_name: 'Items Set ' + (gearItems.length + 1),
+                        m_items: []
+                    });
+
+                    initializeLoadoutsGearItemsSelection(gearItems);
+                    $('#inputLoadoutGearItems').change();
+                }
+            });
+            $('#inputLoadoutGearItemsDelete').click(function () {
+                if (currentLoadoutId != -1 && currentLoadoutItemsId != -1) {
+                    if (confirm('Are you sure you want to delete current loadout items set?')) {
+                        let gearItems = loadoutsDataobject[currentLoadoutId]['m_gearItems'];
+                        gearItems.remove(currentLoadoutItemsId);
+                        initializeLoadoutsGearItemsSelection(gearItems);
+                        $('#inputLoadoutGearItems').change();
+                    }
+                }
+            });
+
+            $('#inputLoadoutsSelect').change();
+        </script>
     </div>
     <div class="tab-pane" id="traders" role="tabpanel" aria-labelledby="traders-tab">
         Traders
@@ -225,3 +676,120 @@
         Variables
     </div>
 </div>
+<script>
+    function validateVectorInput(field) {
+        var value = $(field).val();
+        var parts = value.split(' ');
+        while (parts.length < 3) {
+            parts.push('0');
+        }
+        while (parts.length > 3) {
+            parts.pop();
+        }
+        for (var i = 0; i < parts.length; i++) {
+            var num = parseFloat(parts[i]);
+            if (isNaN(num)) {
+                num = 0;
+            }
+            parts[i] = num.toString();
+        }
+        $(field).val(parts[0] + ' ' + parts[1] + ' ' + parts[2]);
+    }
+
+    function validateNumberInput(field) {
+        if ($(field).attr('step') && $(field).attr('step') === '1') {
+            $(field).val(Math.round(parseFloat($(field).val())));
+        }
+        if ($(field).attr('min') && $(field).val() < parseFloat($(field).attr('min'))) {
+            $(field).val(parseFloat($(field).attr('min')));
+        }
+        if ($(field).attr('max') && $(field).val() > parseFloat($(field).attr('max'))) {
+            $(field).val(parseFloat($(field).attr('max')));
+        }
+        if ($(field).attr('pattern') && new RegExp($(field).attr('pattern')).test($(field).val()) === false) {
+            $(field).val($(field).attr('min') ? $(field).attr('min') : 0);
+        }
+    }
+
+    function savePageSettings(rootElement, alertMessage) {
+        var requestData = {
+            auth: userData,
+            data: readPageValues(rootElement)
+        };
+
+        $.post("/save", JSON.stringify(requestData), function (data) {
+            $(alertMessage).removeClass('alert-danger');
+            $(alertMessage).addClass('alert-success');
+            $(alertMessage).html('Changes successfully saved. Please restart DayZ server to apply them.');
+            $(alertMessage).css('visibility', 'visible');
+            console.log('Settings successfully changed.');
+        }).fail(function (err) {
+            $(alertMessage).removeClass('alert-success');
+            $(alertMessage).addClass('alert-danger');
+            $(alertMessage).html(err.status == 0 ? 'Service is unreachable. Please check is server running or internet connection.' : 'Internal server error. Failed to save changes.');
+            $(alertMessage).css('visibility', 'visible');
+            console.error('Failed to change settings.');
+        });
+    };
+
+    function readPageValues(rootElement) {
+        var dataObject = {};
+        $(rootElement).find('[mapping]').each(function () {
+            var result = null;
+            let val = $(this).val();
+            if ($(this).is("input")) {
+                let type = $(this).attr('type');
+                if (type == 'number') {
+                    result = parseFloat(val);
+                }
+                else if (type == 'checkbox') {
+                    result = $(this).is(":checked") ? 1 : 0;
+                }
+                else {
+                    result = String(val);
+                }
+            }
+            else if ($(this).is("textarea")) {
+                result = val.split('\n').filter(n => n.trim());
+            }
+
+            let refPath = $(this).attr('mapping');
+            let refParts = refPath.split('.');
+            var currentObject = dataObject;
+            for (var i = 0; i < refParts.length; i++) {
+                let part = refParts[i];
+                let last = (i == refParts.length - 1);
+                if (part.endsWith(']')) {
+                    let name = part.substring(0, part.indexOf('['));
+                    let index = parseInt(part.substring(part.indexOf('[') + 1, part.length - 1));
+                    if (!currentObject[name]) {
+                        currentObject[name] = [];
+                    }
+                    if (last) {
+                        currentObject[name][index] = result;
+                    }
+                    else if (!currentObject[name][index]) {
+                        currentObject[name][index] = {};
+                    }
+                    currentObject = currentObject[name][index];
+                }
+                else {
+                    if (last) {
+                        currentObject[part] = result;
+                    }
+                    else if (!currentObject[part]) {
+                        currentObject[part] = {};
+                    }
+                    currentObject = currentObject[part];
+                }
+            }
+        });
+        return dataObject;
+    };
+
+    Array.prototype.remove = function (from, to) {
+        var rest = this.slice((to || from) + 1 || this.length);
+        this.length = from < 0 ? this.length + from : from;
+        return this.push.apply(this, rest);
+    };
+</script>

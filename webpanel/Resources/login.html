@@ -59,117 +59,28 @@
                 login: $('#inputUsername').val(),
                 pass: CryptoJS.MD5($('#inputPassword').val()).toString(CryptoJS.enc.Base64)
             };
-            $.post("/login", userData, function (data) {
-                console.log('Successfully authorized.');
-                $('body').html(data);
-            }).fail(function (err) {
-                $('#inputPassword').val('');
-                $("#alertMessage").css('visibility', 'visible');
-                if (err.status == 500) {
-                    $("#alertMessage").html('Invalid login or password.');
-                }
-                else if (err.status == 403) {
-                    $("#alertMessage").html('Too many failed login attempts. Please try again later.');
-                }
-                else if (err.status == 0) {
-                    $("#alertMessage").html('Service is unreachable. Please check is server running or internet connection.');
+            $('body').load("/login", userData, function (response, status, xhr) {
+                if (status == "success") {
+                    console.log('Successfully authorized.');
                 }
                 else {
-                    $("#alertMessage").html('Service is temporarily unavailable.');
+                    $('#inputPassword').val('');
+                    $("#alertMessage").css('visibility', 'visible');
+                    if (xhr.status == 500) {
+                        $("#alertMessage").html('Invalid login or password.');
+                    }
+                    else if (xhr.status == 403) {
+                        $("#alertMessage").html('Too many failed login attempts. Please try again later.');
+                    }
+                    else if (xhr.status == 0) {
+                        $("#alertMessage").html('Service is unreachable. Please check is server running or internet connection.');
+                    }
+                    else {
+                        $("#alertMessage").html('Service is temporarily unavailable.');
+                    }
                 }
             });
         });
-
-        function validateNumberInput(field) {
-            if ($(field).attr('step') && $(field).attr('step') === '1') {
-                $(field).val(Math.round(parseFloat($(field).val())));
-            }
-            if ($(field).attr('min') && $(field).val() < parseFloat($(field).attr('min'))) {
-                $(field).val(parseFloat($(field).attr('min')));
-            }
-            if ($(field).attr('max') && $(field).val() > parseFloat($(field).attr('max'))) {
-                $(field).val(parseFloat($(field).attr('max')));
-            }
-            if ($(field).attr('pattern') && new RegExp( $(field).attr('pattern') ).test( $(field).val() ) === false ) {
-                $(field).val($(field).attr('min') ? $(field).attr('min') : 0);
-            }
-        }
-
-        function savePageSettings(rootElement, alertMessage) {
-            var requestData = {
-                auth: userData,
-                data: readPageValues(rootElement)
-            };
-
-            $.post("/save", JSON.stringify(requestData), function (data) {
-                $(alertMessage).removeClass('alert-danger');
-                $(alertMessage).addClass('alert-success');
-                $(alertMessage).html('Changes successfully saved. Please restart DayZ server to apply them.');
-                $(alertMessage).css('visibility', 'visible');
-                console.log('Settings successfully changed.');
-            }).fail(function (err) {
-                $(alertMessage).removeClass('alert-success');
-                $(alertMessage).addClass('alert-danger');
-                $(alertMessage).html(err.status == 0 ? 'Service is unreachable. Please check is server running or internet connection.' : 'Internal server error. Failed to save changes.');
-                $(alertMessage).css('visibility', 'visible');
-                console.error('Failed to change settings.');
-            });
-        };
-
-        function readPageValues(rootElement) {
-            var dataObject = {};
-            $(rootElement).find('[mapping]').each(function () {
-                var result = null;
-                let val = $(this).val();
-                if ($(this).is("input")) {
-                    let type = $(this).attr('type');
-                    if (type == 'number') {
-                        result = parseFloat(val);
-                    }
-                    else if (type == 'checkbox') {
-                        result = $(this).is(":checked") ? 1 : 0;
-                    }
-                    else {
-                        result = String(val);
-                    }
-                }
-                else if ($(this).is("textarea")) {
-                    result = val.split('\n').filter(n => n.trim());
-                }
-
-                let refPath = $(this).attr('mapping');
-                let refParts = refPath.split('.');
-                var currentObject = dataObject;
-                for (var i = 0; i < refParts.length; i++) {
-                    let part = refParts[i];
-                    let last = (i == refParts.length - 1);
-                    if (part.endsWith(']')) {
-                        let name = part.substring(0, part.indexOf('['));
-                        let index = parseInt(part.substring(part.indexOf('[') + 1, part.length - 1));
-                        if (!currentObject[name]) {
-                            currentObject[name] = [];
-                        }
-                        if (last) {
-                            currentObject[name][index] = result;
-                        }
-                        else if (!currentObject[name][index]) {
-                            currentObject[name][index] = {};
-                        }
-                        currentObject = currentObject[name][index];
-                    }
-                    else {
-                        if (last) {
-                            currentObject[part] = result;
-                        }
-                        else if (!currentObject[part]) {
-                            currentObject[part] = {};
-                        }
-                        currentObject = currentObject[part];
-                    }
-                }
-            });
-            return dataObject;
-        };
     </script>
 </body>
 </html>

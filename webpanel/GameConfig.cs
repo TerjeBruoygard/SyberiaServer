@@ -17,6 +17,7 @@ namespace SyberiaWebPanel
 
         public ClientConfig m_clientConfig { private set; get; }
 
+        [ScriptObjectSerializableAttribute]
         public List<CustomLoadout> m_customLoadouts { private set; get; }
 
         public GroupDefault m_groupDefault { private set; get; }
@@ -201,24 +202,30 @@ namespace SyberiaWebPanel
         {
             foreach (var prop in obj.GetType().GetProperties())
             {
-                var pattern = "${";
+                var mainPattern = "{";
                 if (path.Length > 0)
                 {
-                    pattern += path + ".";
+                    mainPattern += path + ".";
                 }
-                pattern += prop.Name + "}";
+                mainPattern += prop.Name + "}";
+                var singlePattern = "$" + mainPattern;
+
+                if (prop.GetCustomAttributes(typeof(ScriptObjectSerializableAttribute), true)?.Length == 1)
+                {
+                    sb.ReplaceScriptObject("#" + mainPattern, prop.GetValue(obj));
+                }
 
                 if (prop.PropertyType == typeof(int))
                 {
-                    sb.Replace(pattern, (int)prop.GetValue(obj));
+                    sb.Replace(singlePattern, (int)prop.GetValue(obj));
                 }
                 else if (prop.PropertyType == typeof(float))
                 {
-                    sb.Replace(pattern, (float)prop.GetValue(obj));
+                    sb.Replace(singlePattern, (float)prop.GetValue(obj));
                 }
                 else if (prop.PropertyType == typeof(string))
                 {
-                    sb.Replace(pattern, (string)prop.GetValue(obj));
+                    sb.Replace(singlePattern, (string)prop.GetValue(obj));
                 }
                 else if (prop.PropertyType.IsGenericType && prop.PropertyType == typeof(Dictionary<string, GroupFaction>))
                 {
@@ -234,15 +241,15 @@ namespace SyberiaWebPanel
                 {
                     if (prop.PropertyType == typeof(List<string>))
                     {
-                        sb.Replace(pattern, (List<string>)prop.GetValue(obj));
+                        sb.Replace(singlePattern, (List<string>)prop.GetValue(obj));
                     }
                     else if (prop.PropertyType == typeof(List<float>))
                     {
-                        sb.Replace(pattern, (List<float>)prop.GetValue(obj));
+                        sb.Replace(singlePattern, (List<float>)prop.GetValue(obj));
                     }
                     else if (prop.PropertyType == typeof(List<int>))
                     {
-                        sb.Replace(pattern, (List<int>)prop.GetValue(obj));
+                        sb.Replace(singlePattern, (List<int>)prop.GetValue(obj));
                     }
                     else
                     {
@@ -261,15 +268,15 @@ namespace SyberiaWebPanel
                 {
                     if (prop.PropertyType.GetElementType() == typeof(string))
                     {
-                        sb.Replace(pattern, (string[])prop.GetValue(obj));
+                        sb.Replace(singlePattern, (string[])prop.GetValue(obj));
                     }
                     else if (prop.PropertyType.GetElementType() == typeof(float))
                     {
-                        sb.Replace(pattern, (float[])prop.GetValue(obj));
+                        sb.Replace(singlePattern, (float[])prop.GetValue(obj));
                     }
                     else if (prop.PropertyType.GetElementType() == typeof(int))
                     {
-                        sb.Replace(pattern, (int[])prop.GetValue(obj));
+                        sb.Replace(singlePattern, (int[])prop.GetValue(obj));
                     }
                     else
                     {
@@ -647,6 +654,7 @@ namespace SyberiaWebPanel
 
         public class CustomLoadout : GroupDefault
         {
+            public string m_displayName { set; get; }
             public string m_uid { set; get; }
         }
 
