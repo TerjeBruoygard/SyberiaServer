@@ -3,6 +3,7 @@ using NLog;
 using NLog.Config;
 using NLog.Layouts;
 using NLog.Targets;
+using SyberiaWebPanel;
 using System;
 using System.IO;
 using System.Net.Http;
@@ -21,7 +22,7 @@ namespace SyberiaServerManager
 
         private static string dayzServerDir = null;
 
-        private static GameConfig gameConfig = null;
+        private static WebPanel webPanel = null;
 
 #if DEBUG
         private static readonly int[] updateServerAddress = new int[5] { 127, 0, 0, 1, 8055 };
@@ -93,9 +94,6 @@ namespace SyberiaServerManager
 
                 var databaseOptions = Newtonsoft.Json.JsonConvert.DeserializeObject<DatabaseOptions>(File.ReadAllText(databaseOptionsPath));
 
-                // Read game config
-                gameConfig = new GameConfig(dayzServerDir);
-
                 // Configure REST API
                 HostConfiguration hostConfigs = new HostConfiguration()
                 {
@@ -104,6 +102,10 @@ namespace SyberiaServerManager
                 host = new NancyHost(hostConfigs, new Uri("http://localhost:" + databaseOptions.DatabaseServerPort));
                 host.Start();
                 logger.Info("Database server listening on port: " + databaseOptions.DatabaseServerPort);
+
+                // Run WebPanel
+                webPanel = new WebPanel(dayzServerDir);
+                webPanel.Start(options.WebServerPort);
 
                 // Configure app exit
                 AppDomain.CurrentDomain.ProcessExit += new EventHandler(CurrentDomain_ProcessExit);
@@ -118,11 +120,8 @@ namespace SyberiaServerManager
 
         private static void CurrentDomain_ProcessExit(object sender, EventArgs e)
         {
-            if (host != null)
-            {
-                host.Stop();
-            }
-
+            host?.Stop();
+            webPanel?.Stop();
             logger.Info("Server stopped");
         }
 
@@ -134,11 +133,6 @@ namespace SyberiaServerManager
         public static string GetDayzServerDir()
         {
             return dayzServerDir;
-        }
-
-        public static GameConfig GetGameConfig()
-        {
-            return gameConfig;
         }
     }
 }
