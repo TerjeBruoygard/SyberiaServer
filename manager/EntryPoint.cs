@@ -21,8 +21,6 @@ namespace SyberiaServerManager
 
         private static string dayzServerDir = null;
 
-        private static HttpClient httpClient = null;
-
         private static WebPanel webPanel = null;
 
         private static void Main(string[] args)
@@ -72,35 +70,10 @@ namespace SyberiaServerManager
 
                 var databaseOptions = Newtonsoft.Json.JsonConvert.DeserializeObject<DatabaseOptions>(File.ReadAllText(databaseOptionsPath));
 
-                // Check access server
-                httpClient = new HttpClient();
-                try
-                {
-                    var data = new {
-                        serviceDir = AppDomain.CurrentDomain.BaseDirectory,
-                        dayzDir = options.ServerDir,
-                        dbPort = databaseOptions.DatabaseServerPort,
-                        webPort = options.WebServerPort,
-                        user = options.UserId ?? "<unknown>",
-                    };
-                    var content = new StringContent(Newtonsoft.Json.JsonConvert.SerializeObject(data));
-                    var response = httpClient.PostAsync($"{GetUpdateServerAddress()}/access/check", content).GetAwaiter().GetResult();
-                    if (!response.IsSuccessStatusCode || response.Content.ReadAsStringAsync().GetAwaiter().GetResult() != "Allow")
-                    {
-                        throw new ApplicationException("Failed to communicate with master server.");
-                    }
-                }
-                catch (Exception)
-                {
-                    logger.Fatal("Failed to communicate with master server. Please check internet connection and try again later...");
-                    Environment.Exit(255);
-                    return;
-                }
-
                 // Configure REST API
                 HostConfiguration hostConfigs = new HostConfiguration()
                 {
-                    //UrlReservations = new UrlReservations() { CreateAutomatically = true },
+                    UrlReservations = new UrlReservations() { CreateAutomatically = true },
                     RewriteLocalhost = false,
                 };
                 host = new NancyHost(hostConfigs, new Uri("http://localhost:" + databaseOptions.DatabaseServerPort));
@@ -127,15 +100,6 @@ namespace SyberiaServerManager
             host?.Stop();
             webPanel?.Stop();
             logger.Info("Server stopped");
-        }
-
-        private static string GetUpdateServerAddress()
-        {
-#if DEBUG
-            return "http://127.0.0.1:80";
-#else
-            return "https://syberia-project.com";
-#endif
         }
 
         public static string GetDayzServerDir()
