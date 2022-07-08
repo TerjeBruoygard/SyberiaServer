@@ -139,7 +139,7 @@ modded class PluginAdminTool
 						foreach (string attachment : context.m_attachments)
 						{
 							EntityAI attachmentItem = entity.GetInventory().CreateAttachment(attachment);
-							if (GameHelpers.HasBatterySlot(attachment))
+							if (attachmentItem && GameHelpers.HasBatterySlot(attachment))
 							{
 								attachmentItem.GetInventory().CreateAttachment("Battery9V");
 							}

@@ -137,6 +137,7 @@ class CfgSyberia
         damageNonWeaponItemInHandsOnAttack = 3.0;
         damageGlovesOnHandsOnAttack = 2.0;
         damageHandsOnAttackChance = 0.20;
+        bodyGuardModifier = 1;
     };
 
     class ZombieSystem
