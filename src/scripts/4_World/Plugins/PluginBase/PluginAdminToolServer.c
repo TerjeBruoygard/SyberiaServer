@@ -452,8 +452,9 @@ modded class PluginAdminTool
 			
 			PlayerBase player = GetPlayerByGUID(serverData.param1);
 			if (player)
-			{				
-				ref CharProfile profile = GetSyberiaCharacters().Get(player.GetIdentity());
+			{			
+				int errorCode = 0;	
+				ref CharProfile profile = GetSyberiaCharacters().Get(player.GetIdentity(), errorCode);
 				if (profile)
 				{
 					LogAdminAction(sender, "Delete player character: ID = " + profile.m_id + "; UID = " + profile.m_uid + "; NAME = " + profile.m_name);	
@@ -570,8 +571,9 @@ modded class PluginAdminTool
 	{
 		if (!player) return;
 		if (!player.GetSybStats()) return;
-		
-		ref CharProfile profile = GetSyberiaCharacters().Get(player.GetIdentity());
+
+		int errorCode = 0;		
+		ref CharProfile profile = GetSyberiaCharacters().Get(player.GetIdentity(), errorCode);
 		if (!profile || !profile.m_skills) return;
 		
 		LogAdminAction(sender, "Change player '" + profile.m_name + "' (" + player.GetIdentity().GetId() + ") state " + statName + " to " + value);
@@ -695,7 +697,8 @@ modded class PluginAdminTool
 		playerContext.m_isGhost = player.IsGhostBody();
 		playerContext.m_isAdmin = IsPlayerAdmin(player.GetIdentity(), false);
 		
-		ref CharProfile profile = GetSyberiaCharacters().Get(player.GetIdentity());
+		int errorCode = 0;
+		ref CharProfile profile = GetSyberiaCharacters().Get(player.GetIdentity(), errorCode);
 		if (profile)
 		{
 			playerContext.m_name = profile.m_name;
@@ -715,7 +718,8 @@ modded class PluginAdminTool
 		playerContext.m_isAdmin = IsPlayerAdmin(player.GetIdentity(), false);
 		playerContext.m_position = player.GetPosition();
 		
-		ref CharProfile profile = GetSyberiaCharacters().Get(player.GetIdentity());
+		int errorCode = 0;
+		ref CharProfile profile = GetSyberiaCharacters().Get(player.GetIdentity(), errorCode);
 		if (profile)
 		{
 			playerContext.m_name = profile.m_name;
@@ -892,9 +896,10 @@ modded class PluginAdminTool
 	{
 		if (m_logFileHandle != 0 && IsPlayerAdmin(identity, false))
 		{
+			int errorCode = 0;
 			string guid = identity.GetId();
 			string fullName = identity.GetName();
-			ref CharProfile profile = GetSyberiaCharacters().Get(identity);
+			ref CharProfile profile = GetSyberiaCharacters().Get(identity, errorCode);
 			if (profile)
 			{
 				fullName = profile.m_name + " | " + fullName;

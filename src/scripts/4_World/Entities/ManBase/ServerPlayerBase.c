@@ -737,6 +737,26 @@ modded class PlayerBase
 		}
 	}
 	
+	private bool IsHeavyItemSkillCheck(ItemBase itemInHands)
+	{
+		if (!itemInHands)
+		{
+			return false;
+		}
+		
+		if (itemInHands.IsInherited(MediumTent))
+		{
+			return false;
+		}
+		
+		if (itemInHands.IsInherited(LargeTent))
+		{
+			return false;
+		}
+		
+		return itemInHands.IsHeavyBehaviour();
+	}
+	
 	private void OnTickExperience()
 	{
 		// Increment survival timers
@@ -744,7 +764,7 @@ modded class PlayerBase
 		
 		// Calculate overweight perk
 		ItemBase itemInHands = GetItemInHands();
-		if (itemInHands && itemInHands.IsHeavyBehaviour() && CanDropEntity(itemInHands) && GetPerkBoolValue(SyberiaPerkType.SYBPERK_STRENGTH_HEAVY_ITEMS) == false)
+		if (itemInHands && IsHeavyItemSkillCheck(itemInHands) && CanDropEntity(itemInHands) && GetPerkBoolValue(SyberiaPerkType.SYBPERK_STRENGTH_HEAVY_ITEMS) == false)
 		{
 			GetInventory().DropEntity(InventoryMode.SERVER, this, itemInHands);
 			GetSyberiaRPC().SendToClient(SyberiaRPC.SYBRPC_SCREEN_MESSAGE, GetIdentity(), new Param1<string>("#syb_skill_overweight_item #syb_perk_name_" + SyberiaPerkType.SYBPERK_STRENGTH_HEAVY_ITEMS));
