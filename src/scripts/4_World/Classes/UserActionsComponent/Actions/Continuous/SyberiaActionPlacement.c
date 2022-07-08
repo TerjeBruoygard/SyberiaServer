@@ -17,10 +17,6 @@ modded class SyberiaActionPlacementApply
 			action_data.m_Player.PlacingCompleteServer();
 		}
 		
-		EntityAI entity_for_placing = action_data.m_MainItem;
-		GetGame().ClearJuncture( action_data.m_Player, entity_for_placing );
-		action_data.m_MainItem.SetIsBeingPlaced( false );
-		
 		float health = action_data.m_MainItem.GetHealth01("", "");
 		string itemName = action_data.m_MainItem.GetType();
 		action_data.m_MainItem.Delete();
@@ -35,6 +31,12 @@ modded class SyberiaActionPlacementApply
 				placedObj.SetOrientation( rot );
 				placedObj.SetHealth01("", "", health);
 			}
+		}
+		
+		string placedSound;
+		if ( GetGame().ConfigGetText("CfgVehicles " + placedName + " placedSound", placedSound) )
+		{
+			SyberiaSoundEmitter.Spawn(placedSound, pos);
 		}
 	}
 };
