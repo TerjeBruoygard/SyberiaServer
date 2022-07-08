@@ -19,7 +19,8 @@ namespace SyberiaUpdaterServer
         {
             Get("/echo", x =>
             {
-                logger.Info($"[/echo] Success");
+                var clientAddress = this.Request.UserHostAddress;
+                logger.Info($"[/echo] Requested from {clientAddress}");
                 return "Success";
             });
 
@@ -169,6 +170,7 @@ namespace SyberiaUpdaterServer
             {
                 try
                 {
+                    var clientAddress = this.Request.UserHostAddress;
                     var currentDate = DateTime.Now;
                     var accessKey = this.Request.Query["accessKey"];
                     var from = this.Request.Query["from"]?.Value as string;
@@ -224,6 +226,8 @@ namespace SyberiaUpdaterServer
                             result.AppendLine("</table>");
                             result.AppendLine("</body>");
                             result.AppendLine("</html>");
+
+                            logger.Info($"[/statistic] Load statistic page from {clientAddress}");
                             return new TextResponse(result.ToString(), "text/html", Encoding.UTF8);
                         }
                     }
