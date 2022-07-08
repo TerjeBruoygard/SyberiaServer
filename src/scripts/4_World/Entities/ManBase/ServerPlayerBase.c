@@ -29,6 +29,7 @@ modded class PlayerBase
 	float m_antibioticsStrange;
 	float m_influenzaTimer;
 	float m_stomatchpoisonTimer;
+	float m_radioprotectionTimer;
 	
 	// Mind state
 	float m_mindDegradationForce;
@@ -81,6 +82,7 @@ modded class PlayerBase
 		m_antibioticsStrange = 0;
 		m_influenzaTimer = 0;
 		m_stomatchpoisonTimer = 0;
+		m_radioprotectionTimer = 0;
 		
 		// Mind state
 		m_mindDegradationForce = 0;
@@ -148,6 +150,8 @@ modded class PlayerBase
         ctx.Write( SYBERIA_V101_VERSION );
 		ctx.Write( m_radiationSickness );
 		ctx.Write( m_radiationDose );
+		ctx.Write( m_radioprotectionLevel );
+		ctx.Write( m_radioprotectionTimer );
 	}
 	
 	override bool OnStoreLoad( ParamsReadContext ctx, int version )
@@ -222,6 +226,8 @@ modded class PlayerBase
 		{
 			if(!ctx.Read( m_radiationSickness )) return false;
 			if(!ctx.Read( m_radiationDose )) return false;
+			if(!ctx.Read( m_radioprotectionLevel )) return false;
+			if(!ctx.Read( m_radioprotectionTimer )) return false;
 		}
 		else
 		{
@@ -254,6 +260,7 @@ modded class PlayerBase
 				OnTickAdvMedicine_HemostatickEffect(m_advMedUpdateTimer);
 				OnTickAdvMedicine_HematopoiesisEffect(m_advMedUpdateTimer);
 				OnTickAdvMedicine_Adrenalin(m_advMedUpdateTimer);
+				OnTickAdvMedicine_Radprotector(m_advMedUpdateTimer);
 				m_advMedUpdateTimer = 0;
 			}
 			
@@ -422,7 +429,9 @@ modded class PlayerBase
 		}
 		else if (GetRadiationDose() > 0)
 		{
-			AddRadiationDose(GetSyberiaConfig().m_radiationDoseDecrementPerSec);
+			if (m_radioprotectionLevel >= 0 && m_radioprotectionLevel <= 3) {
+				AddRadiationDose(GetSyberiaConfig().m_radiationDoseDecrementPerSec[m_radioprotectionLevel]);
+			}
 		}
 		
 		if (m_radiationSickness > 0)
@@ -1073,6 +1082,18 @@ modded class PlayerBase
 			GetStaminaHandler().SetStamina( GetStaminaHandler().GetStaminaMax() );
 		}
 		
+		int medRadprotectLevel = GetGame().ConfigGetInt( "CfgVehicles " + classname + " medRadioprotectionLevel" );
+		if (medRadprotectLevel > 0)
+		{
+			overdosedIncrement = ProcessOverdosedPostinc(m_radioprotectionTimer, overdosedIncrement);
+			float medRadprotectTimeSec = GetGame().ConfigGetFloat( "CfgVehicles " + classname + " medRadioprotectionTimer" );
+			if (medRadprotectLevel >= m_radioprotectionLevel && medRadprotectTimeSec > 0)
+			{
+				m_radioprotectionLevel = medRadprotectLevel;
+				m_radioprotectionTimer = m_radioprotectionTimer + (medRadprotectTimeSec * amount);
+			}
+		}
+		
 		m_overdosedValue = m_overdosedValue + overdosedIncrement;		
 		SetSynchDirty();
 	}
@@ -1581,6 +1602,23 @@ modded class PlayerBase
 		if (GetStaminaHandler().GetDepletionMultiplier() != staminaDepMod)
 		{
 			GetStaminaHandler().SetDepletionMultiplier( staminaDepMod );
+		}
+	}
+	
+	protected void OnTickAdvMedicine_Radprotector(float deltaTime)
+	{
+		if (m_radioprotectionLevel > 0)
+		{
+			m_radioprotectionTimer = m_radioprotectionTimer - deltaTime;
+			if (m_radioprotectionTimer < 0)
+			{
+				m_radioprotectionLevel = 0;
+				SetSynchDirty();
+			}
+		}
+		else
+		{
+			m_radioprotectionTimer = 0;
 		}
 	}
 	

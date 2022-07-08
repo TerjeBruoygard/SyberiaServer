@@ -107,7 +107,7 @@ modded class SyberiaConfig
     float m_startSurgeryKnifeChance;
 	float m_surgerySideEffectBloodLoseCount;
     float m_surgerySideEffectHealthLoseCount;
-	float m_radiationDoseDecrementPerSec;
+	ref array<float> m_radiationDoseDecrementPerSec = new array<float>;
 	ref array<float> m_radiationLevels = new array<float>;
 	ref array<float> m_radiationHealthDamage = new array<float>;
 	float m_radiationSleepingDec;
@@ -271,7 +271,7 @@ modded class SyberiaConfig
 	    m_startSurgeryKnifeChance = ConfigGetFloat("CfgSyberia MedicineSystem startSurgeryKnifeChance");
 		m_surgerySideEffectBloodLoseCount = ConfigGetFloat("CfgSyberia MedicineSystem surgerySideEffectBloodLoseCount");
 	    m_surgerySideEffectHealthLoseCount = ConfigGetFloat("CfgSyberia MedicineSystem surgerySideEffectHealthLoseCount");
-		m_radiationDoseDecrementPerSec = ConfigGetFloat("CfgSyberia MedicineSystem radiationDoseDecrementPerSec");
+		ConfigGetFloatArray("CfgSyberia MedicineSystem radiationDoseDecrementPerSec", m_radiationDoseDecrementPerSec, 4);	
 		ConfigGetFloatArray("CfgSyberia MedicineSystem radiationLevels", m_radiationLevels, 3);	
 		ConfigGetFloatArray("CfgSyberia MedicineSystem radiationHealthDamage", m_radiationHealthDamage, 3);
 		m_radiationSleepingDec = ConfigGetFloat("CfgSyberia MedicineSystem radiationSleepingDec");
