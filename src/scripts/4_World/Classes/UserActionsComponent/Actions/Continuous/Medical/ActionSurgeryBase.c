@@ -5,7 +5,8 @@ modded class ActionSurgeryBase
 		string result = "";
 		float skillRawChance = 0;
 		float skillChanceGain = 0;
-		float sepsisChance = 1.0 - operator.GetPerkFloatValue(SyberiaPerkType.SYBPERK_MEDICINE_SEPSIS_CHANCE_DEC, 0, 0);
+        float itemSpesisChance = item.GetInfectionChance();
+		float skillSepsisChance = 1.0 - operator.GetPerkFloatValue(SyberiaPerkType.SYBPERK_MEDICINE_SEPSIS_CHANCE_DEC, 0, 0);
 		float toolsDegradationMod = 1.0 - operator.GetPerkFloatValue(SyberiaPerkType.SYBPERK_MEDICINE_TOOLS_DEGRADATION_DEC, 0, 0);
         if ( (GetSyberiaOptions().m_client.m_operateVisceraHimself || !self) && player.m_visceraHit)
         {
@@ -57,7 +58,7 @@ modded class ActionSurgeryBase
 		if (Math.RandomFloat01() < 1.0 - skillRawChance)
 		{
 			int sideEffect = Math.RandomIntInclusive(1, 3);
-			if (sideEffect == 1 && Math.RandomFloat01() < sepsisChance)
+			if (sideEffect == 1 && Math.RandomFloat01() < skillSepsisChance * 0.1)
 			{
 				player.m_BleedingManagerServer.SetBloodInfection(true);
 				result = result + "#syb_surgery_side_effect1 ";
@@ -74,7 +75,17 @@ modded class ActionSurgeryBase
 			}
 		}
         
-        if (Math.RandomFloat01() < sepsisChance && operator.HasDirtyHands())
+        if (operator.HasDirtyHands())
+		{
+			player.m_BleedingManagerServer.SetBloodInfection(true);
+            result = result + "#syb_surgery_sepsis ";
+		}
+        else if (Math.RandomFloat01() < skillSepsisChance && !operator.HasDisinfectedHands())
+		{
+			player.m_BleedingManagerServer.SetBloodInfection(true);
+			result = result + "#syb_surgery_sepsis ";
+		}
+        else if (Math.RandomFloat01() < itemSpesisChance * skillSepsisChance)
 		{
 			player.m_BleedingManagerServer.SetBloodInfection(true);
 			result = result + "#syb_surgery_sepsis ";
@@ -83,7 +94,7 @@ modded class ActionSurgeryBase
         ItemBase gloves = operator.GetItemOnSlot("Gloves");
         if (gloves)
         {
-            gloves.AddHealth( "", "", GetSyberiaConfig().m_glovesDamageOnSurgery * toolsDegradationMod );
+            gloves.SetCleanness(0);
         }
         else
         {
@@ -92,7 +103,7 @@ modded class ActionSurgeryBase
 
         if (item.HasQuantity())
         {
-            item.AddQuantity(-1 * toolsDegradationMod, true);
+            item.AddQuantity(-50 * toolsDegradationMod, true);
         }
         else
         {

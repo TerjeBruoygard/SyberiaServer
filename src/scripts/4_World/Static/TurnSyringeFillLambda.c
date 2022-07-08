@@ -7,7 +7,7 @@ modded class TurnSyringeFillLambda
         SyringeFull syringeFull = SyringeFull.Cast(new_item);
         if (syringeFull)
         {
-            syringeFull.UpdateSyringeData(m_medSolutionItem.GetType(), m_dirty);
+            syringeFull.UpdateSyringeData(m_medSolutionItem.GetType());
 			
 			if (m_medSolutionItem.HasQuantity())
 	        {

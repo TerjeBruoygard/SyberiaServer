@@ -1,13 +1,11 @@
 modded class SyringeFull extends Inventory_Base
 {
 	private string m_medSolution;
-	private bool m_medDirty;
 	
 	override void InitItemVariables()
 	{
 		super.InitItemVariables();
 		m_medSolution = "";
-		m_medDirty = false;
 	}
 	
 	override void SaveVariables(ParamsWriteContext ctx)
@@ -15,7 +13,6 @@ modded class SyringeFull extends Inventory_Base
 		super.SaveVariables(ctx);
 		
 		ctx.Write(m_medSolution);
-		ctx.Write(m_medDirty);
 	}
 	
 	override bool LoadVariables(ParamsReadContext ctx, int version = -1)
@@ -23,9 +20,6 @@ modded class SyringeFull extends Inventory_Base
 		bool result = super.LoadVariables(ctx, version);
 		
 		if (!ctx.Read(m_medSolution))
-			return false;
-		
-		if (!ctx.Read(m_medDirty))
 			return false;
 		
 		return result;
@@ -38,20 +32,19 @@ modded class SyringeFull extends Inventory_Base
 	
 	bool IsSyringeDirty()
 	{
-		return m_medDirty;
+		return !IsCleanness();
 	}
 	
-	void UpdateSyringeData(string solutionClassname, bool dirty)
+	void UpdateSyringeData(string solutionClassname)
 	{
 		m_medSolution = solutionClassname;
-		m_medDirty = dirty;
 	}
 	
 	override void OnApply(PlayerBase player)
 	{
 		if (m_medSolution != "")
 		{
-			if (m_medDirty && Math.RandomFloat01() < GetSyberiaConfig().m_sepsisDirtySyringeChance)
+			if (IsSyringeDirty() && Math.RandomFloat01() < GetSyberiaConfig().m_sepsisDirtySyringeChance)
 			{
 				player.m_BleedingManagerServer.SetBloodInfection(true);
 			}
