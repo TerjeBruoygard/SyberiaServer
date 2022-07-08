@@ -32,8 +32,6 @@ modded class SyberiaConfig
 	float m_sepsisKnifeHitChance;
 	float m_sepsisBulletHitChance;
 	float m_sepsisDirtySyringeChance;
-	float m_sepsisDitryHandsBandageChance;
-	float m_sepsisDitryHandsSyrgeryChance;
 	float m_zvirusStage1TimeSec;
 	float m_zvirusStage2TimeSec;
 	float m_zvirusDeathTimeSec;
@@ -103,6 +101,11 @@ modded class SyberiaConfig
 	ref array<int> m_stomatchpoisonDefaultTimes = new array<int>;
     float m_glovesDamageOnApplyBandage;
     float m_glovesDamageOnSurgery;
+	float m_startSurgeryVisceraChance;
+    float m_startSurgeryBulletChance;
+    float m_startSurgeryKnifeChance;
+	float m_surgerySideEffectBloodLoseCount;
+    float m_surgerySideEffectHealthLoseCount;
 	
 	// Zombies
 	bool m_zombieOpenDoorEnable;
@@ -170,8 +173,6 @@ modded class SyberiaConfig
 		m_sepsisKnifeHitChance = ConfigGetFloat("CfgSyberia MedicineSystem sepsisKnifeHitChance");
 		m_sepsisBulletHitChance = ConfigGetFloat("CfgSyberia MedicineSystem sepsisBulletHitChance");
 		m_sepsisDirtySyringeChance = ConfigGetFloat("CfgSyberia MedicineSystem sepsisDirtySyringeChance");
-		m_sepsisDitryHandsBandageChance = ConfigGetFloat("CfgSyberia MedicineSystem sepsisDitryHandsBandageChance");
-		m_sepsisDitryHandsSyrgeryChance = ConfigGetFloat("CfgSyberia MedicineSystem sepsisDitryHandsSyrgeryChance");
 		m_zvirusStage1TimeSec = ConfigGetFloat("CfgSyberia MedicineSystem zvirusStage1TimeSec");
 		m_zvirusStage2TimeSec = ConfigGetFloat("CfgSyberia MedicineSystem zvirusStage2TimeSec");
 		m_zvirusDeathTimeSec = ConfigGetFloat("CfgSyberia MedicineSystem zvirusDeathTimeSec");
@@ -240,7 +241,12 @@ modded class SyberiaConfig
 		ConfigGetIntArray("CfgSyberia MedicineSystem stomatchpoisonDrinkWell", m_stomatchpoisonDrinkWell, 2);
 		ConfigGetIntArray("CfgSyberia MedicineSystem stomatchpoisonDefaultTimes", m_stomatchpoisonDefaultTimes, 3);
         m_glovesDamageOnApplyBandage = ConfigGetFloat("CfgSyberia MedicineSystem glovesDamageOnApplyBandage");
-        m_glovesDamageOnSurgery = ConfigGetFloat("CfgSyberia MedicineSystem glovesDamageOnSurgery");
+        m_glovesDamageOnSurgery = ConfigGetFloat("CfgSyberia MedicineSystem glovesDamageOnSurgery");		
+		m_startSurgeryVisceraChance = ConfigGetFloat("CfgSyberia MedicineSystem startSurgeryVisceraChance");
+	    m_startSurgeryBulletChance = ConfigGetFloat("CfgSyberia MedicineSystem startSurgeryBulletChance");
+	    m_startSurgeryKnifeChance = ConfigGetFloat("CfgSyberia MedicineSystem startSurgeryKnifeChance");
+		m_surgerySideEffectBloodLoseCount = ConfigGetFloat("CfgSyberia MedicineSystem surgerySideEffectBloodLoseCount");
+	    m_surgerySideEffectHealthLoseCount = ConfigGetFloat("CfgSyberia MedicineSystem surgerySideEffectHealthLoseCount");
 		
 		// Zombies
 		m_zombieOpenDoorEnable = ConfigGetInt("CfgSyberia ZombieSystem zombieOpenDoorEnable") == 1;
