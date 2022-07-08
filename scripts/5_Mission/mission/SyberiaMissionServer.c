@@ -32,6 +32,9 @@ class SyberiaMissionServer : MissionServer
 		GetFemaleCharactersMetadata(m_femaleCharactersPool);
 		
 		GetSyberiaRPC().RegisterHandler(SyberiaRPC.SYBRPC_CREATENEWCHAR_REQUEST, this, "OnCreateNewCharRequest");
+		GetSyberiaRPC().RegisterHandler(SyberiaRPC.SYBRPC_STARTGAME_REQUEST, this, "OnStartGameRequest");
+		GetSyberiaRPC().RegisterHandler(SyberiaRPC.SYBRPC_RESPAWN_REQUEST, this, "OnRespawnRequest");
+		GetSyberiaRPC().RegisterHandler(SyberiaRPC.SYBRPC_DELETECHAR_REQUEST, this, "OnDeleteCharRequest");
 		SybLogSrv("Syberia server mission initialized");
 	}
 	
@@ -67,11 +70,46 @@ class SyberiaMissionServer : MissionServer
 	
 	override PlayerBase OnClientNewEvent(PlayerIdentity identity, vector pos, ParamsReadContext ctx)
 	{
-		SybLogSrv("Create ghost body.");
-		PlayerBase player = CreateCharacter(identity, "0 0 0", ctx, "Survivor_Ghost");
-		player.SetPosition("-100000 0 -100000");
-		player.SetAllowDamage(false);
-		player.GetInputController().SetDisabled(true);
+		string classname;
+		bool ghostMode = false;
+		ref CharProfile profile = GetSyberiaCharacters().Get(identity);
+		if (profile)
+		{
+			if (profile.m_needToForceRespawn)
+			{
+				classname = profile.m_classname;
+				profile.m_needToForceRespawn = false;
+				GetSyberiaCharacters().Save(identity);
+				
+				auto requestParams = new Param1<int>(0);
+				GetSyberiaRPC().SendToClient(SyberiaRPC.SYBRPC_CLOSE_LOGIN_SCREEN, identity, requestParams);
+				SybLogSrv("Send SYBRPC_CLOSE_LOGIN_SCREEN RPC.");				
+			}
+			else
+			{
+				ghostMode = true;
+				classname = profile.m_classname + "_Ghost";
+				profile.m_needToConfigureGear = true;
+				GetSyberiaCharacters().Save(identity);
+			}
+		}
+		else
+		{
+			classname = "SurvivorM_Mirek_Ghost";
+			ghostMode = true;
+		}
+		
+		PlayerBase player = CreateCharacter(identity, "0 0 0", ctx, classname);
+		if (player)
+		{
+			if (ghostMode)
+			{
+				player.SetPosition("-100000 -100 -100000");
+				player.SetAllowDamage(false);
+				player.GetInputController().SetDisabled(true);
+			}
+		}
+		
 		return player;
 	}
 	
@@ -86,9 +124,50 @@ class SyberiaMissionServer : MissionServer
 		super.OnClientDisconnectedEvent(identity, player, logoutTime, authFailed);
 	}
 	
+	PlayerBase GetPlayerByIdentity(ref PlayerIdentity identity)
+	{
+		ref PlayerBase result = null;
+		ref array<Man> players = new array<Man>;
+		GetGame().GetPlayers(players);
+		
+		foreach (Man man : players)
+		{
+			ref PlayerBase player = PlayerBase.Cast(man);
+			if (player && player.GetIdentity() == identity)
+			{
+				result = player;
+				break;
+			}
+		}
+		
+		delete players;
+		return result;
+	}
+	
+	ref PlayerBase RecreatePlayer(ref PlayerIdentity identity)
+	{
+		ref PlayerBase player = GetPlayerByIdentity(identity);
+		if (player)
+		{
+			if (GetHive())
+			{
+				GetHive().CharacterKill(player);
+			}
+			
+			GetGame().ObjectDelete(player);
+		}
+		
+		player = OnClientNewEvent(identity, "0 0 0", null);
+		if (player && GetHive())
+		{
+			GetHive().CharacterSave(player);
+		}
+		
+		return player;
+	}
+	
 	private void DeleteGhostBody(PlayerIdentity identity, PlayerBase player)
 	{
-		SybLogSrv("Delete ghost body.");
 		InvokeOnDisconnect(player);
 		
 		if (GetHive())
@@ -104,31 +183,7 @@ class SyberiaMissionServer : MissionServer
 		// Send list of players at all clients
 		GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(SyncEvents.SendPlayerList, 1000);
 	}
-	
-	override void StartingEquipSetup(PlayerBase player, bool clothesChosen)
-	{
-		EntityAI itemTop;
-		EntityAI itemEnt;
-		ItemBase itemBs;
-
-		itemTop = player.FindAttachmentBySlotName("Body");
-
-		if ( itemTop )
-		{
-			itemEnt = itemTop.GetInventory().CreateInInventory("Rag");
-			if ( Class.CastTo(itemBs, itemEnt ) )
-				itemBs.SetQuantity(4);
-
-			player.GetInventory().CreateInInventory("Apple");
-            player.GetInventory().CreateInInventory("Apple");
-            player.GetInventory().CreateInInventory("M67Grenade");
-            player.GetInventory().CreateInInventory("CombatKnife");
-            player.GetInventory().CreateAttachment("TortillaBag");
-            player.GetInventory().CreateAttachment("Saiga").GetInventory().CreateAttachment("Saiga_Bttstck");
-            player.GetInventory().CreateInInventory("Mag_Saiga_Drum20Rnd");
-		}
-	}
-	
+		
 	override void ControlPersonalLight(PlayerBase player) { }
 	
 	private void OnNewPlayerConnected(ref PlayerIdentity identity)
@@ -136,9 +191,18 @@ class SyberiaMissionServer : MissionServer
 		ref CharProfile profile = GetSyberiaCharacters().Get(identity);
 		if (profile)
 		{
-			auto respParams = new Param3<string, int, int>(profile.m_name, profile.m_souls, GetSyberiaOptions().m_respawnSoulsPrice);
-			GetSyberiaRPC().SendToClient(SyberiaRPC.SYBRPC_RESPAWN_SCREEN_OPEN, identity, respParams);
-			SybLogSrv("Send SYBRPC_RESPAWN_SCREEN_OPEN RPC.");
+			if (profile.m_needToConfigureGear)
+			{
+				auto equipParams = new Param1<int>(0);
+				GetSyberiaRPC().SendToClient(SyberiaRPC.SYBRPC_EQUIP_SCREEN_OPEN, identity, equipParams);
+				SybLogSrv("Send SYBRPC_EQUIP_SCREEN_OPEN RPC.");
+			}
+			else
+			{
+				auto respParams = new Param3<string, int, int>(profile.m_name, profile.m_souls, GetSyberiaOptions().m_respawnSoulsPrice);
+				GetSyberiaRPC().SendToClient(SyberiaRPC.SYBRPC_RESPAWN_SCREEN_OPEN, identity, respParams);
+				SybLogSrv("Send SYBRPC_RESPAWN_SCREEN_OPEN RPC.");
+			}
 		}
 		else
 		{
@@ -163,9 +227,7 @@ class SyberiaMissionServer : MissionServer
 			Param1<ref RpcCreateNewCharContainer> clientData;
        		if ( !ctx.Read( clientData ) ) return;	
 			
-			profile = new CharProfile;
-			profile.m_name = clientData.param1.m_name;
-			
+			profile = new CharProfile(clientData.param1.m_name, GetSyberiaOptions().m_startSoulsCount);			
 			if (clientData.param1.m_isMale)
 			{
 				if (clientData.param1.m_faceId >= 0 && clientData.param1.m_faceId < m_maleCharactersPool.Count())
@@ -199,19 +261,75 @@ class SyberiaMissionServer : MissionServer
 				profile.m_name = sender.GetName();
 			}
 			
-			profile.m_souls = GetSyberiaOptions().m_startSoulsCount;
-			GetSyberiaCharacters().Create(sender, profile);
-			
-			SybLogSrv("SYBRPC_CREATENEWCHAR_REQUEST char name " + profile.m_name);
-			
-			auto equipParams = new Param1<int>(0);
-			GetSyberiaRPC().SendToClient(SyberiaRPC.SYBRPC_EQUIP_SCREEN_OPEN, sender, equipParams);
-			
+			GetSyberiaCharacters().Create(sender, profile);			
+			RecreatePlayer(sender);
+			OnNewPlayerConnected(sender);
+				
 			delete clientData.param1;
 		}
 		else
 		{
 			SybLogSrv("SYBRPC_CREATENEWCHAR_REQUEST Player kicked because already has profile: " + sender);
+			GetGame().DisconnectPlayer(sender);
+		}
+	}
+	
+	void OnStartGameRequest(ref ParamsReadContext ctx, ref PlayerIdentity sender)
+	{
+		SybLogSrv("SYBRPC_STARTGAME_REQUEST Received from " + sender);
+		ref CharProfile profile = GetSyberiaCharacters().Get(sender);
+		if (profile)
+		{
+			profile.m_needToConfigureGear = false;
+			profile.m_needToForceRespawn = true;
+			GetSyberiaCharacters().Save(sender);			
+			RecreatePlayer(sender);
+		}
+		else
+		{
+			SybLogSrv("SYBRPC_STARTGAME_REQUEST Player kicked because profile not found: " + sender);
+			GetGame().DisconnectPlayer(sender);
+		}
+	}
+	
+	void OnRespawnRequest(ref ParamsReadContext ctx, ref PlayerIdentity sender)
+	{
+		SybLogSrv("SYBRPC_RESPAWN_REQUEST Received from " + sender);
+		ref CharProfile profile = GetSyberiaCharacters().Get(sender);
+		if (profile)
+		{
+			if (profile.m_souls <= 0)
+			{
+				SybLogSrv("SYBRPC_STARTGAME_REQUEST Player kicked because no souls left to respawn: " + sender);
+				GetGame().DisconnectPlayer(sender);
+				return;
+			}
+			
+			profile.m_needToConfigureGear = true;
+			profile.m_souls = profile.m_souls - 1;
+			GetSyberiaCharacters().Save(sender);			
+			RecreatePlayer(sender);
+			OnNewPlayerConnected(sender);
+		}
+		else
+		{
+			SybLogSrv("SYBRPC_STARTGAME_REQUEST Player kicked because profile not found: " + sender);
+			GetGame().DisconnectPlayer(sender);
+		}
+	}
+	
+	void OnDeleteCharRequest(ref ParamsReadContext ctx, ref PlayerIdentity sender)
+	{
+		SybLogSrv("SYBRPC_DELETECHAR_REQUEST Received from " + sender);
+		ref CharProfile profile = GetSyberiaCharacters().Get(sender);
+		if (profile)
+		{
+			GetSyberiaCharacters().Delete(sender);
+			OnNewPlayerConnected(sender);
+		}
+		else
+		{
+			SybLogSrv("SYBRPC_STARTGAME_REQUEST Player kicked because profile not found: " + sender);
 			GetGame().DisconnectPlayer(sender);
 		}
 	}

@@ -48,6 +48,7 @@ class PluginSyberiaCharacters extends PluginBase
 		string uid = identity.GetId();
 		if (m_cachedProfiles.Contains(uid))
 		{
+			delete m_cachedProfiles.Get(uid);
 			m_cachedProfiles.Remove(uid);
 		}
 		
@@ -65,6 +66,19 @@ class PluginSyberiaCharacters extends PluginBase
 		{
 			JsonFileLoader<ref CharProfile>.JsonSaveFile(profilePath, profile);
 		}
+	}
+	
+	void Delete(ref PlayerIdentity identity)
+	{
+		string uid = identity.GetId();
+		string profilePath = GetProfilePath(uid);
+		if (m_cachedProfiles.Contains(uid))
+		{
+			delete m_cachedProfiles.Get(uid);
+			m_cachedProfiles.Remove(uid);
+		}
+		
+		DeleteFile(profilePath);
 	}
 	
 	private string GetProfilePath(string uid)
