@@ -1,5 +1,6 @@
 modded class PlayerBase
 {	
+	float m_advMedUpdateTimer;
 	float m_painTimer;
 	float m_painkillerTime;
 	float m_hematomaRegenTimer;
@@ -10,10 +11,14 @@ modded class PlayerBase
 	float m_zvirusTimer;
 	float m_bullethitRegenTimer;
 	float m_knifehitRegenTimer;
+	float m_concussionRegenTimer;
+	float m_bloodHemostaticTimer;
+	float m_hematopoiesisTimer;
 	
 	override void Init()
 	{
 		super.Init();
+		m_advMedUpdateTimer = 0;
 		m_painTimer = 0;
 		m_hematomaRegenTimer = 0;
 		m_cuthitRegenTimer = 0;
@@ -24,6 +29,9 @@ modded class PlayerBase
 		m_zvirusTimer = 0;
 		m_bullethitRegenTimer = 0;
 		m_knifehitRegenTimer = 0;
+		m_concussionRegenTimer = 0;
+		m_bloodHemostaticTimer = 0;
+		m_hematopoiesisTimer = 0;
 	}
 	
 	override void OnStoreSave( ParamsWriteContext ctx )
@@ -59,6 +67,11 @@ modded class PlayerBase
 		ctx.Write( m_knifeBandage2 );
 		ctx.Write( m_bullethitRegenTimer );
 		ctx.Write( m_knifehitRegenTimer );
+		ctx.Write( m_concussionRegenTimer );
+		ctx.Write( m_bloodHemostaticEffect );
+		ctx.Write( m_bloodHemostaticTimer );		
+		ctx.Write( m_hematopoiesisEffect );		
+		ctx.Write( m_hematopoiesisTimer );
 	}
 	
 	override bool OnStoreLoad( ParamsReadContext ctx, int version )
@@ -149,20 +162,43 @@ modded class PlayerBase
 		if(!ctx.Read( m_knifehitRegenTimer ))
 			return false;
 		
+		if(!ctx.Read( m_concussionRegenTimer ))
+			return false;
+		
+		if(!ctx.Read( m_bloodHemostaticEffect ))
+			return false;
+		
+		if(!ctx.Read( m_bloodHemostaticTimer ))
+			return false;
+		
+		if(!ctx.Read( m_hematopoiesisEffect ))
+			return false;
+		
+		if(!ctx.Read( m_hematopoiesisTimer ))
+			return false;
+		
 		return true;
 	}
 	
 	override void OnScheduledTick(float deltaTime)
 	{
 		super.OnScheduledTick(deltaTime);
-		OnTickAdvMedicine_Bloodlose(deltaTime);
-		OnTickAdvMedicine_Regen(deltaTime);
-		OnTickAdvMedicine_Pain(deltaTime);
-		OnTickAdvMedicine_Sepsis(deltaTime);
-		OnTickAdvMedicine_ZVirus(deltaTime);
-		OnTickAdvMedicine_Stomatchheal(deltaTime);
-		OnTickAdvMedicine_Antibiotics(deltaTime);
-		OnTickAdvMedicine_HemorlogicShock(deltaTime);
+		
+		m_advMedUpdateTimer = m_advMedUpdateTimer + deltaTime;
+		if (m_advMedUpdateTimer > 0.2)
+		{
+			OnTickAdvMedicine_Bloodlose(m_advMedUpdateTimer);
+			OnTickAdvMedicine_Regen(m_advMedUpdateTimer);
+			OnTickAdvMedicine_Pain(m_advMedUpdateTimer);
+			OnTickAdvMedicine_Sepsis(m_advMedUpdateTimer);
+			OnTickAdvMedicine_ZVirus(m_advMedUpdateTimer);
+			OnTickAdvMedicine_Stomatchheal(m_advMedUpdateTimer);
+			OnTickAdvMedicine_Antibiotics(m_advMedUpdateTimer);
+			OnTickAdvMedicine_HemorlogicShock(m_advMedUpdateTimer);
+			OnTickAdvMedicine_HemostatickEffect(m_advMedUpdateTimer);
+			OnTickAdvMedicine_HematopoiesisEffect(m_advMedUpdateTimer);
+			m_advMedUpdateTimer = 0;
+		}
 	}
 	
 	override bool Consume(ItemBase source, float amount, EConsumeType consume_type )
@@ -181,6 +217,17 @@ modded class PlayerBase
 		return result;
 	}
 	
+	// medPainkillerLevel, medPainkillerTimeSec
+	// medStomatchhealLevel, medStomatchhealTimeSec
+	// medAntibioticLevel, medAntibioticsTimeSec, medAntibioticsStrength
+	// medHemologicShock
+	// medRemoveSepsis
+	// medRemoveZVirus
+	// medBloodStop
+	// medConcussionHeal
+	// medBloodHemostatic, medBloodHemostaticTimeSec
+	// medBloodHematopoiesis, medBloodHematopoiesisTimeSec
+	// medHematomaHeal
 	void ApplyAdvMedicineItem(string classname, float amount)
 	{
 		int medPainkillerLevel = GetGame().ConfigGetInt( "CfgVehicles " + classname + " medPainkillerLevel" );
@@ -241,7 +288,8 @@ modded class PlayerBase
 		{			
 			if (medRemoveZVirus <= 1)
 			{
-				DecreaseHealth("", "Blood", ZVIRUS_ANTIDOT_BLOOD_DMG);
+				float maxBlood = GetMaxHealth("GlobalHealth","Blood");
+				DecreaseHealth("", "Blood", maxBlood * ZVIRUS_ANTIDOT_BLOOD_DMG_01);
 			}
 			
 			if (medRemoveZVirus <= 2)
@@ -257,6 +305,34 @@ modded class PlayerBase
 		if (medBloodStop > 0)
 		{
 			m_BleedingManagerServer.ApplyBandage(medBloodStop);
+		}
+		
+		int medConcussionHeal = GetGame().ConfigGetInt( "CfgVehicles " + classname + " medConcussionHeal" );
+		if (medConcussionHeal > 0)
+		{
+			m_BleedingManagerServer.SetConcussionHit(false);
+		}
+		
+		int medBloodHemostatic = GetGame().ConfigGetInt( "CfgVehicles " + classname + " medBloodHemostatic" );
+		if (medBloodHemostatic > 0)
+		{
+			m_bloodHemostaticEffect = true;
+			m_bloodHemostaticTimer = GetGame().ConfigGetFloat( "CfgVehicles " + classname + " medBloodHemostaticTimeSec" );
+			SetSynchDirty();
+		}
+		
+		int medBloodHematopoiesis = GetGame().ConfigGetInt( "CfgVehicles " + classname + " medBloodHematopoiesis" );
+		if (medBloodHematopoiesis > 0)
+		{
+			m_hematopoiesisEffect = true;
+			m_hematopoiesisTimer = GetGame().ConfigGetFloat( "CfgVehicles " + classname + " medBloodHematopoiesisTimeSec" );
+			SetSynchDirty();
+		}
+		
+		int medHematomaHeal = GetGame().ConfigGetInt( "CfgVehicles " + classname + " medHematomaHeal" );
+		if (medHematomaHeal > 0)
+		{
+			m_BleedingManagerServer.RemoveHematomaHit();
 		}
 	}
 	
@@ -290,6 +366,10 @@ modded class PlayerBase
 		bloodlose = bloodlose + (m_hematomaHits * BLEEDING_HEMATOMA_BLOODLOSE_PER_SECOND);
 		if (bloodlose > 0.01)
 		{
+			if (m_bloodHemostaticEffect)
+			{
+				bloodlose = bloodlose * HEMOSTATIC_EFFECT_MODIFIER;
+			}
 			DecreaseHealth("", "Blood", bloodlose * deltaTime);
 		}
 		
@@ -363,6 +443,20 @@ modded class PlayerBase
 		else
 		{
 			m_knifehitRegenTimer = 0;
+		}
+		
+		if (m_concussionHit)
+		{
+			m_concussionRegenTimer = m_concussionRegenTimer + deltaTime;
+			if (m_concussionRegenTimer > CONCUSSION_REGEN_TIME_SEC)
+			{
+				m_concussionRegenTimer = 0;
+				m_BleedingManagerServer.SetConcussionHit(false);
+			}
+		}
+		else
+		{
+			m_concussionRegenTimer = 0;
 		}
 	}
 	
@@ -500,6 +594,36 @@ modded class PlayerBase
 			float maxHealth = GetMaxHealth("GlobalHealth","Health");
 			DecreaseHealth("GlobalHealth","Health", (maxHealth / HEMOLOGIC_SHOCK_DIETIME_SEC) * deltaTime);
 			SetSynchDirty();
+		}
+	}
+	
+	protected void OnTickAdvMedicine_HemostatickEffect(float deltaTime)
+	{
+		if (m_bloodHemostaticEffect)
+		{
+			m_bloodHemostaticTimer = m_bloodHemostaticTimer - deltaTime;
+			if (m_bloodHemostaticTimer < 0)
+			{
+				m_bloodHemostaticEffect = false;
+				SetSynchDirty();
+			}
+		}
+	}
+	
+	protected void OnTickAdvMedicine_HematopoiesisEffect(float deltaTime)
+	{
+		if (m_hematopoiesisEffect)
+		{
+			m_hematopoiesisTimer = m_hematopoiesisTimer - deltaTime;
+			if (m_hematopoiesisTimer < 0)
+			{
+				m_hematopoiesisEffect = false;
+				SetSynchDirty();
+			}
+			else
+			{
+				AddHealth("", "Blood", HEMATOPOIESIS_EFFECT_BLOOD_PER_SEC * deltaTime);
+			}
 		}
 	}
 };
