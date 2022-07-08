@@ -83,29 +83,28 @@ modded class PluginAdminTool
 	{
 		if (sender && IsPlayerAdmin(sender))
 		{
-			Param6< string, float, float, int, bool, vector > serverData;
+			Param1< ref PluginAdminTool_SpawnItemContext > serverData;
         	if ( !ctx.Read( serverData ) ) return;
+			ref PluginAdminTool_SpawnItemContext context = serverData.param1;
 			
 			PlayerBase player = GetPlayerByGUID(sender.GetId());
 			if (player)
 			{				
-				string classname = serverData.param1;
-				string preffix = GameHelpers.FindItemPreffix(classname);
-				float health = serverData.param2 * 0.01;
-				float quantity = serverData.param3 * 0.01 * GetGame().ConfigGetFloat(preffix + " " + classname + " varQuantityMax");
-				int spawnType = serverData.param4;
-				bool fillProxies = serverData.param5;
-				vector cursorPos = serverData.param6;
+				string preffix = GameHelpers.FindItemPreffix(context.m_classname);
+				float health = context.m_health * 0.01;
+				float quantity = context.m_quantity * 0.01;
+				int spawnType = context.m_spawnType;
+				vector cursorPos = context.m_cursorPos;
 				
 				EntityAI entity = null;
 				if (spawnType == 0) {
-					entity = player.CreateInInventory(classname);
+					entity = player.CreateInInventory(context.m_classname);
 				}
 				else if (spawnType == 1) {
-					entity = EntityAI.Cast( GetGame().CreateObjectEx(classname, player.GetPosition(), ECE_PLACE_ON_SURFACE) );
+					entity = EntityAI.Cast( GetGame().CreateObjectEx(context.m_classname, player.GetPosition(), ECE_PLACE_ON_SURFACE) );
 				}
 				else if (spawnType == 2) {
-					entity = EntityAI.Cast( GetGame().CreateObjectEx(classname, cursorPos, ECE_PLACE_ON_SURFACE) );
+					entity = EntityAI.Cast( GetGame().CreateObjectEx(context.m_classname, cursorPos, ECE_PLACE_ON_SURFACE) );
 				}
 				
 				if (entity)
@@ -115,13 +114,145 @@ modded class PluginAdminTool
 					ItemBase itemBase = ItemBase.Cast( entity );
 					if (itemBase)
 					{
-						itemBase.SetQuantity(quantity);
-					}					
+						itemBase.SetQuantity(quantity * GetGame().ConfigGetFloat(preffix + " " + context.m_classname + " varQuantityMax"));
+					}	
+					
+					Magazine magazine = Magazine.Cast( entity );
+					if (magazine)
+					{
+						float ammoCount = quantity * GetGame().ConfigGetFloat(preffix + " " + context.m_classname + " count");
+						magazine.ServerSetAmmoCount((int)ammoCount);
+					}	
+					
+					Car car = Car.Cast( entity );
+					if (car)
+					{
+						car.Fill(CarFluid.FUEL, car.GetFluidCapacity(CarFluid.FUEL));
+						car.Fill(CarFluid.OIL, car.GetFluidCapacity(CarFluid.OIL));
+						car.Fill(CarFluid.BRAKE, car.GetFluidCapacity(CarFluid.BRAKE));
+						car.Fill(CarFluid.COOLANT, car.GetFluidCapacity(CarFluid.COOLANT));
+					}
+					
+					if (context.m_attachments && entity.GetInventory())
+					{
+						foreach (string attachment : context.m_attachments)
+						{
+							EntityAI attachmentItem = entity.GetInventory().CreateAttachment(attachment);
+							if (GameHelpers.HasBatterySlot(attachment))
+							{
+								attachmentItem.GetInventory().CreateAttachment("Battery9V");
+							}
+						}
+					}			
+				}
+			}
+			
+			delete context;
+		}
+	}
+	
+	override void ClearItems( ref ParamsReadContext ctx, ref PlayerIdentity sender ) 
+	{
+		if (sender && IsPlayerAdmin(sender))
+		{
+			PlayerBase player = GetPlayerByGUID(sender.GetId());
+			if (player)
+			{
+				array<Object> objects = new array<Object>;
+				GetGame().GetObjectsAtPosition3D(player.GetPosition(), 5, objects, null);
+				foreach (Object obj : objects)
+				{
+					ItemBase item = ItemBase.Cast(obj);
+					if (item)
+					{
+						GetGame().ObjectDelete(item);
+						continue;
+					}
+					
+					Container_Base container = Container_Base.Cast(obj);
+					if (container)
+					{
+						GetGame().ObjectDelete(container);
+						continue;
+					}
+					
+					Car car = Car.Cast(obj);
+					if (car)
+					{
+						GetGame().ObjectDelete(car);
+						continue;
+					}
 				}
 			}
 		}
 	}
 	
+	override void UpdateMap( ref ParamsReadContext ctx, ref PlayerIdentity sender ) 
+	{
+		if (sender && IsPlayerAdmin(sender))
+		{
+			ref PluginAdminTool_MapContext context = new PluginAdminTool_MapContext;
+			context.m_playerPositions = new array<vector>;
+			context.m_playerNames = new array<string>;
+			context.m_vehiclePositions = new array<vector>;
+			context.m_vehicleNames = new array<string>;
+			
+			array<Man> players = new array<Man>;
+			GetGame().GetPlayers(players);
+			foreach (Man man : players)
+			{
+				PlayerBase player = PlayerBase.Cast(man);
+				if (player && player.m_charProfile)
+				{
+					context.m_playerPositions.Insert(player.GetPosition());
+					context.m_playerNames.Insert(player.m_charProfile.m_name);
+				}
+			}
+			
+			array<CarScript> cars = new array<CarScript>;
+			CarScript.GetAllVehicles(cars);
+			foreach (CarScript car : cars)
+			{
+				context.m_vehiclePositions.Insert(car.GetPosition());
+				context.m_vehicleNames.Insert(car.GetType());
+			}
+			
+			GetSyberiaRPC().SendToClient( SyberiaRPC.SYBRPC_ADMINTOOL_UPDATEMAP, sender, new Param1<ref PluginAdminTool_MapContext>(context) );
+			delete context;
+		}
+	}
+	
+	override void Teleport( ref ParamsReadContext ctx, ref PlayerIdentity sender )
+	{
+		if (sender && IsPlayerAdmin(sender))
+		{
+			PlayerBase player = GetPlayerByGUID(sender.GetId());
+			if (player)
+			{
+				Param1< vector > serverData;
+	        	if ( !ctx.Read( serverData ) ) return;
+				
+				vector teleportPos = serverData.param1;	
+				teleportPos[1] = GetGame().SurfaceY(teleportPos[0], teleportPos[2]);
+							
+				Transport veh = GameHelpers.GetPlayerVehicle(player);
+				if ( veh )
+				{
+					vector mat[4];
+					veh.GetTransform(mat);
+					mat[3] = teleportPos;
+					veh.SetTransform(mat);
+				}
+				else
+				{
+					player.SetPosition(teleportPos);
+				}
+				
+				UpdateMap(null, sender);
+			}
+		}
+	}
+
 	private void ApplyPlayerContextStat(PlayerBase player, string statName, float value)
 	{
 		if (statName == "Health") player.SetHealth("", "Health", value);
