@@ -153,13 +153,13 @@ class CfgSyberia
 
     class SkillsExperienceSystem
     {
-        skillsExpImmunityPain = 30;
+        skillsExpImmunityPain = 50;
         skillsExpImmunityHematoma = 10;
         skillsExpImmunityInfluenza = 200;
-        skillsExpImmunityStomatch = 200;
+        skillsExpImmunityStomatch = 50;
         skillsExpImmunityZVirus = 800;
-        skillsExpImmunitySepsis = 800;
-        skillsExpImmunityOverdose = 30;
+        skillsExpImmunitySepsis = 200;
+        skillsExpImmunityOverdose = 50;
         
         skillsExpAthleticsSprintTime = 60;
         skillsExpAthleticsSprintIncrement = 80;
