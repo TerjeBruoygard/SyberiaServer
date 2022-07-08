@@ -171,6 +171,7 @@ class CfgSyberia
         gasMaskFilterDegradationInRadZone = -0.2;
         gasMaskFilterDegradationDefault = -0.05;
         igniteFireplaceBaseSkillcheckChance = 0.2;
+        igniteFireplaceIndoorAdditionalChance = 0.3;
     };
 
     class SkillsExperienceSystem

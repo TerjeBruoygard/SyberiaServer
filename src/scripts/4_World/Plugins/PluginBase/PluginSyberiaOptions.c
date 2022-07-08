@@ -189,6 +189,8 @@ modded class PluginSyberiaOptions extends PluginBase
 	ref array<string> GetCharacterSpecialItems(ref CharProfile profile, string loadoutName)
 	{
 		if (loadoutName == "#syb_perk_name_3010") return m_main.m_startMedicKit;
+		if (loadoutName == "#syb_perk_name_4007") return m_main.m_startStealthKit;
+		if (loadoutName == "#syb_perk_name_5010") return m_main.m_startSurvivorKit;
 		
 		return null;
 	}
@@ -324,6 +326,8 @@ modded class PluginSyberiaOptions extends PluginBase
 		if (profile && profile.m_skills)
 		{
 			if (profile.m_skills.HasPerk(SyberiaPerkType.SYBPERK_MEDICINE_START_LOADOUT)) specGear.Insert("#syb_perk_name_3010");
+			if (profile.m_skills.HasPerk(SyberiaPerkType.SYBPERK_STEALTH_START_LOADOUT)) specGear.Insert("#syb_perk_name_4007");
+			if (profile.m_skills.HasPerk(SyberiaPerkType.SYBPERK_SURVIVAL_START_LOADOUT)) specGear.Insert("#syb_perk_name_5010");
 		}
 		result.Insert(specGear);
 		
@@ -379,6 +383,8 @@ class PluginSyberiaOptions_Main
 	ref array<string> m_groups;
 	ref array<ref PluginSyberiaOptions_SkillModifier> m_skillModifiers;
 	ref array<string> m_startMedicKit;
+	ref array<string> m_startStealthKit;
+	ref array<string> m_startSurvivorKit;
 
 	void ~PluginSyberiaOptions_Main()
 	{

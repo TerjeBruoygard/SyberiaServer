@@ -243,6 +243,8 @@ modded class BleedingSourcesManagerServer
 			{
 				return false;
 			}
+			
+			m_Player.SetBloodyHands(true);
 		}
 		
 		return super.AttemptAddBleedingSourceBySelection(selection_name);

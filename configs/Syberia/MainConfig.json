@@ -30,5 +30,15 @@
         "BandageDressing",
         "AmpouleAlcohol",
         "TabletsAnalgin"
+    ],
+    "m_startStealthKit": [
+        "GhillieBushrag_Mossy",
+        "MKII",
+        "AmmoBox_22_50Rnd"
+    ],
+    "m_startSurvivorKit": [
+        "Matchbox",
+        "Canteen",
+        "Crackers"
     ]
 }
