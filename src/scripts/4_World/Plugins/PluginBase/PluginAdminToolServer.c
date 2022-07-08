@@ -596,60 +596,60 @@ modded class PluginAdminTool
 				}
 			}
 		}
-		else if (statName == "KnifeWounds") player.m_knifeHits = (int)value;
-		else if (statName == "BulletWounds") player.m_bulletHits = (int)value;
-        else if (statName == "Hematomas") player.m_hematomaHits = (int)value;
-        else if (statName == "Viscera") player.m_visceraHit = (value > 0.5);
-        else if (statName == "Sepsis") player.m_sepsis = (int)value;
-        else if (statName == "Concussion") player.m_concussionHit = (value > 0.5);
+		else if (statName == "KnifeWounds") player.GetSybStats().m_knifeHits = (int)value;
+		else if (statName == "BulletWounds") player.GetSybStats().m_bulletHits = (int)value;
+        else if (statName == "Hematomas") player.GetSybStats().m_hematomaHits = (int)value;
+        else if (statName == "Viscera") player.GetSybStats().m_visceraHit = (value > 0.5);
+        else if (statName == "Sepsis") player.GetSybStats().m_sepsis = (int)value;
+        else if (statName == "Concussion") player.GetSybStats().m_concussionHit = (value > 0.5);
         else if (statName == "Hemostasis") 
 		{
-			player.m_bloodHemostaticEffect = (value > 0.5);
-			if (player.m_bloodHemostaticEffect) player.m_bloodHemostaticTimer = 300;
+			player.GetSybStats().m_bloodHemostaticEffect = (value > 0.5);
+			if (player.GetSybStats().m_bloodHemostaticEffect) player.m_bloodHemostaticTimer = 300;
 		}
         else if (statName == "Hemopoesis")
 		{
-			player.m_hematopoiesisEffect = (value > 0.5);
-			if (player.m_hematopoiesisEffect) player.m_hematopoiesisTimer = 300;
+			player.GetSybStats().m_hematopoiesisEffect = (value > 0.5);
+			if (player.GetSybStats().m_hematopoiesisEffect) player.m_hematopoiesisTimer = 300;
 		}
         else if (statName == "Salve") 
 		{
-			player.m_salveEffect = (value > 0.5);
-			if (player.m_salveEffect) player.m_salveEffectTimer = 300;
+			player.GetSybStats().m_salveEffect = (value > 0.5);
+			if (player.GetSybStats().m_salveEffect) player.m_salveEffectTimer = 300;
 		}
         else if (statName == "Pain") 
 		{
 			int ival = (int)value;
-			if (ival == 0) player.m_painLevel = 0;
+			if (ival == 0) player.GetSybStats().m_painLevel = 0;
 			else player.GetBleedingManagerServer().SetPainLevel(ival);
 		}
         else if (statName == "Painkiller") 
 		{
-			player.m_painkillerEffect = (int)value;
-			if (player.m_painkillerEffect > 0) player.m_painkillerTime = 300;
+			player.GetSybStats().m_painkillerEffect = (int)value;
+			if (player.GetSybStats().m_painkillerEffect > 0) player.m_painkillerTime = 300;
 		}
-        else if (statName == "VirusZ") player.m_zombieVirus = (int)value;
-        else if (statName == "Influenza") player.m_influenzaLevel = (int)value;
-        else if (statName == "Antibiotics") player.m_antibioticsLevel = (int)value;
+        else if (statName == "VirusZ") player.GetSybStats().m_zombieVirus = (int)value;
+        else if (statName == "Influenza") player.GetSybStats().m_influenzaLevel = (int)value;
+        else if (statName == "Antibiotics") player.GetSybStats().m_antibioticsLevel = (int)value;
         else if (statName == "StomatchPoison") 
 		{
-			player.m_stomatchpoisonLevel = (int)value;
-			if (player.m_stomatchpoisonLevel > 0) player.m_stomatchpoisonTimer = 300;
+			player.GetSybStats().m_stomatchpoisonLevel = (int)value;
+			if (player.GetSybStats().m_stomatchpoisonLevel > 0) player.m_stomatchpoisonTimer = 300;
 		}
         else if (statName == "StomatchHeal") 
 		{
-			player.m_stomatchhealLevel = (int)value;
-			if (player.m_stomatchhealLevel > 0) player.m_stomatchhealTimer = 300;
+			player.GetSybStats().m_stomatchhealLevel = (int)value;
+			if (player.GetSybStats().m_stomatchhealLevel > 0) player.m_stomatchhealTimer = 300;
 		}
         else if (statName == "Adrenalin") 
 		{
-			player.m_adrenalinEffect = (int)value;
-			if (player.m_adrenalinEffect > 0) player.m_adrenalinEffectTimer = 300;
+			player.GetSybStats().m_adrenalinEffect = (int)value;
+			if (player.GetSybStats().m_adrenalinEffect > 0) player.m_adrenalinEffectTimer = 300;
 		}
 		else if (statName == "RadiationProtector") 
 		{
-			player.m_radioprotectionLevel = (int)value;
-			if (player.m_radioprotectionLevel > 0) player.m_radioprotectionTimer = 300;
+			player.GetSybStats().m_radioprotectionLevel = (int)value;
+			if (player.GetSybStats().m_radioprotectionLevel > 0) player.m_radioprotectionTimer = 300;
 		}
         else if (statName == "Overdose") player.m_overdosedValue = value;		
 		else if (statName == "Immunity") profile.m_skills.SetSkillValue(SyberiaSkillType.SYBSKILL_IMMUNITY, value);
@@ -672,6 +672,7 @@ modded class PluginAdminTool
 		else if (statName == "Tailoring") profile.m_skills.SetSkillValue(SyberiaSkillType.SYBSKILL_SEAMSTRESS, value);
 				
 		player.SetSynchDirty();
+		player.MarkSybStatsDirty();
 	}
 	
 	private void FillPlayerContextBase(PlayerBase player, ref PluginAdminTool_PlayerContextBase playerContext)
@@ -725,29 +726,29 @@ modded class PluginAdminTool
 			
 			playerContext.m_stats.Insert(new PluginAdminTool_PlayerStatContext("BrokenLegs", 0, 2, player.m_BrokenLegState));
 			playerContext.m_stats.Insert(new PluginAdminTool_PlayerStatContext("CutWounds", 0, 99, player.m_BleedingManagerServer.GetBleedingSourcesCount()));
-			playerContext.m_stats.Insert(new PluginAdminTool_PlayerStatContext("KnifeWounds", 0, 99, player.m_knifeHits));
-			playerContext.m_stats.Insert(new PluginAdminTool_PlayerStatContext("BulletWounds", 0, 99, player.m_bulletHits));
-			playerContext.m_stats.Insert(new PluginAdminTool_PlayerStatContext("Hematomas", 0, 99, player.m_hematomaHits));
+			playerContext.m_stats.Insert(new PluginAdminTool_PlayerStatContext("KnifeWounds", 0, 99, player.GetSybStats().m_knifeHits));
+			playerContext.m_stats.Insert(new PluginAdminTool_PlayerStatContext("BulletWounds", 0, 99, player.GetSybStats().m_bulletHits));
+			playerContext.m_stats.Insert(new PluginAdminTool_PlayerStatContext("Hematomas", 0, 99, player.GetSybStats().m_hematomaHits));
 			
-			playerContext.m_stats.Insert(new PluginAdminTool_PlayerStatContext("Viscera", 0, 1, (int)player.m_visceraHit));
-			playerContext.m_stats.Insert(new PluginAdminTool_PlayerStatContext("Sepsis", 0, 2, (int)player.m_sepsis));
-			playerContext.m_stats.Insert(new PluginAdminTool_PlayerStatContext("Concussion", 0, 1, (int)player.m_concussionHit));
-			playerContext.m_stats.Insert(new PluginAdminTool_PlayerStatContext("Hemostasis", 0, 1, (int)player.m_bloodHemostaticEffect));
-			playerContext.m_stats.Insert(new PluginAdminTool_PlayerStatContext("Hemopoesis", 0, 1, (int)player.m_hematopoiesisEffect));
-			playerContext.m_stats.Insert(new PluginAdminTool_PlayerStatContext("Salve", 0, 1, (int)player.m_salveEffect));
+			playerContext.m_stats.Insert(new PluginAdminTool_PlayerStatContext("Viscera", 0, 1, (int)player.GetSybStats().m_visceraHit));
+			playerContext.m_stats.Insert(new PluginAdminTool_PlayerStatContext("Sepsis", 0, 2, (int)player.GetSybStats().m_sepsis));
+			playerContext.m_stats.Insert(new PluginAdminTool_PlayerStatContext("Concussion", 0, 1, (int)player.GetSybStats().m_concussionHit));
+			playerContext.m_stats.Insert(new PluginAdminTool_PlayerStatContext("Hemostasis", 0, 1, (int)player.GetSybStats().m_bloodHemostaticEffect));
+			playerContext.m_stats.Insert(new PluginAdminTool_PlayerStatContext("Hemopoesis", 0, 1, (int)player.GetSybStats().m_hematopoiesisEffect));
+			playerContext.m_stats.Insert(new PluginAdminTool_PlayerStatContext("Salve", 0, 1, (int)player.GetSybStats().m_salveEffect));
 			
-			playerContext.m_stats.Insert(new PluginAdminTool_PlayerStatContext("Pain", 0, 3, player.m_painLevel));
-			playerContext.m_stats.Insert(new PluginAdminTool_PlayerStatContext("Painkiller", 0, 3, player.m_painkillerEffect));
+			playerContext.m_stats.Insert(new PluginAdminTool_PlayerStatContext("Pain", 0, 3, player.GetSybStats().m_painLevel));
+			playerContext.m_stats.Insert(new PluginAdminTool_PlayerStatContext("Painkiller", 0, 3, player.GetSybStats().m_painkillerEffect));
 			
-			playerContext.m_stats.Insert(new PluginAdminTool_PlayerStatContext("VirusZ", 0, 3, player.m_zombieVirus));
+			playerContext.m_stats.Insert(new PluginAdminTool_PlayerStatContext("VirusZ", 0, 3, player.GetSybStats().m_zombieVirus));
 			
-			playerContext.m_stats.Insert(new PluginAdminTool_PlayerStatContext("Influenza", 0, 3, player.m_influenzaLevel));
-			playerContext.m_stats.Insert(new PluginAdminTool_PlayerStatContext("Antibiotics", 0, 3, player.m_antibioticsLevel));
+			playerContext.m_stats.Insert(new PluginAdminTool_PlayerStatContext("Influenza", 0, 3, player.GetSybStats().m_influenzaLevel));
+			playerContext.m_stats.Insert(new PluginAdminTool_PlayerStatContext("Antibiotics", 0, 3, player.GetSybStats().m_antibioticsLevel));
 			
-			playerContext.m_stats.Insert(new PluginAdminTool_PlayerStatContext("StomatchPoison", 0, 3, player.m_stomatchpoisonLevel));
-			playerContext.m_stats.Insert(new PluginAdminTool_PlayerStatContext("StomatchHeal", 0, 3, player.m_stomatchhealLevel));
+			playerContext.m_stats.Insert(new PluginAdminTool_PlayerStatContext("StomatchPoison", 0, 3, player.GetSybStats().m_stomatchpoisonLevel));
+			playerContext.m_stats.Insert(new PluginAdminTool_PlayerStatContext("StomatchHeal", 0, 3, player.GetSybStats().m_stomatchhealLevel));
 			
-			playerContext.m_stats.Insert(new PluginAdminTool_PlayerStatContext("Adrenalin", 0, 3, player.m_adrenalinEffect));
+			playerContext.m_stats.Insert(new PluginAdminTool_PlayerStatContext("Adrenalin", 0, 3, player.GetSybStats().m_adrenalinEffect));
 			playerContext.m_stats.Insert(new PluginAdminTool_PlayerStatContext("RadiationProtector", 0, 3, player.GetRadioprotectionLevel()));
 			
 			playerContext.m_stats.Insert(new PluginAdminTool_PlayerStatContext("Overdose", 0, 3, player.m_overdosedValue));

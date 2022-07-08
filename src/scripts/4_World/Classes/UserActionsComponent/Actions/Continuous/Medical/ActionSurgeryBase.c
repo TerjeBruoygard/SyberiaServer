@@ -8,7 +8,7 @@ modded class ActionSurgeryBase
         float itemSpesisChance = item.GetInfectionChance();
 		float skillSepsisChance = 1.0 - operator.GetPerkFloatValue(SyberiaPerkType.SYBPERK_MEDICINE_SEPSIS_CHANCE_DEC, 0, 0);
 		float toolsDegradationMod = 1.0 - operator.GetPerkFloatValue(SyberiaPerkType.SYBPERK_MEDICINE_TOOLS_DEGRADATION_DEC, 0, 0);
-        if ( (GetSyberiaOptions().m_client.m_operateVisceraHimself || !self) && player.m_visceraHit)
+        if ( (GetSyberiaOptions().m_client.m_operateVisceraHimself || !self) && player.GetSybStats().m_visceraHit)
         {
 			skillRawChance = operator.GetPerkFloatValue(SyberiaPerkType.SYBPERK_MEDICINE_SURGEON_VISCERA_HITS, 0, 0);
 			skillChanceGain = GetSyberiaConfig().m_startSurgeryVisceraChance;
@@ -22,7 +22,7 @@ modded class ActionSurgeryBase
 				result = result + "#syb_surgery_viscera_fail ";
 			}
         }
-        else if (player.m_bulletHits > 0)
+        else if (player.GetSybStats().m_bulletHits > 0)
         {
 			skillRawChance = operator.GetPerkFloatValue(SyberiaPerkType.SYBPERK_MEDICINE_SURGEON_BULLET_HITS, 0, 0);
 			skillChanceGain = GetSyberiaConfig().m_startSurgeryBulletChance;
@@ -38,7 +38,7 @@ modded class ActionSurgeryBase
 				result = result + "#syb_surgery_bullet_fail ";
 			}
         }
-        else if (player.m_knifeHits > 0)
+        else if (player.GetSybStats().m_knifeHits > 0)
         {
 			skillRawChance = operator.GetPerkFloatValue(SyberiaPerkType.SYBPERK_MEDICINE_SURGEON_KNIFE_HITS, 0, 0);
 			skillChanceGain = GetSyberiaConfig().m_startSurgeryKnifeChance;

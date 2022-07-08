@@ -33,7 +33,7 @@ modded class SleepingBagPlaced_BaseColor
 			if ( nearest_object.IsInherited( PlayerBase ) )
 			{
 				PlayerBase player = PlayerBase.Cast( nearest_object );
-				if (player.m_sleepingLevel != 0)
+				if (player.GetSybStats().m_sleepingLevel != 0)
 				{
 					player.AddToEnvironmentTemperature( GetTemperature() );
 				}

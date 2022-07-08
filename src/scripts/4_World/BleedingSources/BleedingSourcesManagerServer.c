@@ -4,46 +4,46 @@ modded class BleedingSourcesManagerServer
 	{
 		if (value)
 		{
-			if (m_Player.m_zombieVirus == 0)
+			if (m_Player.GetSybStats().m_zombieVirus == 0)
 			{
-				m_Player.m_zombieVirus = 1;
+				m_Player.GetSybStats().m_zombieVirus = 1;
 			}
-			else if (m_Player.m_zombieVirus == 2)
+			else if (m_Player.GetSybStats().m_zombieVirus == 2)
 			{
 				m_Player.m_zvirusTimer = m_Player.m_zvirusTimer + GetSyberiaConfig().m_zvirusOnHitIncrementTimer;
 			}
 		}
 		else
 		{
-			if (m_Player.m_zombieVirus > 0)
+			if (m_Player.GetSybStats().m_zombieVirus > 0)
 			{
 				m_Player.AddExperience(SyberiaSkillType.SYBSKILL_IMMUNITY, GetSyberiaConfig().m_skillsExpImmunityZVirus);
 			}
 			
-			m_Player.m_zombieVirus = 0;
+			m_Player.GetSybStats().m_zombieVirus = 0;
 		}
-		m_Player.SetSynchDirty();
+		m_Player.MarkSybStatsDirty();
 	}
 		
 	void SetBloodInfection(bool value)
 	{
 		if (value)
 		{
-			if (m_Player.m_sepsis == 0)
+			if (m_Player.GetSybStats().m_sepsis == 0)
 			{
-				m_Player.m_sepsis = 1;
+				m_Player.GetSybStats().m_sepsis = 1;
 			}
 		}
 		else
 		{
-			if (m_Player.m_sepsis > 0)
+			if (m_Player.GetSybStats().m_sepsis > 0)
 			{
 				m_Player.AddExperience(SyberiaSkillType.SYBSKILL_IMMUNITY, GetSyberiaConfig().m_skillsExpImmunitySepsis);
 			}
 			
-			m_Player.m_sepsis = 0;
+			m_Player.GetSybStats().m_sepsis = 0;
 		}
-		m_Player.SetSynchDirty();
+		m_Player.MarkSybStatsDirty();
 	}
 	
     private void ApplyBandageDammageHands()
@@ -61,38 +61,38 @@ modded class BleedingSourcesManagerServer
     
 	void ApplyBandage(int level)
 	{
-		if (m_Player.m_bulletHits > (m_Player.m_bulletBandage1 + m_Player.m_bulletBandage2))
+		if (m_Player.GetSybStats().m_bulletHits > (m_Player.GetSybStats().m_bulletBandage1 + m_Player.GetSybStats().m_bulletBandage2))
 		{
 			if (level == 2)
 			{
 				ApplyBandageDammageHands();
-				m_Player.m_bulletBandage1 = m_Player.m_bulletBandage1 + 1;
-				m_Player.SetSynchDirty();
+				m_Player.GetSybStats().m_bulletBandage1 = m_Player.GetSybStats().m_bulletBandage1 + 1;
+				m_Player.MarkSybStatsDirty();
 				return;
 			}
 			if (level == 3)
 			{
 				ApplyBandageDammageHands();
-				m_Player.m_bulletBandage2 = m_Player.m_bulletBandage2 + 1;
-				m_Player.SetSynchDirty();
+				m_Player.GetSybStats().m_bulletBandage2 = m_Player.GetSybStats().m_bulletBandage2 + 1;
+				m_Player.MarkSybStatsDirty();
 				return;
 			}
 		}
 		
-		if (m_Player.m_knifeHits > (m_Player.m_knifeBandage1 + m_Player.m_knifeBandage2))
+		if (m_Player.GetSybStats().m_knifeHits > (m_Player.GetSybStats().m_knifeBandage1 + m_Player.GetSybStats().m_knifeBandage2))
 		{
 			if (level == 2)
 			{
 				ApplyBandageDammageHands();
-				m_Player.m_knifeBandage1 = m_Player.m_knifeBandage1 + 1;
-				m_Player.SetSynchDirty();
+				m_Player.GetSybStats().m_knifeBandage1 = m_Player.GetSybStats().m_knifeBandage1 + 1;
+				m_Player.MarkSybStatsDirty();
 				return;
 			}
 			if (level == 3)
 			{
 				ApplyBandageDammageHands();
-				m_Player.m_knifeBandage2 = m_Player.m_knifeBandage2 + 1;
-				m_Player.SetSynchDirty();
+				m_Player.GetSybStats().m_knifeBandage2 = m_Player.GetSybStats().m_knifeBandage2 + 1;
+				m_Player.MarkSybStatsDirty();
 				return;
 			}
 		}
@@ -106,43 +106,43 @@ modded class BleedingSourcesManagerServer
 	
 	void AddBulletHit()
 	{
-		m_Player.m_bulletHits = m_Player.m_bulletHits + 1;
+		m_Player.GetSybStats().m_bulletHits = m_Player.GetSybStats().m_bulletHits + 1;
 		SetPainLevel(2);
-		m_Player.SetSynchDirty();
+		m_Player.MarkSybStatsDirty();
 	}
 	
 	void RemoveBulletHit(bool removeBandage)
 	{
-		if (m_Player.m_bulletHits > 0)
+		if (m_Player.GetSybStats().m_bulletHits > 0)
 		{
-			m_Player.m_bulletHits = m_Player.m_bulletHits - 1;
+			m_Player.GetSybStats().m_bulletHits = m_Player.GetSybStats().m_bulletHits - 1;
 			if (removeBandage)
 			{
-				if (m_Player.m_bulletBandage1 > 0) m_Player.m_bulletBandage1 = m_Player.m_bulletBandage1 - 1;
-				else if (m_Player.m_bulletBandage2 > 0) m_Player.m_bulletBandage2 = m_Player.m_bulletBandage2 - 1;
+				if (m_Player.GetSybStats().m_bulletBandage1 > 0) m_Player.GetSybStats().m_bulletBandage1 = m_Player.GetSybStats().m_bulletBandage1 - 1;
+				else if (m_Player.GetSybStats().m_bulletBandage2 > 0) m_Player.GetSybStats().m_bulletBandage2 = m_Player.GetSybStats().m_bulletBandage2 - 1;
 			}
-			m_Player.SetSynchDirty();
+			m_Player.MarkSybStatsDirty();
 		}
 	}
 	
 	void AddKnifeHit()
 	{
-		m_Player.m_knifeHits = m_Player.m_knifeHits + 1;
+		m_Player.GetSybStats().m_knifeHits = m_Player.GetSybStats().m_knifeHits + 1;
 		SetPainLevel(2);
-		m_Player.SetSynchDirty();
+		m_Player.MarkSybStatsDirty();
 	}
 	
 	void RemoveKnifeHit(bool removeBandage)
 	{
-		if (m_Player.m_knifeHits > 0)
+		if (m_Player.GetSybStats().m_knifeHits > 0)
 		{
-			m_Player.m_knifeHits = m_Player.m_knifeHits - 1;
+			m_Player.GetSybStats().m_knifeHits = m_Player.GetSybStats().m_knifeHits - 1;
 			if (removeBandage)
 			{
-				if (m_Player.m_knifeBandage1 > 0) m_Player.m_knifeBandage1 = m_Player.m_knifeBandage1 - 1;
-				else if (m_Player.m_knifeBandage2 > 0) m_Player.m_knifeBandage2 = m_Player.m_knifeBandage2 - 1;
+				if (m_Player.GetSybStats().m_knifeBandage1 > 0) m_Player.GetSybStats().m_knifeBandage1 = m_Player.GetSybStats().m_knifeBandage1 - 1;
+				else if (m_Player.GetSybStats().m_knifeBandage2 > 0) m_Player.GetSybStats().m_knifeBandage2 = m_Player.GetSybStats().m_knifeBandage2 - 1;
 			}
-			m_Player.SetSynchDirty();
+			m_Player.MarkSybStatsDirty();
 		}
 	}
 	
@@ -151,44 +151,44 @@ modded class BleedingSourcesManagerServer
 		if ( Math.RandomFloat01() < m_Player.GetPerkFloatValue(SyberiaPerkType.SYBPERK_IMMUNITY_HEMATOMA_CHANCE, 0, 0) )
 			return;
 		
-		m_Player.m_hematomaHits = m_Player.m_hematomaHits + 1;
+		m_Player.GetSybStats().m_hematomaHits = m_Player.GetSybStats().m_hematomaHits + 1;
 		
 		if (Math.RandomFloat01() < GetSyberiaConfig().m_hematomaPainChance)
 		{
 			SetPainLevel(1);
 		}
 		
-		m_Player.SetSynchDirty();
+		m_Player.MarkSybStatsDirty();
 	}
 	
 	void RemoveHematomaHit()
 	{
-		if (m_Player.m_hematomaHits > 0)
+		if (m_Player.GetSybStats().m_hematomaHits > 0)
 		{
-			m_Player.m_hematomaHits = m_Player.m_hematomaHits - 1;
-			m_Player.SetSynchDirty();
+			m_Player.GetSybStats().m_hematomaHits = m_Player.GetSybStats().m_hematomaHits - 1;
+			m_Player.MarkSybStatsDirty();
 		}
 	}
 	
 	void AddVisceraHit()
 	{
-		m_Player.m_visceraHit = m_Player.m_visceraHit + 1;
+		m_Player.GetSybStats().m_visceraHit = m_Player.GetSybStats().m_visceraHit + 1;
 		SetPainLevel(3);
-		m_Player.SetSynchDirty();
+		m_Player.MarkSybStatsDirty();
 	}
 	
 	void RemoveVisceraHit()
 	{
-		if (m_Player.m_visceraHit > 0)
+		if (m_Player.GetSybStats().m_visceraHit > 0)
 		{
-			m_Player.m_visceraHit = m_Player.m_visceraHit - 1;
-			m_Player.SetSynchDirty();
+			m_Player.GetSybStats().m_visceraHit = m_Player.GetSybStats().m_visceraHit - 1;
+			m_Player.MarkSybStatsDirty();
 		}
 	}
 	
 	void SetConcussionHit(bool value, bool uncounsion = true)
 	{
-		m_Player.m_concussionHit = value;
+		m_Player.GetSybStats().m_concussionHit = value;
 		if (value)
 		{
 			if (uncounsion)
@@ -199,6 +199,7 @@ modded class BleedingSourcesManagerServer
 			SetPainLevel(1);
 		}
 		m_Player.SetSynchDirty();
+		m_Player.MarkSybStatsDirty();
 	}
 	
 	void SetPainLevel(int value)
@@ -212,10 +213,10 @@ modded class BleedingSourcesManagerServer
 		else if (value == 2) m_Player.m_painTimer = m_Player.m_painTimer + GetSyberiaConfig().m_painLvl2TimeSec;
 		else if (value == 3) m_Player.m_painTimer = m_Player.m_painTimer + GetSyberiaConfig().m_painLvl3TimeSec;
 		
-		if (m_Player.m_painLevel < value)
+		if (m_Player.GetSybStats().m_painLevel < value)
 		{
-			m_Player.m_painLevel = value;
-			m_Player.SetSynchDirty();
+			m_Player.GetSybStats().m_painLevel = value;
+			m_Player.MarkSybStatsDirty();
 		}
 	}
 	
