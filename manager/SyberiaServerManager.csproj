@@ -85,6 +85,7 @@
     <Compile Include="CommandLineOptions.cs" />
     <Compile Include="Constants.cs" />
     <Compile Include="Database.cs" />
+    <Compile Include="DatabaseOptions.cs" />
     <Compile Include="DatabasePool.cs" />
     <Compile Include="EntryPoint.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

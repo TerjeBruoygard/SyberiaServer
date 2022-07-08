@@ -6,4 +6,10 @@
 /updater/obj
 /updater/packages
 /updater/.vs
+/webpanel/bin
+/webpanel/obj
+/webpanel/packages
+/webpanel/.vs
 /*/*.csproj.user
+.vs
+packages

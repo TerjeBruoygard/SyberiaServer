@@ -20,7 +20,7 @@ namespace SyberiaUpdaterServer
                 var accessKey = this.Request.Query["accessKey"];
                 if (Program.ValidateAccessKey(accessKey))
                 {
-                    logger.Warn("[/update/database] Success download from " + this.Context.Request.UserHostAddress);
+                    logger.Info("[/update/database] Success download from " + this.Context.Request.UserHostAddress);
                     string filename = "SyberiaDatabase.zip";
                     string path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Resources", filename);
                     return new GenericFileResponse(path, this.Context).AsAttachment(filename);
@@ -34,7 +34,7 @@ namespace SyberiaUpdaterServer
                 var accessKey = this.Request.Query["accessKey"];
                 if (Program.ValidateAccessKey(accessKey))
                 {
-                    logger.Warn("[/update/pbo] Success download from " + this.Context.Request.UserHostAddress);
+                    logger.Info("[/update/pbo] Success download from " + this.Context.Request.UserHostAddress);
                     string filename = "SyberiaServer.pbo";
                     string path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Resources", filename);
                     return new GenericFileResponse(path, this.Context).AsAttachment(filename);
@@ -42,6 +42,28 @@ namespace SyberiaUpdaterServer
 
                 logger.Warn("[/update/pbo] Invalid AccessKey from " + this.Context.Request.UserHostAddress);
                 return new NotFoundResponse();
+            });
+
+            Get("/access/check", x =>
+            {
+                var clientAddress = this.Request.UserHostAddress;
+                var blackListPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "blacklist.txt");
+                if (!File.Exists(blackListPath))
+                {
+                    File.WriteAllText(blackListPath, string.Empty);
+                }
+
+                var blackListLines = File.ReadAllLines(blackListPath);
+                if (blackListLines.Contains(clientAddress))
+                {
+                    logger.Warn("[/access/check] Server address in blacklist " + this.Context.Request.UserHostAddress);
+                    return "Deny";
+                }
+                else
+                {
+                    logger.Info("[/access/check] Server check successfull " + this.Context.Request.UserHostAddress);
+                    return "Allow";
+                }
             });
         }
     }
