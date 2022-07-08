@@ -81,7 +81,7 @@ class SyberiaMissionServer : MissionServer
 						int spawnPointId = profile.m_startGear.Get(0);
 						if (spawnPointId >= 0 && spawnPointId < GetSyberiaOptions().m_spawnpoints.Count())
 						{
-							startPos = GetSyberiaOptions().m_spawnpoints.Get(spawnPointId).m_pos;
+							startPos = GetSyberiaOptions().m_spawnpoints.Get(spawnPointId).CalculateSpawnpoint();
 						}
 						
 						startEquip = new array<string>;
@@ -455,7 +455,8 @@ class SyberiaMissionServer : MissionServer
 		ref CharProfile profile = GetSyberiaCharacters().Get(sender);
 		if (profile)
 		{
-			if (profile.m_souls <= 0)
+			int soulsPrice = GetSyberiaOptions().m_respawnSoulsPrice;
+			if ((profile.m_souls - soulsPrice) < 0)
 			{
 				SybLogSrv("SYBRPC_STARTGAME_REQUEST Player kicked because no souls left to respawn: " + sender);
 				GetGame().DisconnectPlayer(sender);
@@ -463,7 +464,7 @@ class SyberiaMissionServer : MissionServer
 			}
 			
 			profile.m_needToConfigureGear = true;
-			profile.m_souls = profile.m_souls - 1;
+			profile.m_souls = profile.m_souls - soulsPrice;
 			GetSyberiaCharacters().Save(sender);			
 			ForceRespawnPlayer(sender, GetPlayerByIdentity(sender));
 		}
