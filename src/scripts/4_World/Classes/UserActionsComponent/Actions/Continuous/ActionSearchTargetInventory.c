@@ -1,6 +1,6 @@
 modded class ActionSearchTargetInventory
 {
-    override void OnEndServer( ActionData action_data )
+    override void OnFinishProgressServer( ActionData action_data )
 	{
         ZombieBase targetEntity = ZombieBase.Cast( action_data.m_Target.GetObject() );
 		if ( targetEntity != null )
