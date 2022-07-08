@@ -1,5 +1,11 @@
 modded class AnimalBase
 {		
+	void DoAgro(PlayerBase source)
+	{
+		ProcessDirectDamage( DT_CUSTOM, source, "", "EnviroDmg", "0 0 0", 1);
+		AddHealth("", "", 1);
+	}
+	
 	void DoSkinning(PlayerBase butcher, ItemBase item)
 	{
 		if (GetInventory().IsInventoryUnlocked())

@@ -145,6 +145,11 @@ class CfgSyberia
         zombieOpenDoorDistance = 1.8;
         zombieFindHouseDistance = 20.0;
     };
+    
+    class AnimalsSystem
+    {
+        animalsAgroDistance = 400;
+    };
 
     class IngameSystem
     {

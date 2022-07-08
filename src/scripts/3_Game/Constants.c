@@ -112,6 +112,9 @@ modded class SyberiaConfig
 	float m_zombieOpenDoorDistance;
 	float m_zombieFindHouseDistance;
 	
+	// Animals
+	float m_animalsAgroDistance;
+	
 	// Temperature
 	float m_temperatureHighConsumeItemsMod;
 	float m_temperatureLowConsumeItemsMod;
@@ -264,6 +267,9 @@ modded class SyberiaConfig
 		m_zombieOpenDoorEnable = ConfigGetInt("CfgSyberia ZombieSystem zombieOpenDoorEnable") == 1;
 		m_zombieOpenDoorDistance = ConfigGetFloat("CfgSyberia ZombieSystem zombieOpenDoorDistance");
 		m_zombieFindHouseDistance = ConfigGetFloat("CfgSyberia ZombieSystem zombieFindHouseDistance");
+		
+		// Animals
+		m_animalsAgroDistance = ConfigGetFloat("CfgSyberia AnimalsSystem animalsAgroDistance");
 		
 		// Temperature
 		m_temperatureHighConsumeItemsMod = ConfigGetFloat("CfgWorlds " + worldName + " temperatureHighConsumeItemsMod");
