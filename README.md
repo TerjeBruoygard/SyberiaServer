@@ -1,4 +1,4 @@
-### Terms of use and copyright (Apache 2.0 LICENSE)
+# Terms of use and copyright (Apache 2.0 LICENSE)
 ##### - Sale of this mod or mods containing the code of the Syberia project is prohibited!
 ##### - You are obliged to indicate the authors of the mod if you use the Syberia mod or parts of it in your projects/servers.
 ##### - All modified versions of the Syberia mod must be publicly available on github and be forks of the original mod.
