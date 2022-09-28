@@ -1,5 +1,5 @@
 # Terms of use
-##### [LICENSE Apach 2.0](LICENSE)
+##### [LICENSE](LICENSE)
 ##### [ADDITIONAL TERMS](NOTICE)
 
 # How to build server PBO:
