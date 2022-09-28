@@ -1,9 +1,6 @@
-# Terms of use and copyright (Apache 2.0 LICENSE)
-##### - Sale of this mod or mods containing the code of the Syberia project is prohibited!
-##### - You are obliged to indicate the authors of the mod if you use the Syberia mod or parts of it in your projects/servers.
-##### - All modified versions of the Syberia mod must be publicly available on github and be forks of the original mod.
-##### - It is allowed to repack and modify the mod only with the indication of the authorship of the original mod present on the steam workshop page and in the game as watermark.
-##### - Monetization of dayz servers using this mod is allowed.
+# Terms of use
+##### [LICENSE Apach 2.0](LICENSE)
+##### [ADDITIONAL TERMS](NOTICE)
 
 # How to build server PBO:
 1. Create SyberiaServer folder on your P: drive.
