@@ -118,7 +118,10 @@ modded class Environment
 									}
 									else
 									{
-										pHeat += (itemAtt.GetTemperature() - GameConstants.TEMPERATURE_ITEMS_HEAT_IN_INVENTORY_FROM_BODY);
+										if (itemAtt.IsTemperatureVisible())
+										{
+											pHeat += (itemAtt.GetTemperature() - GameConstants.TEMPERATURE_ITEMS_HEAT_IN_INVENTORY_FROM_BODY);
+										}
 										ProcessItemHeat(itemAtt, 1, GameConstants.TEMPERATURE_ITEMS_HEAT_IN_INVENTORY_FROM_BODY);
 									}
 								}
@@ -138,8 +141,11 @@ modded class Environment
 										ProcessItemHeat(inItem, 1, envTemperature);
 									}
 									else
-									{										
-										pHeat += (inItem.GetTemperature() - GameConstants.TEMPERATURE_ITEMS_HEAT_IN_INVENTORY_FROM_BODY);
+									{
+										if (inItem.IsTemperatureVisible())
+										{
+											pHeat += (inItem.GetTemperature() - GameConstants.TEMPERATURE_ITEMS_HEAT_IN_INVENTORY_FROM_BODY);
+										}
 										ProcessItemHeat(inItem, 1, GameConstants.TEMPERATURE_ITEMS_HEAT_IN_INVENTORY_FROM_BODY);
 									}
 								}
@@ -152,7 +158,7 @@ modded class Environment
 
 		pHeatComfort = ( pHeatComfort / pBodyPartIds.Count() ) * pCoef;
 		pHeat = ( pHeat / pBodyPartIds.Count() ) * pCoef;
-		pHeat += m_Player.GetPerkFloatValue(SyberiaPerkType.SYBPERK_SURVIVAL_FROST_RESIST, 0, 0) * GetSyberiaConfig().m_additionalTemperatureResistForSurvivalSkill;		
+		pHeat += m_Player.GetPerkFloatValue(SyberiaPerkType.SYBPERK_SURVIVAL_FROST_RESIST, 0, 0) * GetSyberiaConfig().m_additionalTemperatureResistForSurvivalSkill;
 	}
 	
 	protected void ProcessItemHeat(ItemBase item, int depth, float envTemperature)
