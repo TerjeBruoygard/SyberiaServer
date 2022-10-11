@@ -118,7 +118,10 @@ modded class Environment
 									}
 									else
 									{
-										pHeat += itemAtt.GetTemperature();
+										if (itemAtt.IsTemperatureVisible())
+										{
+											pHeat += (itemAtt.GetTemperature() - GameConstants.TEMPERATURE_ITEMS_HEAT_IN_INVENTORY_FROM_BODY);
+										}
 										ProcessItemHeat(itemAtt, 1, GameConstants.TEMPERATURE_ITEMS_HEAT_IN_INVENTORY_FROM_BODY);
 									}
 								}
@@ -127,7 +130,7 @@ modded class Environment
 						if ( item.GetInventory().GetCargo() )
 						{
 							int inItemCount = item.GetInventory().GetCargo().GetItemCount();
-							
+
 							for ( int j = 0; j < inItemCount; j++ )
 							{
 								ItemBase inItem;
@@ -139,7 +142,10 @@ modded class Environment
 									}
 									else
 									{
-										pHeat += inItem.GetTemperature();
+										if (inItem.IsTemperatureVisible())
+										{
+											pHeat += (inItem.GetTemperature() - GameConstants.TEMPERATURE_ITEMS_HEAT_IN_INVENTORY_FROM_BODY);
+										}
 										ProcessItemHeat(inItem, 1, GameConstants.TEMPERATURE_ITEMS_HEAT_IN_INVENTORY_FROM_BODY);
 									}
 								}
