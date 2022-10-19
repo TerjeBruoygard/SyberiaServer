@@ -1100,7 +1100,7 @@ modded class PlayerBase
 		if (m_mindDegradationTime > 0)
 		{
 			m_mindDegradationTime = m_mindDegradationTime - GetPerkFloatValue(SyberiaPerkType.SYBPERK_IMMUNITY_MENTAL_TIME, 1, 1);
-			m_mindStateValue = m_mindStateValue - m_mindDegradationForce;
+			m_mindStateValue = m_mindStateValue - (m_mindDegradationForce * CalculateMindPsiProtection());
 		}
 		else 
 		{
@@ -1117,7 +1117,7 @@ modded class PlayerBase
 		if (m_zonePsiTotalValue > 0)
 		{
 			float perkMod = 1 - GetPerkFloatValue(SyberiaPerkType.SYBPERK_IMMUNITY_MENTAL_TIME, 0, 0);
-			m_mindStateValue = m_mindStateValue - (m_zonePsiTotalValue * perkMod);
+			m_mindStateValue = m_mindStateValue - (m_zonePsiTotalValue * perkMod * CalculateMindPsiProtection());
 		}
 				
 		m_mindStateValue = Math.Clamp(m_mindStateValue, 0, GetSyberiaConfig().m_mindstateMaxValue);
@@ -2307,6 +2307,23 @@ modded class PlayerBase
 		if (gasMaskFilter && gasMaskFilter.GetQuantity() > 0)
 		{
 			value = value + GetGame().ConfigGetFloat( "CfgVehicles " + gasMaskFilter.GetType() + " radiationProtection" );
+		}
+		
+		return Math.Clamp(value, 0, 1);
+	}
+	
+	float CalculateMindPsiProtection()
+	{
+		float value = 1.0;
+		EntityAI attachment;
+		int attCount = GetInventory().AttachmentCount();
+		for ( int attIdx = 0; attIdx < attCount; attIdx++ )
+		{
+			attachment = GetInventory().GetAttachmentFromIndex( attIdx );
+			if ( attachment && attachment.IsClothing() )
+			{
+				value = value - GetGame().ConfigGetFloat( "CfgVehicles " + attachment.GetType() + " psiProtection" );
+			}
 		}
 		
 		return Math.Clamp(value, 0, 1);

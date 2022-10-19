@@ -264,7 +264,7 @@ modded class PluginAdminTool
 		if (vehicles)
 		{
 			array<CarScript> cars = new array<CarScript>;
-			CarScript.GetAllVehicles(cars);
+			CarScript.SybAdm_GetAllVehicles(cars);
 			foreach (CarScript car : cars)
 			{
 				context.m_vehiclePositions.Insert(car.GetPosition());
