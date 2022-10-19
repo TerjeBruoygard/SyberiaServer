@@ -50,7 +50,7 @@ modded class PluginTrader
 			return;
 		}
 				
-		DatabaseResponse response = null;
+		ref DatabaseResponse response = null;
 		string selectQuery = "SELECT classname, data FROM trader_data WHERE trader_id = " + trader.m_traderId.ToString() + ";";
 		GetDatabase().QuerySync(SYBERIA_DB_NAME, selectQuery, response);
 		ref PluginTrader_Data traderData = new PluginTrader_Data;
@@ -95,7 +95,7 @@ modded class PluginTrader
 		SybLogSrv("Trader " + trader.m_traderId + " successfully initialized.");
 	}
 
-	void OnUpdateTraderDataDB(DatabaseResponse response, ref Param args)
+	void OnUpdateTraderDataDB(ref DatabaseResponse response, ref Param args)
 	{
 		// Do nothing
 	}

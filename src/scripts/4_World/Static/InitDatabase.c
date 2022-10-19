@@ -8,7 +8,7 @@ class SyberiaDatabaseInit
 		{
 			m_initialized = true;
 			
-			DatabaseResponse response;
+			ref DatabaseResponse response = null;
 			TStringArray queries = new TStringArray;
 			
 			// Init queries start

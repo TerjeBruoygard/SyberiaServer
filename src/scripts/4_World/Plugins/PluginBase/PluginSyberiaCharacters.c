@@ -10,7 +10,7 @@ class PluginSyberiaCharacters extends PluginBase
 	
 	void ~PluginSyberiaCharacters()
 	{
-		DatabaseResponse response;
+		ref DatabaseResponse response;
 		ref array<string> queries = new array<string>;
 		foreach (string uid, ref CharProfile profile : m_cachedProfiles)
 		{
@@ -38,7 +38,7 @@ class PluginSyberiaCharacters extends PluginBase
 		}
 		
 		errorCode = 2;	
-		DatabaseResponse response = null;
+		ref DatabaseResponse response = null;
 		if (GetDatabase().QuerySync(SYBERIA_DB_NAME, CharProfile.SelectQuery(uid), response))
 		{
 			if (response) 
@@ -103,7 +103,7 @@ class PluginSyberiaCharacters extends PluginBase
 		}
 	}
 	
-	protected void OnCreateNewCharacter(DatabaseResponse response, ref Param args)
+	protected void OnCreateNewCharacter(ref DatabaseResponse response, ref Param args)
 	{
 		ref auto metadata = Param3<PlayerIdentity, Class, string>.Cast(args);	
 		PlayerIdentity sender = metadata.param1;	
@@ -123,9 +123,9 @@ class PluginSyberiaCharacters extends PluginBase
 				new Param2<PlayerIdentity, bool>(sender, result));
 	}
 	
-	protected void OnDeleteCharacter(DatabaseResponse response, ref Param args) {}
+	protected void OnDeleteCharacter(ref DatabaseResponse response, ref Param args) {}
 	
-	protected void OnUpdateCharacter(DatabaseResponse response, ref Param args) {}
+	protected void OnUpdateCharacter(ref DatabaseResponse response, ref Param args) {}
 };
 
 PluginSyberiaCharacters GetSyberiaCharacters() 

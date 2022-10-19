@@ -491,11 +491,11 @@ class PluginSyberiaOptions_GroupFaction : PluginSyberiaOptions_GroupDefault
 		GetDatabase().QueryAsync(SYBERIA_DB_NAME, query, this, "OnDbCallback");
 	}
 	
-	void OnDbCallback(DatabaseResponse response, ref Param args) {}
+	void OnDbCallback(ref DatabaseResponse response, ref Param args) {}
 	
 	void LoadMembers()
 	{
-		DatabaseResponse response;
+		ref DatabaseResponse response = null;
 		if (GetDatabase().QuerySync(SYBERIA_DB_NAME, SelectQuery(), response))
 		{
 			if (response && response.GetRowsCount() > 0) 

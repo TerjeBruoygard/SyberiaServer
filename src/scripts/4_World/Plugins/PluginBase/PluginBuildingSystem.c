@@ -11,7 +11,7 @@ class PluginBuildingSystem extends PluginBase
 	
 	void LoadLivespaces()
 	{
-		DatabaseResponse response = null;
+		ref DatabaseResponse response = null;
 		string selectQuery = "SELECT id, data FROM building_data;";
 		GetDatabase().QuerySync(SYBERIA_DB_NAME, selectQuery, response);
 		
@@ -191,7 +191,7 @@ class PluginBuildingSystem extends PluginBase
 		}
 	}
 	
-	protected void OnCreateLivespaceRecord(DatabaseResponse response, ref Param args)
+	protected void OnCreateLivespaceRecord(ref DatabaseResponse response, ref Param args)
 	{
 		ref auto metadata = Param1<BuildingLivespace>.Cast(args);	
 		BuildingLivespace livespace = metadata.param1;	
@@ -206,12 +206,12 @@ class PluginBuildingSystem extends PluginBase
 		}
 	}
 	
-	protected void OnUpdateLivespaceRecord(DatabaseResponse response, ref Param args)
+	protected void OnUpdateLivespaceRecord(ref DatabaseResponse response, ref Param args)
 	{
 		// DO NOTHING
 	}
 	
-	protected void OnDeleteLivespaceRecord(DatabaseResponse response, ref Param args)
+	protected void OnDeleteLivespaceRecord(ref DatabaseResponse response, ref Param args)
 	{
 		// DO NOTHING
 	}

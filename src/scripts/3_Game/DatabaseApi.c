@@ -10,8 +10,8 @@ class Database
 	*/
 	void QueryNoStrictSync(string databaseName, string queryText)
 	{
-		RestContext restContext = GetRestApi().GetRestContext("http:/" + "/localhost:" + m_databaseOptions.databaseServerPort + "/");
-		restContext.POST_now(databaseName + "/queryNoStrict", queryText);
+		RestContext restContext = GetRestApi().GetRestContext("localhost:" + m_databaseOptions.databaseServerPort.ToString());
+		restContext.POST_now("/" + databaseName + "/queryNoStrict", queryText);
 	}
     
 	/**
@@ -19,9 +19,9 @@ class Database
 	*/
 	bool QuerySync(string databaseName, string queryText, out DatabaseResponse response)
 	{
-		RestContext restContext = GetRestApi().GetRestContext("http:/" + "/localhost:" + m_databaseOptions.databaseServerPort + "/");
-		string responseData = restContext.POST_now(databaseName + "/query", queryText);
-		if (responseData == queryText)
+		RestContext restContext = GetRestApi().GetRestContext("localhost:" + m_databaseOptions.databaseServerPort.ToString());
+		string responseData = restContext.POST_now("/" + databaseName + "/query", queryText);
+		if (responseData.Length() == 0 || responseData.Get(0) != "[")
 		{
 			return false;
 		}
@@ -37,8 +37,15 @@ class Database
 	*/
 	void QueryAsync(string databaseName, string queryText, Class callbackClass, string callbackFnc, ref Param args = null)
 	{
-		RestContext restContext = GetRestApi().GetRestContext("http:/" + "/localhost:" + m_databaseOptions.databaseServerPort + "/");
-		restContext.POST(new DatabaseRestCallback(callbackClass, callbackFnc, args), databaseName + "/query", queryText);
+		RestContext restContext = GetRestApi().GetRestContext("localhost:" + m_databaseOptions.databaseServerPort.ToString());
+		string responseData = restContext.POST_now("/" + databaseName + "/query", queryText);
+		if (responseData.Length() == 0 || responseData.Get(0) != "[")
+		{
+			ref DatabaseResponse dbResponse = new DatabaseResponse(responseData);
+			GetGame().GameScript.CallFunctionParams(
+				callbackClass, callbackFnc, null, 
+				new Param2<ref DatabaseResponse, ref Param>(dbResponse, args));
+		}
 	}
 	
 	/**
@@ -52,9 +59,9 @@ class Database
 			return;
 		}
 		
-		RestContext restContext = GetRestApi().GetRestContext("http:/" + "/localhost:" + m_databaseOptions.databaseServerPort + "/");
-		string responseData = restContext.POST_now(databaseName + "/transaction", queryText);
-		if (responseData != queryText)
+		RestContext restContext = GetRestApi().GetRestContext("localhost:" + m_databaseOptions.databaseServerPort.ToString());
+		string responseData = restContext.POST_now("/" + databaseName + "/transaction", queryText);
+		if (responseData.Length() == 0 || responseData.Get(0) != "[")
 		{
 			response = new DatabaseResponse(responseData);
 		}
@@ -70,56 +77,19 @@ class Database
 		{
 			GetGame().GameScript.CallFunctionParams(
 				callbackClass, callbackFnc, null, 
-				new Param2<DatabaseResponse, ref Param>(null, args));
+				new Param2<ref DatabaseResponse, ref Param>(null, args));
 			
 			return;
 		}
 		
-		RestContext restContext = GetRestApi().GetRestContext("http:/" + "/localhost:" + m_databaseOptions.databaseServerPort + "/");
-		restContext.POST(new DatabaseRestCallback(callbackClass, callbackFnc, args), databaseName + "/transaction", queryText);
-	}
-};
-
-class DatabaseRestCallback : RestCallback
-{
-	private Class m_callbackClass;
-	private string m_callbackFnc;
-	private ref Param m_userArg;
-	
-	void DatabaseRestCallback(Class callbackClass, string callbackFnc, ref Param userArg)
-	{
-		m_callbackClass = callbackClass;
-		m_callbackFnc = callbackFnc;
-		m_userArg = userArg;
-	}
-	
-	void OnError( int errorCode )
-	{
-		GetGame().GameScript.CallFunctionParams(
-			m_callbackClass, m_callbackFnc, null, 
-			new Param2<DatabaseResponse, ref Param>(null, m_userArg));
-	}
-	
-	void OnTimeout()
-	{
-		GetGame().GameScript.CallFunctionParams(
-			m_callbackClass, m_callbackFnc, null, 
-			new Param2<DatabaseResponse, ref Param>(null, m_userArg));
-	}
-	
-	void OnSuccess( string data, int dataSize )
-	{
-		if (dataSize == 0)
+		RestContext restContext = GetRestApi().GetRestContext("localhost:" + m_databaseOptions.databaseServerPort.ToString());
+		string responseData = restContext.POST_now("/" + databaseName + "/transaction", queryText);
+		if (responseData.Length() == 0 || responseData.Get(0) != "[")
 		{
+			ref DatabaseResponse dbResponse = new DatabaseResponse(responseData);
 			GetGame().GameScript.CallFunctionParams(
-				m_callbackClass, m_callbackFnc, null, 
-				new Param2<DatabaseResponse, ref Param>(new DatabaseResponse(""), m_userArg));
-		}
-		else
-		{
-			GetGame().GameScript.CallFunctionParams(
-				m_callbackClass, m_callbackFnc, null, 
-				new Param2<DatabaseResponse, ref Param>(new DatabaseResponse(data), m_userArg));
+				callbackClass, callbackFnc, null, 
+				new Param2<ref DatabaseResponse, ref Param>(dbResponse, args));
 		}
 	}
 };
@@ -168,14 +138,14 @@ class DatabaseResponse
 	
 	void ~DatabaseResponse()
 	{
-		if (m_data)
+		/*if (m_data)
 		{
 			foreach (ref array<string> row : m_data)
 			{
 				delete row;
 			}
 			delete m_data;
-		}
+		}*/
 	}
 };
 
