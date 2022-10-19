@@ -11,17 +11,20 @@ namespace SyberiaServerManager
         {
             Post("/{dbName}/query", x => {
                 var body = new StreamReader(this.Request.Body, Encoding.UTF8).ReadToEnd();
-                return DatabasePool.Instance.GetOrCreate(x.dbName).Query(body);
+                var response = DatabasePool.Instance.GetOrCreate(x.dbName).Query(body);
+                return new Nancy.Responses.TextResponse(string.IsNullOrEmpty(response) ? "[]" : response);
             });
 
             Post("/{dbName}/queryNoStrict", x => {
                 var body = new StreamReader(this.Request.Body, Encoding.UTF8).ReadToEnd();
-                return DatabasePool.Instance.GetOrCreate(x.dbName).QueryNoStrict(body);
+                var response = DatabasePool.Instance.GetOrCreate(x.dbName).QueryNoStrict(body);
+                return new Nancy.Responses.TextResponse(string.IsNullOrEmpty(response) ? "[]" : response);
             });
 
             Post("/{dbName}/transaction", x => {
                 var body = new StreamReader(this.Request.Body, Encoding.UTF8).ReadToEnd();
-                return DatabasePool.Instance.GetOrCreate(x.dbName).Transaction(body);
+                var response = DatabasePool.Instance.GetOrCreate(x.dbName).Transaction(body);
+                return new Nancy.Responses.TextResponse(string.IsNullOrEmpty(response) ? "[]" : response);
             });
         }
     }
