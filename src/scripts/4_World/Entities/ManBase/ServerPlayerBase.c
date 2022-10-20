@@ -296,66 +296,74 @@ modded class PlayerBase
 		
 		if (IsAlive())
 		{
-			m_advMedUpdateTimer = m_advMedUpdateTimer + deltaTime;
-			if (m_advMedUpdateTimer > 0.3)
+			if (IsGhostBody())
 			{
-				OnTickAdvMedicine_Bloodlose(m_advMedUpdateTimer);
-				OnTickAdvMedicine_Salve(m_advMedUpdateTimer);
-				OnTickAdvMedicine_Regen(m_advMedUpdateTimer);
-				OnTickAdvMedicine_Pain(m_advMedUpdateTimer);
-				OnTickAdvMedicine_Sepsis(m_advMedUpdateTimer);
-				OnTickAdvMedicine_ZVirus(m_advMedUpdateTimer);
-				OnTickAdvMedicine_Stomatchheal(m_advMedUpdateTimer);
-				OnTickAdvMedicine_Antibiotics(m_advMedUpdateTimer);
-				OnTickAdvMedicine_Influenza(m_advMedUpdateTimer);
-				//OnTickAdvMedicine_HemorlogicShock(m_advMedUpdateTimer);
-				OnTickAdvMedicine_Overdose(m_advMedUpdateTimer);
-				OnTickAdvMedicine_HemostatickEffect(m_advMedUpdateTimer);
-				OnTickAdvMedicine_HematopoiesisEffect(m_advMedUpdateTimer);
-				OnTickAdvMedicine_Radprotector(m_advMedUpdateTimer);
-				OnTickAdvMedicine_Antidepresant(m_advMedUpdateTimer);
-				OnTickUpdateLastHealthstate();
-				m_advMedUpdateTimer = 0;
+				SetHealth01("GlobalHealth","Health",1);
+				SetHealth01("","",1);
 			}
-			
-			m_sleepingDecTimer = m_sleepingDecTimer + deltaTime;
-			while (m_sleepingDecTimer > 1.0)
+			else
 			{
-				m_sleepingDecTimer = m_sleepingDecTimer - 1.0;
-				OnTickLowHealth();
-				OnTickSleeping();
-				OnTickMindState();
-				OnTickSickCheck();
-				OnTickStomatchpoison();
-				OnTickUnconsition();
-				OnTickSkills();
-				OnTickExperience();
-				OnTickStethoscope();
-				OnTickZones();
-				OnTickZoneEffect();
-				OnTickDisinfectedHands();
-				OnTickStamina();
-			}
-				
-			m_sybstatTimer = m_sybstatTimer + deltaTime;
-			if (m_sybstatTimer > 0.2)
-			{
-				m_sybstatTimer = 0;
-				if (m_sybstatsDirty)
+				m_advMedUpdateTimer = m_advMedUpdateTimer + deltaTime;
+				if (m_advMedUpdateTimer > 0.3)
 				{
-					m_sybstatsDirty = false;
-					Param1<ref SyberiaPlayerStats> params = new Param1<ref SyberiaPlayerStats>(m_sybstats);
-					RPCSingleParam(SyberiaERPC.SYBERPC_SYNCH_PLAYER_SYBSTATS_RESPONSE, params, true);
+					OnTickAdvMedicine_Bloodlose(m_advMedUpdateTimer);
+					OnTickAdvMedicine_Salve(m_advMedUpdateTimer);
+					OnTickAdvMedicine_Regen(m_advMedUpdateTimer);
+					OnTickAdvMedicine_Pain(m_advMedUpdateTimer);
+					OnTickAdvMedicine_Sepsis(m_advMedUpdateTimer);
+					OnTickAdvMedicine_ZVirus(m_advMedUpdateTimer);
+					OnTickAdvMedicine_Stomatchheal(m_advMedUpdateTimer);
+					OnTickAdvMedicine_Antibiotics(m_advMedUpdateTimer);
+					OnTickAdvMedicine_Influenza(m_advMedUpdateTimer);
+					//OnTickAdvMedicine_HemorlogicShock(m_advMedUpdateTimer);
+					OnTickAdvMedicine_Overdose(m_advMedUpdateTimer);
+					OnTickAdvMedicine_HemostatickEffect(m_advMedUpdateTimer);
+					OnTickAdvMedicine_HematopoiesisEffect(m_advMedUpdateTimer);
+					OnTickAdvMedicine_Radprotector(m_advMedUpdateTimer);
+					OnTickAdvMedicine_Antidepresant(m_advMedUpdateTimer);
+					OnTickUpdateLastHealthstate();
+					m_advMedUpdateTimer = 0;
 				}
-			}
 				
-			if (m_freeCamMode)
-			{
-				vector teleportPos = GetPosition();
-				teleportPos[1] = GetGame().SurfaceY(teleportPos[0], teleportPos[2]) - 50;
-				if ( !GameHelpers.GetPlayerVehicle(this) )
+				m_sleepingDecTimer = m_sleepingDecTimer + deltaTime;
+				while (m_sleepingDecTimer > 1.0)
 				{
-					SetPosition(teleportPos);
+					m_sleepingDecTimer = m_sleepingDecTimer - 1.0;
+					OnTickLowHealth();
+					OnTickSleeping();
+					OnTickMindState();
+					OnTickSickCheck();
+					OnTickStomatchpoison();
+					OnTickUnconsition();
+					OnTickSkills();
+					OnTickExperience();
+					OnTickStethoscope();
+					OnTickZones();
+					OnTickZoneEffect();
+					OnTickDisinfectedHands();
+					OnTickStamina();
+				}
+					
+				m_sybstatTimer = m_sybstatTimer + deltaTime;
+				if (m_sybstatTimer > 0.2)
+				{
+					m_sybstatTimer = 0;
+					if (m_sybstatsDirty)
+					{
+						m_sybstatsDirty = false;
+						Param1<ref SyberiaPlayerStats> params = new Param1<ref SyberiaPlayerStats>(m_sybstats);
+						RPCSingleParam(SyberiaERPC.SYBERPC_SYNCH_PLAYER_SYBSTATS_RESPONSE, params, true);
+					}
+				}
+					
+				if (m_freeCamMode)
+				{
+					vector teleportPos = GetPosition();
+					teleportPos[1] = GetGame().SurfaceY(teleportPos[0], teleportPos[2]) - 50;
+					if ( !GameHelpers.GetPlayerVehicle(this) )
+					{
+						SetPosition(teleportPos);
+					}
 				}
 			}
 		}

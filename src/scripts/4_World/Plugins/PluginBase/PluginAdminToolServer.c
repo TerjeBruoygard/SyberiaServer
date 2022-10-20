@@ -310,6 +310,9 @@ modded class PluginAdminTool
 			
 			teleportPos[1] = GetGame().SurfaceY(teleportPos[0], teleportPos[2]) - 50;
 			player.GetStatHeatBuffer().Set(player.GetStatHeatBuffer().GetMax());
+			player.SetHealth01("GlobalHealth","Health",1);
+			player.SetHealth01("GlobalHealth","Shock",1);
+			player.SetHealth01("","",1);
 			
 			ItemBase attachment;
 			int attCount = player.GetInventory().AttachmentCount();
