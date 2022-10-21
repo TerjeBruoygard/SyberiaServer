@@ -105,7 +105,7 @@ class PluginSyberiaCharacters extends PluginBase
 	
 	protected void OnCreateNewCharacter(ref DatabaseResponse response, ref Param args)
 	{
-		ref auto metadata = Param3<PlayerIdentity, Class, string>.Cast(args);	
+		ref Param3<PlayerIdentity, Class, string> metadata = Param3<PlayerIdentity, Class, string>.Cast(args);	
 		PlayerIdentity sender = metadata.param1;	
 		bool result = false;
 		

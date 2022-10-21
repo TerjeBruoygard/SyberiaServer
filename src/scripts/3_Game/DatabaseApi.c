@@ -21,14 +21,14 @@ class Database
 	{
 		RestContext restContext = GetRestApi().GetRestContext("localhost:" + m_databaseOptions.databaseServerPort.ToString());
 		string responseData = restContext.POST_now("/" + databaseName + "/query", queryText);
-		if (responseData.Length() == 0 || responseData.Get(0) != "[")
-		{
-			return false;
-		}
-		else
+		if (responseData.Length() > 0 && responseData.Get(0) == "[")
 		{
 			response = new DatabaseResponse(responseData);
 			return true;
+		}
+		else
+		{
+			return false;
 		}
 	}
 	
@@ -39,7 +39,7 @@ class Database
 	{
 		RestContext restContext = GetRestApi().GetRestContext("localhost:" + m_databaseOptions.databaseServerPort.ToString());
 		string responseData = restContext.POST_now("/" + databaseName + "/query", queryText);
-		if (responseData.Length() == 0 || responseData.Get(0) != "[")
+		if (responseData.Length() > 0 && responseData.Get(0) == "[")
 		{
 			ref DatabaseResponse dbResponse = new DatabaseResponse(responseData);
 			GetGame().GameScript.CallFunctionParams(
@@ -61,7 +61,7 @@ class Database
 		
 		RestContext restContext = GetRestApi().GetRestContext("localhost:" + m_databaseOptions.databaseServerPort.ToString());
 		string responseData = restContext.POST_now("/" + databaseName + "/transaction", queryText);
-		if (responseData.Length() == 0 || responseData.Get(0) != "[")
+		if (responseData.Length() > 0 && responseData.Get(0) == "[")
 		{
 			response = new DatabaseResponse(responseData);
 		}
@@ -84,7 +84,7 @@ class Database
 		
 		RestContext restContext = GetRestApi().GetRestContext("localhost:" + m_databaseOptions.databaseServerPort.ToString());
 		string responseData = restContext.POST_now("/" + databaseName + "/transaction", queryText);
-		if (responseData.Length() == 0 || responseData.Get(0) != "[")
+		if (responseData.Length() > 0 && responseData.Get(0) == "[")
 		{
 			ref DatabaseResponse dbResponse = new DatabaseResponse(responseData);
 			GetGame().GameScript.CallFunctionParams(
