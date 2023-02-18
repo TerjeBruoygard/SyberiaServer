@@ -298,6 +298,7 @@ modded class PlayerBase
 		{
 			if (IsGhostBody())
 			{
+				SetPosition("1000 10000 1000");
 				SetHealth01("GlobalHealth","Health",1);
 				SetHealth01("","",1);
 			}

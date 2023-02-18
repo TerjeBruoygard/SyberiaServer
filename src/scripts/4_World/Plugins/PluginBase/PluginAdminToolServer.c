@@ -444,7 +444,7 @@ modded class PluginAdminTool
 		}
 	}
 	
-	void PlayerDeleteCharacter( ParamsReadContext ctx, PlayerIdentity sender )
+	override void PlayerDeleteCharacter( ParamsReadContext ctx, PlayerIdentity sender )
 	{
 		if (sender && IsPlayerAdmin(sender))
 		{
@@ -469,7 +469,7 @@ modded class PluginAdminTool
 		}
 	}
 	
-	void PlayerKick( ParamsReadContext ctx, PlayerIdentity sender )
+	override void PlayerKick( ParamsReadContext ctx, PlayerIdentity sender )
 	{
 		if (sender && IsPlayerAdmin(sender))
 		{
@@ -494,7 +494,7 @@ modded class PluginAdminTool
 		}
 	}
 	
-	void PlayerTeleportToPlayer( ParamsReadContext ctx, PlayerIdentity sender )
+	override void PlayerTeleportToPlayer( ParamsReadContext ctx, PlayerIdentity sender )
 	{
 		if (sender && IsPlayerAdmin(sender))
 		{
@@ -519,7 +519,7 @@ modded class PluginAdminTool
 		}
 	}
 	
-	void PlayerTeleportToMe( ParamsReadContext ctx, PlayerIdentity sender )
+	override void PlayerTeleportToMe( ParamsReadContext ctx, PlayerIdentity sender )
 	{
 		if (sender && IsPlayerAdmin(sender))
 		{
@@ -544,7 +544,7 @@ modded class PluginAdminTool
 		}
 	}
 	
-	void PlayerMessage( ParamsReadContext ctx, PlayerIdentity sender )
+	override void PlayerMessage( ParamsReadContext ctx, PlayerIdentity sender )
 	{
 		if (sender && IsPlayerAdmin(sender))
 		{

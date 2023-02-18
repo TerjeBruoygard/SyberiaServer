@@ -175,7 +175,7 @@ modded class MissionServer
 		{
 			if (ghostMode)
 			{
-				player.SetPosition("-100000 -100 -100000");
+				player.SetPosition("1000 10000 1000");
 				player.GetInputController().SetDisabled(true);
 				player.SetAllowDamage(false);
 			}

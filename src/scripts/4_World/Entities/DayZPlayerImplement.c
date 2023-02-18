@@ -1,6 +1,6 @@
 modded class DayZPlayerImplement
 {
-	void AddNoise(NoiseParams noisePar, float noiseMultiplier = 1.0)
+	override void AddNoise(NoiseParams noisePar, float noiseMultiplier = 1.0)
 	{
 		PlayerBase player = PlayerBase.Cast(this);
 		if (player)

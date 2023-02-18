@@ -1,11 +1,11 @@
 modded class EffectAreaLoader
 {
-    static void CreateZones()
+    override static void CreateZones()
 	{
         
     }
     
-    static JsonDataContaminatedAreas GetData()
+    override static JsonDataContaminatedAreas GetData()
 	{
         ref JsonDataContaminatedAreas data = new JsonDataContaminatedAreas();
         data.Areas = new array<ref JsonDataContaminatedArea>;
