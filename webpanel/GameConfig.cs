@@ -401,6 +401,7 @@ namespace SyberiaWebPanel
             public int m_operateVisceraHimself { set; get; }
             public int m_skillLevelSize { set; get; }
             public int m_skillLevelModifier { set; get; }
+            public int m_blockAccessToBackpack { set; get; } = 1;
 
             public ClientConfig InitializeDefault()
             {
@@ -408,6 +409,8 @@ namespace SyberiaWebPanel
                 m_operateVisceraHimself = 1;
                 m_skillLevelSize = 1000;
                 m_skillLevelModifier = 200;
+                m_blockAccessToBackpack = 1;
+
                 return this;
             }
         }

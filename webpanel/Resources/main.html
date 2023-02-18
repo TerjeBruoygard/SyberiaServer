@@ -141,6 +141,14 @@
                     <p><em>Determines whether the player can use the surgical kit to perform surgery on himself without the help of other players.</em></p>
                 </div>
             </div>
+            <div class="form-group row">
+                <label for="inputBlockAccessToBackpack" class="col-sm-2 col-form-label">Hide backpack inventory on player:</label>
+                <div class="col-sm-10">
+                    <input class="form-check-input" type="checkbox" id="inputBlockAccessToBackpack" mapping="m_clientConfig.m_blockAccessToBackpack">
+                    <script>$('#inputBlockAccessToBackpack').prop('checked', '${m_clientConfig.m_blockAccessToBackpack}' == '1');</script>
+                    <p><em>Hides the contents of the backpack if the player is wearing the backpack, preventing it from being manipulated.</em></p>
+                </div>
+            </div>
             <br>
             <h3>PDA settings</h3>
             <div class="form-group row">
@@ -177,10 +185,10 @@
                 </div>
             </div>
             <div class="form-group row">
-                <label for="inputSkillLevelSize" class="col-sm-2 col-form-label">Additional skill experience amount per level:</label>
+                <label for="inputSkillLevelModifier" class="col-sm-2 col-form-label">Additional skill experience amount per level:</label>
                 <div class="col-sm-10">
                     <input type="number" min="10" max="100000" step="1" pattern="^[\d]+$" class="form-control" onchange="validateNumberInput(this)"
-                           id="inputSkillLevelSize" mapping="m_clientConfig.m_skillLevelModifier" value="${m_clientConfig.m_skillLevelModifier}" required>
+                           id="inputSkillLevelModifier" mapping="m_clientConfig.m_skillLevelModifier" value="${m_clientConfig.m_skillLevelModifier}" required>
                     <p><em>The amount of experience added to the base with each new skill level.</em></p>
                 </div>
             </div>
