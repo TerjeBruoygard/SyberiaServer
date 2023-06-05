@@ -1,6 +1,5 @@
 # Terms of use
 ##### [LICENSE](LICENSE)
-##### [ADDITIONAL TERMS](NOTICE)
 
 # How to build server PBO:
 1. Create SyberiaServer folder on your P: drive.
