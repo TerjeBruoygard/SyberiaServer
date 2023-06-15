@@ -2,7 +2,7 @@
 ##### [LICENSE](LICENSE)
 
 # Contacts
-[Discord](https://discord.gg/ucc7vPBU)
+[Discord](https://discord.gg/Ec5t3MwnaE)
 
 # How to build server PBO:
 1. Create SyberiaServer folder on your P: drive.
