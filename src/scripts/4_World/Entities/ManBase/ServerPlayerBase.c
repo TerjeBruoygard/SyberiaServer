@@ -1196,7 +1196,7 @@ modded class PlayerBase
 		bool hasBrainAgents = false;
 		if (source)
 		{
-			ApplyAdvMedicineItem(source.GetType(), amount);
+			ApplyAdvMedicineItem("CfgVehicles " + source.GetType(), amount);
 			
 			if (source.ContainsAgent(eAgents.BRAIN))
 			{
@@ -1238,6 +1238,8 @@ modded class PlayerBase
 				{
 					SetStomatchPoison(GetSyberiaConfig().m_stomatchpoisonGasoline[0], GetSyberiaConfig().m_stomatchpoisonGasoline[1] * amount);
 				}
+
+				ApplyAdvMedicineItem("CfgLiquidDefinitions " + liquidClassName, amount);
 			}
 			
 			if (source.IsTemperatureVisible())
@@ -1334,13 +1336,13 @@ modded class PlayerBase
 	// medAdrenalinLevel, medAdrenalinTimeSec
 	void ApplyAdvMedicineItem(string classname, float amount)
 	{
-		float overdosedIncrement = GetGame().ConfigGetFloat( "CfgVehicles " + classname + " overdosedIncrement" );
+		float overdosedIncrement = GetGame().ConfigGetFloat( classname + " overdosedIncrement" );
 			
-		int medPainkillerLevel = GetGame().ConfigGetInt( "CfgVehicles " + classname + " medPainkillerLevel" );
+		int medPainkillerLevel = GetGame().ConfigGetInt( classname + " medPainkillerLevel" );
 		if (medPainkillerLevel > 0)
 		{
 			overdosedIncrement = ProcessOverdosedPostinc(m_painkillerTime, overdosedIncrement);
-			float medPainkillerTimeSec = GetGame().ConfigGetFloat( "CfgVehicles " + classname + " medPainkillerTimeSec" );
+			float medPainkillerTimeSec = GetGame().ConfigGetFloat( classname + " medPainkillerTimeSec" );
 			if (medPainkillerLevel >= m_sybstats.m_painkillerEffect && medPainkillerTimeSec > 0)
 			{				
 				m_sybstats.m_painkillerEffect = medPainkillerLevel;
@@ -1348,11 +1350,11 @@ modded class PlayerBase
 			}
 		}
 		
-		int medStomatchhealLevel = GetGame().ConfigGetInt( "CfgVehicles " + classname + " medStomatchhealLevel" );
+		int medStomatchhealLevel = GetGame().ConfigGetInt( classname + " medStomatchhealLevel" );
 		if (medStomatchhealLevel > 0)
 		{
 			overdosedIncrement = ProcessOverdosedPostinc(m_stomatchhealTimer, overdosedIncrement);
-			float medStomatchhealTimeSec = GetGame().ConfigGetFloat( "CfgVehicles " + classname + " medStomatchhealTimeSec" );
+			float medStomatchhealTimeSec = GetGame().ConfigGetFloat( classname + " medStomatchhealTimeSec" );
 			if (medStomatchhealLevel >= m_sybstats.m_stomatchhealLevel && medStomatchhealTimeSec > 0)
 			{
 				m_sybstats.m_stomatchhealLevel = medStomatchhealLevel;
@@ -1360,12 +1362,12 @@ modded class PlayerBase
 			}
 		}
 		
-		int medAntibioticLevel = GetGame().ConfigGetInt( "CfgVehicles " + classname + " medAntibioticLevel" );
+		int medAntibioticLevel = GetGame().ConfigGetInt( classname + " medAntibioticLevel" );
 		if (medAntibioticLevel > 0)
 		{			
 			overdosedIncrement = ProcessOverdosedPostinc(m_antibioticsTimer, overdosedIncrement);
-			float medAntibioticsTimeSec = GetGame().ConfigGetFloat( "CfgVehicles " + classname + " medAntibioticsTimeSec" );
-			float medAntibioticsStrength = GetGame().ConfigGetFloat( "CfgVehicles " + classname + " medAntibioticsStrength" );
+			float medAntibioticsTimeSec = GetGame().ConfigGetFloat( classname + " medAntibioticsTimeSec" );
+			float medAntibioticsStrength = GetGame().ConfigGetFloat( classname + " medAntibioticsStrength" );
 			if (medAntibioticLevel >= m_sybstats.m_antibioticsLevel && medAntibioticsTimeSec > 0 && medAntibioticsStrength > 0)
 			{
 				m_sybstats.m_antibioticsLevel = medAntibioticLevel;
@@ -1374,19 +1376,19 @@ modded class PlayerBase
 			}			
 		}
 		
-		/*int medHemologicShock = GetGame().ConfigGetInt( "CfgVehicles " + classname + " medHemologicShock" );
+		/*int medHemologicShock = GetGame().ConfigGetInt( classname + " medHemologicShock" );
 		if (medHemologicShock > 0)
 		{
 			m_hemologicShock = true;
 		}*/
 		
-		int medRemoveSepsis = GetGame().ConfigGetInt( "CfgVehicles " + classname + " medRemoveSepsis" );
+		int medRemoveSepsis = GetGame().ConfigGetInt( classname + " medRemoveSepsis" );
 		if (medRemoveSepsis > 0)
 		{
 			m_BleedingManagerServer.SetBloodInfection(false);
 		}
 		
-		int medRemoveZVirus = GetGame().ConfigGetInt( "CfgVehicles " + classname + " medRemoveZVirus" );
+		int medRemoveZVirus = GetGame().ConfigGetInt( classname + " medRemoveZVirus" );
 		if (medRemoveZVirus > 0)
 		{			
 			if (medRemoveZVirus <= 1)
@@ -1406,64 +1408,64 @@ modded class PlayerBase
 			m_BleedingManagerServer.SetZVirus(false);
 		}
 		
-		int medBloodStop = GetGame().ConfigGetInt( "CfgVehicles " + classname + " medBloodStop" );
+		int medBloodStop = GetGame().ConfigGetInt( classname + " medBloodStop" );
 		if (medBloodStop > 0)
 		{
 			m_BleedingManagerServer.ApplyBandage(medBloodStop);
 		}
 		
-		int medConcussionHeal = GetGame().ConfigGetInt( "CfgVehicles " + classname + " medConcussionHeal" );
+		int medConcussionHeal = GetGame().ConfigGetInt( classname + " medConcussionHeal" );
 		if (medConcussionHeal > 0)
 		{
 			m_BleedingManagerServer.SetConcussionHit(false);
 		}
 		
-		int medBloodHemostatic = GetGame().ConfigGetInt( "CfgVehicles " + classname + " medBloodHemostatic" );
+		int medBloodHemostatic = GetGame().ConfigGetInt( classname + " medBloodHemostatic" );
 		if (medBloodHemostatic > 0)
 		{
 			m_sybstats.m_bloodHemostaticEffect = true;
-			float medBloodHemostaticTimeSec = GetGame().ConfigGetFloat( "CfgVehicles " + classname + " medBloodHemostaticTimeSec" );
+			float medBloodHemostaticTimeSec = GetGame().ConfigGetFloat( classname + " medBloodHemostaticTimeSec" );
 			overdosedIncrement = ProcessOverdosedPostinc(m_bloodHemostaticTimer, overdosedIncrement);
 			m_bloodHemostaticTimer = m_bloodHemostaticTimer + (medBloodHemostaticTimeSec * amount);
 		}
 		
-		int medBloodHematopoiesis = GetGame().ConfigGetInt( "CfgVehicles " + classname + " medBloodHematopoiesis" );
+		int medBloodHematopoiesis = GetGame().ConfigGetInt( classname + " medBloodHematopoiesis" );
 		if (medBloodHematopoiesis > 0)
 		{
 			m_sybstats.m_hematopoiesisEffect = true;
-			float medBloodHematopoiesisTimeSec = GetGame().ConfigGetFloat( "CfgVehicles " + classname + " medBloodHematopoiesisTimeSec" );
+			float medBloodHematopoiesisTimeSec = GetGame().ConfigGetFloat( classname + " medBloodHematopoiesisTimeSec" );
 			overdosedIncrement = ProcessOverdosedPostinc(m_hematopoiesisTimer, overdosedIncrement);
 			m_hematopoiesisTimer = m_hematopoiesisTimer + (medBloodHematopoiesisTimeSec * amount);
 		}
 		
-		int medHematomaHeal = GetGame().ConfigGetInt( "CfgVehicles " + classname + " medHematomaHeal" );
+		int medHematomaHeal = GetGame().ConfigGetInt( classname + " medHematomaHeal" );
 		if (medHematomaHeal > 0)
 		{
 			m_sybstats.m_salveEffect = true;
-			float medHematomaHealTimeSec = GetGame().ConfigGetFloat( "CfgVehicles " + classname + " medHematomaHealTimeSec" );
+			float medHematomaHealTimeSec = GetGame().ConfigGetFloat( classname + " medHematomaHealTimeSec" );
 			overdosedIncrement = ProcessOverdosedPostinc(m_salveEffectTimer, overdosedIncrement);
 			m_salveEffectTimer = m_salveEffectTimer + (medHematomaHealTimeSec * amount);
 		}
 		
-		int medAdrenalinLevel = GetGame().ConfigGetInt( "CfgVehicles " + classname + " medAdrenalinLevel" );
+		int medAdrenalinLevel = GetGame().ConfigGetInt( classname + " medAdrenalinLevel" );
 		if (medAdrenalinLevel > 0)
 		{
 			overdosedIncrement = ProcessOverdosedPostinc(m_adrenalinEffectTimer, overdosedIncrement);
 			if (m_sybstats.m_adrenalinEffect <= medAdrenalinLevel)
 			{
 				m_sybstats.m_adrenalinEffect = medAdrenalinLevel;
-				float medAdrenalinTimeSec = GetGame().ConfigGetFloat( "CfgVehicles " + classname + " medAdrenalinTimeSec" );
+				float medAdrenalinTimeSec = GetGame().ConfigGetFloat( classname + " medAdrenalinTimeSec" );
 				m_adrenalinEffectTimer = m_adrenalinEffectTimer + (medAdrenalinTimeSec * amount);
 			}
 			
 			GetStaminaHandler().SetStamina( GetStaminaHandler().GetStaminaMax() );
 		}
 		
-		int medRadprotectLevel = GetGame().ConfigGetInt( "CfgVehicles " + classname + " medRadioprotectionLevel" );
+		int medRadprotectLevel = GetGame().ConfigGetInt( classname + " medRadioprotectionLevel" );
 		if (medRadprotectLevel > 0)
 		{
 			overdosedIncrement = ProcessOverdosedPostinc(m_radioprotectionTimer, overdosedIncrement);
-			float medRadprotectTimeSec = GetGame().ConfigGetFloat( "CfgVehicles " + classname + " medRadioprotectionTimer" );
+			float medRadprotectTimeSec = GetGame().ConfigGetFloat( classname + " medRadioprotectionTimer" );
 			if (medRadprotectLevel >= m_sybstats.m_radioprotectionLevel && medRadprotectTimeSec > 0)
 			{
 				m_sybstats.m_radioprotectionLevel = medRadprotectLevel;
@@ -1471,11 +1473,11 @@ modded class PlayerBase
 			}
 		}
 		
-		int medAntidepLevel = GetGame().ConfigGetInt( "CfgVehicles " + classname + " medAntidepresantLevel" );
+		int medAntidepLevel = GetGame().ConfigGetInt( classname + " medAntidepresantLevel" );
 		if (medAntidepLevel > 0)
 		{
 			overdosedIncrement = ProcessOverdosedPostinc(m_antidepresantTimer, overdosedIncrement);
-			float medAntidepTimeSec = GetGame().ConfigGetFloat( "CfgVehicles " + classname + " medAntidepresantTimer" );
+			float medAntidepTimeSec = GetGame().ConfigGetFloat( classname + " medAntidepresantTimer" );
 			if (medAntidepLevel >= m_sybstats.m_antidepresantLevel && medAntidepTimeSec > 0)
 			{
 				m_sybstats.m_antidepresantLevel = medAntidepLevel;
@@ -1483,16 +1485,16 @@ modded class PlayerBase
 			}
 		}
 		
-		float medRadiationIncrement = GetGame().ConfigGetFloat( "CfgVehicles " + classname + " medRadiationIncrement" );
+		float medRadiationIncrement = GetGame().ConfigGetFloat( classname + " medRadiationIncrement" );
 		if (medRadiationIncrement != 0)
 		{
 			m_radiationDose = Math.Max(0, m_radiationDose + medRadiationIncrement);
 		}
 		
-		float medMindDegradationForce = GetGame().ConfigGetFloat( "CfgVehicles " + classname + " medMindDegradationForce" );
+		float medMindDegradationForce = GetGame().ConfigGetFloat( classname + " medMindDegradationForce" );
 		if (medMindDegradationForce > 0)
 		{
-			float medMindDegradationTime = GetGame().ConfigGetFloat( "CfgVehicles " + classname + " medMindDegradationTime" );
+			float medMindDegradationTime = GetGame().ConfigGetFloat( classname + " medMindDegradationTime" );
 			if (medMindDegradationTime > 0)
 			{
 				AddMindDegradation(medMindDegradationForce, medMindDegradationTime);
