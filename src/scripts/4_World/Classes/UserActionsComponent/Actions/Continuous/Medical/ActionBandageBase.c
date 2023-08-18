@@ -5,7 +5,7 @@ modded class ActionBandageBase: ActionContinuousBase
 		PlayerBase operator = PlayerBase.Cast( item.GetHierarchyRootPlayer() ); 
 		if (!operator) return;
 		
-		player.ApplyAdvMedicineItem(item.GetType(), 1.0);
+		player.ApplyAdvMedicineItem("CfgVehicles " + item.GetType(), 1.0);
 		
 		float itemSpesisChance = item.GetInfectionChance();
 		float skillSepsisChance = 1.0 - operator.GetPerkFloatValue(SyberiaPerkType.SYBPERK_MEDICINE_SEPSIS_CHANCE_DEC, 0, 0);

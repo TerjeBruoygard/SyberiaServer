@@ -49,7 +49,7 @@ modded class SyringeFull extends Inventory_Base
 				player.m_BleedingManagerServer.SetBloodInfection(true);
 			}
 			
-			player.ApplyAdvMedicineItem(m_medSolution, 1.0);
+			player.ApplyAdvMedicineItem("CfgVehicles " + m_medSolution, 1.0);
             
             PlayerBase operator = PlayerBase.Cast( GetHierarchyRootPlayer() ); 
             if (operator) operator.AddExperience(SyberiaSkillType.SYBSKILL_MEDICINE, GetSyberiaConfig().m_skillsExpMedicineAmpoule);
