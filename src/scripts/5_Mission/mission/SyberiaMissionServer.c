@@ -349,7 +349,7 @@ modded class MissionServer
 		if (player)
 		{
 			player.SetAllowDamage(true);
-			player.SetHealth(0.0);
+			player.SetHealth01("GlobalHealth","Health",0);
 		}
 		else if (identity)
 		{

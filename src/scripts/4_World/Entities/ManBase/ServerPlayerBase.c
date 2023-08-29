@@ -2390,4 +2390,14 @@ modded class PlayerBase
 		m_sybstatsDirty = true;
 		SybLogSrv("SYBSTATS mark dirty for player " + this + " with debug index " + synchIndexDebug);
 	}
+	
+	bool IsStayingInBlock()
+	{
+		if (m_MeleeFightLogic)
+		{
+			return m_MeleeFightLogic.IsInBlock();
+		}
+		
+		return false;
+	}
 };
