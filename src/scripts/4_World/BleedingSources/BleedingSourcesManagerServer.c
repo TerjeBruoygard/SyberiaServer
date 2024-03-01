@@ -417,25 +417,41 @@ modded class BleedingSourcesManagerServer
 		}
 		else if (ammoType == "Projectile")
 		{
+			bool isBulletStopped = false;
 			if (zone == "Head" || zone == "Brain")
 			{
 				SetConcussionHit(true);
+
+				ItemBase itemCheckH = m_Player.GetItemOnSlot("Headgear");
+				if (itemCheckH && !itemCheckH.IsRuined())
+				{
+					float distanceModH = Math.Clamp(1300 - vector.Distance(source.GetPosition(), m_Player.GetPosition()), 100, 1000) * 0.001;
+					float bulletSpeedH = GetGame().ConfigGetFloat( "CfgAmmo " + ammo + " typicalSpeed" ) * 0.1;
+					float bulletCaliberH = GetGame().ConfigGetFloat( "CfgAmmo " + ammo + " caliber" );
+					float bulletWeightH = GetGame().ConfigGetFloat( "CfgAmmo " + ammo + " weight" );
+					float plateArmorH = GetGame().ConfigGetFloat( "CfgVehicles " + itemCheckH.GetType() + " firearmProtection" );
+					float injectModifierH = (bulletSpeedH * bulletCaliberH * bulletWeightH * distanceModH) * GetSyberiaConfig().m_bodyGuardModifier;
+					//SybLogSrv("BODY ARMOR VEST PROJECTILE GUARD TEST: " + plateArmor + " / " + injectModifier);
+					if (plateArmorH > injectModifierH)
+					{
+						// Bullet stoped by armor
+						isBulletStopped = true;
+					}
+				}
 			}
-			
-			bool isBulletStopped = false;
 			if (zone == "Torso")
 			{
-				ItemBase itemCheck = m_Player.GetItemOnSlot("Vest");
-				if (itemCheck && !itemCheck.IsRuined())
+				ItemBase itemCheckV = m_Player.GetItemOnSlot("Vest");
+				if (itemCheckV && !itemCheckV.IsRuined())
 				{
-					float distanceMod = Math.Clamp(1300 - vector.Distance(source.GetPosition(), m_Player.GetPosition()), 100, 1000) * 0.001;
-					float bulletSpeed = GetGame().ConfigGetFloat( "CfgAmmo " + ammo + " typicalSpeed" ) * 0.1;
-					float bulletCaliber = GetGame().ConfigGetFloat( "CfgAmmo " + ammo + " caliber" );
-					float bulletWeight = GetGame().ConfigGetFloat( "CfgAmmo " + ammo + " weight" );
-					float plateArmor = GetGame().ConfigGetFloat( "CfgVehicles " + itemCheck.GetType() + " bulletProofProtection" );
-					float injectModifier = (bulletSpeed * bulletCaliber * bulletWeight * distanceMod) * GetSyberiaConfig().m_bodyGuardModifier;
+					float distanceModV = Math.Clamp(1300 - vector.Distance(source.GetPosition(), m_Player.GetPosition()), 100, 1000) * 0.001;
+					float bulletSpeedV = GetGame().ConfigGetFloat( "CfgAmmo " + ammo + " typicalSpeed" ) * 0.1;
+					float bulletCaliberV = GetGame().ConfigGetFloat( "CfgAmmo " + ammo + " caliber" );
+					float bulletWeightV = GetGame().ConfigGetFloat( "CfgAmmo " + ammo + " weight" );
+					float plateArmorV = GetGame().ConfigGetFloat( "CfgVehicles " + itemCheckV.GetType() + " bulletProofProtection" );
+					float injectModifierV = (bulletSpeedV * bulletCaliberV * bulletWeightV * distanceModV) * GetSyberiaConfig().m_bodyGuardModifier;
 					//SybLogSrv("BODY ARMOR VEST PROJECTILE GUARD TEST: " + plateArmor + " / " + injectModifier);
-					if (plateArmor > injectModifier)
+					if (plateArmorV > injectModifierV)
 					{
 						// Bullet stoped by armor
 						isBulletStopped = true;
