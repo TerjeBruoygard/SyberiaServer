@@ -258,6 +258,19 @@ modded class BleedingSourcesManagerServer
 	override void ProcessHit(float damage, EntityAI source, int component, string zone, string ammo, vector modelPos)
 	{
 		//SybLogSrv("ProcessHit => Damage: " + damage + "; Source: " + source.GetType() + "; Component: " + component + "; Zone: " + zone + "; Ammo: " + ammo);
+		 #ifdef EXPANSIONMODAI
+        if (m_Player.IsAI())
+        {
+            return;
+        }
+        #endif
+        
+        #ifdef PersonBotsib_serv
+        if ( m_Player.m_name_ai != "" )
+        {
+            return;
+        }
+        #endif
 		
 		float bleed_threshold = GetGame().ConfigGetFloat( "CfgAmmo " + ammo + " DamageApplied " + "bleedThreshold" );		
 		string ammoType = GetGame().ConfigGetTextOut( "CfgAmmo " + ammo + " DamageApplied " + "type" );
