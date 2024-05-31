@@ -11,7 +11,7 @@ modded class BleedingSourcesManagerServer
 			}
 			#endif
 			#ifdef PersonBotsib_serv
-			if (m_Player.m_name_ai && m_Player.m_name_ai != "")
+			if (m_Player.m_Bot_Editor_name_ai && m_Player.m_Bot_Editor_name_ai != "")
 			{
 				return;
 			}
@@ -51,7 +51,7 @@ modded class BleedingSourcesManagerServer
 			}
 			#endif
 			#ifdef PersonBotsib_serv
-			if (m_Player.m_name_ai && m_Player.m_name_ai != "")
+			if (m_Player.m_Bot_Editor_name_ai && m_Player.m_Bot_Editor_name_ai != "")
 			{
 				return;
 			}
@@ -87,7 +87,7 @@ modded class BleedingSourcesManagerServer
 			}
 			#endif
 			#ifdef PersonBotsib_serv
-			if (m_Player.m_name_ai && m_Player.m_name_ai != "")
+			if (m_Player.m_Bot_Editor_name_ai && m_Player.m_Bot_Editor_name_ai != "")
 			{
 				return;
 			}
@@ -115,7 +115,7 @@ modded class BleedingSourcesManagerServer
 			}
 			#endif
 			#ifdef PersonBotsib_serv
-			if (m_Player.m_name_ai && m_Player.m_name_ai != "")
+			if (m_Player.m_Bot_Editor_name_ai && m_Player.m_Bot_Editor_name_ai != "")
 			{
 				return;
 			}
@@ -175,7 +175,7 @@ modded class BleedingSourcesManagerServer
 			}
 			#endif
 			#ifdef PersonBotsib_serv
-			if (m_Player.m_name_ai && m_Player.m_name_ai != "")
+			if (m_Player.m_Bot_Editor_name_ai && m_Player.m_Bot_Editor_name_ai != "")
 			{
 				return;
 			}
@@ -197,7 +197,7 @@ modded class BleedingSourcesManagerServer
 			}
 			#endif
 			#ifdef PersonBotsib_serv
-			if (m_Player.m_name_ai && m_Player.m_name_ai != "")
+			if (m_Player.m_Bot_Editor_name_ai && m_Player.m_Bot_Editor_name_ai != "")
 			{
 				return;
 			}
@@ -226,7 +226,7 @@ modded class BleedingSourcesManagerServer
 			}
 			#endif
 			#ifdef PersonBotsib_serv
-			if (m_Player.m_name_ai && m_Player.m_name_ai != "")
+			if (m_Player.m_Bot_Editor_name_ai && m_Player.m_Bot_Editor_name_ai != "")
 			{
 				return;
 			}
@@ -248,7 +248,7 @@ modded class BleedingSourcesManagerServer
 			}
 			#endif
 			#ifdef PersonBotsib_serv
-			if (m_Player.m_name_ai && m_Player.m_name_ai != "")
+			if (m_Player.m_Bot_Editor_name_ai && m_Player.m_Bot_Editor_name_ai != "")
 			{
 				return;
 			}
@@ -277,7 +277,7 @@ modded class BleedingSourcesManagerServer
 			}
 			#endif
 			#ifdef PersonBotsib_serv
-			if (m_Player.m_name_ai && m_Player.m_name_ai != "")
+			if (m_Player.m_Bot_Editor_name_ai && m_Player.m_Bot_Editor_name_ai != "")
 			{
 				return;
 			}
@@ -307,7 +307,7 @@ modded class BleedingSourcesManagerServer
 			}
 			#endif
 			#ifdef PersonBotsib_serv
-			if (m_Player.m_name_ai && m_Player.m_name_ai != "")
+			if (m_Player.m_Bot_Editor_name_ai && m_Player.m_Bot_Editor_name_ai != "")
 			{
 				return;
 			}
@@ -331,7 +331,7 @@ modded class BleedingSourcesManagerServer
 			}
 			#endif
 			#ifdef PersonBotsib_serv
-			if (m_Player.m_name_ai && m_Player.m_name_ai != "")
+			if (m_Player.m_Bot_Editor_name_ai && m_Player.m_Bot_Editor_name_ai != "")
 			{
 				return;
 			}
@@ -353,7 +353,7 @@ modded class BleedingSourcesManagerServer
 			}
 			#endif
 			#ifdef PersonBotsib_serv
-			if (m_Player.m_name_ai && m_Player.m_name_ai != "")
+			if (m_Player.m_Bot_Editor_name_ai && m_Player.m_Bot_Editor_name_ai != "")
 			{
 				return;
 			}
@@ -377,7 +377,7 @@ modded class BleedingSourcesManagerServer
 			}
 			#endif
 			#ifdef PersonBotsib_serv
-			if (m_Player.m_name_ai && m_Player.m_name_ai != "")
+			if (m_Player.m_Bot_Editor_name_ai && m_Player.m_Bot_Editor_name_ai != "")
 			{
 				return;
 			}
@@ -417,7 +417,7 @@ modded class BleedingSourcesManagerServer
 			}
 			#endif
 			#ifdef PersonBotsib_serv
-			if (m_Player.m_name_ai && m_Player.m_name_ai != "")
+			if (m_Player.m_Bot_Editor_name_ai && m_Player.m_Bot_Editor_name_ai != "")
 			{
 				return;
 			}
@@ -450,7 +450,7 @@ modded class BleedingSourcesManagerServer
 			}
 			#endif
 			#ifdef PersonBotsib_serv
-			if (m_Player.m_name_ai && m_Player.m_name_ai != "")
+			if (m_Player.m_Bot_Editor_name_ai && m_Player.m_Bot_Editor_name_ai != "")
 			{
 				return false;
 			}
@@ -472,7 +472,7 @@ modded class BleedingSourcesManagerServer
 			}
 			#endif
 			#ifdef PersonBotsib_serv
-			if (m_Player.m_name_ai && m_Player.m_name_ai != "")
+			if (m_Player.m_Bot_Editor_name_ai && m_Player.m_Bot_Editor_name_ai != "")
 			{
 				return false;
 			}
@@ -510,7 +510,7 @@ modded class BleedingSourcesManagerServer
 			}
 			#endif
 			#ifdef PersonBotsib_serv
-			if (m_Player.m_name_ai && m_Player.m_name_ai != "")
+			if (m_Player.m_Bot_Editor_name_ai && m_Player.m_Bot_Editor_name_ai != "")
 			{
 				return;
 			}
