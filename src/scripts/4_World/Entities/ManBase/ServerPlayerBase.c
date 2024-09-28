@@ -2342,6 +2342,11 @@ modded class PlayerBase
 	
 	override bool CanBeTargetedByAI(EntityAI ai)
 	{
+		if (!super.CanBeTargetedByAI(ai))
+        {
+            return false;
+        }
+
 		if (!IsDamageDestroyed())
 		{
 			if (GetSyberiaConfig().m_zombieAttackPlayersInUnconscious)
